@@ -190,9 +190,6 @@ namespace Commands
     Usage:
         cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url]
         --pushurl		 - module push url
-
-    Example:
-        cm module add cement git://src/cement
 ";
         public bool IsHiddenCommand => false;
     }
