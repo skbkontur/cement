@@ -1,0 +1,19 @@
+﻿{
+  "UserName": null,
+  "Domain": null,
+  "Password": null,
+  "EncryptedPassword": null,
+  "DefaultMsBuildVersion": null,
+  "CementServer": null,
+  "SelfUpdateTreeish": "release",
+  "Packages": [
+    {
+      "Name": "sample",
+      "Url": "git@github.com:KungA/cement-sample-modules.git",
+      "Type": "git"
+    }
+  ],
+  "UserCommands": {
+    "full": "cm init && cm get {0} && cd {0} && cm build-deps && cm build"
+  }
+}

@@ -1,0 +1,6 @@
+full-build:
+  deps:
+    
+  build:
+    target: Cement.Net.sln
+    configuration: Debug

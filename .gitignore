@@ -1,0 +1,11 @@
+bin/
+obj/
+files-kontur/
+packages/
+*.user
+AssemblyTitle.cs
+.vs/Cement.Net/v14/.suo
+.vs/
+release/
+server.lnk
+deploy.bat

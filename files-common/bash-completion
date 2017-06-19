@@ -1,0 +1,6 @@
+_cm() 
+{
+    COMPREPLY=( $(cm complete "${COMP_LINE}" ${COMP_POINT}) )
+}
+
+complete -F _cm cm

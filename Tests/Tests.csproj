@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask TaskName="Kontur.MsBuild.GitCommit2AssemblyTitle" AssemblyFile="..\..\..\msbuild\bin\3.5\Release\Kontur.MsBuild.dll" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{082DF4E1-50B1-4F31-9C60-5B768896C7E3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Tests</RootNamespace>
+    <AssemblyName>Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\externals\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="NSubstitute">
+      <HintPath>..\packages\NSubstitute.1.8.1.0\lib\net45\NSubstitute.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CommandsTests\TestAddModule.cs" />
+    <Compile Include="CommandsTests\TestChangeModule.cs" />
+    <Compile Include="CommandsTests\TestConvertSpec.cs" />
+    <Compile Include="ParsersTests\TestHooksYamlParser.cs" />
+    <Compile Include="ParsersTests\TestRulesetFile.cs" />
+    <Compile Include="CommandsTests\TestInit.cs" />
+    <Compile Include="ParsersTests\TestInstallXmlParser.cs" />
+    <Compile Include="UtilsTests\TestIRepositoryManager.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UtilsTests\TestLastUpdateTime.cs" />
+    <Compile Include="UtilsTests\TestShellRunner.cs" />
+    <Compile Include="UtilsTests\TestArgumentParser.cs" />
+    <Compile Include="BuildTests\TestBuildDepsCache.cs" />
+    <Compile Include="ParsersTests\TestBuildYamlParser.cs" />
+    <Compile Include="CommandsTests\TestCheckDeps.cs" />
+    <Compile Include="ParsersTests\TestConfigurationXmlParser.cs" />
+    <Compile Include="BuildTests\TestConfigurationManager.cs" />
+    <Compile Include="ParsersTests\TestConfigurationYamlParser.cs" />
+    <Compile Include="UtilsTests\TestCycleDetector.cs" />
+    <Compile Include="UtilsTests\TestDepFromYamlString.cs" />
+    <Compile Include="ParsersTests\TestDepParser.cs" />
+    <Compile Include="CommandsTests\TestDepsPrinter.cs" />
+    <Compile Include="UtilsTests\TestDepsPatcher.cs" />
+    <Compile Include="UtilsTests\TestDirectoryJumper.cs" />
+    <Compile Include="Helpers\TestEnvironment.cs" />
+    <Compile Include="CommandsTests\TestGet.cs" />
+    <Compile Include="UtilsTests\TestHelper.cs" />
+    <Compile Include="ParsersTests\TestIniParser.cs" />
+    <Compile Include="UtilsTests\TestInstallCollector.cs" />
+    <Compile Include="ParsersTests\TestInstallYamlParser.cs" />
+    <Compile Include="UtilsTests\TestModuleContainer.cs" />
+    <Compile Include="ParsersTests\TestModuleIniParser.cs" />
+    <Compile Include="ParsersTests\TestParseIniDeps.cs" />
+    <Compile Include="BuildTests\TestBuildDepsOrder.cs" />
+    <Compile Include="ParsersTests\TestProjectFile.cs" />
+    <Compile Include="ParsersTests\TestSettingsYamlParser.cs" />
+    <Compile Include="Helpers\YamlFromText.cs" />
+    <Compile Include="UtilsTests\TestVsDev.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commands\Commands.csproj">
+      <Project>{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC}</Project>
+      <Name>Commands</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{FF01947B-2535-4EC9-B465-B9543E6B18EE}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
