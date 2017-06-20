@@ -6,6 +6,6 @@ packages/
 AssemblyTitle.cs
 .vs/Cement.Net/v14/.suo
 .vs/
-release/
+releases/
 server.lnk
 deploy.bat
