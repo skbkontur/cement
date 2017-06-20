@@ -85,12 +85,15 @@
     <Compile Include="BuiltHelper.cs" />
     <Compile Include="BuiltInfoStorage.cs" />
     <Compile Include="CementExceptions.cs" />
+    <Compile Include="CementFromServerUpdater.cs" />
     <Compile Include="CementSettings.cs" />
+    <Compile Include="ICementUpdater.cs" />
     <Compile Include="CompleteCommandAutomata.cs" />
     <Compile Include="DictionaryFriendlyContractResolver.cs" />
     <Compile Include="ConfigurationManager.cs" />
     <Compile Include="DepsChecker.cs" />
     <Compile Include="DepsPatcher.cs" />
+    <Compile Include="CementFromGitHubUpdater.cs" />
     <Compile Include="HooksHelper.cs" />
     <Compile Include="InstallParser.cs" />
     <Compile Include="InstallXmlParser.cs" />

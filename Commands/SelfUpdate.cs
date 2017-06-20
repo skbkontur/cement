@@ -4,7 +4,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using Common;
-using Newtonsoft.Json;
 
 namespace Commands
 {
@@ -76,7 +75,13 @@ namespace Commands
 				ConsoleWriter.WriteError("Fail to install cement: " + exception);
 			}
 
-		    return UpdateBinary();
+		    var server = CementSettings.Get().CementServer;
+            Log.Info($"Cement server: {server}");
+		    var updater = server == null
+		        ? (ICementUpdater) new CementFromGitHubUpdater(Log)
+		        : (ICementUpdater) new CementFromServerUpdater(server, branch, Log);
+
+            return UpdateBinary(updater);
 		}
 
 	    private static void CreateRunners()
@@ -123,19 +128,19 @@ exit $exit_code";
 			Log.Debug("Successfully created cm.cmd & cm.");
 		}
 
-		private int UpdateBinary()
+		private int UpdateBinary(ICementUpdater updater)
 		{
 			var currentCommitHash = Helper.GetCurrentBuildCommitHash();
 
-			var newHash = GetAviableCementVersion();
-			if (newHash == null)
+			var newCommitHash = updater.GetNewCommitHash();
+			if (newCommitHash == null)
 				return -1;
 
 			if (IsInstallingCement)
 				currentCommitHash = "(NOT INSTALLED)" + currentCommitHash;
-			if (!HasAllCementFiles() || !currentCommitHash.Equals(newHash))
+			if (!HasAllCementFiles() || !currentCommitHash.Equals(newCommitHash))
 			{
-				if (!UpdateBinaries(currentCommitHash, newHash))
+				if (!UpdateBinaries(updater, currentCommitHash, newCommitHash))
 					return -1;
 			}
 			else
@@ -158,46 +163,21 @@ exit $exit_code";
             return Directory.Exists(Path.Combine(installDirectory, "dotnet", "arborjs"));
         }
 
-        private string GetAviableCementVersion()
-		{
-			var webClient = new WebClient();
-			try
-			{
-				ConsoleWriter.WriteProgressWithoutSave("Looking for cement updates");
-				var infoModel = JsonConvert.DeserializeObject<InfoResponseModel>(webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/cement/info/head/" + branch));
-				return infoModel?.CommitHash;
-			}
-			catch (WebException ex)
-			{
-				Log.Error("Fail self-update ", ex);
-				if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
-				{
-					var resp = (HttpWebResponse)ex.Response;
-					if (resp.StatusCode == HttpStatusCode.NotFound) // HTTP 404
-					{
-						ConsoleWriter.WriteError("Failed to look for updates on branch " + branch + ". Server responsed 404");
-						return null;
-					}
-				}
-				ConsoleWriter.WriteError("Failed to look for updates on branch " + branch + ": " + ex.Message);
-				return null;
-			}
-		}
-
-		private bool UpdateBinaries(string oldHash, string newHash)
+        private bool UpdateBinaries(ICementUpdater updater, string oldHash, string newHash)
 		{
 			ConsoleWriter.WriteProgressWithoutSave("Updating cement binaries");
 
 			try
 			{
-				var client = new WebClient();
-				var zipContent = client.DownloadData($"{CementSettings.Get().CementServer}/api/v1/cement/head/{branch}");
-				var tempDir = new TempDirectory();
-				File.WriteAllBytes(Path.Combine(tempDir.Path, "cement.zip"), zipContent);
-				ZipFile.ExtractToDirectory(Path.Combine(tempDir.Path, "cement.zip"), Path.Combine(tempDir.Path, "cement"));
-				CopyNewCmExe(tempDir.Path);
+				var zipContent = updater.GetNewCementZip();
+			    using (var tempDir = new TempDirectory())
+			    {
+			        File.WriteAllBytes(Path.Combine(tempDir.Path, "cement.zip"), zipContent);
+			        ZipFile.ExtractToDirectory(Path.Combine(tempDir.Path, "cement.zip"), Path.Combine(tempDir.Path, "cement"));
+			        CopyNewCmExe(tempDir.Path);
+			    }
 
-				var okMessage = "Successfully updated cement binaries. " + oldHash + " -> " + newHash;
+			    var okMessage = "Successfully updated cement binaries. " + oldHash + " -> " + newHash;
 				ConsoleWriter.WriteOk(okMessage);
 				Log.Debug(okMessage);
 				return true;
