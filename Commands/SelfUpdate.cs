@@ -76,13 +76,6 @@ namespace Commands
 				ConsoleWriter.WriteError("Fail to install cement: " + exception);
 			}
 
-		    if (CementSettings.Get().CementServer == null)
-		    {
-		        var message = "Can't update without server in settings.";
-                Log.Error(message);
-                ConsoleWriter.WriteError(message);
-		        return 0;
-		    }
 		    return UpdateBinary();
 		}
 
@@ -134,15 +127,15 @@ exit $exit_code";
 		{
 			var currentCommitHash = Helper.GetCurrentBuildCommitHash();
 
-			var infoModel = GetAviableCementVersion();
-			if (infoModel == null)
+			var newHash = GetAviableCementVersion();
+			if (newHash == null)
 				return -1;
 
 			if (IsInstallingCement)
 				currentCommitHash = "(NOT INSTALLED)" + currentCommitHash;
-			if (!HasAllCementFiles() || !currentCommitHash.Equals(infoModel.CommitHash))
+			if (!HasAllCementFiles() || !currentCommitHash.Equals(newHash))
 			{
-				if (!UpdateBinaries(currentCommitHash, infoModel.CommitHash))
+				if (!UpdateBinaries(currentCommitHash, newHash))
 					return -1;
 			}
 			else
@@ -165,14 +158,14 @@ exit $exit_code";
             return Directory.Exists(Path.Combine(installDirectory, "dotnet", "arborjs"));
         }
 
-        private InfoResponseModel GetAviableCementVersion()
+        private string GetAviableCementVersion()
 		{
 			var webClient = new WebClient();
 			try
 			{
 				ConsoleWriter.WriteProgressWithoutSave("Looking for cement updates");
 				var infoModel = JsonConvert.DeserializeObject<InfoResponseModel>(webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/cement/info/head/" + branch));
-				return infoModel;
+				return infoModel?.CommitHash;
 			}
 			catch (WebException ex)
 			{
