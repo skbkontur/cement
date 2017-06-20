@@ -9,11 +9,11 @@
 
 ## Install
 
-0. You should have installed git and Visual Studio or MSBuild Tools
-1. Download zip from https://github.com/skbkontur/cement/releases/latest
-2. Unzip and run `dotnet\install.cmd`
-3. Restart terminal
-4. Command `cm` should show you aviable commands in any directory
+1. You should have installed git and Visual Studio or MSBuild Tools
+2. Download zip from https://github.com/skbkontur/cement/releases/latest
+3. Unzip and run `dotnet\install.cmd`
+4. Restart terminal
+5. Command `cm` should show you aviable commands in any directory
 
 ## Work with cement
 
