@@ -41,7 +41,6 @@ namespace Common
 
 		    for (int i = 0; i < 3; i++)
 		    {
-
 		        using (var tempDir = new TempDirectory())
 		        {
 		            if (runner.RunOnce(
@@ -63,6 +62,7 @@ namespace Common
 		            lock (Helper.PackageLockObject)
 		                File.Copy(Path.Combine(tempDir.Path, package.Name, "modules"),
 		                    Helper.GetPackagePath(package.Name), true);
+		            break;
 		        }
 		    }
 		}
