@@ -477,9 +477,9 @@ namespace Tests.UtilsTests
 			        Directory.GetParent(tempRepo.Path).FullName, Log);
 				{
                     repo.Clone("git@github.com:skbkontur/cement", "master");
-					repo.Fetch("release");
-                    repo.HasRemoteBranch("release");
-                    repo.Checkout("release");
+					repo.Fetch("appveyor_tests");
+                    repo.HasRemoteBranch("appveyor_tests");
+                    repo.Checkout("appveyor_tests");
 				}
 			}
 		}
