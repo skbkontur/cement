@@ -4,4 +4,4 @@ install:
   - nuget restore
 configuration: Debug
 build:
-  verbosity: detailed
+  verbosity: normal
