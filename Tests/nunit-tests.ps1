@@ -15,6 +15,8 @@ if ($nunit_dir -eq $null)
 echo $nunit_dir
 & "$nunit_dir\nunit-console.exe" `
 bin\Debug\Tests.dll
-Exit $LASTEXITCODE
+$saved = $LASTEXITCODE
 
+Remove-Item TestResult.xml
 
+Exit $saved
