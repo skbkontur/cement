@@ -476,7 +476,7 @@ namespace Tests.UtilsTests
 			    var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
 			        Directory.GetParent(tempRepo.Path).FullName, Log);
 				{
-                    repo.Clone("git@git.skbkontur.ru:kontur/cement", "master");
+                    repo.Clone("git@git.skbkontur.ru:skbkontur/cement", "master");
 					repo.Fetch("release");
                     repo.HasRemoteBranch("release");
                     repo.Checkout("release");
