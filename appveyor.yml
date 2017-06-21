@@ -1,3 +1,4 @@
+skip_branch_with_pr: true
 version: 1.0.{build}-{branch}
 image: Visual Studio 2015
 install:
