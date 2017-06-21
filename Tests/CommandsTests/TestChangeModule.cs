@@ -24,8 +24,8 @@ namespace Tests.CommandsTests
 
 				var path = Path.Combine(env.RemoteWorkspace, "modulesRepo", "modules");
 				var text = File.ReadAllText(path);
-			    text = text.Replace("\r\n", "\n");
-			    answer = answer.Replace("\r\n", "\n");
+			    text = Helper.FixLineEndings(text);
+			    answer = Helper.FixLineEndings(answer);
                 Assert.AreEqual(answer, text);
 			}
 		}
