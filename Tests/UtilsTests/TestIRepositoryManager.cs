@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using Common;
@@ -18,10 +19,15 @@ namespace Tests.UtilsTests
 			{
 				File.WriteAllText(Path.Combine(url.Path, "README.txt"), "README");
 				var runner = new ShellRunner();
-			    runner.Run("git init");
-			    runner.Run("git add README.txt");
-				runner.Run(@"git commit -am initial");
-			}
+			    var exitCode = runner.Run("git init");
+                Console.WriteLine($"{exitCode} {runner.Output} {runner.Errors}");
+			    exitCode = runner.Run("git checkout -b master");
+			    Console.WriteLine($"{exitCode} {runner.Output} {runner.Errors}");
+			    exitCode = runner.Run("git add README.txt");
+			    Console.WriteLine($"{exitCode} {runner.Output} {runner.Errors}");
+			    exitCode = runner.Run(@"git commit -am initial");
+			    Console.WriteLine($"{exitCode} {runner.Output} {runner.Errors}");
+            }
 		}
 
         private static void CreateNewBranchInTempRepo(TempDirectory url, string branchName)
