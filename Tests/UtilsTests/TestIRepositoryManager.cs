@@ -476,10 +476,10 @@ namespace Tests.UtilsTests
 			    var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
 			        Directory.GetParent(tempRepo.Path).FullName, Log);
 				{
-                    repo.Clone("git@github.com:skbkontur/cement", "master");
-					repo.Fetch("appveyor_tests");
-                    repo.HasRemoteBranch("appveyor_tests");
-                    repo.Checkout("appveyor_tests");
+                    repo.Clone("https://github.com:skbkontur/cement", "master");
+					repo.Fetch("master");
+                    repo.HasRemoteBranch("master");
+                    repo.Checkout("master");
 				}
 			}
 		}
