@@ -19,6 +19,9 @@ namespace Common
 
 		private static void DeleteDirectory(string targetDir)
         {
+            if (!Directory.Exists(targetDir))
+                return;
+
             File.SetAttributes(targetDir, FileAttributes.Normal);
 
             var files = Directory.GetFiles(targetDir);

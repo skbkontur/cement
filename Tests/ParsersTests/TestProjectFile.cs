@@ -12,7 +12,8 @@ namespace Tests.ParsersTests
 	[TestFixture]
 	class TestProjectFile
 	{
-        private string workDirectory = TestContext.CurrentContext.WorkDirectory;
+        private TempDirectory workDirectory = new TempDirectory();
+
         private string defaultCsprojXml =
             @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
@@ -36,6 +37,18 @@ namespace Tests.ParsersTests
     <Analyzer Include=""dummyDir\Another.dll"" />
   </ItemGroup>
 </Project>";
+
+	    [SetUp]
+	    public void SetUp()
+	    {
+	        workDirectory = new TempDirectory();
+	    }
+
+	    [TearDown]
+	    public void TearDown()
+	    {
+	        workDirectory.Dispose();
+	    }
 
         [Test]
 		public void TestCreatingDocument()
@@ -194,7 +207,7 @@ namespace Tests.ParsersTests
         public void Costructor_ThrowException_IfFileNotExist()
         {
             var nullName = Guid.NewGuid().ToString();
-            var nullPath = Path.Combine(workDirectory, $"{nullName}.csproj");
+            var nullPath = Path.Combine(workDirectory.Path, $"{nullName}.csproj");
             if (File.Exists(nullPath))
                 File.Delete(nullPath);
 
@@ -205,7 +218,7 @@ namespace Tests.ParsersTests
         public void BindRuleset_NoBindRuleset_IfBindingAlreadyExists()
         {
             var rulesetName = $"Other.ruleset";
-            var rulesetPath = Path.Combine(workDirectory, rulesetName);
+            var rulesetPath = Path.Combine(workDirectory.Path, rulesetName);
             var rulesetFile = new RulesetFile(rulesetPath);
             var projectFile = CreateProjectFile(defaultCsprojXml);
 
@@ -221,7 +234,7 @@ namespace Tests.ParsersTests
         public void BindRuleset_MoveOldRulesetBindings_FromProjectFileToRulesetFile()
         {
             var rulesetName = $"{Guid.NewGuid()}.ruleset";
-            var rulesetPath = Path.Combine(workDirectory, rulesetName);
+            var rulesetPath = Path.Combine(workDirectory.Path, rulesetName);
             var rulesetFile = new RulesetFile(rulesetPath);
             var projectFile = CreateProjectFile(defaultCsprojXml);
 
@@ -241,7 +254,7 @@ namespace Tests.ParsersTests
         [Test]
         public void AddAnalyzer_CreateItemGroupForAnalyzers_IfNotExists()
         {
-            var analyzerDllPath = Path.Combine(workDirectory, $"{Guid.NewGuid()}.dll");
+            var analyzerDllPath = Path.Combine(workDirectory.Path, $"{Guid.NewGuid()}.dll");
             var csprojContent = @"<?xml version=""1.0"" encoding=""utf-8""?><Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003""></Project>";
             var projectFile = CreateProjectFile(csprojContent);
 
@@ -254,7 +267,7 @@ namespace Tests.ParsersTests
         public void AddAnalyzer_AddAnalyzersDll_IfNotExists()
         {
             var analyzerDllRelpath = $"{Guid.NewGuid()}.dll";
-            var analyzerDllFullPath = Path.Combine(workDirectory, analyzerDllRelpath);
+            var analyzerDllFullPath = Path.Combine(workDirectory.Path, analyzerDllRelpath);
             var projectFile = CreateProjectFile(defaultCsprojXml);
 
             projectFile.AddAnalyzer(analyzerDllFullPath);
@@ -266,7 +279,7 @@ namespace Tests.ParsersTests
         public void AddAnalyzer_NotAddAnalyzersDll_IfDllWithSomeNameAlreadyAdded()
         {
             var analyzerDllRelpath = $"Another.dll";
-            var analyzerDllFullPath = Path.Combine(workDirectory, analyzerDllRelpath);
+            var analyzerDllFullPath = Path.Combine(workDirectory.Path, analyzerDllRelpath);
             var projectFile = CreateProjectFile(defaultCsprojXml);
 
             projectFile.AddAnalyzer(analyzerDllFullPath);
@@ -290,7 +303,7 @@ namespace Tests.ParsersTests
 	            currentTestName = currentTestName.Replace(badSymbols, '_');
             var projectFileName = $"{currentTestName}.csproj";
 
-            var projectFilePath = Path.Combine(workDirectory, projectFileName);
+            var projectFilePath = Path.Combine(workDirectory.Path, projectFileName);
             return projectFilePath;
 	    }
 

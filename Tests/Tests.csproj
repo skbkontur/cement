@@ -91,7 +91,6 @@
     <Compile Include="ParsersTests\TestProjectFile.cs" />
     <Compile Include="ParsersTests\TestSettingsYamlParser.cs" />
     <Compile Include="Helpers\YamlFromText.cs" />
-    <Compile Include="UtilsTests\TestVsDev.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
