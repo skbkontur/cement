@@ -11,13 +11,25 @@ namespace Tests.ParsersTests
 	[TestFixture]
 	class TestRulesetFile
 	{
-		private string workDirectory = TestContext.CurrentContext.WorkDirectory;
+	    private TempDirectory workDirectory = new TempDirectory();
 
-		[Test]
+	    [SetUp]
+	    public void SetUp()
+	    {
+	        workDirectory = new TempDirectory();
+	    }
+
+	    [TearDown]
+	    public void TearDown()
+	    {
+	        workDirectory.Dispose();
+	    }
+
+        [Test]
 		public void Costructor_GetXmlFromFile_IfFileExist()
 		{
 			var expectedXml = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><RuleSet Name=\"{Guid.NewGuid()}\" Description=\"{Guid.NewGuid()}\" ToolsVersion=\"10.0\"></RuleSet>";
-			var expectedXmlPath = Path.Combine(workDirectory, "expected.ruleset");
+			var expectedXmlPath = Path.Combine(workDirectory.Path, "expected.ruleset");
 			File.WriteAllText(expectedXmlPath, expectedXml);
 
 			var rulesetFile = new RulesetFile(expectedXmlPath);
@@ -29,7 +41,7 @@ namespace Tests.ParsersTests
 		public void Costructor_GetXmlFromTemplate_IfFileNotExist()
 		{
 			var nullName = Guid.NewGuid().ToString();
-			var nullPath = Path.Combine(workDirectory, $"{nullName}.ruleset");
+			var nullPath = Path.Combine(workDirectory.Path, $"{nullName}.ruleset");
 			if (File.Exists(nullPath))
 				File.Delete(nullPath);
 
@@ -43,7 +55,7 @@ namespace Tests.ParsersTests
 		[Test]
 		public void Include_AddRulesetPathAsIs_IfRulesetPathIsRelative()
 		{
-			var dummyPath = Path.Combine(workDirectory, $"{Guid.NewGuid()}.ruleset");
+			var dummyPath = Path.Combine(workDirectory.Path, $"{Guid.NewGuid()}.ruleset");
 			var rulesetFile = new RulesetFile(dummyPath);
 
 			var rulesetPath = "It\\Is\\Relative.ruleset";
@@ -57,7 +69,7 @@ namespace Tests.ParsersTests
 		[Test]
 		public void Include_AddRulesetPathAsIs_IfRulesetPathIsMicrosoftRules()
 		{
-			var dummyPath = Path.Combine(workDirectory, $"{Guid.NewGuid()}.ruleset");
+			var dummyPath = Path.Combine(workDirectory.Path, $"{Guid.NewGuid()}.ruleset");
 			var rulesetFile = new RulesetFile(dummyPath);
 
 			var microsoftRules = "allrules.ruleset";
@@ -71,11 +83,11 @@ namespace Tests.ParsersTests
 		[Test]
 		public void Include_AddRulesetPathAsRelative_IfRulesetPathIsAbsolute()
 		{
-			var dummyPath = Path.Combine(workDirectory, $"{Guid.NewGuid()}.ruleset");
+			var dummyPath = Path.Combine(workDirectory.Path, $"{Guid.NewGuid()}.ruleset");
 			var rulesetFile = new RulesetFile(dummyPath);
 
 			var expectedRelRulesetPath = $"..\\dummyFolder\\{Guid.NewGuid()}.ruleset";
-			var absoluteRulesetPath = Path.GetFullPath(Path.Combine(workDirectory, expectedRelRulesetPath));
+			var absoluteRulesetPath = Path.GetFullPath(Path.Combine(workDirectory.Path, expectedRelRulesetPath));
 			rulesetFile.Include(absoluteRulesetPath);
 
 			Console.WriteLine($"Xml should be contains Include with Path '{expectedRelRulesetPath}':");
@@ -86,7 +98,7 @@ namespace Tests.ParsersTests
 		[Test]
 		public void Include_NotAddRuleset_IfCurrentPathAlreadyIncluded()
 		{
-			var dummyPath = Path.Combine(workDirectory, $"{Guid.NewGuid()}.ruleset");
+			var dummyPath = Path.Combine(workDirectory.Path, $"{Guid.NewGuid()}.ruleset");
 			var rulesetFile = new RulesetFile(dummyPath);
 
 			var rulesetPath = $"dummyFolder\\{Guid.NewGuid()}.ruleset";
