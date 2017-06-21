@@ -1,5 +1,7 @@
-version: 1.0.{build}
+version: 1.0.{build}-{branch}
+image: Visual Studio 2015
+install:
+  - nuget restore
+configuration: Debug
 build:
-  verbosity: minimal
-test_script:
-- ps: . "Tests\nunit-tests.ps1"
+  verbosity: detailed
