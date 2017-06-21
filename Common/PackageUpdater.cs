@@ -60,8 +60,12 @@ namespace Common
                             $"Ensure that command 'git clone {package.Url}' works in cmd");
 		            }
 		            lock (Helper.PackageLockObject)
+		            {
+		                if (!Directory.Exists(Helper.GetGlobalCementDirectory()))
+		                    Directory.CreateDirectory(Helper.GetGlobalCementDirectory());
 		                File.Copy(Path.Combine(tempDir.Path, package.Name, "modules"),
 		                    Helper.GetPackagePath(package.Name), true);
+		            }
 		            break;
 		        }
 		    }

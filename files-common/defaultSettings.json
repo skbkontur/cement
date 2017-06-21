@@ -9,7 +9,7 @@
   "Packages": [
     {
       "Name": "sample",
-      "Url": "git@github.com:KungA/cement-sample-modules.git",
+      "Url": "https://github.com/KungA/cement-sample-modules",
       "Type": "git"
     }
   ],

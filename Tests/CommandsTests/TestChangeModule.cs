@@ -17,14 +17,16 @@ namespace Tests.CommandsTests
 
 				env.AddBranch("modulesRepo", "tmp");
 				env.Checkout("modulesRepo", "tmp");
-				var package = new Package("test_package", Path.Combine(env.RemoteWorkspace, "modulesRepo"), "git");
+				var package = new Package("test_package", Path.Combine(env.RemoteWorkspace, "modulesRepo"));
 				if (ModuleCommand.ChangeModule(package, moduleName, push, fetch) != 0)
 					throw new CementException("");
 				env.Checkout("modulesRepo", "master");
 
 				var path = Path.Combine(env.RemoteWorkspace, "modulesRepo", "modules");
 				var text = File.ReadAllText(path);
-				Assert.AreEqual(answer, text);
+			    text = Helper.FixLineEndings(text);
+			    answer = Helper.FixLineEndings(answer);
+                Assert.AreEqual(answer, text);
 			}
 		}
 

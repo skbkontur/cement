@@ -317,5 +317,10 @@ namespace Common
 
 	        return Encoding.Unicode.GetString(passwordBytes);
 	    }
+
+	    public static string FixLineEndings(string text)
+	    {
+	        return text.Replace("\r\n", "\n");
+	    }
     }
 }
