@@ -11,8 +11,10 @@ namespace Common
     {
         private readonly ILog log;
         private TokensList root;
+
         private readonly List<string> modules =
             Helper.GetModules().Select(m => m.Name).ToList();
+
         private string lastToken;
 
         public CompleteCommandAutomata(ILog log)
@@ -24,7 +26,7 @@ namespace Common
         {
             bool newToken = command.EndsWith(" ") || command.EndsWith("\t");
             lastToken = "";
-            var parts = command.Split(new []{' ', '\t'}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var parts = command.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries).ToList();
             if (!newToken)
             {
                 lastToken = parts.Last();
@@ -148,7 +150,7 @@ namespace Common
 
             var moduleName = Path.GetFileName(moduleDirectory);
             var files = Yaml.GetCsprojsList(moduleName);
-            
+
             return TokensList.Create(CsprojsToShortFormat(files));
         }
 
@@ -168,7 +170,7 @@ namespace Common
 
         private TokensList ModuleKeyWithModules()
         {
-            return new TokensList {{"-m", AllModules } };
+            return new TokensList {{"-m", AllModules}};
         }
 
         private void InitAutomata()
@@ -188,20 +190,21 @@ namespace Common
                     "module", () => new TokensList
                     {
                         "add",
-                        {"change", AllModules }
+                        {"change", AllModules}
                     }
                 },
                 {"ref", RefCompleteList},
-                {"analyzer", () => new TokensList
-					{
-						{"add"} //TODO
-					}
-				},
+                {
+                    "analyzer", () => new TokensList
+                    {
+                        {"add"} //TODO
+                    }
+                },
                 "self-update",
                 {"show-deps", ConfigKeyWithConfigs},
                 {"show-configs", LocalModules},
                 "status",
-                { "update", RemoteBranches },
+                {"update", RemoteBranches},
                 {"update-deps", ConfigKeyWithConfigs},
                 {
                     "usages", () => new TokensList

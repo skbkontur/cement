@@ -4,69 +4,69 @@ using System.Linq;
 
 namespace Common.YamlParsers
 {
-	public static class Yaml
-	{
-		public static bool Exists(string moduleName)
-		{
-			return File.Exists(Path.Combine(Helper.CurrentWorkspace, moduleName, Helper.YamlSpecFile));
-		}
+    public static class Yaml
+    {
+        public static bool Exists(string moduleName)
+        {
+            return File.Exists(Path.Combine(Helper.CurrentWorkspace, moduleName, Helper.YamlSpecFile));
+        }
 
-		public static string ReadAllText(string moduleName)
-		{
-			return File.ReadAllText(Path.Combine(Helper.CurrentWorkspace, moduleName, Helper.YamlSpecFile));
-		}
+        public static string ReadAllText(string moduleName)
+        {
+            return File.ReadAllText(Path.Combine(Helper.CurrentWorkspace, moduleName, Helper.YamlSpecFile));
+        }
 
-		public static ConfigurationYamlParser ConfigurationParser(string moduleName)
-		{
-			return new ConfigurationYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
-		}
+        public static ConfigurationYamlParser ConfigurationParser(string moduleName)
+        {
+            return new ConfigurationYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
+        }
 
-		public static DepsYamlParser DepsParser(string moduleName)
-		{
-			return new DepsYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
-		}
+        public static DepsYamlParser DepsParser(string moduleName)
+        {
+            return new DepsYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
+        }
 
-		public static InstallYamlParser InstallParser(string moduleName)
-		{
-			return new InstallYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
-		}
+        public static InstallYamlParser InstallParser(string moduleName)
+        {
+            return new InstallYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
+        }
 
-		public static BuildYamlParser BuildParser(string moduleName)
-		{
-			return new BuildYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
-		}
+        public static BuildYamlParser BuildParser(string moduleName)
+        {
+            return new BuildYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
+        }
 
-		public static SettingsYamlParser SettingsParser(string moduleName)
-		{
-			return new SettingsYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
-		}
+        public static SettingsYamlParser SettingsParser(string moduleName)
+        {
+            return new SettingsYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
+        }
 
-		public static HooksYamlParser HooksParser(string moduleName)
-		{
-			return new HooksYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
-		}
+        public static HooksYamlParser HooksParser(string moduleName)
+        {
+            return new HooksYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
+        }
 
-	    public static List<string> GetChildrenConfiguration(Dep dep)
-		{
-			var parser = ConfigurationParser(dep.Name);
-			var configs = parser.GetConfigurations();
-			var manager = new ConfigurationManager(dep.Name, configs);
-			var processedChildren = manager.ProcessedChildrenConfigurations(dep).Concat(new[] { dep.Configuration }).Distinct().ToList();
-			return processedChildren;
-		}
+        public static List<string> GetChildrenConfiguration(Dep dep)
+        {
+            var parser = ConfigurationParser(dep.Name);
+            var configs = parser.GetConfigurations();
+            var manager = new ConfigurationManager(dep.Name, configs);
+            var processedChildren = manager.ProcessedChildrenConfigurations(dep).Concat(new[] {dep.Configuration}).Distinct().ToList();
+            return processedChildren;
+        }
 
-	    public static List<string> GetCsprojsList(string moduleName)
-	    {
+        public static List<string> GetCsprojsList(string moduleName)
+        {
             if (!Exists(moduleName))
                 return new List<string>();
 
             var configs = ConfigurationParser(moduleName).GetConfigurations();
             var buildsInfo = configs.SelectMany(config => BuildParser(moduleName).Get(config));
             var files = new List<string>();
-	        var moduleDirectory = Path.Combine(Helper.CurrentWorkspace, moduleName);
+            var moduleDirectory = Path.Combine(Helper.CurrentWorkspace, moduleName);
 
-	        var projects = buildsInfo.Select(info => info.Target)
-	            .Where(t => t != "None").Distinct();
+            var projects = buildsInfo.Select(info => info.Target)
+                .Where(t => t != "None").Distinct();
 
             foreach (var project in projects)
             {
@@ -75,11 +75,11 @@ namespace Common.YamlParsers
                 files.AddRange(vsParser.GetCsprojList());
             }
 
-	        return files.Distinct().ToList();
-	    }
+            return files.Distinct().ToList();
+        }
 
-	    public static List<string> GetSolutionList(string moduleName)
-	    {
+        public static List<string> GetSolutionList(string moduleName)
+        {
             if (!Exists(moduleName))
                 return new List<string>();
 
@@ -93,7 +93,7 @@ namespace Common.YamlParsers
                 .Select(solutionRelativePath => Path.Combine(moduleDirectory, solutionRelativePath))
                 .Distinct()
                 .ToList();
-	        return solutions;
-	    }
-	}
+            return solutions;
+        }
+    }
 }

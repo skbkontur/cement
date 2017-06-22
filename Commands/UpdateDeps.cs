@@ -4,51 +4,53 @@ using Common;
 
 namespace Commands
 {
-	public class UpdateDeps : Command
+    public class UpdateDeps : Command
     {
-		private string configuration;
-	    private string mergedBranch;
+        private string configuration;
+        private string mergedBranch;
         private LocalChangesPolicy policy;
-	    private bool localBranchForce;
-	    private bool verbose;
+        private bool localBranchForce;
+        private bool verbose;
 
-		public UpdateDeps() 
-			: base(new CommandSettings
-			{
-				LogPerfix = "UPDATE",
-				LogFileName = "update-deps.net.log",
-				MeasureElapsedTime = true,
-				Location = CommandSettings.CommandLocation.RootModuleDirectory
-			}){ }
-
-		protected override void ParseArgs(string[] args)
+        public UpdateDeps()
+            : base(new CommandSettings
+            {
+                LogPerfix = "UPDATE",
+                LogFileName = "update-deps.net.log",
+                MeasureElapsedTime = true,
+                Location = CommandSettings.CommandLocation.RootModuleDirectory
+            })
         {
-			Helper.RemoveOldKey(ref args, "-n", Log);
-
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
-            configuration = (string)(parsedArgs["configuration"]);
-	        mergedBranch = (string) (parsedArgs["merged"]);
-	        localBranchForce = (bool) (parsedArgs["localBranchForce"]);
-	        verbose = (bool) (parsedArgs["verbose"]);
-			policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
         }
 
-		protected override int Execute()
+        protected override void ParseArgs(string[] args)
+        {
+            Helper.RemoveOldKey(ref args, "-n", Log);
+
+            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
+            configuration = (string) (parsedArgs["configuration"]);
+            mergedBranch = (string) (parsedArgs["merged"]);
+            localBranchForce = (bool) (parsedArgs["localBranchForce"]);
+            verbose = (bool) (parsedArgs["verbose"]);
+            policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+        }
+
+        protected override int Execute()
         {
             var cwd = Directory.GetCurrentDirectory();
 
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
-            
+
             Log.Info("Updating packages");
             PackageUpdater.UpdatePackages();
             var modules = Helper.GetModules();
 
             var moduleName = Path.GetFileName(cwd);
 
-		    var curRepo = new GitRepository(moduleName, Helper.CurrentWorkspace, Log);
+            var curRepo = new GitRepository(moduleName, Helper.CurrentWorkspace, Log);
             if (curRepo.IsGitRepo)
                 curRepo.TryUpdateUrl(modules.FirstOrDefault(m => m.Name.Equals(moduleName)));
-		    HooksHelper.InstallHooks(moduleName);
+            HooksHelper.InstallHooks(moduleName);
 
             var getter = new ModuleGetter(
                 Helper.GetModules(),
@@ -61,11 +63,11 @@ namespace Commands
             getter.GetDeps();
 
 
-			Log.Info("SUCCESS UPDATE DEPS");
-	        return 0;
+            Log.Info("SUCCESS UPDATE DEPS");
+            return 0;
         }
 
-		public override string HelpMessage => @"
+        public override string HelpMessage => @"
     Updates deps for current directory
 
     Usage:

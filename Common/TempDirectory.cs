@@ -3,9 +3,10 @@ using System.IO;
 
 namespace Common
 {
-	public class TempDirectory : IDisposable
+    public class TempDirectory : IDisposable
     {
         public readonly string Path;
+
         public TempDirectory()
         {
             Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -17,7 +18,7 @@ namespace Common
             DeleteDirectory(Path);
         }
 
-		private static void DeleteDirectory(string targetDir)
+        private static void DeleteDirectory(string targetDir)
         {
             if (!Directory.Exists(targetDir))
                 return;

@@ -3,27 +3,29 @@ using Common;
 
 namespace Commands
 {
-	public class Get : Command
-	{
-		private string configuration;
+    public class Get : Command
+    {
+        private string configuration;
         private LocalChangesPolicy policy;
         private string module;
         private string treeish;
-	    private string mergedBranch;
-	    private bool verbose;
-		
-        public Get() 
-			: base(new CommandSettings
-			{
-				LogPerfix = "GET",
-				LogFileName = "get.net.log",
-				MeasureElapsedTime = true,
-				Location = CommandSettings.CommandLocation.WorkspaceDirectory
-			}){}
+        private string mergedBranch;
+        private bool verbose;
 
-		protected override void ParseArgs(string[] args)
+        public Get()
+            : base(new CommandSettings
+            {
+                LogPerfix = "GET",
+                LogFileName = "get.net.log",
+                MeasureElapsedTime = true,
+                Location = CommandSettings.CommandLocation.WorkspaceDirectory
+            })
         {
-			Helper.RemoveOldKey(ref args, "-n", Log);
+        }
+
+        protected override void ParseArgs(string[] args)
+        {
+            Helper.RemoveOldKey(ref args, "-n", Log);
 
             var parsedArgs = ArgumentParser.ParseGet(args);
             module = (string) parsedArgs["module"];
@@ -32,31 +34,31 @@ namespace Commands
 
             treeish = (string) parsedArgs["treeish"];
             configuration = (string) (parsedArgs["configuration"]);
-	        mergedBranch = (string) (parsedArgs["merged"]);
-	        verbose = (bool) (parsedArgs["verbose"]);
-			policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+            mergedBranch = (string) (parsedArgs["merged"]);
+            verbose = (bool) (parsedArgs["verbose"]);
+            policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
         }
 
-		protected override int Execute()
+        protected override int Execute()
         {
             string workspace = Directory.GetCurrentDirectory();
-			if (!Helper.IsCurrentDirectoryModule(Path.Combine(workspace, module)))
-				throw new CementTrackException($"{workspace} is not cement workspace directory.");
-			
+            if (!Helper.IsCurrentDirectoryModule(Path.Combine(workspace, module)))
+                throw new CementTrackException($"{workspace} is not cement workspace directory.");
+
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
-            
+
             Log.Info("Updating packages");
             PackageUpdater.UpdatePackages();
-            
-            GetModule();
-			CycleDetector.WarnIfCycle(module, configuration, Log);
 
-			Log.Info("SUCCESS get " + module);
-			return 0;
+            GetModule();
+            CycleDetector.WarnIfCycle(module, configuration, Log);
+
+            Log.Info("SUCCESS get " + module);
+            return 0;
         }
 
-		private void GetModule()
-		{
+        private void GetModule()
+        {
             var getter = new ModuleGetter(
                 Helper.GetModules(),
                 new Dep(module, treeish, configuration),
@@ -69,10 +71,10 @@ namespace Commands
             ConsoleWriter.WriteInfo("Getting deps for " + module);
             Log.Info("Getting deps list for " + module);
 
-		    getter.GetDeps();
-		}
+            getter.GetDeps();
+        }
 
-		public override string HelpMessage => @"
+        public override string HelpMessage => @"
     Gets module with all deps
 
     Usage:
@@ -92,5 +94,5 @@ namespace Commands
     Example:
         cm get kanso/client -rv
 ";
-	}
+    }
 }

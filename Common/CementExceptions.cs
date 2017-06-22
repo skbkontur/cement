@@ -2,18 +2,19 @@
 
 namespace Common
 {
-	public class CementException : Exception
-	{
-		protected CementException()
-		{
-		}
-		public CementException(string message)
-			: base(message)
-		{
-		}
-	}
+    public class CementException : Exception
+    {
+        protected CementException()
+        {
+        }
 
-	public class CementTrackException : CementException
+        public CementException(string message)
+            : base(message)
+        {
+        }
+    }
+
+    public class CementTrackException : CementException
     {
         public CementTrackException(string message)
             : base(message)
@@ -29,22 +30,22 @@ namespace Common
         }
     }
 
-	public class NoSuchConfigurationException : CementException
-	{
-		public NoSuchConfigurationException(string moduleName, string missingConfiguration)
-			: base($"Configuration {missingConfiguration} not found in {moduleName}")
-		{
-		}
-	}
+    public class NoSuchConfigurationException : CementException
+    {
+        public NoSuchConfigurationException(string moduleName, string missingConfiguration)
+            : base($"Configuration {missingConfiguration} not found in {moduleName}")
+        {
+        }
+    }
 
-	public class BadYamlException : CementException
-	{
-		public BadYamlException(string moduleName, string sectionName, string message)
-			: base($"Fail to parse {sectionName} section in {moduleName}/module.yaml: {message}")
-		{
-		}
-	}
-	
+    public class BadYamlException : CementException
+    {
+        public BadYamlException(string moduleName, string sectionName, string message)
+            : base($"Fail to parse {sectionName} section in {moduleName}/module.yaml: {message}")
+        {
+        }
+    }
+
     public class TreeishConflictException : CementException
     {
         public TreeishConflictException(string format)
@@ -53,11 +54,11 @@ namespace Common
         }
     }
 
-	public class TimeoutException : CementException
-	{
-		public TimeoutException(string format)
-			: base(format)
-		{
-		}
-	}
+    public class TimeoutException : CementException
+    {
+        public TimeoutException(string format)
+            : base(format)
+        {
+        }
+    }
 }

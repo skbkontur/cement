@@ -4,7 +4,7 @@ using Common.YamlParsers;
 
 namespace Common
 {
-	public class DepsParser
+    public class DepsParser
     {
         private readonly string modulePath;
 

@@ -4,43 +4,43 @@ using Tests.Helpers;
 
 namespace Tests.ParsersTests
 {
-	[TestFixture]
-	public class TestBuildYamlParser
-	{
-		[Test]
-		public void TestEmtyInstall()
-		{
-			var text = @"
+    [TestFixture]
+    public class TestBuildYamlParser
+    {
+        [Test]
+        public void TestEmtyInstall()
+        {
+            var text = @"
 default:
     build:
         target: a
         configuration: c
 full-build:
 ";
-			var result = YamlFromText.BuildParser(text).Get();
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual("msbuild", result[0].Tool.Name);
-		}
+            var result = YamlFromText.BuildParser(text).Get();
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual("msbuild", result[0].Tool.Name);
+        }
 
-		[Test]
-		public void TestGetToolDefault()
-		{
-			var text = @"
+        [Test]
+        public void TestGetToolDefault()
+        {
+            var text = @"
 default:
     build:
         target: a
         configuration: c
 full-build:
 ";
-			var result = YamlFromText.BuildParser(text).Get();
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual("msbuild", result[0].Tool.Name);
-		}
+            var result = YamlFromText.BuildParser(text).Get();
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual("msbuild", result[0].Tool.Name);
+        }
 
-		[Test]
-		public void TestNonDefaultTool()
-		{
-			var text = @"
+        [Test]
+        public void TestNonDefaultTool()
+        {
+            var text = @"
 default:
     build:
         target: a
@@ -48,15 +48,15 @@ default:
         tool: ant
 full-build:
 ";
-			var result = YamlFromText.BuildParser(text).Get("full-build");
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual("ant", result[0].Tool.Name);
-		}
+            var result = YamlFromText.BuildParser(text).Get("full-build");
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual("ant", result[0].Tool.Name);
+        }
 
-		[Test]
-		public void TestRedefinedTool()
-		{
-			var text = @"
+        [Test]
+        public void TestRedefinedTool()
+        {
+            var text = @"
 default:
     build:
         target: a
@@ -66,15 +66,15 @@ full-build:
     build:
         tool: gcc
 ";
-			var result = YamlFromText.BuildParser(text).Get("full-build");
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual("gcc", result[0].Tool.Name);
-		}
+            var result = YamlFromText.BuildParser(text).Get("full-build");
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual("gcc", result[0].Tool.Name);
+        }
 
-		[Test]
-		public void TestRedefinedTarget()
-		{
-			var text = @"
+        [Test]
+        public void TestRedefinedTarget()
+        {
+            var text = @"
 default:
     build:
         target: a
@@ -84,15 +84,15 @@ full-build:
     build:
         target: b
 ";
-			var result = YamlFromText.BuildParser(text).Get("full-build");
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual("b", result[0].Target);
-		}
+            var result = YamlFromText.BuildParser(text).Get("full-build");
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual("b", result[0].Target);
+        }
 
-		[Test]
-		public void TestRedefinedConfiguration()
-		{
-			var text = @"
+        [Test]
+        public void TestRedefinedConfiguration()
+        {
+            var text = @"
 default:
     build:
         target: a
@@ -102,15 +102,15 @@ full-build:
     build:
         configuration: b
 ";
-			var result = YamlFromText.BuildParser(text).Get("full-build");
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual("b", result[0].Configuration);
-		}
+            var result = YamlFromText.BuildParser(text).Get("full-build");
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual("b", result[0].Configuration);
+        }
 
-		[Test]
-		public void TestNoThrowsWithNoTarget()
-		{
-			var text = @"
+        [Test]
+        public void TestNoThrowsWithNoTarget()
+        {
+            var text = @"
 full-build:
     build:
         tool: gcc
@@ -118,12 +118,12 @@ full-build:
             var result = YamlFromText.BuildParser(text).Get("full-build");
             Assert.AreEqual("gcc", result[0].Tool.Name);
             Assert.AreEqual("", result[0].Target);
-		}
+        }
 
-		[Test]
-		public void TestWithParameters()
-		{
-			var text = @"
+        [Test]
+        public void TestWithParameters()
+        {
+            var text = @"
 default:
     build:
         target: a
@@ -134,30 +134,30 @@ default:
             - e
 full-build:
 ";
-			var result = YamlFromText.BuildParser(text).Get();
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual(new[] { "a:b", "/c:d", "e" }, result[0].Parameters.ToArray());
-		}
+            var result = YamlFromText.BuildParser(text).Get();
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual(new[] {"a:b", "/c:d", "e"}, result[0].Parameters.ToArray());
+        }
 
-		[Test]
-		public void TestWithOneLineParameters()
-		{
-			var text = @"
+        [Test]
+        public void TestWithOneLineParameters()
+        {
+            var text = @"
 full-build:
 	build:
         target: a
         configuration: r
         parameters: asdf
 ";
-			var result = YamlFromText.BuildParser(text).Get();
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual(new[] { "asdf" }, result[0].Parameters.ToArray());
-		}
+            var result = YamlFromText.BuildParser(text).Get();
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual(new[] {"asdf"}, result[0].Parameters.ToArray());
+        }
 
-		[Test]
-		public void TestWithOneLineParametersAndQuotes()
-		{
-			var text = @"
+        [Test]
+        public void TestWithOneLineParametersAndQuotes()
+        {
+            var text = @"
 default:
     build:
         target: a
@@ -165,15 +165,15 @@ default:
         parameters: ""asdf \""q\""wer""
 full-build:
 ";
-			var result = YamlFromText.BuildParser(text).Get();
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual(new[] { "asdf \"q\"wer" }, result[0].Parameters.ToArray());
-		}
+            var result = YamlFromText.BuildParser(text).Get();
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual(new[] {"asdf \"q\"wer"}, result[0].Parameters.ToArray());
+        }
 
-		[Test]
-		public void TestTargetAndConfiguration()
-		{
-			var text = @"
+        [Test]
+        public void TestTargetAndConfiguration()
+        {
+            var text = @"
 default:
     build:
         target: Kanso.sln
@@ -186,26 +186,26 @@ full-build > client:
     build:
         configuration: Release
 ";
-			var result = YamlFromText.BuildParser(text).Get("full-build");
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual("Release", result[0].Configuration);
-			Assert.AreEqual("Kanso.sln", result[0].Target);
-		}
+            var result = YamlFromText.BuildParser(text).Get("full-build");
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual("Release", result[0].Configuration);
+            Assert.AreEqual("Kanso.sln", result[0].Target);
+        }
 
-		[Test]
-		public void TestTabsInYaml()
-		{
-			var text = @"
+        [Test]
+        public void TestTabsInYaml()
+        {
+            var text = @"
 default:
 	build:
 		target: a
 		configuration: c
 full-build:
 ";
-			YamlFromText.BuildParser(text).Get();
-		}
+            YamlFromText.BuildParser(text).Get();
+        }
 
-		[Test]
+        [Test]
         public void TestMsBuildToolVersionDictStyle()
         {
             var text = @"
@@ -219,15 +219,15 @@ default:
 full-build:
 ";
             var result = YamlFromText.BuildParser(text).Get();
-			Assert.AreEqual(result.Count, 1);
-			Assert.AreEqual("msbuild", result[0].Tool.Name);
+            Assert.AreEqual(result.Count, 1);
+            Assert.AreEqual("msbuild", result[0].Tool.Name);
             Assert.AreEqual("14.0", result[0].Tool.Version);
         }
 
-		[Test]
-		public void TestMsBuildToolVersionOldStyleThrows()
-		{
-			var text = @"
+        [Test]
+        public void TestMsBuildToolVersionOldStyleThrows()
+        {
+            var text = @"
 default:
   build:
     target: a
@@ -237,13 +237,13 @@ default:
       - version: ""14.0""
 full-build:
 ";
-			Assert.Throws<BadYamlException>(() => YamlFromText.BuildParser(text).Get());
-		}
+            Assert.Throws<BadYamlException>(() => YamlFromText.BuildParser(text).Get());
+        }
 
-		[Test]
-		public void TestEmptyBuildToolThrows()
-		{
-			var text = @"
+        [Test]
+        public void TestEmptyBuildToolThrows()
+        {
+            var text = @"
 default:
   build:
     target: a
@@ -251,13 +251,13 @@ default:
     tool:
 full-build:
 ";
-			Assert.Throws<BadYamlException>(() => YamlFromText.BuildParser(text).Get());
-		}
+            Assert.Throws<BadYamlException>(() => YamlFromText.BuildParser(text).Get());
+        }
 
-		[Test]
-		public void TestMultiBuildSection()
-		{
-			var text = @"
+        [Test]
+        public void TestMultiBuildSection()
+        {
+            var text = @"
 default:
     build:
       configuration: def
@@ -269,28 +269,28 @@ client:
         target: b
         configuration: debug
 ";
-			var result = YamlFromText.BuildParser(text).Get("client");
-			Assert.AreEqual(result.Count, 2);
-			Assert.AreEqual(result[0].Configuration, "def");
-			Assert.AreEqual(result[1].Configuration, "debug");
-			Assert.AreEqual(result[0].Name, "A");
-			Assert.AreEqual(result[1].Name, "B");
-		}
+            var result = YamlFromText.BuildParser(text).Get("client");
+            Assert.AreEqual(result.Count, 2);
+            Assert.AreEqual(result[0].Configuration, "def");
+            Assert.AreEqual(result[1].Configuration, "debug");
+            Assert.AreEqual(result[0].Name, "A");
+            Assert.AreEqual(result[1].Name, "B");
+        }
 
-	    [Test]
-	    public void TestWithoutConfiguration()
-	    {
-	        var text = @"
+        [Test]
+        public void TestWithoutConfiguration()
+        {
+            var text = @"
 full-build:
   build:
     target: Logging.sln";
 
             Assert.Throws<BadYamlException>(() => YamlFromText.BuildParser(text).Get("full-build"));
-	    }
+        }
 
-	    [Test]
-	    public void TestWhenConfigurationDoesNotNecessary()
-	    {
+        [Test]
+        public void TestWhenConfigurationDoesNotNecessary()
+        {
             var text = @"
 full-build:
   deps:
@@ -299,7 +299,7 @@ full-build:
     parameters: /C
     target: build.cmd";
 
-	        var result = YamlFromText.BuildParser(text).Get("full-build");
+            var result = YamlFromText.BuildParser(text).Get("full-build");
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual("cmd", result[0].Tool.Name);
             CollectionAssert.AreEqual(new[] {"/C"}, result[0].Parameters);
@@ -307,18 +307,18 @@ full-build:
             Assert.AreEqual(null, result[0].Configuration);
         }
 
-	    [Test]
-	    public void TestWithOnlyTarget()
-	    {
-	        var text = @"
+        [Test]
+        public void TestWithOnlyTarget()
+        {
+            var text = @"
 full-build:
   deps:
   build:
     target: build.xproj";
 
-	        var result = YamlFromText.BuildParser(text).Get("full-build");
+            var result = YamlFromText.BuildParser(text).Get("full-build");
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(null, result[0].Configuration);
-	    }
-	}
+        }
+    }
 }

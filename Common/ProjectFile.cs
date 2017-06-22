@@ -6,21 +6,21 @@ using System.Xml;
 
 namespace Common
 {
-	public class ProjectFile
-	{
-		private readonly string lineEndings;
+    public class ProjectFile
+    {
+        private readonly string lineEndings;
 
         public readonly string FilePath;
         public readonly XmlDocument Document;
 
         public ProjectFile(string csprojFilePath)
-		{
+        {
             var fileContent = File.ReadAllText(csprojFilePath);
 
-		    lineEndings = fileContent.Contains("\r\n") ? "\r\n" : "\n";
+            lineEndings = fileContent.Contains("\r\n") ? "\r\n" : "\n";
             FilePath = csprojFilePath;
             Document = XmlDocumentHelper.Create(fileContent);
-		}
+        }
 
         public void BindRuleset(RulesetFile rulesetFile)
         {
@@ -71,88 +71,88 @@ namespace Common
         }
 
         public bool ContainsRef(string reference, out XmlNode refXml)
-		{
+        {
             refXml = Document
                 .GetElementsByTagName("Reference")
                 .Cast<XmlNode>()
                 .FirstOrDefault(node => node.Attributes != null && node.Attributes["Include"].Value.Split(',').First().Trim() == reference);
-		    return refXml != null;
-		}
+            return refXml != null;
+        }
 
-		public XmlNode CreateReference(string refName, string refPath)
-		{
-			var elementToInsert = Document.CreateElement("Reference", Document.DocumentElement.NamespaceURI);
-			elementToInsert.SetAttribute("Include", refName);
+        public XmlNode CreateReference(string refName, string refPath)
+        {
+            var elementToInsert = Document.CreateElement("Reference", Document.DocumentElement.NamespaceURI);
+            elementToInsert.SetAttribute("Include", refName);
 
-			var specificVersion = Document.CreateElement("SpecificVersion", Document.DocumentElement.NamespaceURI);
-			specificVersion.InnerText = "False";
+            var specificVersion = Document.CreateElement("SpecificVersion", Document.DocumentElement.NamespaceURI);
+            specificVersion.InnerText = "False";
 
-			var hintPath = Document.CreateElement("HintPath", Document.DocumentElement.NamespaceURI);
-			hintPath.InnerText = refPath;
+            var hintPath = Document.CreateElement("HintPath", Document.DocumentElement.NamespaceURI);
+            hintPath.InnerText = refPath;
 
-			elementToInsert.AppendChild(specificVersion);
-			elementToInsert.AppendChild(hintPath);
+            elementToInsert.AppendChild(specificVersion);
+            elementToInsert.AppendChild(hintPath);
 
-			return elementToInsert;
-		}
+            return elementToInsert;
+        }
 
-		public void AddRef(string refName, string refPath)
-		{
-		    try
-		    {
-		        var referenceGroup = Document
+        public void AddRef(string refName, string refPath)
+        {
+            try
+            {
+                var referenceGroup = Document
                     .GetElementsByTagName("ItemGroup")
-		            .Cast<XmlNode>()
+                    .Cast<XmlNode>()
                     .FirstOrDefault(IsReferenceGroup);
 
-		        if (referenceGroup == null)
-		            referenceGroup = CreateItemGroup();
+                if (referenceGroup == null)
+                    referenceGroup = CreateItemGroup();
 
-		        if (referenceGroup != null)
-		            referenceGroup.AppendChild(CreateReference(refName, refPath));
-		    }
-		    catch (Exception e)
-		    {
+                if (referenceGroup != null)
+                    referenceGroup.AppendChild(CreateReference(refName, refPath));
+            }
+            catch (Exception e)
+            {
                 throw new Exception($"Failed to add ref {refName} to {FilePath}", e);
             }
         }
 
-	    public void ReplaceRef(string refName, string refPath)
-		{
-		    try
-		    {
-		        var itemGroups = Document.GetElementsByTagName("ItemGroup")
-		            .Cast<XmlNode>()
-		            .Where(g => g.HasChildNodes)
-		            .ToList();
+        public void ReplaceRef(string refName, string refPath)
+        {
+            try
+            {
+                var itemGroups = Document.GetElementsByTagName("ItemGroup")
+                    .Cast<XmlNode>()
+                    .Where(g => g.HasChildNodes)
+                    .ToList();
 
-		        foreach (var referenceGroup in itemGroups)
-		        {
-		            var toReplace = new List<XmlNode>();
-		            foreach (XmlNode node in referenceGroup.ChildNodes)
-		            {
-		                if (node.Attributes != null && node.Attributes["Include"]?.Value.Split(',').First().Trim() == refName)
-		                {
-		                    toReplace.Add(node);
-		                }
-		            }
+                foreach (var referenceGroup in itemGroups)
+                {
+                    var toReplace = new List<XmlNode>();
+                    foreach (XmlNode node in referenceGroup.ChildNodes)
+                    {
+                        if (node.Attributes != null && node.Attributes["Include"]?.Value.Split(',').First().Trim() == refName)
+                        {
+                            toReplace.Add(node);
+                        }
+                    }
 
-		            foreach (var node in toReplace)
-		            {
-		                referenceGroup.ReplaceChild(CreateReference(refName, refPath), node);
-		            }
-		        }
-		    }
-		    catch (Exception e)
-		    {
-		        throw new Exception($"Failed to replace ref {refName} in {FilePath}", e);
-		    }
-		}
+                    foreach (var node in toReplace)
+                    {
+                        referenceGroup.ReplaceChild(CreateReference(refName, refPath), node);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Failed to replace ref {refName} in {FilePath}", e);
+            }
+        }
 
-		public void Save()
-		{
+        public void Save()
+        {
             XmlDocumentHelper.Save(Document, FilePath, lineEndings);
-		}
+        }
 
         private XmlNode CreateAnalyzerGroup()
         {

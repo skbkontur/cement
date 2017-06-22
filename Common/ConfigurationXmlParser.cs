@@ -5,11 +5,11 @@ using System.Xml;
 
 namespace Common
 {
-	public class ConfigurationXmlParser : IConfigurationParser
+    public class ConfigurationXmlParser : IConfigurationParser
     {
         private XmlDocument document;
 
-        public ConfigurationXmlParser (string content)
+        public ConfigurationXmlParser(string content)
         {
             document = new XmlDocument();
             document.LoadXml(content);
@@ -28,7 +28,7 @@ namespace Common
             var configurationsTags = document.GetElementsByTagName("conf");
             foreach (XmlNode node in configurationsTags)
             {
-                if (node.Attributes != null) 
+                if (node.Attributes != null)
                     configurations.Add(node.Attributes["name"].Value);
             }
             return configurations;
@@ -86,6 +86,6 @@ namespace Common
                     result[config].Add("full-build");
             }
             return result;
-        } 
+        }
     }
 }

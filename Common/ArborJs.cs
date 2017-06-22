@@ -24,6 +24,6 @@ namespace Common
             File.WriteAllText(resultFileName, text);
 
             Process.Start(resultFileName);
-        } 
+        }
     }
 }

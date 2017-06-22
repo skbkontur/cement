@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace Tests.Helpers
 {
-	public enum DepsFormatStyle
+    public enum DepsFormatStyle
     {
         Ini,
         Yaml
@@ -21,16 +21,16 @@ namespace Tests.Helpers
         private ShellRunner runner;
         public readonly string PackageFile;
         public readonly string RemoteWorkspace;
-	    private static ILog Log = LogManager.GetLogger("TestEnvironment");
+        private static ILog Log = LogManager.GetLogger("TestEnvironment");
 
         public TestEnvironment()
         {
             runner = new ShellRunner();
             WorkingDirectory = new TempDirectory();
-			Directory.CreateDirectory(Path.Combine(WorkingDirectory.Path, ".cement"));
-			RemoteWorkspace = Path.Combine(WorkingDirectory.Path, "remote");
-			Directory.CreateDirectory(Path.Combine(RemoteWorkspace, ".cement"));
-			PackageFile = Path.Combine(WorkingDirectory.Path, "package.cmpkg");
+            Directory.CreateDirectory(Path.Combine(WorkingDirectory.Path, ".cement"));
+            RemoteWorkspace = Path.Combine(WorkingDirectory.Path, "remote");
+            Directory.CreateDirectory(Path.Combine(RemoteWorkspace, ".cement"));
+            PackageFile = Path.Combine(WorkingDirectory.Path, "package.cmpkg");
             Helper.SetWorkspace(WorkingDirectory.Path);
         }
 
@@ -49,8 +49,8 @@ namespace Tests.Helpers
         public void Get(string module, string treeish = null, LocalChangesPolicy localChangesPolicy = LocalChangesPolicy.FailOnLocalChanges)
         {
             var getter = new ModuleGetter(
-                GetModules().ToList(), 
-                new Dep(module, treeish), 
+                GetModules().ToList(),
+                new Dep(module, treeish),
                 localChangesPolicy,
                 null);
 
@@ -88,7 +88,6 @@ url={modulePath}
                 CreateDepsYamlStyle(path, depsByConfig);
             if (depsStyle == DepsFormatStyle.Ini)
                 CreateDepsIniStyle(path, depsByConfig);
-            
         }
 
         private void CreateDepsYamlStyle(string path, Dictionary<string, DepsContent> depsByConfig)
@@ -115,12 +114,14 @@ full-build:
   build:
     target: None
     configuration: None
-  deps:{(depsByConfig[config]
-                        .Force != null
-                        ? "\r\n    - force: " + depsByConfig[config].Force
-                        : "")}
+  deps:{
+                            (depsByConfig[config]
+                                 .Force != null
+                                ? "\r\n    - force: " + depsByConfig[config].Force
+                                : "")
+                        }
 ", (current, dep) => current +
-                                                     $"    - {dep.Name}@{dep.Treeish ?? ""}/{dep.Configuration ?? ""}\r\n");
+                     $"    - {dep.Name}@{dep.Treeish ?? ""}/{dep.Configuration ?? ""}\r\n");
             }
 
 
@@ -141,9 +142,10 @@ full-build:
                 var content = "";
                 if (depsByConfig[config] != null)
                 {
-
-                    content = (depsByConfig[config].Force != null ? @"[main]
-force = " + depsByConfig[config].Force + "\r\n" : "");
+                    content = (depsByConfig[config].Force != null
+                        ? @"[main]
+force = " + depsByConfig[config].Force + "\r\n"
+                        : "");
                     foreach (var dep in depsByConfig[config].Deps)
                     {
                         content += $"[module {dep.Name}]\r\n";
@@ -429,8 +431,10 @@ configuration = sdk
 url={Path.Combine(env.RemoteWorkspace, "A")}
 
 [module B]
-url={Path.Combine(
-                        env.RemoteWorkspace, "B")}
+url={
+                            Path.Combine(
+                                env.RemoteWorkspace, "B")
+                        }
 ", File.ReadAllText(Path.Combine(env.RemoteWorkspace, env.PackageFile)));
             }
         }
@@ -443,7 +447,7 @@ url={Path.Combine(
                 env.CreateRepo("A");
                 env.CreateRepo("B");
                 var modules = env.GetModules().Select(m => m.Name).ToArray();
-                Assert.AreEqual(new [] {"A", "B"}, modules);
+                Assert.AreEqual(new[] {"A", "B"}, modules);
             }
         }
     }

@@ -3,7 +3,7 @@ using Common;
 
 namespace Commands
 {
-	public class CementVersion : ICommand
+    public class CementVersion : ICommand
     {
         public int Run(string[] args)
         {
@@ -13,12 +13,13 @@ namespace Commands
             return 0;
         }
 
-		public string HelpMessage => @"
+        public string HelpMessage => @"
     Shows cement's version
 
     Usage:
         cm --version
 ";
+
         public bool IsHiddenCommand => false;
     }
 }

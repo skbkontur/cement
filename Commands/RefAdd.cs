@@ -29,11 +29,11 @@ namespace Commands
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseRefAdd(args);
-            
+
             testReplaces = (bool) parsedArgs["testReplaces"];
             dep = new Dep((string) parsedArgs["module"]);
             if (parsedArgs["configuration"] != null)
-                dep.Configuration = (string)parsedArgs["configuration"];
+                dep.Configuration = (string) parsedArgs["configuration"];
 
             project = (string) parsedArgs["project"];
             force = (bool) parsedArgs["force"];
@@ -50,7 +50,7 @@ namespace Commands
             {
                 var all = Yaml.GetCsprojsList(currentModule);
                 var maybe = all.FirstOrDefault(f =>
-                        string.Equals(Path.GetFileName(f), project, StringComparison.CurrentCultureIgnoreCase));
+                    string.Equals(Path.GetFileName(f), project, StringComparison.CurrentCultureIgnoreCase));
                 if (maybe != null)
                     project = maybe;
             }
@@ -112,99 +112,99 @@ namespace Commands
             {
                 Log.Error($"FAILED-TO-CHECK-BRANCH {dep}", e);
             }
-	    }
+        }
 
-	    private void AddModuleToCsproj(InstallData installData)
-		{
-			var projectPath = Path.GetFullPath(project);
-			var csproj = new ProjectFile(projectPath);
+        private void AddModuleToCsproj(InstallData installData)
+        {
+            var projectPath = Path.GetFullPath(project);
+            var csproj = new ProjectFile(projectPath);
 
-			foreach (var buildItem in installData.BuildFiles)
-			{
-				var refName = Path.GetFileNameWithoutExtension(buildItem);
-				var hintPath = Helper.GetRelativePath(Path.Combine(Helper.CurrentWorkspace, buildItem),
-					Directory.GetParent(projectPath).FullName);
-				AddRef(csproj, refName, hintPath);
-				CheckExistBuildFile(Path.Combine(Helper.CurrentWorkspace, buildItem));
-			}
+            foreach (var buildItem in installData.BuildFiles)
+            {
+                var refName = Path.GetFileNameWithoutExtension(buildItem);
+                var hintPath = Helper.GetRelativePath(Path.Combine(Helper.CurrentWorkspace, buildItem),
+                    Directory.GetParent(projectPath).FullName);
+                AddRef(csproj, refName, hintPath);
+                CheckExistBuildFile(Path.Combine(Helper.CurrentWorkspace, buildItem));
+            }
 
-			if (!testReplaces)
-				csproj.Save();
-		}
+            if (!testReplaces)
+                csproj.Save();
+        }
 
-		private void CheckExistBuildFile(string file)
-		{
-			if (File.Exists(file))
-				return;
-			ConsoleWriter.WriteWarning($"File {file} does not exist. Probably you need to build {dep.Name}.");
-		}
+        private void CheckExistBuildFile(string file)
+        {
+            if (File.Exists(file))
+                return;
+            ConsoleWriter.WriteWarning($"File {file} does not exist. Probably you need to build {dep.Name}.");
+        }
 
-		private void AddRef(ProjectFile csproj, string refName, string hintPath)
-		{
-			if (testReplaces)
-			{
-				TestReplaces(csproj, refName);
-				return;
-			}
+        private void AddRef(ProjectFile csproj, string refName, string hintPath)
+        {
+            if (testReplaces)
+            {
+                TestReplaces(csproj, refName);
+                return;
+            }
 
-			XmlNode refXml;
-			if (csproj.ContainsRef(refName, out refXml))
-			{
-				if (UserChoseReplace(csproj, refXml, refName, hintPath))
-				{
-					csproj.ReplaceRef(refName, hintPath);
-					Log.Debug($"'{refName}' ref replaced");
-					ConsoleWriter.WriteOk("Successfully replaced " + refName);
-				}
-			}
-			else
-			{
-				SafeAddRef(csproj, refName, hintPath);
-				Log.Debug($"'{refName}' ref added");
-				ConsoleWriter.WriteOk("Successfully installed " + refName);
-			}
-		}
+            XmlNode refXml;
+            if (csproj.ContainsRef(refName, out refXml))
+            {
+                if (UserChoseReplace(csproj, refXml, refName, hintPath))
+                {
+                    csproj.ReplaceRef(refName, hintPath);
+                    Log.Debug($"'{refName}' ref replaced");
+                    ConsoleWriter.WriteOk("Successfully replaced " + refName);
+                }
+            }
+            else
+            {
+                SafeAddRef(csproj, refName, hintPath);
+                Log.Debug($"'{refName}' ref added");
+                ConsoleWriter.WriteOk("Successfully installed " + refName);
+            }
+        }
 
-	    private static void SafeAddRef(ProjectFile csproj, string refName, string hintPath)
-	    {
-	        try
-	        {
-	            csproj.AddRef(refName, hintPath);
-	        }
-	        catch (Exception e)
-	        {
-	            Console.WriteLine(e);
+        private static void SafeAddRef(ProjectFile csproj, string refName, string hintPath)
+        {
+            try
+            {
+                csproj.AddRef(refName, hintPath);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
                 Log.Error("Fail to add reference", e);
-	        }
-	    }
+            }
+        }
 
-	    private void TestReplaces(ProjectFile csproj, string refName)
-		{
-			XmlNode refXml;
-			if (csproj.ContainsRef(refName, out refXml))
-				hasReplaces = true;
-		}
+        private void TestReplaces(ProjectFile csproj, string refName)
+        {
+            XmlNode refXml;
+            if (csproj.ContainsRef(refName, out refXml))
+                hasReplaces = true;
+        }
 
-		private bool UserChoseReplace(ProjectFile csproj, XmlNode refXml, string refName, string refPath)
-		{
-		    if (force)
-		        return true;
+        private bool UserChoseReplace(ProjectFile csproj, XmlNode refXml, string refName, string refPath)
+        {
+            if (force)
+                return true;
 
-			var elementToInsert = csproj.CreateReference(refName, refPath);
-			var oldRef = refXml.OuterXml;
-			var newRef = elementToInsert.OuterXml;
+            var elementToInsert = csproj.CreateReference(refName, refPath);
+            var oldRef = refXml.OuterXml;
+            var newRef = elementToInsert.OuterXml;
 
-			if (oldRef.Equals(newRef))
-			{
-				ConsoleWriter.WriteSkip("Already has same " + refName);
-				return false;
-			}
-			ConsoleWriter.WriteWarning(
-			    $"'{project}' already contains ref '{refName}'.\n\n<<<<\n{oldRef}\n\n>>>>\n{newRef}\nDo you want to replace (y/N)?");
-			var answer = Console.ReadLine();
-			return (answer != null && answer.Trim().ToLowerInvariant() == "y");
-		}
+            if (oldRef.Equals(newRef))
+            {
+                ConsoleWriter.WriteSkip("Already has same " + refName);
+                return false;
+            }
+            ConsoleWriter.WriteWarning(
+                $"'{project}' already contains ref '{refName}'.\n\n<<<<\n{oldRef}\n\n>>>>\n{newRef}\nDo you want to replace (y/N)?");
+            var answer = Console.ReadLine();
+            return (answer != null && answer.Trim().ToLowerInvariant() == "y");
+        }
 
-		public override string HelpMessage => @"";
-	}
+        public override string HelpMessage => @"";
+    }
 }
