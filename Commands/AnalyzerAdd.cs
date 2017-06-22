@@ -26,11 +26,11 @@ namespace Commands
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseAnalyzerAdd(args);
-            
-            analyzerModule = new Dep((string)parsedArgs["module"]);
+
+            analyzerModule = new Dep((string) parsedArgs["module"]);
             if (parsedArgs["configuration"] != null)
-                analyzerModule.Configuration = (string)parsedArgs["configuration"];
-            moduleSolutionName = (string)parsedArgs["solution"];
+                analyzerModule.Configuration = (string) parsedArgs["configuration"];
+            moduleSolutionName = (string) parsedArgs["solution"];
         }
 
         protected override int Execute()

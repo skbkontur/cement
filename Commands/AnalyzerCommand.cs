@@ -21,7 +21,7 @@ namespace Commands
                 return subCommands[subCommand].Run(args);
 
             ConsoleWriter.WriteError($"Bad arguments: cm analyzer [{subCommand}]");
-            ConsoleWriter.WriteInfo($"Possible arguments: [{ string.Join("|", subCommands.Keys)}]");
+            ConsoleWriter.WriteInfo($"Possible arguments: [{string.Join("|", subCommands.Keys)}]");
             return -1;
         }
 
@@ -43,6 +43,7 @@ namespace Commands
     Note:
         does not work with old dep format
 ";
+
         public bool IsHiddenCommand => false;
     }
 }

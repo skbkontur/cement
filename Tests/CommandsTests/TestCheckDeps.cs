@@ -6,10 +6,9 @@ using NUnit.Framework;
 
 namespace Tests.CommandsTests
 {
-	[TestFixture]
+    [TestFixture]
     class TestCheckDeps
     {
-
         private void MakeDirectoryAndWriteYaml(string path, string content)
         {
             Directory.CreateDirectory(path);
@@ -21,7 +20,7 @@ namespace Tests.CommandsTests
         {
             using (var tempDir = new TempDirectory())
             {
-				Helper.SetWorkspace(tempDir.Path);
+                Helper.SetWorkspace(tempDir.Path);
 
                 var cementModules = new List<string>
                 {
@@ -29,9 +28,9 @@ namespace Tests.CommandsTests
                     "Dep2"
                 };
                 var slnContent = @"
-Project(""A"") = ""AName"", ""AName\AName.csproj"", ""{AAA}"" 
-Project(""B"") = ""BName"", ""BName\BName.csproj"", ""{BBB}"" 
-Project(""C"") = ""CName"", ""CName\CName.csproj"", ""{CCC}"" 
+Project(""A"") = ""AName"", ""AName\AName.csproj"", ""{AAA}""
+Project(""B"") = ""BName"", ""BName\BName.csproj"", ""{BBB}""
+Project(""C"") = ""CName"", ""CName\CName.csproj"", ""{CCC}""
 
 {AAA}.Client|Any CPU.Build.0 = Release|Any CPU
 {BBB}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -95,12 +94,12 @@ full-build:
     configuration: None
   deps:
     B");
-				Helper.SetWorkspace(tempDir.Path);
+                Helper.SetWorkspace(tempDir.Path);
                 var depsReferences =
                     new DepsReferencesCollector(Path.Combine(tempDir.Path, "A"), null).GetRefsFromDeps();
-                Assert.AreEqual(new []{ "C" }, depsReferences.NotFoundInstallSection);
-                Assert.AreEqual(new[] { "B\\bin\\Release\\B.dll"} , depsReferences.FoundReferences.First().BuildFiles);
-                Assert.AreEqual(new[] { "B\\bin\\Release\\B.dll" }, depsReferences.FoundReferences.First().MainConfigBuildFiles);
+                Assert.AreEqual(new[] {"C"}, depsReferences.NotFoundInstallSection);
+                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().BuildFiles);
+                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().MainConfigBuildFiles);
             }
         }
 
@@ -139,15 +138,13 @@ full-build:
 
   deps:
     B");
-				Helper.SetWorkspace(tempDir.Path);
-				var depsReferences =
+                Helper.SetWorkspace(tempDir.Path);
+                var depsReferences =
                     new DepsReferencesCollector(Path.Combine(tempDir.Path, "A"), null).GetRefsFromDeps();
-                Assert.AreEqual(new[] { "C" }, depsReferences.NotFoundInstallSection);
-                Assert.AreEqual(new[] { "B\\bin\\Release\\B.dll", "B\\bin\\Release\\B.Client.dll" }, depsReferences.FoundReferences.First().BuildFiles);
-                Assert.AreEqual(new[] { "B\\bin\\Release\\B.dll" }, depsReferences.FoundReferences.First().MainConfigBuildFiles);
+                Assert.AreEqual(new[] {"C"}, depsReferences.NotFoundInstallSection);
+                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll", "B\\bin\\Release\\B.Client.dll"}, depsReferences.FoundReferences.First().BuildFiles);
+                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().MainConfigBuildFiles);
             }
         }
-
-
     }
 }

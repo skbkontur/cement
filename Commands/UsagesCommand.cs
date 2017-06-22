@@ -3,25 +3,25 @@ using Common;
 
 namespace Commands
 {
-	public class UsagesCommand : ICommand
-	{
-		private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>
-		{
-			{"show", new UsagesShow()},
-			{"build", new UsagesBuild()}
-		};
-		
-		public int Run(string[] args)
-		{
-			if (args.Length < 2 || !commands.ContainsKey(args[1]))
-			{
-				ConsoleWriter.WriteError("Bad arguments");
-				return -1;
-			}
-			return commands[args[1]].Run(args);
-		}
+    public class UsagesCommand : ICommand
+    {
+        private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>
+        {
+            {"show", new UsagesShow()},
+            {"build", new UsagesBuild()}
+        };
 
-		public string HelpMessage => @"
+        public int Run(string[] args)
+        {
+            if (args.Length < 2 || !commands.ContainsKey(args[1]))
+            {
+                ConsoleWriter.WriteError("Bad arguments");
+                return -1;
+            }
+            return commands[args[1]].Run(args);
+        }
+
+        public string HelpMessage => @"
     Performs operations with module usages
 
     usages show
@@ -47,6 +47,7 @@ namespace Commands
             -b/--branch            - checking parents which use this branch (current by default)
             -p/--pause             - pause on errors
 ";
+
         public bool IsHiddenCommand => CementSettings.Get().CementServer == null;
     }
 }

@@ -9,6 +9,7 @@ namespace Common
     {
         private readonly ILog log;
         private string downloadUri;
+
         public CementFromGitHubUpdater(ILog log)
         {
             this.log = log;
@@ -36,7 +37,7 @@ namespace Common
                 log.Error("Fail self-update ", ex);
                 if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
                 {
-                    var resp = (HttpWebResponse)ex.Response;
+                    var resp = (HttpWebResponse) ex.Response;
                     if (resp.StatusCode == HttpStatusCode.NotFound) // HTTP 404
                     {
                         ConsoleWriter.WriteError("Failed to look for updates on github. Server responsed 404");
@@ -63,7 +64,6 @@ namespace Common
 
     public class GitHubAsset
     {
-        [JsonProperty(PropertyName = "browser_download_url")]
-        public string BrowserDownloadUrl;
+        [JsonProperty(PropertyName = "browser_download_url")] public string BrowserDownloadUrl;
     }
 }

@@ -3,17 +3,17 @@ using System.Linq;
 
 namespace Common
 {
-	public class DepWithParent
-	{
-		public Dep Dep { get; }
-		public string ParentModule { get; }
+    public class DepWithParent
+    {
+        public Dep Dep { get; }
+        public string ParentModule { get; }
 
-		public DepWithParent(Dep dep, string parentModule)
-		{
-			Dep = dep;
-			ParentModule = parentModule;
-		}
-	}
+        public DepWithParent(Dep dep, string parentModule)
+        {
+            Dep = dep;
+            ParentModule = parentModule;
+        }
+    }
 
     public class DepsQueue
     {
@@ -61,29 +61,29 @@ namespace Common
         private readonly Dictionary<string, IList<DepWithParent>> container;
         private readonly Dictionary<string, IList<string>> proceedConfigs;
         private readonly Dictionary<string, string> currentTreeish;
-	    private readonly HashSet<string> needSrc; 
+        private readonly HashSet<string> needSrc;
 
         public ModulesContainer()
         {
             container = new Dictionary<string, IList<DepWithParent>>();
-			proceedConfigs = new Dictionary<string, IList<string>>();
-			currentTreeish = new Dictionary<string, string>();
-			needSrc = new HashSet<string>();
+            proceedConfigs = new Dictionary<string, IList<string>>();
+            currentTreeish = new Dictionary<string, string>();
+            needSrc = new HashSet<string>();
         }
 
-	    public void AddConfig(string moduleName, string config)
-	    {
-			if (!proceedConfigs.ContainsKey(moduleName))
-				proceedConfigs[moduleName] = new List<string>();
-			proceedConfigs[moduleName].Add(config);
-		}
+        public void AddConfig(string moduleName, string config)
+        {
+            if (!proceedConfigs.ContainsKey(moduleName))
+                proceedConfigs[moduleName] = new List<string>();
+            proceedConfigs[moduleName].Add(config);
+        }
 
-	    public IList<string> GetConfigsByName(string moduleName)
-	    {
-		    return proceedConfigs.ContainsKey(moduleName)
-			    ? proceedConfigs[moduleName]
-			    : new List<string>();
-	    } 
+        public IList<string> GetConfigsByName(string moduleName)
+        {
+            return proceedConfigs.ContainsKey(moduleName)
+                ? proceedConfigs[moduleName]
+                : new List<string>();
+        }
 
         public void Add(DepWithParent depWithParent)
         {
@@ -92,20 +92,20 @@ namespace Common
             container[depWithParent.Dep.Name].Add(depWithParent);
         }
 
-	    public void ChangeTreeish(string moduleName, string treeish)
-	    {
-		    currentTreeish[moduleName] = treeish;
-		    if (!container.ContainsKey(moduleName))
-				return;
-		    container[moduleName] = container[moduleName].Where(d => d.Dep.Treeish != null).ToList();
-	    }
+        public void ChangeTreeish(string moduleName, string treeish)
+        {
+            currentTreeish[moduleName] = treeish;
+            if (!container.ContainsKey(moduleName))
+                return;
+            container[moduleName] = container[moduleName].Where(d => d.Dep.Treeish != null).ToList();
+        }
 
-		public string GetTreeishByName(string moduleName)
-		{
-			return currentTreeish.ContainsKey(moduleName) ? currentTreeish[moduleName] : null;
-		}
+        public string GetTreeishByName(string moduleName)
+        {
+            return currentTreeish.ContainsKey(moduleName) ? currentTreeish[moduleName] : null;
+        }
 
-		public IList<Dep> GetDepsByName(string name)
+        public IList<Dep> GetDepsByName(string name)
         {
             IList<DepWithParent> result;
             container.TryGetValue(name, out result);
@@ -124,18 +124,18 @@ namespace Common
                 TreeishManager.ThrowOnTreeishConflict(depWithParent, container[depWithParent.Dep.Name]);
         }
 
-	    public void SetNeedSrc(string moduleName)
-	    {
-		    needSrc.Add(moduleName);
-	    }
+        public void SetNeedSrc(string moduleName)
+        {
+            needSrc.Add(moduleName);
+        }
 
-	    public bool IsNeedSrc(string moduleName)
-	    {
-		    return needSrc.Contains(moduleName);
-	    }
+        public bool IsNeedSrc(string moduleName)
+        {
+            return needSrc.Contains(moduleName);
+        }
     }
 
-	public static class TreeishManager
+    public static class TreeishManager
     {
         public static bool TreeishAlreadyProcessed(Dep dep, IList<Dep> processed)
         {
@@ -155,11 +155,8 @@ namespace Common
             {
                 throw new TreeishConflictException(
                     string.Format("Treeish conflict: {0} refers to {4}:{1}, while {2} refers to {4}:{3}",
-					depWithParent.ParentModule, depWithParent.Dep.Treeish, conflictDep.ParentModule, conflictDep.Dep.Treeish, conflictDep.Dep.Name));
+                        depWithParent.ParentModule, depWithParent.Dep.Treeish, conflictDep.ParentModule, conflictDep.Dep.Treeish, conflictDep.Dep.Name));
             }
         }
-
     }
-
-
 }

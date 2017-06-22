@@ -4,65 +4,65 @@ using NUnit.Framework;
 
 namespace Tests.UtilsTests
 {
-	public class TestDepsPatcher
-	{
-		private TempDirectory MakeTestFolder(string yamlA, string yamlB)
-		{
-			var dir = new TempDirectory();
-			Directory.CreateDirectory(Path.Combine(dir.Path, "A"));
-			File.WriteAllText(Path.Combine(dir.Path, "A", Helper.YamlSpecFile), yamlA);
-			Directory.CreateDirectory(Path.Combine(dir.Path, "B"));
-			File.WriteAllText(Path.Combine(dir.Path, "B", Helper.YamlSpecFile), yamlB);
-			return dir;
-		}
+    public class TestDepsPatcher
+    {
+        private TempDirectory MakeTestFolder(string yamlA, string yamlB)
+        {
+            var dir = new TempDirectory();
+            Directory.CreateDirectory(Path.Combine(dir.Path, "A"));
+            File.WriteAllText(Path.Combine(dir.Path, "A", Helper.YamlSpecFile), yamlA);
+            Directory.CreateDirectory(Path.Combine(dir.Path, "B"));
+            File.WriteAllText(Path.Combine(dir.Path, "B", Helper.YamlSpecFile), yamlB);
+            return dir;
+        }
 
-		private string Patch(TempDirectory workspace, string configuration, Dep dep)
-		{
-			new DepsPatcher(workspace.Path, "A", dep).Patch(configuration);
-			var result = File.ReadAllText(Path.Combine(workspace.Path, "A", Helper.YamlSpecFile));
-		    return result;
-		}
+        private string Patch(TempDirectory workspace, string configuration, Dep dep)
+        {
+            new DepsPatcher(workspace.Path, "A", dep).Patch(configuration);
+            var result = File.ReadAllText(Path.Combine(workspace.Path, "A", Helper.YamlSpecFile));
+            return result;
+        }
 
-		[Test]
-		public void SimpleTest()
-		{
-			string yamlA = @"
+        [Test]
+        public void SimpleTest()
+        {
+            string yamlA = @"
 full-build:
   deps:
     - X
     - Y
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-bulid > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
   deps:
     - B
     - X
     - Y
 ";
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void NoDepsSection()
-		{
-			string yamlA = @"
+        [Test]
+        public void NoDepsSection()
+        {
+            string yamlA = @"
 full-build:
 client:
   deps:
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-bulid > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
   deps:
     - B
@@ -70,27 +70,27 @@ client:
   deps:
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void SimpleTestWithConfig()
-		{
-			string yamlA = @"
+        [Test]
+        public void SimpleTestWithConfig()
+        {
+            string yamlA = @"
 full-build:
   deps:
     - X
     - Y
 ";
-			string yamlB = @"
+            string yamlB = @"
 client:
 full-bulid > client *default:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
   deps:
     - B/client
@@ -98,27 +98,27 @@ full-build:
     - Y
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B", null, "client")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B", null, "client")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void SimpleTestWithSpaces()
-		{
-			string yamlA = @"
+        [Test]
+        public void SimpleTestWithSpaces()
+        {
+            string yamlA = @"
 full-build:
     deps:
       - X
       - Y
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-bulid > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
     deps:
       - B
@@ -126,27 +126,27 @@ full-build:
       - Y
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void SimpleTestWithTabs()
-		{
-			string yamlA = @"
+        [Test]
+        public void SimpleTestWithTabs()
+        {
+            string yamlA = @"
 full-build:
 	deps:
 		- X
 		- Y
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-bulid > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
     deps:
         - B
@@ -154,28 +154,28 @@ full-build:
         - Y
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void NeedReplaceToHugeConfig()
-		{
-			string yamlA = @"
+        [Test]
+        public void NeedReplaceToHugeConfig()
+        {
+            string yamlA = @"
 full-build:
   deps:
     - B
     - X
     - Y
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-build > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
   deps:
     - B/full-build
@@ -183,28 +183,28 @@ full-build:
     - Y
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void NoNeedReplaceToSmallerConfig()
-		{
-			string yamlA = @"
+        [Test]
+        public void NoNeedReplaceToSmallerConfig()
+        {
+            string yamlA = @"
 full-build:
   deps:
     - B/full-build
     - X
     - Y
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-build > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
   deps:
     - B/full-build
@@ -212,28 +212,28 @@ full-build:
     - Y
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B", null, "client")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B", null, "client")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void AlreadyHasSameConfig()
-		{
-			string yamlA = @"
+        [Test]
+        public void AlreadyHasSameConfig()
+        {
+            string yamlA = @"
 full-build:
   deps:
     - B/client
     - X
     - Y
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-bulid > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
   deps:
     - B
@@ -241,27 +241,27 @@ full-build:
     - Y
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B", null, "client")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B", null, "client")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void NeedReplaceToHugeConfigFromParent()
-		{
-			string yamlA = @"
+        [Test]
+        public void NeedReplaceToHugeConfigFromParent()
+        {
+            string yamlA = @"
 client *default:
   deps:
     - B
 full-build > client:
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-build > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client *default:
   deps:
     - B
@@ -271,39 +271,39 @@ full-build > client:
     - B/full-build
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void NoNeedReplaceToSmallerConfigFromParent()
-		{
-			string yamlA = @"
+        [Test]
+        public void NoNeedReplaceToSmallerConfigFromParent()
+        {
+            string yamlA = @"
 client *default:
   deps:
     - B/full-build
 full-build > client:
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-build > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client *default:
   deps:
     - B/full-build
 full-build > client:
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
         [Test]
         public void TestBranchWithSlashes()
@@ -335,19 +335,19 @@ full-build:
         }
 
         [Test]
-		public void NeedReplaceToHugeConfigFromParentWithBranch()
-		{
-			string yamlA = @"
+        public void NeedReplaceToHugeConfigFromParentWithBranch()
+        {
+            string yamlA = @"
 client *default:
   deps:
     - B@branch
 full-build > client:
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-build > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client *default:
   deps:
     - B@branch
@@ -357,12 +357,12 @@ full-build > client:
     - B/full-build@branch
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
         [Test]
         public void NeedReplaceToHugeConfigFromParentWithBranchWithSlashes()
@@ -395,80 +395,80 @@ full-build > client:
         }
 
         [Test]
-		public void LcaTest()
-		{
-			string yamlA = @"
+        public void LcaTest()
+        {
+            string yamlA = @"
 full-build:
   deps:
     - B/client1
 ";
-			string yamlB = @"
+            string yamlB = @"
 client1 *default:
 client2:
 full-build > client1, client2:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
   deps:
     - B/full-build
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B", null, "client2")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B", null, "client2")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void LcaTestWithNesting()
-		{
-			string yamlA = @"
+        [Test]
+        public void LcaTestWithNesting()
+        {
+            string yamlA = @"
 client:
   deps:
     - B/client1
 ";
-			string yamlB = @"
+            string yamlB = @"
 client1:
 client2:
 sdk > client1, client2:
 full-build > sdk:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client:
   deps:
     - B/sdk
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "client", new Dep("B", null, "client2")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "client", new Dep("B", null, "client2")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void NoLcaThrows()
-		{
-			string yamlA = @"
+        [Test]
+        public void NoLcaThrows()
+        {
+            string yamlA = @"
 client:
   deps:
     - B/client1
 ";
-			string yamlB = @"
+            string yamlB = @"
 client1:
 client2:
 ";
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.Throws<CementException>(() => Patch(dir, "client", new Dep("B", null, "client2")));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.Throws<CementException>(() => Patch(dir, "client", new Dep("B", null, "client2")));
+            }
+        }
 
-		[Test]
-		public void OnOffReplace()
-		{
-			string yamlA = @"
+        [Test]
+        public void OnOffReplace()
+        {
+            string yamlA = @"
 client *default:
   deps:
     - B/client
@@ -478,12 +478,12 @@ full-build > client:
     - B/sdk
     - C
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 sdk > client:
 full-build > sdk:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client *default:
   deps:
     - B/client
@@ -494,27 +494,27 @@ full-build > client:
     - C
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void ChildHasntSameDep()
-		{
-			string yamlA = @"
+        [Test]
+        public void ChildHasntSameDep()
+        {
+            string yamlA = @"
 client *default:
 full-build > client:
   deps:
     - X
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-build > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client *default:
   deps:
     - B/full-build
@@ -523,17 +523,17 @@ full-build > client:
     - X
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "client", new Dep("B", null, "full-build")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "client", new Dep("B", null, "full-build")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void ChildHasSmallerConfig()
-		{
-			string yamlA = @"
+        [Test]
+        public void ChildHasSmallerConfig()
+        {
+            string yamlA = @"
 client *default:
 full-build > client:
   deps:
@@ -541,11 +541,11 @@ full-build > client:
     - B
     - Y
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-build > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client *default:
   deps:
     - B/full-build
@@ -555,28 +555,28 @@ full-build > client:
     - Y
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "client", new Dep("B", null, "full-build")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "client", new Dep("B", null, "full-build")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void ChildHasHugeConfig()
-		{
-			string yamlA = @"
+        [Test]
+        public void ChildHasHugeConfig()
+        {
+            string yamlA = @"
 client *default:
 full-build > client:
   deps:
     - B/full-build
     - X
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-build > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client *default:
   deps:
     - B
@@ -587,28 +587,28 @@ full-build > client:
     - X
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "client", new Dep("B", null, "client")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "client", new Dep("B", null, "client")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void ChildHasSameConfig()
-		{
-			string yamlA = @"
+        [Test]
+        public void ChildHasSameConfig()
+        {
+            string yamlA = @"
 client *default:
 full-build > client:
   deps:
     - B/client
     - X/full-build
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-build > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client *default:
   deps:
     - B
@@ -617,17 +617,17 @@ full-build > client:
     - X/full-build
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "client", new Dep("B")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "client", new Dep("B")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void ChildOnOff()
-		{
-			string yamlA = @"
+        [Test]
+        public void ChildOnOff()
+        {
+            string yamlA = @"
 client *default:
   deps:
     - B
@@ -638,12 +638,12 @@ full-build > client:
     - B/full-build
     - Y
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 sdk > client:
 full-build > sdk:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client *default:
   deps:
     - B/sdk
@@ -655,17 +655,17 @@ full-build > client:
     - Y
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "client", new Dep("B", null, "sdk")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "client", new Dep("B", null, "sdk")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void NestingHell()
-		{
-			string yamlA = @"
+        [Test]
+        public void NestingHell()
+        {
+            string yamlA = @"
 client1 *default:
 client2 > client1:
   deps:
@@ -677,13 +677,13 @@ client4 > client3:
   deps:
     - B/client3
 ";
-			string yamlB = @"
+            string yamlB = @"
 client1:
 client2 > client1:
 client3 > client2:
 client4 > client3:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client1 *default:
   deps:
     - B/client4
@@ -695,17 +695,17 @@ client4 > client3:
   deps:
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "client1", new Dep("B", null, "client4")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "client1", new Dep("B", null, "client4")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void NestingHell2()
-		{
-			string yamlA = @"
+        [Test]
+        public void NestingHell2()
+        {
+            string yamlA = @"
 client1 *default:
 client2 > client1:
   deps:
@@ -717,13 +717,13 @@ client4 > client3:
   deps:
     - B/client4
 ";
-			string yamlB = @"
+            string yamlB = @"
 client1:
 client2 > client1:
 client3 > client2:
 client4 > client3:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 client1 *default:
   deps:
     - B/client4
@@ -735,17 +735,17 @@ client4 > client3:
   deps:
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "client1", new Dep("B", null, "client4")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "client1", new Dep("B", null, "client4")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void NeedReplaceToHugeConfigWithSrcType()
-		{
-			string yamlA = @"
+        [Test]
+        public void NeedReplaceToHugeConfigWithSrcType()
+        {
+            string yamlA = @"
 full-build:
   deps:
     - B:
@@ -753,11 +753,11 @@ full-build:
     - X
     - Y
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-build > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
   deps:
     - B/full-build:
@@ -766,17 +766,17 @@ full-build:
     - Y
 ";
 
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
 
-		[Test]
-		public void TestWithBuildSection()
-		{
-			string yamlA = @"
+        [Test]
+        public void TestWithBuildSection()
+        {
+            string yamlA = @"
 full-build:
   build:
     target: sicklistTransport.sln
@@ -785,11 +785,11 @@ full-build:
   deps:
     - kanso
 ";
-			string yamlB = @"
+            string yamlB = @"
 client *default:
 full-bulid > client:
 ";
-			string yamlAExpected = @"
+            string yamlAExpected = @"
 full-build:
   build:
     target: sicklistTransport.sln
@@ -799,11 +799,11 @@ full-build:
     - B
     - kanso
 ";
-			using (var dir = MakeTestFolder(yamlA, yamlB))
-			{
-				Assert.That(Patch(dir, "full-build", new Dep("B")),
-					Is.EqualTo(yamlAExpected));
-			}
-		}
-	}
+            using (var dir = MakeTestFolder(yamlA, yamlB))
+            {
+                Assert.That(Patch(dir, "full-build", new Dep("B")),
+                    Is.EqualTo(yamlAExpected));
+            }
+        }
+    }
 }

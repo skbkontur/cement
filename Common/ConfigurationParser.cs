@@ -4,9 +4,8 @@ using Common.YamlParsers;
 
 namespace Common
 {
-	public class ConfigurationParser: IConfigurationParser
+    public class ConfigurationParser : IConfigurationParser
     {
-
         private readonly IConfigurationParser parser;
 
         public ConfigurationParser(FileInfo modulePath)
