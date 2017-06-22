@@ -14,7 +14,7 @@ namespace Tests.ParsersTests
 <configurations>
 	<conf name=""client"" parents=""sdk""/>
 	<conf name=""sdk""/>
-	<default-config name=""sdk""/> 
+	<default-config name=""sdk""/>
 </configurations>";
             var configurations = new ConfigurationXmlParser(text).GetConfigurations();
             Assert.AreEqual(new List<string> {"client", "sdk"}, configurations);
@@ -27,7 +27,7 @@ namespace Tests.ParsersTests
 <configurations>
 	<conf name=""client"" parents=""sdk""/>
 	<conf name=""sdk""/>
-	<default-config name=""sdk""/> 
+	<default-config name=""sdk""/>
 </configurations>";
             var defaultConfig = new ConfigurationXmlParser(text).GetDefaultConfigurationName();
             Assert.AreEqual("sdk", defaultConfig);
@@ -40,7 +40,7 @@ namespace Tests.ParsersTests
 <configurations>
 	<conf name=""client"" parents=""sdk, full-build""/>
 	<conf name=""sdk""/>
-	<default-config name=""sdk""/> 
+	<default-config name=""sdk""/>
 </configurations>";
             var parents = new ConfigurationXmlParser(text).GetParentConfigurations("client");
             Assert.AreEqual(new[] {"sdk", "full-build"}, parents);
@@ -53,7 +53,7 @@ namespace Tests.ParsersTests
 <configurations>
 	<conf name=""client"" parents=""sdk, full-build""/>
 	<conf name=""sdk""/>
-	<default-config name=""sdk""/> 
+	<default-config name=""sdk""/>
 </configurations>";
             Assert.True(new ConfigurationXmlParser(text).ConfigurationExists("sdk"));
         }
@@ -65,7 +65,7 @@ namespace Tests.ParsersTests
 <configurations>
 	<conf name=""client"" parents=""sdk, full-build""/>
 	<conf name=""sdk""/>
-	<default-config name=""sdk""/> 
+	<default-config name=""sdk""/>
 </configurations>";
             Assert.False(new ConfigurationXmlParser(text).ConfigurationExists("dev"));
         }
@@ -79,7 +79,7 @@ namespace Tests.ParsersTests
 	<conf name=""client"" parents=""sdk, full-build""/>
 	<conf name=""sdk"" parents = ""full-build""/>
     <conf name=""notests""/>
-	<default-config name=""full-build""/> 
+	<default-config name=""full-build""/>
 </configurations>";
             var hierarchy = new ConfigurationXmlParser(text).GetConfigurationsHierarchy();
             Assert.NotNull(hierarchy);

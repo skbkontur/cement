@@ -86,9 +86,9 @@ namespace Commands
         -f/--force                  forcing local changes(not pulling from remote)
         -r/--reset                  resetting all local changes
         -p/--pull-anyway            try to fast-forward pull if local changes are found
-       
+
         -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state. Checks for 'master' by default
-       
+
         -v/--verbose                show commit info for deps
 
     Example:

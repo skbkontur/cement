@@ -54,7 +54,7 @@ namespace Tests.ParsersTests
 	<configurations>
 		<conf name=""client"" parents=""sdk""/>
 		<conf name=""sdk""/>
-		<default-config name=""sdk""/> 
+		<default-config name=""sdk""/>
 	</configurations>
 </spec>";
             Assert.Throws<NoSuchConfigurationException>(() => new InstallXmlParser(content, "module").Get(null));
@@ -78,7 +78,7 @@ namespace Tests.ParsersTests
 	<configurations>
 		<conf name=""client"" parents=""sdk""/>
 		<conf name=""sdk""/>
-		<default-config name=""sdk""/> 
+		<default-config name=""sdk""/>
 	</configurations>
 </spec>";
             var result = new InstallXmlParser(content, "module").Get("client");

@@ -341,7 +341,7 @@ exit $exit_code";
         public override string HelpMessage => @"
     Updates cement itself
 
-    Usage: 
+    Usage:
         cm self-update [-b <branch name>]
 ";
     }

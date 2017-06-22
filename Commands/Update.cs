@@ -61,8 +61,8 @@ namespace Commands
         -p/--pull-anyway            try to fast-forward pull if local changes are found
 
         -v/--verbose                show commit info for deps
-       
-    This command runs 'update' ('git pull origin treeish') command for module. 
+
+    This command runs 'update' ('git pull origin treeish') command for module.
     If treeish isn't specified, cement uses current.
 ";
     }

@@ -27,7 +27,7 @@ url = C:\temp\abc\";
 url = C:\temp\modules
 type = file
 [group abc]
-modules = 
+modules =
  a
  b
  c

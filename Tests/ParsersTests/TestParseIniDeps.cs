@@ -11,7 +11,7 @@ namespace Tests.ParsersTests
         {
             var content = @"
 [main]
-force = 
+force =
  A -> B
  C -> B
  $CURRENT_BRANCH

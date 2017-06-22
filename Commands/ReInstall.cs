@@ -11,7 +11,7 @@
     Reinstalls cement
 	NOTE: Don't use this command from installed cement.
 
-    Usage: 
+    Usage:
         cm reinstall
 ";
     }

@@ -44,7 +44,7 @@ url = C:\temp\C\
         {
             const string txt = @"
 [module A]
-multiline = 
+multiline =
  Q
  W
  E";

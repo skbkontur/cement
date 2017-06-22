@@ -28,9 +28,9 @@ namespace Tests.CommandsTests
                     "Dep2"
                 };
                 var slnContent = @"
-Project(""A"") = ""AName"", ""AName\AName.csproj"", ""{AAA}"" 
-Project(""B"") = ""BName"", ""BName\BName.csproj"", ""{BBB}"" 
-Project(""C"") = ""CName"", ""CName\CName.csproj"", ""{CCC}"" 
+Project(""A"") = ""AName"", ""AName\AName.csproj"", ""{AAA}""
+Project(""B"") = ""BName"", ""BName\BName.csproj"", ""{BBB}""
+Project(""C"") = ""CName"", ""CName\CName.csproj"", ""{CCC}""
 
 {AAA}.Client|Any CPU.Build.0 = Release|Any CPU
 {BBB}.Release|Any CPU.Build.0 = Release|Any CPU
