@@ -4,9 +4,8 @@ using Common.YamlParsers;
 
 namespace Common
 {
-	public class ConfigurationParser: IConfigurationParser
+    public class ConfigurationParser : IConfigurationParser
     {
-
         private readonly IConfigurationParser parser;
 
         public ConfigurationParser(FileInfo modulePath)
@@ -46,7 +45,9 @@ namespace Common
 
         public Dictionary<string, IList<string>> GetConfigurationsHierarchy()
         {
-            return parser == null ? new Dictionary<string, IList<string>> {{"full-build", new List<string>()}} : parser.GetConfigurationsHierarchy();
+            return parser == null
+                ? new Dictionary<string, IList<string>> {{"full-build", new List<string>()}}
+                : parser.GetConfigurationsHierarchy();
         }
     }
 }

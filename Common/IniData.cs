@@ -3,42 +3,42 @@ using System.Linq;
 
 namespace Common
 {
-	public class IniData
-	{
-		private readonly Dictionary<string, Dictionary<string, string>> data; 
+    public class IniData
+    {
+        private readonly Dictionary<string, Dictionary<string, string>> data;
 
-		public IniData(Dictionary<string, Dictionary<string, string>> data)
-		{
-			this.data = data;
-		}
+        public IniData(Dictionary<string, Dictionary<string, string>> data)
+        {
+            this.data = data;
+        }
 
-		public string GetValue(string key, string section)
-		{
-			return GetValue(key, section, "");
-		}
+        public string GetValue(string key, string section)
+        {
+            return GetValue(key, section, "");
+        }
 
-	    private string GetValue(string key, string section, string @default)
-		{
-			if (!data.ContainsKey(section))
-				return @default;
+        private string GetValue(string key, string section, string @default)
+        {
+            if (!data.ContainsKey(section))
+                return @default;
 
-			if (!data[section].ContainsKey(key))
-				return @default;
+            if (!data[section].ContainsKey(key))
+                return @default;
 
-			return data[section][key];
-		}
+            return data[section][key];
+        }
 
-		public string[] GetKeys(string section)
-		{
-			if (!data.ContainsKey(section))
-				return new string[0];
+        public string[] GetKeys(string section)
+        {
+            if (!data.ContainsKey(section))
+                return new string[0];
 
-			return data[section].Keys.ToArray();
-		}
+            return data[section].Keys.ToArray();
+        }
 
-		public string[] GetSections()
-		{
-			return data.Keys.Where(t => t != "").ToArray();
-		}
-	}
+        public string[] GetSections()
+        {
+            return data.Keys.Where(t => t != "").ToArray();
+        }
+    }
 }

@@ -26,11 +26,11 @@ namespace Commands
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseAnalyzerAdd(args);
-            
-            analyzerModule = new Dep((string)parsedArgs["module"]);
+
+            analyzerModule = new Dep((string) parsedArgs["module"]);
             if (parsedArgs["configuration"] != null)
-                analyzerModule.Configuration = (string)parsedArgs["configuration"];
-            moduleSolutionName = (string)parsedArgs["solution"];
+                analyzerModule.Configuration = (string) parsedArgs["configuration"];
+            moduleSolutionName = (string) parsedArgs["solution"];
         }
 
         protected override int Execute()
@@ -53,10 +53,12 @@ namespace Commands
             analyzerModule = new Dep(analyzerModuleName, analyzerModule.Treeish, analyzerModule.Configuration);
             var configuration = analyzerModule.Configuration;
 
-            if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, analyzerModuleName)) || !Helper.HasModule(analyzerModuleName))
+            if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, analyzerModuleName)) ||
+                !Helper.HasModule(analyzerModuleName))
                 throw new CementException($"Can't find module '{analyzerModuleName}'");
 
-            Log.Debug($"{analyzerModuleName + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration)} -> {moduleSolutionName}");
+            Log.Debug(
+                $"{analyzerModuleName + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration)} -> {moduleSolutionName}");
 
             CheckBranch();
 
@@ -83,7 +85,8 @@ namespace Commands
                 {
                     if (installItem.EndsWith(".ruleset"))
                     {
-                        var analyzerModuleRulesetPath = Path.GetFullPath(Path.Combine(Helper.CurrentWorkspace, installItem));
+                        var analyzerModuleRulesetPath =
+                            Path.GetFullPath(Path.Combine(Helper.CurrentWorkspace, installItem));
                         pair.Ruleset.Include(analyzerModuleRulesetPath);
                     }
                 }
@@ -94,14 +97,16 @@ namespace Commands
                 {
                     if (installItem.EndsWith(".dll"))
                     {
-                        var analyzerModuleDllPath = Path.GetFullPath(Path.Combine(Helper.CurrentWorkspace, installItem));
+                        var analyzerModuleDllPath =
+                            Path.GetFullPath(Path.Combine(Helper.CurrentWorkspace, installItem));
                         pair.Csproj.AddAnalyzer(analyzerModuleDllPath);
                     }
                 }
             }
 
             if (!File.Exists(Path.Combine(moduleDirectory, Helper.YamlSpecFile)))
-                throw new CementException("No module.yaml file. You should patch deps file manually or convert old spec to module.yaml (cm convert-spec)");
+                throw new CementException(
+                    "No module.yaml file. You should patch deps file manually or convert old spec to module.yaml (cm convert-spec)");
             DepsPatcherProject.PatchDepsForSolution(moduleDirectory, analyzerModule, moduleSolutionPath);
 
             foreach (var pair in csprojAndRulesetPairs)
@@ -110,7 +115,8 @@ namespace Commands
                 pair.Ruleset.Save();
             }
 
-            ConsoleWriter.WriteOk($"Add {analyzerModuleName} to {Path.GetFileName(moduleSolutionPath)} successfully completed");
+            ConsoleWriter.WriteOk(
+                $"Add {analyzerModuleName} to {Path.GetFileName(moduleSolutionPath)} successfully completed");
             return 0;
         }
 
@@ -124,7 +130,8 @@ namespace Commands
                 var repo = new GitRepository(analyzerModule.Name, Helper.CurrentWorkspace, Log);
                 var current = repo.CurrentLocalTreeish().Value;
                 if (current != analyzerModule.Treeish)
-                    ConsoleWriter.WriteWarning($"{analyzerModule.Name} on @{current} but adding @{analyzerModule.Treeish}");
+                    ConsoleWriter.WriteWarning(
+                        $"{analyzerModule.Name} on @{current} but adding @{analyzerModule.Treeish}");
             }
             catch (Exception e)
             {

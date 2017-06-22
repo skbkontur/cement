@@ -1,18 +1,18 @@
 ﻿namespace Commands
 {
-	public class ReInstall : SelfUpdate
-	{
-		public ReInstall()
-		{
-			IsInstallingCement = true;
-		}
+    public class ReInstall : SelfUpdate
+    {
+        public ReInstall()
+        {
+            IsInstallingCement = true;
+        }
 
-		public override string HelpMessage => @"
+        public override string HelpMessage => @"
     Reinstalls cement
 	NOTE: Don't use this command from installed cement.
 
     Usage: 
         cm reinstall
 ";
-	}
+    }
 }

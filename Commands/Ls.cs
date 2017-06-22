@@ -7,94 +7,97 @@ using Common.YamlParsers;
 
 namespace Commands
 {
-	public class Ls : ICommand
+    public class Ls : ICommand
     {
-	    private Dictionary<string, object> parsedArgs;
-		private bool simple;
+        private Dictionary<string, object> parsedArgs;
+        private bool simple;
 
-	    public int Run(string[] args)
-	    {
-		    ParseArgs(args);
+        public int Run(string[] args)
+        {
+            ParseArgs(args);
 
-		    if (simple)
-		    {
-		        PrintSimpleLocalWithYaml();
-				return 0;
-			}
+            if (simple)
+            {
+                PrintSimpleLocalWithYaml();
+                return 0;
+            }
 
-			PackageUpdater.UpdatePackages();
-			var packages = Helper.GetPackages();
-		    foreach (var package in packages)
+            PackageUpdater.UpdatePackages();
+            var packages = Helper.GetPackages();
+            foreach (var package in packages)
                 PrintPackage(package);
-			ConsoleWriter.ClearLine();
-		    return 0;
-	    }
-        
+            ConsoleWriter.ClearLine();
+            return 0;
+        }
+
         private static void PrintSimpleLocalWithYaml()
-		{
-			var modules = Helper.GetModules();
-			var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
-			Helper.SetWorkspace(workspace);
-			var local = modules.Where(m => Yaml.Exists(m.Name));
-			Console.WriteLine(string.Join("\n", local.Select(m => m.Name).OrderBy(x => x)));
-		}
+        {
+            var modules = Helper.GetModules();
+            var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ??
+                            Directory.GetCurrentDirectory();
+            Helper.SetWorkspace(workspace);
+            var local = modules.Where(m => Yaml.Exists(m.Name));
+            Console.WriteLine(string.Join("\n", local.Select(m => m.Name).OrderBy(x => x)));
+        }
 
-		private void PrintPackage(Package package)
-		{
-			Console.WriteLine("[{0}]", package.Name);
-			var modules = Helper.GetModulesFromPackage(package).OrderBy(m => m.Name);
-			foreach (var module in modules)
-				PrintModule(module);
-			ConsoleWriter.ClearLine();
-		}
+        private void PrintPackage(Package package)
+        {
+            Console.WriteLine("[{0}]", package.Name);
+            var modules = Helper.GetModulesFromPackage(package).OrderBy(m => m.Name);
+            foreach (var module in modules)
+                PrintModule(module);
+            ConsoleWriter.ClearLine();
+        }
 
-		private void PrintModule(Module module)
-		{
-			ConsoleWriter.WriteProgress(module.Name);
-			var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
+        private void PrintModule(Module module)
+        {
+            ConsoleWriter.WriteProgress(module.Name);
+            var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ??
+                            Directory.GetCurrentDirectory();
 
-			if ((bool) parsedArgs["all"] || (bool) parsedArgs["local"] &&
-			    Helper.DirectoryContainsModule(workspace, module.Name))
-			{
-				if (parsedArgs["branch"] != null && !GitRepository.HasRemoteBranch(module.Url, (string) parsedArgs["branch"]))
-					return;
-				ConsoleWriter.ClearLine();
-				Console.Write("{0, -30}", module.Name);
-				if ((bool) parsedArgs["url"])
-					Console.Write("{0, -60}", module.Url);
-				if ((bool) parsedArgs["pushurl"])
-					Console.Write(module.Url);
-				Console.WriteLine();
-			}
-		}
+            if ((bool) parsedArgs["all"] || (bool) parsedArgs["local"] &&
+                Helper.DirectoryContainsModule(workspace, module.Name))
+            {
+                if (parsedArgs["branch"] != null &&
+                    !GitRepository.HasRemoteBranch(module.Url, (string) parsedArgs["branch"]))
+                    return;
+                ConsoleWriter.ClearLine();
+                Console.Write("{0, -30}", module.Name);
+                if ((bool) parsedArgs["url"])
+                    Console.Write("{0, -60}", module.Url);
+                if ((bool) parsedArgs["pushurl"])
+                    Console.Write(module.Url);
+                Console.WriteLine();
+            }
+        }
 
-		private void ParseArgs(string[] args)
-	    {
-		    parsedArgs = ArgumentParser.ParseLs(args);
-		    foreach (var key in new[] {"local", "all", "url", "pushurl"})
-		    {
-			    if (!parsedArgs.ContainsKey(key))
-				    parsedArgs[key] = false;
-		    }
-		    if (!parsedArgs.ContainsKey("branch"))
-			    parsedArgs["branch"] = null;
-		    if (!(bool)parsedArgs["local"] && !(bool)parsedArgs["all"])
-		    {
-			    if (parsedArgs["branch"] == null)
-			    {
-					parsedArgs["all"] = true;
-			    }
-			    else
-			    {
-					parsedArgs["local"] = true;
-			    }
-		    }
+        private void ParseArgs(string[] args)
+        {
+            parsedArgs = ArgumentParser.ParseLs(args);
+            foreach (var key in new[] {"local", "all", "url", "pushurl"})
+            {
+                if (!parsedArgs.ContainsKey(key))
+                    parsedArgs[key] = false;
+            }
+            if (!parsedArgs.ContainsKey("branch"))
+                parsedArgs["branch"] = null;
+            if (!(bool) parsedArgs["local"] && !(bool) parsedArgs["all"])
+            {
+                if (parsedArgs["branch"] == null)
+                {
+                    parsedArgs["all"] = true;
+                }
+                else
+                {
+                    parsedArgs["local"] = true;
+                }
+            }
 
-			if (parsedArgs.ContainsKey("simple"))
-				simple = true;
-	    }
+            if (parsedArgs.ContainsKey("simple"))
+                simple = true;
+        }
 
-		public string HelpMessage => @"
+        public string HelpMessage => @"
     Lists all available modules
 
     Usage:
@@ -112,6 +115,7 @@ namespace Commands
     Example:
         cm ls --all --has-branch=temp --url
 ";
+
         public bool IsHiddenCommand => false;
     }
 }

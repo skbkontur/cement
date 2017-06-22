@@ -9,9 +9,9 @@ using NUnit.Framework;
 
 namespace Tests.ParsersTests
 {
-	[TestFixture]
-	class TestProjectFile
-	{
+    [TestFixture]
+    class TestProjectFile
+    {
         private TempDirectory workDirectory = new TempDirectory();
 
         private string defaultCsprojXml =
@@ -38,22 +38,22 @@ namespace Tests.ParsersTests
   </ItemGroup>
 </Project>";
 
-	    [SetUp]
-	    public void SetUp()
-	    {
-	        workDirectory = new TempDirectory();
-	    }
+        [SetUp]
+        public void SetUp()
+        {
+            workDirectory = new TempDirectory();
+        }
 
-	    [TearDown]
-	    public void TearDown()
-	    {
-	        workDirectory.Dispose();
-	    }
+        [TearDown]
+        public void TearDown()
+        {
+            workDirectory.Dispose();
+        }
 
         [Test]
-		public void TestCreatingDocument()
-		{
-			var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        public void TestCreatingDocument()
+        {
+            var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""4.0"" DefaultTargets=""Build"">
   <ItemGroup>
     <Reference Include=""log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL"">
@@ -69,16 +69,16 @@ namespace Tests.ParsersTests
   </ItemGroup>
 </Project>
 ";
-			var proj = CreateProjectFile(content);
+            var proj = CreateProjectFile(content);
             XmlNode refXml;
-			Assert.IsTrue(proj.ContainsRef("log4net", out refXml));
-			Assert.IsFalse(proj.ContainsRef("logging", out refXml));
-		}
+            Assert.IsTrue(proj.ContainsRef("log4net", out refXml));
+            Assert.IsFalse(proj.ContainsRef("logging", out refXml));
+        }
 
-		[Test]
-		public void TestAddReference()
-		{
-			var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        [Test]
+        public void TestAddReference()
+        {
+            var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""4.0"" DefaultTargets=""Build"">
   <ItemGroup>
     <Reference Include=""log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL"">
@@ -94,12 +94,12 @@ namespace Tests.ParsersTests
   </ItemGroup>
 </Project>
 ";
-			XmlNode refXml;
-			var proj = CreateProjectFile(content);
+            XmlNode refXml;
+            var proj = CreateProjectFile(content);
             proj.AddRef("logging", "abc/def");
-			Assert.IsTrue(proj.ContainsRef("logging", out refXml));
-			Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
-		}
+            Assert.IsTrue(proj.ContainsRef("logging", out refXml));
+            Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
+        }
 
         [Test]
         public void TestAddReferenceInEmptyProject()
@@ -144,9 +144,9 @@ namespace Tests.ParsersTests
         }
 
         [Test]
-		public void TestReplaceReferencePath()
-		{
-			var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        public void TestReplaceReferencePath()
+        {
+            var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""4.0"" DefaultTargets=""Build"">
   <ItemGroup>
     <Reference Include=""log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL"">
@@ -162,17 +162,17 @@ namespace Tests.ParsersTests
   </ItemGroup>
 </Project>
 ";
-			XmlNode refXml;
-			var proj = CreateProjectFile(content);
-			proj.ReplaceRef("log4net", "abc/def");
-			Assert.IsTrue(proj.ContainsRef("log4net", out refXml));
-			Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
-		}
+            XmlNode refXml;
+            var proj = CreateProjectFile(content);
+            proj.ReplaceRef("log4net", "abc/def");
+            Assert.IsTrue(proj.ContainsRef("log4net", out refXml));
+            Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
+        }
 
-		[Test]
-		public void TestGetOutputDir()
-		{
-			var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        [Test]
+        public void TestGetOutputDir()
+        {
+            var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <PropertyGroup>
 	<PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
 		<DebugSymbols>true</DebugSymbols>
@@ -184,16 +184,16 @@ namespace Tests.ParsersTests
 	</PropertyGroup>
 </PropertyGroup>
    ";
-			using (var dir = new TempDirectory())
-			{
-				var path = Path.Combine(dir.Path, "1.csproj");
+            using (var dir = new TempDirectory())
+            {
+                var path = Path.Combine(dir.Path, "1.csproj");
                 File.WriteAllText(Path.Combine(dir.Path, "1.csproj"), content);
-				var outputs = VisualStudioProjectParser.GetOutputPathFromCsproj(path);
-				Assert.AreEqual(Path.Combine(dir.Path, "bin"), outputs[0]);
-				Assert.AreEqual(Path.Combine(dir.Path, "bin", "release"), outputs[1]);
-				Assert.AreEqual(2, outputs.Count);
-			}
-		}
+                var outputs = VisualStudioProjectParser.GetOutputPathFromCsproj(path);
+                Assert.AreEqual(Path.Combine(dir.Path, "bin"), outputs[0]);
+                Assert.AreEqual(Path.Combine(dir.Path, "bin", "release"), outputs[1]);
+                Assert.AreEqual(2, outputs.Count);
+            }
+        }
 
         [Test]
         public void Costructor_GetXmlFromFile_IfFileExist()
@@ -240,7 +240,8 @@ namespace Tests.ParsersTests
 
             projectFile.BindRuleset(rulesetFile);
 
-            Console.WriteLine($"ProjectFile should be contains only one CodeAnalysisRuleSet with value '{rulesetName}':");
+            Console.WriteLine(
+                $"ProjectFile should be contains only one CodeAnalysisRuleSet with value '{rulesetName}':");
             Console.WriteLine(projectFile.Document.OuterXml);
             var rulesetBinding = SearchByXpath(projectFile.Document, "//a:CodeAnalysisRuleSet").Single();
             Assert.AreEqual(rulesetName, rulesetBinding.InnerText);
@@ -255,7 +256,8 @@ namespace Tests.ParsersTests
         public void AddAnalyzer_CreateItemGroupForAnalyzers_IfNotExists()
         {
             var analyzerDllPath = Path.Combine(workDirectory.Path, $"{Guid.NewGuid()}.dll");
-            var csprojContent = @"<?xml version=""1.0"" encoding=""utf-8""?><Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003""></Project>";
+            var csprojContent =
+                @"<?xml version=""1.0"" encoding=""utf-8""?><Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003""></Project>";
             var projectFile = CreateProjectFile(csprojContent);
 
             projectFile.AddAnalyzer(analyzerDllPath);
@@ -272,7 +274,8 @@ namespace Tests.ParsersTests
 
             projectFile.AddAnalyzer(analyzerDllFullPath);
 
-            Assert.NotNull(SearchByXpath(projectFile.Document, $"//a:ItemGroup/a:Analyzer[@Include = '{analyzerDllRelpath}']").Single());
+            Assert.NotNull(SearchByXpath(projectFile.Document,
+                $"//a:ItemGroup/a:Analyzer[@Include = '{analyzerDllRelpath}']").Single());
         }
 
         [Test]
@@ -284,28 +287,31 @@ namespace Tests.ParsersTests
 
             projectFile.AddAnalyzer(analyzerDllFullPath);
 
-            Assert.AreEqual(0, SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'Another.dll']").Count);
-            Assert.AreEqual(1, SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'dummyDir\\Another.dll']").Count);
+            Assert.AreEqual(0,
+                SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'Another.dll']").Count);
+            Assert.AreEqual(1,
+                SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'dummyDir\\Another.dll']")
+                    .Count);
         }
 
-	    private ProjectFile CreateProjectFile(string projectFileContent)
-	    {
-	        var projectFilePath = CreateProjectFilePath();
+        private ProjectFile CreateProjectFile(string projectFileContent)
+        {
+            var projectFilePath = CreateProjectFilePath();
             File.WriteAllText(projectFilePath, projectFileContent);
             var projectFile = new ProjectFile(projectFilePath);
-	        return projectFile;
-	    }
+            return projectFile;
+        }
 
-	    private string CreateProjectFilePath()
-	    {
-	        var currentTestName = TestContext.CurrentContext.Test.Name;
-	        foreach (var badSymbols in Path.GetInvalidFileNameChars())
-	            currentTestName = currentTestName.Replace(badSymbols, '_');
+        private string CreateProjectFilePath()
+        {
+            var currentTestName = TestContext.CurrentContext.Test.Name;
+            foreach (var badSymbols in Path.GetInvalidFileNameChars())
+                currentTestName = currentTestName.Replace(badSymbols, '_');
             var projectFileName = $"{currentTestName}.csproj";
 
             var projectFilePath = Path.Combine(workDirectory.Path, projectFileName);
             return projectFilePath;
-	    }
+        }
 
         private string WithoutXmlFormatting(string xml) => new Regex(">\\s+<").Replace(xml, "><");
 

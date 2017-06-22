@@ -9,145 +9,148 @@ using Tests.Helpers;
 
 namespace Tests.BuildTests
 {
-	[TestFixture]
-	public class TestBuildDepsCache
-	{
-		private static readonly ILog Log = LogManager.GetLogger("TestBuildDepsCache");
+    [TestFixture]
+    public class TestBuildDepsCache
+    {
+        private static readonly ILog Log = LogManager.GetLogger("TestBuildDepsCache");
 
-		private List<Dep> GetUpdatedModules(Dep moduleToBuild)
-		{
-			List<Dep> modulesToUpdate;
-			Dictionary<string, string> currentCommitHashes;
-			List<Dep> topSortedDeps;
-			new BuildPreparer(Log).GetModulesOrder(moduleToBuild.Name, moduleToBuild.Configuration, out topSortedDeps, out modulesToUpdate, out currentCommitHashes);
-			return modulesToUpdate;
-		}
+        private List<Dep> GetUpdatedModules(Dep moduleToBuild)
+        {
+            List<Dep> modulesToUpdate;
+            Dictionary<string, string> currentCommitHashes;
+            List<Dep> topSortedDeps;
+            new BuildPreparer(Log).GetModulesOrder(moduleToBuild.Name, moduleToBuild.Configuration, out topSortedDeps,
+                out modulesToUpdate, out currentCommitHashes);
+            return modulesToUpdate;
+        }
 
-		private void Build(Dep module)
-		{
-			using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
-				new Build().Run(new[] {"build", "-c", module.Configuration});
-		}
+        private void Build(Dep module)
+        {
+            using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
+                new Build().Run(new[] {"build", "-c", module.Configuration});
+        }
 
-		private void BuildDeps(Dep module)
-		{
-			using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
-				new BuildDeps().Run(new[] { "build-deps", "-c", module.Configuration });
-		}
+        private void BuildDeps(Dep module)
+        {
+            using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
+                new BuildDeps().Run(new[] {"build-deps", "-c", module.Configuration});
+        }
 
-		[Test]
-		public void TestOneModule()
-		{
-			using (var env = new TestEnvironment())
-			{
-				env.CreateRepo("A", new Dictionary<string, DepsContent>
-				{
-					{"full-build", new DepsContent(null, new List<Dep>())}
-				});
-				Helper.SetWorkspace(env.RemoteWorkspace);
-	
-				CollectionAssert.AreEqual(new[] {new Dep("A/full-build") }, GetUpdatedModules(new Dep("A")));
-				Build(new Dep("A/full-build"));
-				Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
-			}
-		}
+        [Test]
+        public void TestOneModule()
+        {
+            using (var env = new TestEnvironment())
+            {
+                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                {
+                    {"full-build", new DepsContent(null, new List<Dep>())}
+                });
+                Helper.SetWorkspace(env.RemoteWorkspace);
 
-		[Test]
-		public void TestGitClean()
-		{
-			using (var env = new TestEnvironment())
-			{
-				env.CreateRepo("A", new Dictionary<string, DepsContent>
-				{
-					{"full-build", new DepsContent(null, new List<Dep>())}
-				});
-				Helper.SetWorkspace(env.RemoteWorkspace);
+                CollectionAssert.AreEqual(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
+                Build(new Dep("A/full-build"));
+                Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
+            }
+        }
 
-				CollectionAssert.AreEqual(new[] { new Dep("A/full-build") }, GetUpdatedModules(new Dep("A")));
-				Build(new Dep("A/full-build"));
-				Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
+        [Test]
+        public void TestGitClean()
+        {
+            using (var env = new TestEnvironment())
+            {
+                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                {
+                    {"full-build", new DepsContent(null, new List<Dep>())}
+                });
+                Helper.SetWorkspace(env.RemoteWorkspace);
 
-				new GitRepository("A", Helper.CurrentWorkspace, Log).Clean();
-				CollectionAssert.AreEqual(new[] { new Dep("A/full-build") }, GetUpdatedModules(new Dep("A")));
-				Build(new Dep("A/full-build"));
-				Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
-			}
-		}
+                CollectionAssert.AreEqual(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
+                Build(new Dep("A/full-build"));
+                Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
 
-		[Test]
-		public void TestModuleWithDep()
-		{
-			using (var env = new TestEnvironment())
-			{
-				env.CreateRepo("A", new Dictionary<string, DepsContent>
-				{
-					{"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})}
-				});
-				env.CreateRepo("B", new Dictionary<string, DepsContent>
-				{
-					{"full-build", new DepsContent(null, new List<Dep>())}
-				});
-				Helper.SetWorkspace(env.RemoteWorkspace);
+                new GitRepository("A", Helper.CurrentWorkspace, Log).Clean();
+                CollectionAssert.AreEqual(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
+                Build(new Dep("A/full-build"));
+                Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
+            }
+        }
 
-				CollectionAssert.AreEquivalent(new[] { new Dep("A/full-build"), new Dep("B/full-build") }, GetUpdatedModules(new Dep("A")));
-				BuildDeps(new Dep("A/full-build"));
-				CollectionAssert.AreEquivalent(new[] { new Dep("A/full-build") }, GetUpdatedModules(new Dep("A")));
-				Build(new Dep("A/full-build"));
-				Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
+        [Test]
+        public void TestModuleWithDep()
+        {
+            using (var env = new TestEnvironment())
+            {
+                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                {
+                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                });
+                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                {
+                    {"full-build", new DepsContent(null, new List<Dep>())}
+                });
+                Helper.SetWorkspace(env.RemoteWorkspace);
 
-				//change dep
-				env.CommitIntoRemote("B", "1.txt", "changes");
-				CollectionAssert.AreEquivalent(new[] { new Dep("A/full-build"), new Dep("B/full-build") }, GetUpdatedModules(new Dep("A")));
-				BuildDeps(new Dep("A/full-build"));
-				CollectionAssert.AreEquivalent(new[] { new Dep("A/full-build") }, GetUpdatedModules(new Dep("A")));
-				Build(new Dep("A/full-build"));
-				Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
+                CollectionAssert.AreEquivalent(new[] {new Dep("A/full-build"), new Dep("B/full-build")},
+                    GetUpdatedModules(new Dep("A")));
+                BuildDeps(new Dep("A/full-build"));
+                CollectionAssert.AreEquivalent(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
+                Build(new Dep("A/full-build"));
+                Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
 
-				//change root
-				env.CommitIntoRemote("A", "1.txt", "changes");
-				CollectionAssert.AreEquivalent(new[] { new Dep("A/full-build") }, GetUpdatedModules(new Dep("A")));
-				CollectionAssert.AreEquivalent(new Dep[] {}, GetUpdatedModules(new Dep("B")));
-				Build(new Dep("A/full-build"));
-				Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
-			}
-		}
+                //change dep
+                env.CommitIntoRemote("B", "1.txt", "changes");
+                CollectionAssert.AreEquivalent(new[] {new Dep("A/full-build"), new Dep("B/full-build")},
+                    GetUpdatedModules(new Dep("A")));
+                BuildDeps(new Dep("A/full-build"));
+                CollectionAssert.AreEquivalent(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
+                Build(new Dep("A/full-build"));
+                Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
 
-		[Test]
-		public void TestNeedBuildHugeConfig()
-		{
-			using (var env = new TestEnvironment())
-			{
-				env.CreateRepo("A", new Dictionary<string, DepsContent>
-				{
-					{"full-build > client", new DepsContent(null, new List<Dep>())},
-					{"client", new DepsContent(null, new List<Dep>())}
-				});
-				Helper.SetWorkspace(env.RemoteWorkspace);
+                //change root
+                env.CommitIntoRemote("A", "1.txt", "changes");
+                CollectionAssert.AreEquivalent(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
+                CollectionAssert.AreEquivalent(new Dep[] { }, GetUpdatedModules(new Dep("B")));
+                Build(new Dep("A/full-build"));
+                Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
+            }
+        }
 
-				CollectionAssert.AreEqual(new[] { new Dep("A/full-build") }, GetUpdatedModules(new Dep("A")));
-				Build(new Dep("A/client"));
-				CollectionAssert.AreEqual(new[] { new Dep("A/full-build") }, GetUpdatedModules(new Dep("A")));
-			}
-		}
+        [Test]
+        public void TestNeedBuildHugeConfig()
+        {
+            using (var env = new TestEnvironment())
+            {
+                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                {
+                    {"full-build > client", new DepsContent(null, new List<Dep>())},
+                    {"client", new DepsContent(null, new List<Dep>())}
+                });
+                Helper.SetWorkspace(env.RemoteWorkspace);
 
-		[Test]
-		public void TestNoNeedBuildSmallerConfig()
-		{
-			using (var env = new TestEnvironment())
-			{
-				env.CreateRepo("A", new Dictionary<string, DepsContent>
-				{
-					{"full-build > client", new DepsContent(null, new List<Dep>())},
-					{"client", new DepsContent(null, new List<Dep>())}
-				});
-				Helper.SetWorkspace(env.RemoteWorkspace);
+                CollectionAssert.AreEqual(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
+                Build(new Dep("A/client"));
+                CollectionAssert.AreEqual(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
+            }
+        }
 
-				CollectionAssert.AreEqual(new[] { new Dep("A/full-build") }, GetUpdatedModules(new Dep("A")));
-				Build(new Dep("A/full-build"));
-				CollectionAssert.AreEqual(new Dep[] { }, GetUpdatedModules(new Dep("A")));
-				CollectionAssert.AreEqual(new Dep[] { }, GetUpdatedModules(new Dep("A/client")));
-				CollectionAssert.AreEqual(new Dep[] { }, GetUpdatedModules(new Dep("A/full-build")));
-			}
-		}
-	}
+        [Test]
+        public void TestNoNeedBuildSmallerConfig()
+        {
+            using (var env = new TestEnvironment())
+            {
+                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                {
+                    {"full-build > client", new DepsContent(null, new List<Dep>())},
+                    {"client", new DepsContent(null, new List<Dep>())}
+                });
+                Helper.SetWorkspace(env.RemoteWorkspace);
+
+                CollectionAssert.AreEqual(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
+                Build(new Dep("A/full-build"));
+                CollectionAssert.AreEqual(new Dep[] { }, GetUpdatedModules(new Dep("A")));
+                CollectionAssert.AreEqual(new Dep[] { }, GetUpdatedModules(new Dep("A/client")));
+                CollectionAssert.AreEqual(new Dep[] { }, GetUpdatedModules(new Dep("A/full-build")));
+            }
+        }
+    }
 }

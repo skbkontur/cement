@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace Tests.Helpers
 {
-	public enum DepsFormatStyle
+    public enum DepsFormatStyle
     {
         Ini,
         Yaml
@@ -21,20 +21,21 @@ namespace Tests.Helpers
         private ShellRunner runner;
         public readonly string PackageFile;
         public readonly string RemoteWorkspace;
-	    private static ILog Log = LogManager.GetLogger("TestEnvironment");
+        private static ILog Log = LogManager.GetLogger("TestEnvironment");
 
         public TestEnvironment()
         {
             runner = new ShellRunner();
             WorkingDirectory = new TempDirectory();
-			Directory.CreateDirectory(Path.Combine(WorkingDirectory.Path, ".cement"));
-			RemoteWorkspace = Path.Combine(WorkingDirectory.Path, "remote");
-			Directory.CreateDirectory(Path.Combine(RemoteWorkspace, ".cement"));
-			PackageFile = Path.Combine(WorkingDirectory.Path, "package.cmpkg");
+            Directory.CreateDirectory(Path.Combine(WorkingDirectory.Path, ".cement"));
+            RemoteWorkspace = Path.Combine(WorkingDirectory.Path, "remote");
+            Directory.CreateDirectory(Path.Combine(RemoteWorkspace, ".cement"));
+            PackageFile = Path.Combine(WorkingDirectory.Path, "package.cmpkg");
             Helper.SetWorkspace(WorkingDirectory.Path);
         }
 
-        public void CreateRepo(string moduleName, Dictionary<string, DepsContent> depsByConfig = null, IList<string> branches = null, DepsFormatStyle depsStyle = DepsFormatStyle.Yaml)
+        public void CreateRepo(string moduleName, Dictionary<string, DepsContent> depsByConfig = null,
+            IList<string> branches = null, DepsFormatStyle depsStyle = DepsFormatStyle.Yaml)
         {
             var modulePath = Path.Combine(RemoteWorkspace, moduleName);
             using (new DirectoryJumper(modulePath))
@@ -46,11 +47,12 @@ namespace Tests.Helpers
             AppendModule(moduleName, modulePath);
         }
 
-        public void Get(string module, string treeish = null, LocalChangesPolicy localChangesPolicy = LocalChangesPolicy.FailOnLocalChanges)
+        public void Get(string module, string treeish = null,
+            LocalChangesPolicy localChangesPolicy = LocalChangesPolicy.FailOnLocalChanges)
         {
             var getter = new ModuleGetter(
-                GetModules().ToList(), 
-                new Dep(module, treeish), 
+                GetModules().ToList(),
+                new Dep(module, treeish),
                 localChangesPolicy,
                 null);
 
@@ -82,13 +84,13 @@ url={modulePath}
             }
         }
 
-        public void CreateDepsAndCommitThem(string path, Dictionary<string, DepsContent> depsByConfig, DepsFormatStyle depsStyle = DepsFormatStyle.Yaml)
+        public void CreateDepsAndCommitThem(string path, Dictionary<string, DepsContent> depsByConfig,
+            DepsFormatStyle depsStyle = DepsFormatStyle.Yaml)
         {
             if (depsStyle == DepsFormatStyle.Yaml)
                 CreateDepsYamlStyle(path, depsByConfig);
             if (depsStyle == DepsFormatStyle.Ini)
                 CreateDepsIniStyle(path, depsByConfig);
-            
         }
 
         private void CreateDepsYamlStyle(string path, Dictionary<string, DepsContent> depsByConfig)
@@ -115,12 +117,14 @@ full-build:
   build:
     target: None
     configuration: None
-  deps:{(depsByConfig[config]
-                        .Force != null
-                        ? "\r\n    - force: " + depsByConfig[config].Force
-                        : "")}
+  deps:{
+                            (depsByConfig[config]
+                                 .Force != null
+                                ? "\r\n    - force: " + depsByConfig[config].Force
+                                : "")
+                        }
 ", (current, dep) => current +
-                                                     $"    - {dep.Name}@{dep.Treeish ?? ""}/{dep.Configuration ?? ""}\r\n");
+                     $"    - {dep.Name}@{dep.Treeish ?? ""}/{dep.Configuration ?? ""}\r\n");
             }
 
 
@@ -141,9 +145,10 @@ full-build:
                 var content = "";
                 if (depsByConfig[config] != null)
                 {
-
-                    content = (depsByConfig[config].Force != null ? @"[main]
-force = " + depsByConfig[config].Force + "\r\n" : "");
+                    content = (depsByConfig[config].Force != null
+                        ? @"[main]
+force = " + depsByConfig[config].Force + "\r\n"
+                        : "");
                     foreach (var dep in depsByConfig[config].Deps)
                     {
                         content += $"[module {dep.Name}]\r\n";
@@ -158,7 +163,8 @@ force = " + depsByConfig[config].Force + "\r\n" : "");
                     }
                 }
                 File.WriteAllText(Path.Combine(path,
-                    $"deps{(config == "full-build" ? "" : "." + (config.StartsWith("*") ? config.Substring(1) : config))}"), content);
+                        $"deps{(config == "full-build" ? "" : "." + (config.StartsWith("*") ? config.Substring(1) : config))}"),
+                    content);
                 runner.Run("git add " + $"deps{(config == "full-build" ? "" : "." + config)}");
             }
             runner.Run("git add .cm/");
@@ -175,7 +181,8 @@ force = " + depsByConfig[config].Force + "\r\n" : "");
             var content = $@"
 <configurations>
     {defaultConfigXmlSection}";
-            foreach (var config in configs.Select(conf => conf.StartsWith("*") ? conf.Substring(1) : conf).OrderBy(x => x))
+            foreach (var config in configs.Select(conf => conf.StartsWith("*") ? conf.Substring(1) : conf)
+                .OrderBy(x => x))
             {
                 content += $"    <conf name = \"{config}\"/>\r\n";
             }
@@ -333,7 +340,16 @@ full-build:
             {
                 env.CreateRepo("A", new Dictionary<string, DepsContent>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})}
+                    {
+                        "full-build",
+                        new DepsContent(null,
+                            new List<Dep>
+                            {
+                                new Dep("B", "develop"),
+                                new Dep("C", null, "client"),
+                                new Dep("D", "release", "sdk")
+                            })
+                    }
                 }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps")));
                 Assert.AreEqual(@"[module B]
@@ -359,7 +375,8 @@ configuration = sdk
                 }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")));
-                Assert.IsTrue(File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")).Contains("<conf name = \"client\"/>"));
+                Assert.IsTrue(File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml"))
+                    .Contains("<conf name = \"client\"/>"));
             }
         }
 
@@ -375,8 +392,10 @@ configuration = sdk
                 }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")));
-                Assert.IsTrue(File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")).Contains("<conf name = \"client\"/>"));
-                Assert.IsTrue(File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")).Contains("<default-config name = \"client\"/>"));
+                Assert.IsTrue(File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml"))
+                    .Contains("<conf name = \"client\"/>"));
+                Assert.IsTrue(File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml"))
+                    .Contains("<default-config name = \"client\"/>"));
             }
         }
 
@@ -387,8 +406,26 @@ configuration = sdk
             {
                 env.CreateRepo("A", new Dictionary<string, DepsContent>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})},
-                    {"client", new DepsContent(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})}
+                    {
+                        "full-build",
+                        new DepsContent(null,
+                            new List<Dep>
+                            {
+                                new Dep("B", "develop"),
+                                new Dep("C", null, "client"),
+                                new Dep("D", "release", "sdk")
+                            })
+                    },
+                    {
+                        "client",
+                        new DepsContent(null,
+                            new List<Dep>
+                            {
+                                new Dep("B", "develop"),
+                                new Dep("C", null, "client"),
+                                new Dep("D", "release", "sdk")
+                            })
+                    }
                 }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
                 Assert.AreEqual(@"[module B]
@@ -429,8 +466,10 @@ configuration = sdk
 url={Path.Combine(env.RemoteWorkspace, "A")}
 
 [module B]
-url={Path.Combine(
-                        env.RemoteWorkspace, "B")}
+url={
+                            Path.Combine(
+                                env.RemoteWorkspace, "B")
+                        }
 ", File.ReadAllText(Path.Combine(env.RemoteWorkspace, env.PackageFile)));
             }
         }
@@ -443,7 +482,7 @@ url={Path.Combine(
                 env.CreateRepo("A");
                 env.CreateRepo("B");
                 var modules = env.GetModules().Select(m => m.Name).ToArray();
-                Assert.AreEqual(new [] {"A", "B"}, modules);
+                Assert.AreEqual(new[] {"A", "B"}, modules);
             }
         }
     }

@@ -3,25 +3,25 @@ using Common;
 
 namespace Commands
 {
-	public class RefCommand : ICommand
-	{
-		private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>
-		{
-			{"add", new RefAdd()},
-			{"fix", new RefFix()}
-		};
+    public class RefCommand : ICommand
+    {
+        private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>
+        {
+            {"add", new RefAdd()},
+            {"fix", new RefFix()}
+        };
 
-		public int Run(string[] args)
-		{
-			if (args.Length < 2 || !commands.ContainsKey(args[1]))
-			{
-				ConsoleWriter.WriteError("Bad arguments");
-				return -1;
-			}
-			return commands[args[1]].Run(args);
-		}
+        public int Run(string[] args)
+        {
+            if (args.Length < 2 || !commands.ContainsKey(args[1]))
+            {
+                ConsoleWriter.WriteError("Bad arguments");
+                return -1;
+            }
+            return commands[args[1]].Run(args);
+        }
 
-		public string HelpMessage => @"
+        public string HelpMessage => @"
     Adds or fixes references in *.csproj
 
     ref add
@@ -50,6 +50,7 @@ namespace Commands
     Note:
         does not work with old dep format
 ";
+
         public bool IsHiddenCommand => false;
     }
 }

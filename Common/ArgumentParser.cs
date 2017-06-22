@@ -5,29 +5,29 @@ using NDesk.Options;
 
 namespace Common
 {
-	public static class ArgumentParser
+    public static class ArgumentParser
     {
         public static Dictionary<string, object> ParseLs(string[] args)
         {
-	        var parsedArguments = new Dictionary<string, object>();
-	        var parser = new OptionSet
-	        {
-				{"l|local", l => parsedArguments["local"] = true},
-				{"a|all", a => parsedArguments["all"] = true},
-				{"b|has-branch=", branch => parsedArguments["branch"] = branch},
-				{"u|url", u => parsedArguments["url"] = true},
-				{"p|pushurl", p => parsedArguments["pushurl"] = true},
-				{"simple", s =>  parsedArguments["simple"] = true}
-	        };
-	        var extraArgs = parser.Parse(args.Skip(1));
-			ThrowIfHasExtraArgs(extraArgs);
-	        var local = parsedArguments.ContainsKey("local") ? 1 : 0;
-	        var all = parsedArguments.ContainsKey("all") ? 1 : 0;
-	        if (local + all > 1)
-	        {
-		        throw new BadArgumentException("Bad arguments");
-	        }
-	        return parsedArguments;
+            var parsedArguments = new Dictionary<string, object>();
+            var parser = new OptionSet
+            {
+                {"l|local", l => parsedArguments["local"] = true},
+                {"a|all", a => parsedArguments["all"] = true},
+                {"b|has-branch=", branch => parsedArguments["branch"] = branch},
+                {"u|url", u => parsedArguments["url"] = true},
+                {"p|pushurl", p => parsedArguments["pushurl"] = true},
+                {"simple", s => parsedArguments["simple"] = true}
+            };
+            var extraArgs = parser.Parse(args.Skip(1));
+            ThrowIfHasExtraArgs(extraArgs);
+            var local = parsedArguments.ContainsKey("local") ? 1 : 0;
+            var all = parsedArguments.ContainsKey("all") ? 1 : 0;
+            if (local + all > 1)
+            {
+                throw new BadArgumentException("Bad arguments");
+            }
+            return parsedArguments;
         }
 
         public static Dictionary<string, object> ParseUpdatedeps(string[] args)
@@ -38,55 +38,57 @@ namespace Common
                 {"force", 0},
                 {"pullAnyway", 0},
                 {"configuration", null},
-				{"merged", null},
-				{"localBranchForce", false},
-				{"verbose", false},
-			};
+                {"merged", null},
+                {"localBranchForce", false},
+                {"verbose", false},
+            };
             var parser = new OptionSet
             {
                 {"r|reset", r => parsedArguments["reset"] = 1},
                 {"p|pull-anyway", p => parsedArguments["pullAnyway"] = 1},
                 {"c|configuration=", conf => parsedArguments["configuration"] = conf},
                 {"f|force", f => parsedArguments["force"] = 1},
-				{"m|merged:", m => parsedArguments["merged"] = m ?? "master"},
-				{"allow-local-branch-force", f => parsedArguments["localBranchForce"] = true},
-				{"v|verbose", v => parsedArguments["verbose"] = true},
-			};
+                {"m|merged:", m => parsedArguments["merged"] = m ?? "master"},
+                {"allow-local-branch-force", f => parsedArguments["localBranchForce"] = true},
+                {"v|verbose", v => parsedArguments["verbose"] = true},
+            };
             var extraArgs = parser.Parse(args.Skip(1));
-			ThrowIfHasExtraArgs(extraArgs);
-            if ((int)parsedArguments["force"] + (int)parsedArguments["reset"] + (int)parsedArguments["pullAnyway"] > 1)
+            ThrowIfHasExtraArgs(extraArgs);
+            if ((int) parsedArguments["force"] + (int) parsedArguments["reset"] + (int) parsedArguments["pullAnyway"] >
+                1)
             {
                 throw new BadArgumentException();
             }
             return parsedArguments;
         }
 
-		public static Dictionary<string, object> ParseRefAdd(string[] args)
-		{
-			var parsedArguments = new Dictionary<string, object>
-			{
-				{"module", null},
-				{"configuration", null},
-				{"project", null},
-				{"testReplaces", false},
+        public static Dictionary<string, object> ParseRefAdd(string[] args)
+        {
+            var parsedArguments = new Dictionary<string, object>
+            {
+                {"module", null},
+                {"configuration", null},
+                {"project", null},
+                {"testReplaces", false},
                 {"force", false}
-			};
-			var parser = new OptionSet
-			{
-				{"c|configuration=", conf => parsedArguments["configuration"] = conf},
-				{"testReplaces", t => parsedArguments["testReplaces"] = true},
+            };
+            var parser = new OptionSet
+            {
+                {"c|configuration=", conf => parsedArguments["configuration"] = conf},
+                {"testReplaces", t => parsedArguments["testReplaces"] = true},
                 {"force", f => parsedArguments["force"] = true}
-			};
-			args = parser.Parse(args).ToArray();
+            };
+            args = parser.Parse(args).ToArray();
 
-			if (args.Length != 4 || args[0] != "ref" || args[1] != "add")
-				throw new BadArgumentException("Wrong usage of command.\nUsage: cm ref add <module-name>[/configuration] <project-file>");
+            if (args.Length != 4 || args[0] != "ref" || args[1] != "add")
+                throw new BadArgumentException(
+                    "Wrong usage of command.\nUsage: cm ref add <module-name>[/configuration] <project-file>");
 
-			parsedArguments["module"] = args[2];
+            parsedArguments["module"] = args[2];
             parsedArguments["project"] = args[3];
 
-			return parsedArguments;
-		}
+            return parsedArguments;
+        }
 
         public static Dictionary<string, object> ParseAnalyzerAdd(string[] args)
         {
@@ -105,8 +107,9 @@ namespace Common
             args = parser.Parse(args).ToArray();
 
             if (args.Length < 3 || args.Length > 4 || args[0] != "analyzer" || args[1] != "add")
-                throw new BadArgumentException($"Command format error: cm {string.Join(" ", args)}\nCommand format: cm analyzer add <analyzer-module-name>[/configuration] [<solution-file>]");
-            
+                throw new BadArgumentException(
+                    $"Command format error: cm {string.Join(" ", args)}\nCommand format: cm analyzer add <analyzer-module-name>[/configuration] [<solution-file>]");
+
             parsedArguments["module"] = args[2];
             parsedArguments["solution"] = args.Length == 4 ? args[3] : null;
             return parsedArguments;
@@ -122,8 +125,8 @@ namespace Common
                 {"force", 0},
                 {"pullAnyway", 0},
                 {"configuration", null},
-				{"merged", null},
-				{"verbose", false},
+                {"merged", null},
+                {"verbose", false},
             };
             var parser = new OptionSet
             {
@@ -131,79 +134,81 @@ namespace Common
                 {"p|pull-anyway", p => parsedArguments["pullAnyway"] = 1},
                 {"c|configuration=", conf => parsedArguments["configuration"] = conf},
                 {"f|force", f => parsedArguments["force"] = 1},
-				{"m|merged:", m => parsedArguments["merged"] = m ?? "master"},
-				{"v|verbose", v => parsedArguments["verbose"] = true},
+                {"m|merged:", m => parsedArguments["merged"] = m ?? "master"},
+                {"v|verbose", v => parsedArguments["verbose"] = true},
             };
             var extraArgs = parser.Parse(args.Skip(1));
             if (extraArgs.Count > 0)
             {
-	            var module = new Dep(extraArgs[0]);
+                var module = new Dep(extraArgs[0]);
                 if (module.Configuration != null)
-		            parsedArguments["configuration"] = module.Configuration;
+                    parsedArguments["configuration"] = module.Configuration;
                 if (module.Treeish != null)
                     parsedArguments["treeish"] = module.Treeish;
 
-		        parsedArguments["module"] = module.Name;
+                parsedArguments["module"] = module.Name;
 
                 if (extraArgs.Count > 1)
                 {
                     parsedArguments["treeish"] = extraArgs[1];
                 }
-				ThrowIfHasExtraArgs(extraArgs.Skip(2).ToList());
+                ThrowIfHasExtraArgs(extraArgs.Skip(2).ToList());
             }
-            if ((int)parsedArguments["force"] + (int)parsedArguments["reset"] + (int)parsedArguments["pullAnyway"] > 1)
+            if ((int) parsedArguments["force"] + (int) parsedArguments["reset"] + (int) parsedArguments["pullAnyway"] >
+                1)
             {
                 throw new BadArgumentException();
             }
             return parsedArguments;
         }
 
-	    public static Dictionary<string, object> ParseSelfUpdate(string[] args)
-	    {
-		    var parsedArguments = new Dictionary<string, object>
-		    {
-			    {"branch", null}
-		    };
-			var parser = new OptionSet
-			{
-				{"b|branch=", b => parsedArguments["branch"] = b}
-			};
-			var extraArgs = parser.Parse(args.Skip(1));
-			ThrowIfHasExtraArgs(extraArgs);
-			return parsedArguments;
-	    }
+        public static Dictionary<string, object> ParseSelfUpdate(string[] args)
+        {
+            var parsedArguments = new Dictionary<string, object>
+            {
+                {"branch", null}
+            };
+            var parser = new OptionSet
+            {
+                {"b|branch=", b => parsedArguments["branch"] = b}
+            };
+            var extraArgs = parser.Parse(args.Skip(1));
+            ThrowIfHasExtraArgs(extraArgs);
+            return parsedArguments;
+        }
 
-		public static Dictionary<string, object> ParseBuildDeps(string[] args)
-		{
-			var parsedArguments = new Dictionary<string, object>
-			{
+        public static Dictionary<string, object> ParseBuildDeps(string[] args)
+        {
+            var parsedArguments = new Dictionary<string, object>
+            {
                 {"rebuild", false},
                 {"configuration", null},
-				{"warnings", false},
-				{"obsolete", false},
-				{"verbose", false},
-				{"progress", false},
-				{"restore", true }
+                {"warnings", false},
+                {"obsolete", false},
+                {"verbose", false},
+                {"progress", false},
+                {"restore", true}
             };
-			var parser = new OptionSet
+            var parser = new OptionSet
             {
-				{"r|rebuild", f => parsedArguments["rebuild"] = true},
+                {"r|rebuild", f => parsedArguments["rebuild"] = true},
                 {"c|configuration=", conf => parsedArguments["configuration"] = conf},
-				{"w|warnings", f => parsedArguments["warnings"] = true},
-				{"W", f => parsedArguments["obsolete"] = true},
-				{"v|verbose", v => parsedArguments["verbose"] = true},
-				{"p|progress", p => parsedArguments["progress"] = true},
-				{"restore", p => parsedArguments["restore"] = true},
-				{"no-restore", p => parsedArguments["restore"] = false}
+                {"w|warnings", f => parsedArguments["warnings"] = true},
+                {"W", f => parsedArguments["obsolete"] = true},
+                {"v|verbose", v => parsedArguments["verbose"] = true},
+                {"p|progress", p => parsedArguments["progress"] = true},
+                {"restore", p => parsedArguments["restore"] = true},
+                {"no-restore", p => parsedArguments["restore"] = false}
             };
-			var extraArgs = parser.Parse(args.Skip(1));
-			ThrowIfHasExtraArgs(extraArgs);
-			if ((bool) parsedArguments["verbose"] && ((bool) parsedArguments["warnings"] || (bool) parsedArguments["progress"]))
-			{
-				throw new BadArgumentException();
-			}
-			return parsedArguments;
-		}
+            var extraArgs = parser.Parse(args.Skip(1));
+            ThrowIfHasExtraArgs(extraArgs);
+            if ((bool) parsedArguments["verbose"] &&
+                ((bool) parsedArguments["warnings"] || (bool) parsedArguments["progress"]))
+            {
+                throw new BadArgumentException();
+            }
+            return parsedArguments;
+        }
 
         public static Dictionary<string, object> ParseCheckDeps(string[] args)
         {
@@ -220,8 +225,8 @@ namespace Common
                 {"s|short", s => parsedArguments["short"] = true}
             };
             var extraArgs = parser.Parse(args.Skip(1));
-			ThrowIfHasExtraArgs(extraArgs);
-			return parsedArguments;
+            ThrowIfHasExtraArgs(extraArgs);
+            return parsedArguments;
         }
 
         public static Dictionary<string, object> ParseDepsGraph(string[] args)
@@ -240,198 +245,201 @@ namespace Common
         }
 
         public static Dictionary<string, object> ParseFixRefs(string[] args)
-		{
-			var parsedArguments = new Dictionary<string, object>
-			{
-				{"external", false}
-			};
-			var parser = new OptionSet
-			{
-				{"e|external", e => parsedArguments["external"] = true}
-			};
-			var extraArgs = parser.Parse(args.Skip(2));
-			ThrowIfHasExtraArgs(extraArgs);
-			return parsedArguments;
-		}
-
-		public static Dictionary<string, object> ParseGroupLs(string[] args)
-		{
-			var parsedArguments = new Dictionary<string, object>
-			{
-				{"verbose", false}
-            };
-			var parser = new OptionSet
+        {
+            var parsedArguments = new Dictionary<string, object>
             {
-				{"v|verbose", v => parsedArguments["verbose"] = true}
+                {"external", false}
             };
-			var extraArgs = parser.Parse(args);
-			ThrowIfHasExtraArgs(extraArgs);
-			return parsedArguments;
-		}
+            var parser = new OptionSet
+            {
+                {"e|external", e => parsedArguments["external"] = true}
+            };
+            var extraArgs = parser.Parse(args.Skip(2));
+            ThrowIfHasExtraArgs(extraArgs);
+            return parsedArguments;
+        }
 
-		public static Dictionary<string, object> ParseGroupBranch(string[] args)
-		{
-			var parsedArguments = new Dictionary<string, object>
-			{
+        public static Dictionary<string, object> ParseGroupLs(string[] args)
+        {
+            var parsedArguments = new Dictionary<string, object>
+            {
+                {"verbose", false}
+            };
+            var parser = new OptionSet
+            {
+                {"v|verbose", v => parsedArguments["verbose"] = true}
+            };
+            var extraArgs = parser.Parse(args);
+            ThrowIfHasExtraArgs(extraArgs);
+            return parsedArguments;
+        }
+
+        public static Dictionary<string, object> ParseGroupBranch(string[] args)
+        {
+            var parsedArguments = new Dictionary<string, object>
+            {
                 {"remote", false},
-				{"all", false},
-				{"common", false},
-				{"local", false}
+                {"all", false},
+                {"common", false},
+                {"local", false}
             };
-			var parser = new OptionSet
+            var parser = new OptionSet
             {
-				{"r|remote", r => parsedArguments["remote"] = true},
-				{"a|all", a => parsedArguments["all"] = true},
-				{"c|common", c => parsedArguments["common"] = true},
-				{"l|local", l => parsedArguments["local"] = true}
+                {"r|remote", r => parsedArguments["remote"] = true},
+                {"a|all", a => parsedArguments["all"] = true},
+                {"c|common", c => parsedArguments["common"] = true},
+                {"l|local", l => parsedArguments["local"] = true}
             };
-			var extraArgs = parser.Parse(args);
-			if (extraArgs.Count != 1)
-			{
-				throw new BadArgumentException();
-			}
-			parsedArguments["group"] = extraArgs[0];
-			if ((bool)parsedArguments["local"] && (bool)parsedArguments["remote"])
-			{
-				throw new BadArgumentException();
-			}
-			if (((bool)parsedArguments["local"] || (bool) parsedArguments["remote"]) && (bool) parsedArguments["all"])
-			{
-				throw new BadArgumentException();
-			}
-			if (!(bool) parsedArguments["local"] && !(bool) parsedArguments["remote"] && !(bool) parsedArguments["all"])
-			{
-				parsedArguments["local"] = true;
-			}
-			return parsedArguments;
-		}
+            var extraArgs = parser.Parse(args);
+            if (extraArgs.Count != 1)
+            {
+                throw new BadArgumentException();
+            }
+            parsedArguments["group"] = extraArgs[0];
+            if ((bool) parsedArguments["local"] && (bool) parsedArguments["remote"])
+            {
+                throw new BadArgumentException();
+            }
+            if (((bool) parsedArguments["local"] || (bool) parsedArguments["remote"]) && (bool) parsedArguments["all"])
+            {
+                throw new BadArgumentException();
+            }
+            if (!(bool) parsedArguments["local"] && !(bool) parsedArguments["remote"] && !(bool) parsedArguments["all"])
+            {
+                parsedArguments["local"] = true;
+            }
+            return parsedArguments;
+        }
 
-		public static Dictionary<string, object> ParseShowParents(string[] args)
-		{
-			var currentDir = Directory.GetCurrentDirectory();
-			while (currentDir != Directory.GetDirectoryRoot(currentDir) && !Helper.IsCurrentDirectoryModule(currentDir))
-				currentDir = Directory.GetParent(currentDir).FullName;
-			
-			var parsedArguments = new Dictionary<string, object>
-			{
+        public static Dictionary<string, object> ParseShowParents(string[] args)
+        {
+            var currentDir = Directory.GetCurrentDirectory();
+            while (currentDir != Directory.GetDirectoryRoot(currentDir) && !Helper.IsCurrentDirectoryModule(currentDir))
+                currentDir = Directory.GetParent(currentDir).FullName;
+
+            var parsedArguments = new Dictionary<string, object>
+            {
                 {"configuration", "*"},
-				{"branch", "*"},
-				{"module", null},
-				{"all", false},
+                {"branch", "*"},
+                {"module", null},
+                {"all", false},
                 {"edges", false}
             };
-			if (Helper.IsCurrentDirectoryModule(currentDir))
-				parsedArguments["module"] = Path.GetFileName(currentDir);
+            if (Helper.IsCurrentDirectoryModule(currentDir))
+                parsedArguments["module"] = Path.GetFileName(currentDir);
 
-			var parser = new OptionSet
+            var parser = new OptionSet
             {
                 {"c|configuration=", conf => parsedArguments["configuration"] = conf},
-				{"m|module=", m => parsedArguments["module"] = m},
-				{"b|branch=", b => parsedArguments["branch"] = b},
-				{"a|all", s => parsedArguments["all"] = true},
+                {"m|module=", m => parsedArguments["module"] = m},
+                {"b|branch=", b => parsedArguments["branch"] = b},
+                {"a|all", s => parsedArguments["all"] = true},
                 {"e|edges", s => parsedArguments["edges"] = true}
             };
-			var extraArgs = parser.Parse(args.Skip(2));
-			if (parsedArguments["module"] == null)
-			{
-				throw new BadArgumentException("Current directory is not cement module directory, use -m to specify module name");
-			}
-
-			var module = (string) parsedArguments["module"];
-			if (module.Contains("/"))
-			{
-				parsedArguments["module"] = module.Split('/').First();
-				parsedArguments["configuration"] = module.Split('/').Last();
-			}
-
-			ThrowIfHasExtraArgs(extraArgs);
-			return parsedArguments;
-	    }
-
-		public static Dictionary<string, object> ParseBuildParents(string[] args)
-		{
-			var parsedArguments = new Dictionary<string, object>
-			{
-                {"branch", null},
-				{"pause", false}
-			};
-			var parser = new OptionSet
+            var extraArgs = parser.Parse(args.Skip(2));
+            if (parsedArguments["module"] == null)
             {
-            	{"b|branch=", b => parsedArguments["branch"] = b},
-            	{"p|pause", b => parsedArguments["pause"] = true}
-			};
-			var extraArgs = parser.Parse(args.Skip(2));
-			ThrowIfHasExtraArgs(extraArgs);
-			return parsedArguments;
-		}
+                throw new BadArgumentException(
+                    "Current directory is not cement module directory, use -m to specify module name");
+            }
 
-		public static Dictionary<string, object> ParseModuleCommand(string[] args)
-		{
-			var parsedArguments = new Dictionary<string, object>
-			{
-				{"pushurl", null},
-				{"package", null}
-			};
-			var parser = new OptionSet
-			{
-				{"p|pushurl=", p => parsedArguments["pushurl"] = p},
-				{"package=", p => parsedArguments["package"] = p}
-			};
+            var module = (string) parsedArguments["module"];
+            if (module.Contains("/"))
+            {
+                parsedArguments["module"] = module.Split('/').First();
+                parsedArguments["configuration"] = module.Split('/').Last();
+            }
 
-			var extraArgs = parser.Parse(args.Skip(1));
-			if (extraArgs.Count < 3)
-				throw new BadArgumentException("Too few arguments. \nUsing: cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url] [--package=package_name]");
+            ThrowIfHasExtraArgs(extraArgs);
+            return parsedArguments;
+        }
 
-			parsedArguments["command"] = extraArgs[0];
-			parsedArguments["module"] = extraArgs[1];
-			parsedArguments["fetchurl"] = extraArgs[2];
-			extraArgs = extraArgs.Skip(3).ToList();
+        public static Dictionary<string, object> ParseBuildParents(string[] args)
+        {
+            var parsedArguments = new Dictionary<string, object>
+            {
+                {"branch", null},
+                {"pause", false}
+            };
+            var parser = new OptionSet
+            {
+                {"b|branch=", b => parsedArguments["branch"] = b},
+                {"p|pause", b => parsedArguments["pause"] = true}
+            };
+            var extraArgs = parser.Parse(args.Skip(2));
+            ThrowIfHasExtraArgs(extraArgs);
+            return parsedArguments;
+        }
 
-			ThrowIfHasExtraArgs(extraArgs);
-			return parsedArguments;
-		}
+        public static Dictionary<string, object> ParseModuleCommand(string[] args)
+        {
+            var parsedArguments = new Dictionary<string, object>
+            {
+                {"pushurl", null},
+                {"package", null}
+            };
+            var parser = new OptionSet
+            {
+                {"p|pushurl=", p => parsedArguments["pushurl"] = p},
+                {"package=", p => parsedArguments["package"] = p}
+            };
 
-		private static void ThrowIfHasExtraArgs(List<string> extraArgs)
-	    {
-		    if (extraArgs.Count > 0)
-				throw new BadArgumentException("Extra arguments: " + string.Join(", ", extraArgs));
-	    }
+            var extraArgs = parser.Parse(args.Skip(1));
+            if (extraArgs.Count < 3)
+                throw new BadArgumentException(
+                    "Too few arguments. \nUsing: cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url] [--package=package_name]");
 
-	    public static Dictionary<string, object> ParseUpdate(string[] args)
-	    {
-			var parsedArguments = new Dictionary<string, object>
-			{
-				{"treeish", null},
-				{"reset", 0},
-				{"force", 0},
-				{"pullAnyway", 0},
-				{"verbose", false}
-			};
-			var parser = new OptionSet
-			{
-				{"r|reset", r => parsedArguments["reset"] = 1},
-				{"p|pull-anyway", p => parsedArguments["pullAnyway"] = 1},
-				{"f|force", f => parsedArguments["force"] = 1},
-				{"v|verbose", v => parsedArguments["verbose"] = true}
-			};
-			var extraArgs = parser.Parse(args.Skip(1));
-			if (extraArgs.Count > 0)
-			{
-				parsedArguments["treeish"] = extraArgs[0];
-				ThrowIfHasExtraArgs(extraArgs.Skip(1).ToList());
-			}
-			if ((int)parsedArguments["force"] + (int)parsedArguments["reset"] + (int)parsedArguments["pullAnyway"] > 1)
-			{
-				throw new BadArgumentException();
-			}
-			return parsedArguments;
-		}
+            parsedArguments["command"] = extraArgs[0];
+            parsedArguments["module"] = extraArgs[1];
+            parsedArguments["fetchurl"] = extraArgs[2];
+            extraArgs = extraArgs.Skip(3).ToList();
+
+            ThrowIfHasExtraArgs(extraArgs);
+            return parsedArguments;
+        }
+
+        private static void ThrowIfHasExtraArgs(List<string> extraArgs)
+        {
+            if (extraArgs.Count > 0)
+                throw new BadArgumentException("Extra arguments: " + string.Join(", ", extraArgs));
+        }
+
+        public static Dictionary<string, object> ParseUpdate(string[] args)
+        {
+            var parsedArguments = new Dictionary<string, object>
+            {
+                {"treeish", null},
+                {"reset", 0},
+                {"force", 0},
+                {"pullAnyway", 0},
+                {"verbose", false}
+            };
+            var parser = new OptionSet
+            {
+                {"r|reset", r => parsedArguments["reset"] = 1},
+                {"p|pull-anyway", p => parsedArguments["pullAnyway"] = 1},
+                {"f|force", f => parsedArguments["force"] = 1},
+                {"v|verbose", v => parsedArguments["verbose"] = true}
+            };
+            var extraArgs = parser.Parse(args.Skip(1));
+            if (extraArgs.Count > 0)
+            {
+                parsedArguments["treeish"] = extraArgs[0];
+                ThrowIfHasExtraArgs(extraArgs.Skip(1).ToList());
+            }
+            if ((int) parsedArguments["force"] + (int) parsedArguments["reset"] + (int) parsedArguments["pullAnyway"] >
+                1)
+            {
+                throw new BadArgumentException();
+            }
+            return parsedArguments;
+        }
 
         public static Dictionary<string, object> ParseShowConfigs(string[] args)
         {
             var parsedArgs = new Dictionary<string, object>
             {
-                {"module", null }
+                {"module", null}
             };
             var extraArgs = args.Skip(1).ToList();
             if (extraArgs.Count > 0)
@@ -445,14 +453,12 @@ namespace Common
 
     public class BadArgumentException : CementException
     {
-	    public BadArgumentException()
-	    {
-		    
-	    }
+        public BadArgumentException()
+        {
+        }
 
-	    public BadArgumentException(string message) : base(message)
-	    {
-		    
-	    }
+        public BadArgumentException(string message) : base(message)
+        {
+        }
     }
 }

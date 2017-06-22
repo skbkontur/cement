@@ -7,17 +7,19 @@ namespace Commands
 {
     public class CompleteCommand : Command
     {
-        public CompleteCommand() 
-			: base(new CommandSettings
-			{
-				LogPerfix = "COMPLETE",
-				LogFileName = null,
-				MeasureElapsedTime = false,
-				Location = CommandSettings.CommandLocation.Any,
+        public CompleteCommand()
+            : base(new CommandSettings
+            {
+                LogPerfix = "COMPLETE",
+                LogFileName = null,
+                MeasureElapsedTime = false,
+                Location = CommandSettings.CommandLocation.Any,
                 IsHiddenCommand = true,
                 NoElkLog = true
-			}){ }
-        
+            })
+        {
+        }
+
         private string[] otherArgs;
 
         protected override int Execute()
