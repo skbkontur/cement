@@ -5,13 +5,13 @@ using System.Linq;
 
 namespace Common.YamlParsers
 {
-	public class DepsYamlParser : ConfigurationYamlParser
+    public class DepsYamlParser : ConfigurationYamlParser
     {
-		public DepsYamlParser(FileInfo moduleName) : base(moduleName)
-		{
-		}
+        public DepsYamlParser(FileInfo moduleName) : base(moduleName)
+        {
+        }
 
-		public DepsContent Get(string configuration = null)
+        public DepsContent Get(string configuration = null)
         {
             configuration = configuration ?? GetDefaultConfigurationName();
             if (!ConfigurationExists(configuration))
@@ -42,7 +42,8 @@ namespace Common.YamlParsers
                 if (deps[i].Name.StartsWith("-"))
                 {
                     if (i == deps.Count - 1 || !deps[i + 1].Name.Equals(deps[i].Name.Substring(1)))
-                        throw new BadYamlException(ModuleName, "deps", "dep " + deps[i].Name + " was deleted, but not added");
+                        throw new BadYamlException(ModuleName, "deps",
+                            "dep " + deps[i].Name + " was deleted, but not added");
                     RemoveDep(deps[i], relaxedDeps);
                 }
                 else
@@ -53,7 +54,8 @@ namespace Common.YamlParsers
             foreach (Dep dep in relaxedDeps)
                 if (relaxedDeps.Count(d => d.Name.Equals(dep.Name)) > 1)
                 {
-                    ConsoleWriter.WriteError(string.Format(@"Module duplication found in 'module.yaml' for dep {0}. To depend on different variations of same dep, you must turn it off.
+                    ConsoleWriter.WriteError(string.Format(
+                        @"Module duplication found in 'module.yaml' for dep {0}. To depend on different variations of same dep, you must turn it off.
 Example:
 client:
   dep:
@@ -62,7 +64,7 @@ sdk:
   dep:
     - -{0}
     - {0}/full-build", dep.Name));
-	                throw new BadYamlException(ModuleName, "deps", "duplicate dep " + dep.Name);
+                    throw new BadYamlException(ModuleName, "deps", "duplicate dep " + dep.Name);
                 }
             return relaxedDeps;
         }
@@ -81,8 +83,8 @@ sdk:
                 else
                     i++;
             }
-	        if (!deleted)
-		        throw new BadYamlException(ModuleName, "deps", "fail to remove dep " + dep.Name);
+            if (!deleted)
+                throw new BadYamlException(ModuleName, "deps", "fail to remove dep " + dep.Name);
         }
 
         private bool DepMatch(Dep expected, Dep actual)
@@ -94,14 +96,15 @@ sdk:
 
             if (expected.Treeish == null || expected.Treeish.Equals("*") || expected.Treeish.Equals(actual.Treeish))
                 treeishMatch = true;
-            if (expected.Configuration == null || expected.Configuration.Equals("*") || expected.Configuration.Equals(actual.Configuration))
+            if (expected.Configuration == null || expected.Configuration.Equals("*") ||
+                expected.Configuration.Equals(actual.Configuration))
                 configMatch = true;
             return treeishMatch && configMatch;
         }
 
         private DepsContent GetDepsContent(string configuration)
         {
-	        var force = GetDepsFromConfig(configuration).Force;
+            var force = GetDepsFromConfig(configuration).Force;
             var configQueue = new List<string>();
             var deps = new List<Dep>();
             configQueue.Add(configuration);
@@ -131,68 +134,68 @@ sdk:
 
         public DepsContent GetDepsFromConfig(string configName)
         {
-			try
-			{
-				var configSection = GetConfigurationSection(configName);
-				return GetDepsFromSection(configSection);
-			}
-			catch (BadYamlException)
-			{
-				throw;
-			}
-			catch (Exception exception)
-			{
-				throw new BadYamlException(ModuleName, "deps", exception.Message);
-			}
+            try
+            {
+                var configSection = GetConfigurationSection(configName);
+                return GetDepsFromSection(configSection);
+            }
+            catch (BadYamlException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw new BadYamlException(ModuleName, "deps", exception.Message);
+            }
         }
 
-		private static DepsContent GetDepsFromSection(Dictionary<string, object> configSection)
-		{
-			if (!configSection.ContainsKey("deps"))
-				return new DepsContent(null, new List<Dep>());
+        private static DepsContent GetDepsFromSection(Dictionary<string, object> configSection)
+        {
+            if (!configSection.ContainsKey("deps"))
+                return new DepsContent(null, new List<Dep>());
 
-			if (configSection["deps"] == null || configSection["deps"] is string)
-				return new DepsContent(null, new List<Dep>());
+            if (configSection["deps"] == null || configSection["deps"] is string)
+                return new DepsContent(null, new List<Dep>());
 
-			var deps = new List<Dep>();
-			string force = null;
-			foreach (var depSection in (List<object>) configSection["deps"])
-			{
-				if (depSection is Dictionary<object, object>)
-				{
-					var dict = depSection as Dictionary<object, object>;
-					if (dict.Keys.Count == 1 && (string) dict.Keys.First() == "force")
-						force = (string) dict.Values.First();
-					else
-						deps.Add(GetDepFromDictFormat(dict));
-				}
-				else
-					deps.Add(new Dep(depSection.ToString()));
-			}
-			return new DepsContent(force, deps);
-		}
+            var deps = new List<Dep>();
+            string force = null;
+            foreach (var depSection in (List<object>) configSection["deps"])
+            {
+                if (depSection is Dictionary<object, object>)
+                {
+                    var dict = depSection as Dictionary<object, object>;
+                    if (dict.Keys.Count == 1 && (string) dict.Keys.First() == "force")
+                        force = (string) dict.Values.First();
+                    else
+                        deps.Add(GetDepFromDictFormat(dict));
+                }
+                else
+                    deps.Add(new Dep(depSection.ToString()));
+            }
+            return new DepsContent(force, deps);
+        }
 
-		private static Dep GetDepFromDictFormat(Dictionary<object, object> dict)
-		{
-			string name = null, treeish = null, configuration = null;
-			var src = false;
-			foreach (var kvp in dict)
-			{
-				if ((string) kvp.Key == "treeish")
-					treeish = (string) kvp.Value;
-				if ((string) kvp.Key == "configuration")
-					configuration = (string) kvp.Value;
-				if ((string) kvp.Key == "type" && (string) kvp.Value == "src")
-					src = true;
-				if ((string) kvp.Value == "")
-					name = (string) kvp.Key;
-			}
-			var dep = new Dep(name) {NeedSrc = src};
-			if (configuration != null)
-				dep.Configuration = configuration;
-			if (treeish != null)
-				dep.Treeish = treeish;
-			return dep;
-		}
+        private static Dep GetDepFromDictFormat(Dictionary<object, object> dict)
+        {
+            string name = null, treeish = null, configuration = null;
+            var src = false;
+            foreach (var kvp in dict)
+            {
+                if ((string) kvp.Key == "treeish")
+                    treeish = (string) kvp.Value;
+                if ((string) kvp.Key == "configuration")
+                    configuration = (string) kvp.Value;
+                if ((string) kvp.Key == "type" && (string) kvp.Value == "src")
+                    src = true;
+                if ((string) kvp.Value == "")
+                    name = (string) kvp.Key;
+            }
+            var dep = new Dep(name) {NeedSrc = src};
+            if (configuration != null)
+                dep.Configuration = configuration;
+            if (treeish != null)
+                dep.Treeish = treeish;
+            return dep;
+        }
     }
 }

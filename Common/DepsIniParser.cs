@@ -5,7 +5,7 @@ using Common.YamlParsers;
 
 namespace Common
 {
-	public class DepsIniParser
+    public class DepsIniParser
     {
         private readonly IniParser parser;
         private readonly string content;
@@ -30,7 +30,6 @@ namespace Common
             var deps = GetDepsFromIni(parsed);
 
             return new DepsContent(force, deps);
-
         }
 
         private List<Dep> GetDepsFromIni(IniData parsed)
@@ -53,13 +52,12 @@ namespace Common
             }
 
             return deps;
-        } 
+        }
 
         private string GetForceFromIni(IniData parsed)
         {
             var force = parsed.GetValue("force", "main");
             return force == "" ? null : force;
         }
-
     }
 }

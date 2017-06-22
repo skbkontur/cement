@@ -2,7 +2,7 @@
 
 namespace Common
 {
-	public static class PolicyMapper
+    public static class PolicyMapper
     {
         public static LocalChangesPolicy GetLocalChangesPolicy(Dictionary<string, object> parsedArgs)
         {

@@ -6,37 +6,38 @@ using SharpYaml.Serialization;
 
 namespace Common.YamlParsers
 {
-	public class ConfigurationYamlParser : IConfigurationParser
+    public class ConfigurationYamlParser : IConfigurationParser
     {
-		private readonly Dictionary<string, object> configurationsDescription = new Dictionary<string, object>();
-		protected readonly string ModuleName;
+        private readonly Dictionary<string, object> configurationsDescription = new Dictionary<string, object>();
+        protected readonly string ModuleName;
 
         public ConfigurationYamlParser(FileInfo moduleName)
         {
-	        var serializer = new Serializer();
-	        var text = File.ReadAllText(Path.Combine(moduleName.FullName, Helper.YamlSpecFile))
-				.Replace("\t", "    ");
-	        ModuleName = moduleName.Name;
+            var serializer = new Serializer();
+            var text = File.ReadAllText(Path.Combine(moduleName.FullName, Helper.YamlSpecFile))
+                .Replace("\t", "    ");
+            ModuleName = moduleName.Name;
 
-			TryParseYaml(serializer, text);
+            TryParseYaml(serializer, text);
         }
 
-		private void TryParseYaml(Serializer serializer, string text)
-		{
-			try
-			{
-				var content = serializer.Deserialize(text);
-				var dict = (Dictionary<object, object>)content;
-				foreach (var key in dict.Keys)
-					configurationsDescription.Add((string) key, dict[key]);
-			}
-			catch (Exception)
-			{
-				throw new CementException("Fail to parse module.yaml file in " + ModuleName + ". Check that yaml is correct dictionary <string, object>");
-			}
-		}
+        private void TryParseYaml(Serializer serializer, string text)
+        {
+            try
+            {
+                var content = serializer.Deserialize(text);
+                var dict = (Dictionary<object, object>) content;
+                foreach (var key in dict.Keys)
+                    configurationsDescription.Add((string) key, dict[key]);
+            }
+            catch (Exception)
+            {
+                throw new CementException("Fail to parse module.yaml file in " + ModuleName +
+                                          ". Check that yaml is correct dictionary <string, object>");
+            }
+        }
 
-		public IList<string> GetConfigurations()
+        public IList<string> GetConfigurations()
         {
             return
                 configurationsDescription.Keys.Where(config => !"default".Equals(config))
@@ -56,37 +57,39 @@ namespace Common.YamlParsers
 
         protected Dictionary<string, object> GetConfigurationSection(string configName)
         {
-	        try
-	        {
-		        var withSameName =
-			        configurationsDescription.Keys.Where(config => configName.Equals(GetRealConfigurationName(config))).ToList();
-		        if (withSameName.Count == 0)
-					return new Dictionary<string, object>();
-				if (withSameName.Count > 1)
-			        throw new BadYamlException(ModuleName, "configurations", "duplicate configuration name " + configName);
+            try
+            {
+                var withSameName =
+                    configurationsDescription.Keys.Where(config => configName.Equals(GetRealConfigurationName(config)))
+                        .ToList();
+                if (withSameName.Count == 0)
+                    return new Dictionary<string, object>();
+                if (withSameName.Count > 1)
+                    throw new BadYamlException(ModuleName, "configurations",
+                        "duplicate configuration name " + configName);
 
-		        var section = configurationsDescription[withSameName.First()];
-		        if (section == null || section is string)
-			        return new Dictionary<string, object>();
-		        var dict = (Dictionary<object, object>) section;
-				return dict.Keys.ToDictionary(key => (string)key, key => dict[key]);
-			}
-			catch (BadYamlException)
-	        {
-		        throw;
-	        }
-			catch (Exception exception)
-	        {
-		        throw new BadYamlException(ModuleName, "configurations", exception.Message);
-	        }
+                var section = configurationsDescription[withSameName.First()];
+                if (section == null || section is string)
+                    return new Dictionary<string, object>();
+                var dict = (Dictionary<object, object>) section;
+                return dict.Keys.ToDictionary(key => (string) key, key => dict[key]);
+            }
+            catch (BadYamlException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw new BadYamlException(ModuleName, "configurations", exception.Message);
+            }
         }
 
         public string GetDefaultConfigurationName()
         {
             var defaultConfigurations =
                 configurationsDescription.Keys.Where(section => section.EndsWith("*default")).ToList();
-	        if (defaultConfigurations.Count > 1)
-		        throw new BadYamlException(ModuleName, "configurations", "Multiple default configurations exists");
+            if (defaultConfigurations.Count > 1)
+                throw new BadYamlException(ModuleName, "configurations", "Multiple default configurations exists");
             if (defaultConfigurations.Count == 0)
                 return "full-build";
             return GetRealConfigurationName(defaultConfigurations.First());
@@ -123,7 +126,7 @@ namespace Common.YamlParsers
             var configurationsList = GetConfigurations();
             foreach (var config in configurationsList)
             {
-                if(!result.ContainsKey(config))
+                if (!result.ContainsKey(config))
                     result[config] = new List<string>();
                 var childrenConfigs = GetParentConfigurations(config);
                 if (childrenConfigs == null)
@@ -136,8 +139,7 @@ namespace Common.YamlParsers
                 }
             }
             return result;
-        } 
-
+        }
     }
 
     public class DepsContent

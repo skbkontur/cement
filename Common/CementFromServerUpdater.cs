@@ -23,7 +23,8 @@ namespace Common
             try
             {
                 ConsoleWriter.WriteProgressWithoutSave("Looking for cement updates");
-                var infoModel = JsonConvert.DeserializeObject<InfoResponseModel>(webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/cement/info/head/" + branch));
+                var infoModel = JsonConvert.DeserializeObject<InfoResponseModel>(
+                    webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/cement/info/head/" + branch));
                 return infoModel?.CommitHash;
             }
             catch (WebException ex)
@@ -31,10 +32,11 @@ namespace Common
                 log.Error("Fail self-update ", ex);
                 if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
                 {
-                    var resp = (HttpWebResponse)ex.Response;
+                    var resp = (HttpWebResponse) ex.Response;
                     if (resp.StatusCode == HttpStatusCode.NotFound) // HTTP 404
                     {
-                        ConsoleWriter.WriteError("Failed to look for updates on branch " + branch + ". Server responsed 404");
+                        ConsoleWriter.WriteError("Failed to look for updates on branch " + branch +
+                                                 ". Server responsed 404");
                         return null;
                     }
                 }
