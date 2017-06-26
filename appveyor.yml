@@ -14,7 +14,7 @@ after_build:
   - copy Cement.Net\bin\Debug\cm.exe dotnet\cm.exe
   - copy Cement.Net\bin\Debug\cm.exe.config dotnet\cm.exe.config
   - xcopy files-common dotnet /s /i /Y
-  - 7z a $(appveyor_repo_commit).zip dotnet
+  - 7z a %APPVEYOR_REPO_COMMIT%.zip dotnet
 artifacts:
   - path: $(appveyor_repo_commit).zip
 deploy:
