@@ -16,3 +16,6 @@ trim_trailing_whitespace = false
 [*.{config,csproj}]
 trim_trailing_whitespace = false
 indent_size = 2
+
+[{.editorconfig,appveyor.yml}]
+end_of_line = lf
