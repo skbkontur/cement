@@ -18,6 +18,7 @@ after_build:
 artifacts:
   - path: release.zip
 deploy:
+  provider: GitHub
   description: automatic release
   artifact: release.zip
   auth_token:
