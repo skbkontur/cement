@@ -1,5 +1,5 @@
 skip_branch_with_pr: true
-version: 1.0.{build}-{branch}
+version: {build}-{branch}
 image: Visual Studio 2015
 install:
   - nuget restore
@@ -14,13 +14,13 @@ after_build:
   - copy Cement.Net\bin\Debug\cm.exe dotnet\cm.exe
   - copy Cement.Net\bin\Debug\cm.exe.config dotnet\cm.exe.config
   - xcopy files-common dotnet /s /i /Y
-  - 7z a release.zip dotnet
+  - 7z a $(appveyor_repo_commit).zip dotnet
 artifacts:
-  - path: release.zip
+  - path: $(appveyor_repo_commit).zip
 deploy:
   provider: GitHub
   description: automatic release
-  artifact: release.zip
+  artifact: $(appveyor_repo_commit).zip
   auth_token:
     secure: 4ZYJdojxUj1R94fuci26zjd+Rs1Hmy5lPmPKi+/FWMwSJFTccFzgpsm3uHP/y4i8
   on:
