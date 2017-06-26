@@ -10,11 +10,11 @@ before_build:
 build:
   verbosity: normal
 after_build:
-  - mkdir release
-  - copy Cement.Net\bin\Debug\cm.exe release\cm.exe
-  - copy Cement.Net\bin\Debug\cm.exe.config release\cm.exe.config
-  - xcopy files-common release /s /i /Y
-  - 7z a release.zip release
+  - mkdir dotnet
+  - copy Cement.Net\bin\Debug\cm.exe dotnet\cm.exe
+  - copy Cement.Net\bin\Debug\cm.exe.config dotnet\cm.exe.config
+  - xcopy files-common dotnet /s /i /Y
+  - 7z a release.zip dotnet
 artifacts:
   - path: release.zip
 deploy:
@@ -24,5 +24,4 @@ deploy:
   auth_token:
     secure: 4ZYJdojxUj1R94fuci26zjd+Rs1Hmy5lPmPKi+/FWMwSJFTccFzgpsm3uHP/y4i8
   on:
-    branch: master
     appveyor_repo_tag: true
