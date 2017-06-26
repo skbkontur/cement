@@ -1,5 +1,5 @@
 skip_branch_with_pr: true
-version: {build}-{branch}
+version: '{build}-{branch}'
 image: Visual Studio 2015
 install:
   - nuget restore
