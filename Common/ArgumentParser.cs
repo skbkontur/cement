@@ -364,6 +364,23 @@ namespace Common
             ThrowIfHasExtraArgs(extraArgs);
             return parsedArguments;
         }
+        public static Dictionary<string, object> ParseGrepParents(string[] args)
+        {
+            var gitArgs = new List<string>();
+
+            var parsedArguments = new Dictionary<string, object>
+            {
+                {"branch", null}
+            };
+            var parser = new OptionSet
+            {
+                {"b|branch=", b => parsedArguments["branch"] = b},
+                {"<>", b => gitArgs.Add(b)}
+            };
+            parser.Parse(args);
+            parsedArguments["gitArgs"] = gitArgs;
+            return parsedArguments;
+        }
 
         public static Dictionary<string, object> ParseModuleCommand(string[] args)
         {

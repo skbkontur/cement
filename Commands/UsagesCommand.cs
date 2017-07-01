@@ -8,7 +8,8 @@ namespace Commands
         private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>
         {
             {"show", new UsagesShow()},
-            {"build", new UsagesBuild()}
+            {"build", new UsagesBuild()},
+            {"grep", new UsagesGrep()}
         };
 
         public int Run(string[] args)
@@ -46,6 +47,19 @@ namespace Commands
             cm usages build [-b=<branch>] [-p]
             -b/--branch            - checking parents which use this branch (current by default)
             -p/--pause             - pause on errors
+
+    usages grep
+        search for given pattern in modules (in masters) linked to the current (<branch>, master by default)
+
+        Usage:
+            cm usages grep [-b=<branch>] [-i/--ignore-case] <pattern> [--or <pattern1>]
+            -i/--ignore-case
+            <pattern1> --or/--and <pattern2>
+            for other options see help for `git grep` command
+
+        Example:
+            cm usages grep ""new Class"" --or ""Class.New""
+                show lines contains ""new Class"" or ""Class.New"" in modules linked to the current
 ";
 
         public bool IsHiddenCommand => CementSettings.Get().CementServer == null;

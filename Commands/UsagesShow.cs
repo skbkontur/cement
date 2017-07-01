@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using Common;
-using Newtonsoft.Json;
 
 namespace Commands
 {
@@ -38,10 +36,7 @@ namespace Commands
 
         protected override int Execute()
         {
-            var webClient = new WebClient();
-            var str =
-                webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/{module}/deps/{configuration}/{branch}");
-            var response = JsonConvert.DeserializeObject<ShowParentsAnswer>(str);
+            var response = Usages.GetUsagesResponse(module, branch, configuration);
 
             if (printEdges)
             {
@@ -101,11 +96,5 @@ namespace Commands
         }
 
         public override string HelpMessage => @"";
-    }
-
-    public class ShowParentsAnswer
-    {
-        public DateTime UpdatedTime;
-        public List<KeyValuePair<Dep, List<Dep>>> Items = new List<KeyValuePair<Dep, List<Dep>>>();
     }
 }

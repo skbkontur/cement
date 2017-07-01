@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using Common;
-using Newtonsoft.Json;
 
 namespace Commands
 {
@@ -48,9 +46,7 @@ namespace Commands
             if (checkingBranch == null)
                 checkingBranch = branch;
 
-            var webClient = new WebClient();
-            var str = webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/{moduleName}/deps/*/{checkingBranch}");
-            var response = JsonConvert.DeserializeObject<ShowParentsAnswer>(str);
+            var response = Usages.GetUsagesResponse(moduleName, checkingBranch);
 
             var toBuild = response.Items.SelectMany(kvp => kvp.Value).Where(d => d.Treeish == "master").ToList();
             BuildDeps(toBuild);

@@ -85,6 +85,7 @@
     <Compile Include="ShowConfigs.cs" />
     <Compile Include="Status.cs" />
     <Compile Include="Update.cs" />
+    <Compile Include="UsagesGrep.cs" />
     <Compile Include="UsagesBuild.cs" />
     <Compile Include="UsagesShow.cs" />
     <Compile Include="CementVersion.cs" />
