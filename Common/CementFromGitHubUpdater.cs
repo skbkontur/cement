@@ -55,6 +55,11 @@ namespace Common
             var zipContent = client.DownloadData(downloadUri);
             return zipContent;
         }
+
+        public string GetName()
+        {
+            return "GitHub";
+        }
     }
 
     public class GitHubRelease
