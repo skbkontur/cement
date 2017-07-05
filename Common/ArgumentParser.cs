@@ -365,17 +365,20 @@ namespace Common
             ThrowIfHasExtraArgs(extraArgs);
             return parsedArguments;
         }
+
         public static Dictionary<string, object> ParseGrepParents(string[] args)
         {
             var gitArgs = new List<string>();
 
             var parsedArguments = new Dictionary<string, object>
             {
-                {"branch", null}
+                {"branch", null},
+                {"skip-get", false}
             };
             var parser = new OptionSet
             {
                 {"b|branch=", b => parsedArguments["branch"] = b},
+                {"s|skip-get", b => parsedArguments["skip-get"] = true },
                 {"<>", b => gitArgs.Add(b)}
             };
 

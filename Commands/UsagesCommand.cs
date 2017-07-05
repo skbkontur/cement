@@ -52,8 +52,9 @@ namespace Commands
         search for given pattern in modules (in masters) linked to the current (<branch>, master by default)
 
         Usage:
-            cm usages grep [-b=<branch>] [-i/--ignore-case] <patterns> [-f <patternFile>] [-- <fileMask>]
+            cm usages grep [-b=<branch>] [-i/--ignore-case] [-s/--skip-get] <patterns> [-f <patternFile>] [-- <fileMask>]
             -i/--ignore-case
+            -s/--skip-get           - skip cloning modules
             -f <patternFile>        - search for patterns from file (line delimited)
             <patterns>              - patterns for search
             <fileMasks>             - limit the search to paths matching at least one pattern
