@@ -110,7 +110,7 @@ fi
             if (File.ReadAllText(hookSrc) == File.ReadAllText(hookDst))
                 return false;
 
-            var hookBackup = hookDst + "." + DateTime.Now.ToShortDateString();
+            var hookBackup = hookDst + "." + DateTime.Now.ToString("dd.MM.yyyy");
             File.Copy(hookDst, hookBackup, true);
             return true;
         }

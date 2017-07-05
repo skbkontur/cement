@@ -49,5 +49,10 @@ namespace Common
             var zipContent = client.DownloadData($"{server}/api/v1/cement/head/{branch}");
             return zipContent;
         }
+
+        public string GetName()
+        {
+            return server;
+        }
     }
 }

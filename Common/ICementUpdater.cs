@@ -4,5 +4,6 @@
     {
         string GetNewCommitHash();
         byte[] GetNewCementZip();
+        string GetName();
     }
 }

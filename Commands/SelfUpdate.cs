@@ -147,7 +147,7 @@ exit $exit_code";
             }
             else
             {
-                ConsoleWriter.WriteInfo("No cement binary updates available");
+                ConsoleWriter.WriteInfo($"No cement binary updates available ({updater.GetName()})");
                 Log.DebugFormat("Already has {0} version", currentCommitHash);
             }
             return 0;
@@ -179,7 +179,7 @@ exit $exit_code";
                     CopyNewCmExe(tempDir.Path);
                 }
 
-                var okMessage = "Successfully updated cement binaries. " + oldHash + " -> " + newHash;
+                var okMessage = $"Successfully updated cement binaries. {oldHash} {newHash} ({updater.GetName()})";
                 ConsoleWriter.WriteOk(okMessage);
                 Log.Debug(okMessage);
                 return true;
@@ -193,12 +193,12 @@ exit $exit_code";
                     var resp = (HttpWebResponse) ex.Response;
                     if (resp.StatusCode == HttpStatusCode.NotFound) // HTTP 404
                     {
-                        ConsoleWriter.WriteError($"Failed to look for updates on branch {branch}. Server responsed 404");
+                        ConsoleWriter.WriteError($"Failed to look for updates on branch {branch}. Server responsed 404 ({updater.GetName()})");
                         return false;
                     }
                 }
 
-                ConsoleWriter.WriteError($"Failed to look for updates on branch {branch}. {ex.Message}");
+                ConsoleWriter.WriteError($"Failed to look for updates on branch {branch}. {ex.Message} ({updater.GetName()})");
                 return false;
             }
         }

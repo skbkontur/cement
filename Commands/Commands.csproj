@@ -80,6 +80,7 @@
     <Compile Include="ICommand.cs" />
     <Compile Include="IdCommand.cs" />
     <Compile Include="Init.cs" />
+    <Compile Include="ReInstall.cs" />
     <Compile Include="ModuleCommand.cs" />
     <Compile Include="RefCommand.cs" />
     <Compile Include="ShowConfigs.cs" />

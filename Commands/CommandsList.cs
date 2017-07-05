@@ -29,6 +29,7 @@ namespace Commands
             {"module", new ModuleCommand()},
             {"update", new Update()},
             {"convert-spec", new ConvertSpec()},
+            {"reinstall", new ReInstall()},
             {"complete", new CompleteCommand()}
         };
 
