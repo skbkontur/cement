@@ -52,14 +52,17 @@ namespace Commands
         search for given pattern in modules (in masters) linked to the current (<branch>, master by default)
 
         Usage:
-            cm usages grep [-b=<branch>] [-i/--ignore-case] <pattern> [--or <pattern1>]
+            cm usages grep [-b=<branch>] [-i/--ignore-case] <patterns> [-f <patternFile>] [-- <fileMask>]
             -i/--ignore-case
-            <pattern1> --or/--and <pattern2>
+            -f <patternFile>        - search for patterns from file (line delimited)
+            <patterns>              - patterns for search
+            <fileMasks>             - limit the search to paths matching at least one pattern
+            patterns combined with --or by default, can be combined with --and (<p1> --and <p2>)
             for other options see help for `git grep` command
 
         Example:
-            cm usages grep ""new Class"" --or ""Class.New""
-                show lines contains ""new Class"" or ""Class.New"" in modules linked to the current
+            cm usages grep ""new Class"" ""Class.New"" -- *.cs
+                show lines contains ""new Class"" or ""Class.New"" in modules linked to the current, only in *.cs files
 ";
 
         public bool IsHiddenCommand => CementSettings.Get().CementServer == null;

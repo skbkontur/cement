@@ -15,8 +15,11 @@ namespace Commands
         private string workspace;
         private GitRepository currentRepository;
         private readonly ShellRunner runner;
-        private List<string> arguments;
+        private string[] arguments;
+        private string[] fileMasks;
 
+        private static readonly string[] GrepParametersWithValue =
+            {"-A", "-B", "-C", "--threads", "-f", "-e", "--parent-basename", "--max-depth"};
         private static readonly string[] NewLine = {"\r\n", "\r", "\n"};
         private static readonly Regex Whitespaces = new Regex("\\s");
         private string checkingBranch;
@@ -36,8 +39,10 @@ namespace Commands
         protected override void ParseArgs(string[] args)
         {
             var parsed = ArgumentParser.ParseGrepParents(args);
-            arguments = (List<string>)parsed["gitArgs"];
-            checkingBranch = (string)parsed["branch"];
+            arguments = (string[]) parsed["gitArgs"];
+            fileMasks = (string[]) parsed["fileMaskArgs"];
+
+            checkingBranch = (string) parsed["branch"];
         }
 
         protected override int Execute()
@@ -65,7 +70,7 @@ namespace Commands
         private void Grep(IEnumerable<Dep> toGrep)
         {
             var modules = Helper.GetModules();
-            var command = BuildGitCommand(arguments);
+            var command = BuildGitCommand(arguments, fileMasks);
 
             using (new DirectoryJumper(workspace))
             {
@@ -100,17 +105,40 @@ namespace Commands
             return string.Join(Environment.NewLine, lines);
         }
 
-        private static string BuildGitCommand(IList<string> args)
+        private static string BuildGitCommand(string[] args, string[] masks)
         {
             var sb = new StringBuilder();
+
             sb.Append("git --no-pager grep -n ");
-            for (var i = 2; i < args.Count; ++i)
+            for (var i = 2; i < args.Length; ++i)
             {
-                if (args[i][0] != '-' && args[i - 1] != "-e")
-                    sb.Append("-e ");
-                sb.Append(Whitespaces.Replace(args[i], "\\s")).Append(' ');
+                if (args[i - 1] == "-f")
+                    sb.Append('"').Append(Path.GetFullPath(args[i])).Append('"');
+                else
+                {
+                    if (IsPatternWithoutFlag(args, i))
+                        sb.Append("-e ");
+                    sb.Append(Escape(Whitespaces.Replace(args[i], "\\s")));
+                }
+                sb.Append(' ');
             }
+
+            if (masks.Length > 0)
+                sb.Append("-- ");
+            foreach (var mask in masks)
+                sb.Append('"').Append(mask).Append('"');
+
             return sb.ToString();
+        }
+
+        private static bool IsPatternWithoutFlag(string[] args, int position)
+        {
+            return !(args[position][0] == '-' || GrepParametersWithValue.Contains(args[position - 1]));
+        }
+
+        private static string Escape(string s)
+        {
+            return s.Replace("\"", "\\\"");
         }
 
         private void GetWithoutDependencies(Dep dep, List<Module> modules)

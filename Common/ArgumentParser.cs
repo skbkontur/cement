@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NDesk.Options;
@@ -377,8 +378,14 @@ namespace Common
                 {"b|branch=", b => parsedArguments["branch"] = b},
                 {"<>", b => gitArgs.Add(b)}
             };
-            parser.Parse(args);
-            parsedArguments["gitArgs"] = gitArgs;
+
+            var delimPosition = Array.IndexOf(args, "--");
+            if (delimPosition < 0)
+                delimPosition = args.Length;
+
+            parser.Parse(args.Take(delimPosition));
+            parsedArguments["gitArgs"] = gitArgs.ToArray();
+            parsedArguments["fileMaskArgs"] = args.Skip(delimPosition + 1).TakeWhile(_ => true).ToArray();
             return parsedArguments;
         }
 
