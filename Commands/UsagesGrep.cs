@@ -71,6 +71,7 @@ namespace Commands
         {
             var modules = Helper.GetModules();
             var command = BuildGitCommand(arguments, fileMasks);
+            ConsoleWriter.WriteInfo(command);
 
             using (new DirectoryJumper(workspace))
             {
