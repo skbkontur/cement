@@ -87,6 +87,7 @@
     <Compile Include="CementExceptions.cs" />
     <Compile Include="CementFromServerUpdater.cs" />
     <Compile Include="CementSettings.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="ICementUpdater.cs" />
     <Compile Include="CompleteCommandAutomata.cs" />
     <Compile Include="DictionaryFriendlyContractResolver.cs" />
@@ -102,6 +103,8 @@
     <Compile Include="BuildData.cs" />
     <Compile Include="ModuleBuilderHelper.cs" />
     <Compile Include="RulesetFile.cs" />
+    <Compile Include="ShowParentsAnswer.cs" />
+    <Compile Include="Usages.cs" />
     <Compile Include="VsDevHelper.cs" />
     <Compile Include="XmlDocumentHelper.cs" />
     <Compile Include="YamlParsers\BuildYamlParser.cs" />
