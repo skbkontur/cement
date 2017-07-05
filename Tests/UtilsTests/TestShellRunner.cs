@@ -67,7 +67,7 @@ namespace Tests.UtilsTests
             runner.Run("ping 127.0.0.1 -n 3 > nul", TimeSpan.FromSeconds(1));
             sw.Stop();
             Assert.That(sw.Elapsed.TotalSeconds > 2.5);
-            Assert.That(sw.Elapsed.TotalSeconds < 3.5);
+            Assert.That(sw.Elapsed.TotalSeconds < 4.5);
         }
 
         [Test]
