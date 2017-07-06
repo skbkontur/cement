@@ -17,6 +17,7 @@ namespace Commands
         private readonly ShellRunner runner;
         private string[] arguments;
         private string[] fileMasks;
+        private bool skipGet;
 
         private static readonly string[] GrepParametersWithValue =
             {"-A", "-B", "-C", "--threads", "-f", "-e", "--parent-basename", "--max-depth"};
@@ -43,6 +44,7 @@ namespace Commands
             fileMasks = (string[]) parsed["fileMaskArgs"];
 
             checkingBranch = (string) parsed["branch"];
+            skipGet = (bool) parsed["skip-get"];
         }
 
         protected override int Execute()
@@ -72,30 +74,47 @@ namespace Commands
             var modules = Helper.GetModules();
             var command = BuildGitCommand(arguments, fileMasks);
             ConsoleWriter.WriteInfo(command);
+            ConsoleWriter.WriteLine();
 
             using (new DirectoryJumper(workspace))
             {
-                var clonedModules = new List<string>();
-                foreach (var depParent in toGrep)
-                {
-                    try
-                    {
-                        GetWithoutDependencies(depParent, modules);
-                        clonedModules.Add(depParent.Name);
-                    }
-                    catch (CementException exception)
-                    {
-                        ConsoleWriter.WriteError(exception.ToString());
-                    }
-                }
+                var clonedModules = skipGet
+                    ? GetExistingDirectories(toGrep)
+                    : CloneModules(toGrep, modules);
+
                 foreach (var module in clonedModules)
                 {
-                    ConsoleWriter.WriteLine();
                     runner.RunInDirectory(module, command);
+                    if (string.IsNullOrWhiteSpace(ShellRunner.LastOutput))
+                        continue;
                     ConsoleWriter.WriteLine(AddModuleToOutput(ShellRunner.LastOutput, module));
+                    ConsoleWriter.WriteLine();
                 }
-                ConsoleWriter.WriteLine();
             }
+        }
+
+        private List<string> GetExistingDirectories(IEnumerable<Dep> toGrep)
+        {
+            return toGrep.Select(d => d.Name).Where(Directory.Exists).ToList();
+        }
+
+        private List<string> CloneModules(IEnumerable<Dep> toGrep, List<Module> modules)
+        {
+            var clonedModules = new List<string>();
+            foreach (var depParent in toGrep)
+            {
+                try
+                {
+                    GetWithoutDependencies(depParent, modules);
+                    clonedModules.Add(depParent.Name);
+                }
+                catch (CementException exception)
+                {
+                    ConsoleWriter.WriteError(exception.ToString());
+                }
+            }
+
+            return clonedModules;
         }
 
         private string AddModuleToOutput(string output, string module)
