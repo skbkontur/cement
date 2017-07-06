@@ -10,7 +10,7 @@ namespace cm
     {
         private static int Main(string[] args)
         {
-            SetUp();
+            ThreadPoolSetUp(Helper.MaxDegreeOfParallelism);
             args = FixArgs(args);
             var exitCode = TryRun(args);
 
@@ -68,7 +68,7 @@ namespace cm
             return -1;
         }
 
-        public static void SetUp(int multiplier = 128)
+        private static void ThreadPoolSetUp(int multiplier = 128)
         {
             int num = Math.Min(Environment.ProcessorCount * multiplier, (int)short.MaxValue);
             ThreadPool.SetMaxThreads((int)short.MaxValue, (int)short.MaxValue);

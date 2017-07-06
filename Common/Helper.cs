@@ -15,6 +15,7 @@ namespace Common
         public const string CementDirectory = ".cement";
         public const string YamlSpecFile = "module.yaml";
         public const string ConfigurationDelimiter = "/";
+        public const int MaxDegreeOfParallelism = 128;
         public static string CurrentWorkspace { get; private set; }
         public static readonly object LockObject = new object();
         public static readonly object PackageLockObject = new object();
