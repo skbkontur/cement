@@ -107,7 +107,7 @@ namespace Common
                 Log.Info("Parallel update-deps iteration: " + depsPool.Select(d => d.Dep.ToString() + "(" + d.ParentModule + ")").Aggregate((a, b) => a + " " + b));
             try
             {
-                Parallel.ForEach(depsPool.Where(d => d.Dep.Name != rootModule.Name), d => GetModule(d.Dep, force));
+                Parallel.ForEach(depsPool.Where(d => d.Dep.Name != rootModule.Name), Helper.ParallelOptions, d => GetModule(d.Dep, force));
             }
             catch (AggregateException ae)
             {

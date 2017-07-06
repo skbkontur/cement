@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Commands;
 using Common;
 
@@ -9,6 +10,7 @@ namespace cm
     {
         private static int Main(string[] args)
         {
+            ThreadPoolSetUp(Helper.MaxDegreeOfParallelism);
             args = FixArgs(args);
             var exitCode = TryRun(args);
 
@@ -17,7 +19,7 @@ namespace cm
             var command = args[0];
             if (command != "complete" && command != "check-pre-commit")
                 SelfUpdate.UpdateIfOld();
-
+            
             return exitCode == 0 ? 0 : 13;
         }
 
@@ -64,6 +66,13 @@ namespace cm
 
             ConsoleWriter.WriteError("Bad command: '" + args[0] + "'");
             return -1;
+        }
+
+        private static void ThreadPoolSetUp(int count)
+        {
+            int num = Math.Min(count, short.MaxValue);
+            ThreadPool.SetMaxThreads(short.MaxValue, short.MaxValue);
+            ThreadPool.SetMinThreads(num, num);
         }
     }
 }
