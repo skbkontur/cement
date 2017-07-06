@@ -262,7 +262,7 @@ namespace Common
             log.Info($"{"[" + ModuleName + "]",-30}Remove origin");
             var exitCode = runner.RunInDirectory(RepoPath, "git remote rm origin ");
 
-            if (exitCode > 1)
+            if (exitCode != 0)
             {
                 throw new GitCheckoutException($"Failed to remove in {ModuleName}. Error message:\n{runner.Errors}");
             }
