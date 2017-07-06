@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Commands;
 using Common;
 
@@ -9,6 +10,7 @@ namespace cm
     {
         private static int Main(string[] args)
         {
+            SetUp();
             args = FixArgs(args);
             var exitCode = TryRun(args);
 
@@ -17,7 +19,7 @@ namespace cm
             var command = args[0];
             if (command != "complete" && command != "check-pre-commit")
                 SelfUpdate.UpdateIfOld();
-
+            
             return exitCode == 0 ? 0 : 13;
         }
 
@@ -64,6 +66,19 @@ namespace cm
 
             ConsoleWriter.WriteError("Bad command: '" + args[0] + "'");
             return -1;
+        }
+
+        public static void SetUp(int multiplier = 128)
+        {
+            int num = Math.Min(Environment.ProcessorCount * multiplier, (int)short.MaxValue);
+            ThreadPool.SetMaxThreads((int)short.MaxValue, (int)short.MaxValue);
+            ThreadPool.SetMinThreads(num, num);
+            int workerThreads1;
+            int completionPortThreads1;
+            ThreadPool.GetMinThreads(out workerThreads1, out completionPortThreads1);
+            int workerThreads2;
+            int completionPortThreads2;
+            ThreadPool.GetMaxThreads(out workerThreads2, out completionPortThreads2);
         }
     }
 }
