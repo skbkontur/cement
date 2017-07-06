@@ -179,7 +179,7 @@ exit $exit_code";
                     CopyNewCmExe(tempDir.Path);
                 }
 
-                var okMessage = $"Successfully updated cement binaries. {oldHash} {newHash} ({updater.GetName()})";
+                var okMessage = $"Successfully updated cement binaries. {oldHash} -> {newHash} ({updater.GetName()})";
                 ConsoleWriter.WriteOk(okMessage);
                 Log.Debug(okMessage);
                 return true;
