@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using log4net;
 
 namespace Common
@@ -16,6 +17,7 @@ namespace Common
         public const string YamlSpecFile = "module.yaml";
         public const string ConfigurationDelimiter = "/";
         public const int MaxDegreeOfParallelism = 128;
+        public static ParallelOptions ParallelOptions => new ParallelOptions { MaxDegreeOfParallelism = MaxDegreeOfParallelism };
         public static string CurrentWorkspace { get; private set; }
         public static readonly object LockObject = new object();
         public static readonly object PackageLockObject = new object();

@@ -106,7 +106,7 @@ namespace Commands
             try
             {
                 var uniqueDeps = modulesToUpdate.GroupBy(d => d.Name).Select(g => g.First()).ToList();
-                Parallel.ForEach(uniqueDeps, new ParallelOptions { MaxDegreeOfParallelism = Helper.MaxDegreeOfParallelism }, dep =>
+                Parallel.ForEach(uniqueDeps, Helper.ParallelOptions, dep =>
                 {
                     ConsoleWriter.WriteProgress($"{dep.Name,-30} nuget restoring");
                     builder.NugetRestore(dep);
