@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common;
+using Common.Logging;
 
 namespace Commands
 {

@@ -87,6 +87,8 @@
     <Compile Include="CementExceptions.cs" />
     <Compile Include="CementFromServerUpdater.cs" />
     <Compile Include="CementSettings.cs" />
+    <Compile Include="Logging\AsyncRollingFileAppender.cs" />
+    <Compile Include="Logging\BoundedBuffer.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ICementUpdater.cs" />
     <Compile Include="CompleteCommandAutomata.cs" />
@@ -98,7 +100,7 @@
     <Compile Include="HooksHelper.cs" />
     <Compile Include="InstallParser.cs" />
     <Compile Include="InstallXmlParser.cs" />
-    <Compile Include="LogHelper.cs" />
+    <Compile Include="Logging\LogHelper.cs" />
     <Compile Include="Models.cs" />
     <Compile Include="BuildData.cs" />
     <Compile Include="ModuleBuilderHelper.cs" />

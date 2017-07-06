@@ -135,7 +135,7 @@ namespace Common
 
                     LastOutput = Output;
                     int exitCode = process.ExitCode;
-                    log.Info($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {sw.Elapsed} with exitCode {exitCode}");
+                    log.Info($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} in {sw.ElapsedMilliseconds}ms with exitCode {exitCode}");
                     return exitCode;
                 }
                 catch (CementException e)

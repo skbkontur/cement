@@ -4,7 +4,7 @@ using System.Linq;
 using log4net;
 using log4net.Config;
 
-namespace Common
+namespace Common.Logging
 {
     public static class LogHelper
     {
