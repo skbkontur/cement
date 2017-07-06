@@ -111,6 +111,7 @@ namespace Common
             startInfo.Arguments = startInfo.Arguments + "\"" + commandWithArguments + "\"";
             startInfo.WorkingDirectory = workingDirectory;
 
+            var sw = Stopwatch.StartNew();
             using (process = Process.Start(startInfo))
             {
                 try
@@ -134,6 +135,7 @@ namespace Common
 
                     LastOutput = Output;
                     int exitCode = process.ExitCode;
+                    log.Info($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {sw.Elapsed} with exitCode {exitCode}");
                     return exitCode;
                 }
                 catch (CementException e)
