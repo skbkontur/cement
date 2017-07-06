@@ -68,17 +68,11 @@ namespace cm
             return -1;
         }
 
-        private static void ThreadPoolSetUp(int multiplier = 128)
+        private static void ThreadPoolSetUp(int count)
         {
-            int num = Math.Min(Environment.ProcessorCount * multiplier, (int)short.MaxValue);
-            ThreadPool.SetMaxThreads((int)short.MaxValue, (int)short.MaxValue);
+            int num = Math.Min(count, short.MaxValue);
+            ThreadPool.SetMaxThreads(short.MaxValue, short.MaxValue);
             ThreadPool.SetMinThreads(num, num);
-            int workerThreads1;
-            int completionPortThreads1;
-            ThreadPool.GetMinThreads(out workerThreads1, out completionPortThreads1);
-            int workerThreads2;
-            int completionPortThreads2;
-            ThreadPool.GetMaxThreads(out workerThreads2, out completionPortThreads2);
         }
     }
 }
