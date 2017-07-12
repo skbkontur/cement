@@ -68,8 +68,8 @@ namespace Commands
 
         private void Fix(BuildData buildInfo, List<Module> modules, HashSet<string> processedFiles)
         {
-            if (buildInfo.Target == "None")
-                throw new CementException("Build target is not specified in module.yaml");
+            if (buildInfo.Target.IsFakeTarget())
+                throw new TargetNotFoundException(rootModuleName);
 
             var vsParser = new VisualStudioProjectParser(buildInfo.Target, modules);
             foreach (var file in vsParser.GetCsprojList(buildInfo.Configuration))

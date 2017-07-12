@@ -14,6 +14,14 @@ namespace Common
         }
     }
 
+    public class TargetNotFoundException : CementException
+    {
+        public TargetNotFoundException(string moduleName)
+            : base($"Build target is not specified in {moduleName}/module.yaml")
+        {
+        }
+    }
+
     public class CementTrackException : CementException
     {
         public CementTrackException(string message)

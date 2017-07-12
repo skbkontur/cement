@@ -27,7 +27,7 @@ namespace Common
             var refsList = new List<ReferenceWithCsproj>();
             foreach (var bulid in buildData)
             {
-                if (bulid.Target == "None")
+                if (bulid.Target.IsFakeTarget())
                     continue;
                 var vsParser = new VisualStudioProjectParser(Path.Combine(moduleDirectory, bulid.Target), modules);
                 var files = vsParser.GetCsprojList(bulid.Configuration);
@@ -159,7 +159,8 @@ namespace Common
 
         private static bool IsContentModuel(Dep dep)
         {
-            return Yaml.SettingsParser(dep.Name).Get().IsContentModule || Yaml.BuildParser(dep.Name).Get(dep.Configuration).All(t => t.Target == "None");
+            return Yaml.SettingsParser(dep.Name).Get().IsContentModule || Yaml.BuildParser(dep.Name).Get(dep.Configuration)
+                .All(t => t.Target == "None");
         }
     }
 

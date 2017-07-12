@@ -66,7 +66,7 @@ namespace Common.YamlParsers
             var moduleDirectory = Path.Combine(Helper.CurrentWorkspace, moduleName);
 
             var projects = buildsInfo.Select(info => info.Target)
-                .Where(t => t != "None").Distinct();
+                .Where(t => !t.IsFakeTarget()).Distinct();
 
             foreach (var project in projects)
             {
@@ -88,7 +88,7 @@ namespace Common.YamlParsers
             var moduleDirectory = Path.Combine(Helper.CurrentWorkspace, moduleName);
             var solutions = buildsInfo
                 .Select(info => info.Target)
-                .Where(target => target != "None")
+                .Where(target => !target.IsFakeTarget())
                 .Where(target => target.EndsWith(".sln"))
                 .Select(solutionRelativePath => Path.Combine(moduleDirectory, solutionRelativePath))
                 .Distinct()

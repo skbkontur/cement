@@ -15,5 +15,10 @@ namespace Common
                     yield return element;
             }
         }
+
+        public static bool IsFakeTarget(this string target)
+        {
+            return string.IsNullOrEmpty(target) || target == "None";
+        }
     }
 }
