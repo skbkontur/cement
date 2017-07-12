@@ -65,12 +65,14 @@ namespace Commands
             dep = new Dep(moduleToInsert, dep.Treeish, dep.Configuration);
             var configuration = dep.Configuration;
 
-            if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, moduleToInsert)) ||
-                !Helper.HasModule(moduleToInsert))
+            if (!Helper.HasModule(moduleToInsert))
             {
                 ConsoleWriter.WriteError($"Can't find module '{moduleToInsert}'");
                 return -1;
             }
+
+            if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, moduleToInsert)))
+                GetAndBuild(dep);
 
             Log.Debug(
                 $"{moduleToInsert + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration)} -> {project}");
@@ -94,6 +96,32 @@ namespace Commands
                     "No module.yaml file. You should patch deps file manually or convert old spec to module.yaml (cm convert-spec)");
             DepsPatcherProject.PatchDepsForProject(currentModuleDirectory, dep, project);
             return 0;
+        }
+
+        private void GetAndBuild(Dep module)
+        {
+            using (new DirectoryJumper(Helper.CurrentWorkspace))
+            {
+                ConsoleWriter.WriteInfo("cm get " + module);
+                if (new Get().Run(new[] {"get", module.ToYamlString()}) != 0)
+                    throw new CementException("Failed get module " + module);
+                ConsoleWriter.ResetProgress();
+            }
+
+            module.Configuration = module.Configuration ?? Yaml.ConfigurationParser(module.Name).GetDefaultConfigurationName();
+
+            using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
+            {
+                ConsoleWriter.WriteInfo("cm build-deps " + module);
+                if (new BuildDeps().Run(new[] { "build-deps", "-c", module.Configuration }) != 0)
+                    throw new CementException("Failed to build deps for " + dep);
+                ConsoleWriter.ResetProgress();
+                ConsoleWriter.WriteInfo("cm build " + module);
+                if (new Build().Run(new[] { "build", "-c", module.Configuration }) != 0)
+                    throw new CementException("Failed to build " + dep);
+                ConsoleWriter.ResetProgress();
+            }
+            Console.WriteLine();
         }
 
         private void CheckBranch()
