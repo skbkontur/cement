@@ -131,12 +131,13 @@ namespace Common
             var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
             Helper.SetWorkspace(workspace);
 
-            var local = modules.Where(Yaml.Exists).ToList();
+            var local = modules;
             if (lastToken.Contains("/") && local.Contains(lastToken.Split('/')[0]))
             {
                 var name = lastToken.Split('/')[0];
-                local.AddRange(
-                    Yaml.ConfigurationParser(name).GetConfigurations().Select(c => $"{name}/{c}"));
+                if (Yaml.Exists(name))
+                    local.AddRange(
+                        Yaml.ConfigurationParser(name).GetConfigurations().Select(c => $"{name}/{c}"));
             }
 
             return TokensList.Create(local, MoudleCsprojs);
