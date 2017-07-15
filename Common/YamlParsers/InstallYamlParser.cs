@@ -28,6 +28,8 @@ namespace Common.YamlParsers
             result.MainConfigBuildFiles = result.MainConfigBuildFiles.Distinct().ToList();
             result.ExternalModules.AddRange(defaultInstallContent.ExternalModules.Where(r => !result.ExternalModules.Contains(r)));
             result.ExternalModules = result.ExternalModules.Select(m => m.Substring("module ".Length)).ToList();
+            result.NuGetPackages.AddRange(defaultInstallContent.NuGetPackages.Where(r => !result.NuGetPackages.Contains(r)));
+            result.NuGetPackages = result.NuGetPackages.Select(m => m.Substring("nuget ".Length)).ToList();
             return result;
         }
 
@@ -41,11 +43,12 @@ namespace Common.YamlParsers
             {
                 var currentConfig = configQueue.Dequeue();
                 var currentDeps = GetInstallSectionFromConfig(currentConfig, "install");
-                result.BuildFiles.AddRange(currentDeps.Where(r => !r.StartsWith("module ")));
+                result.BuildFiles.AddRange(currentDeps.Where(r => !r.StartsWith("module ") && ! r.StartsWith("nuget ")));
                 result.Artifacts.AddRange(result.BuildFiles.Where(r => !result.Artifacts.Contains(r)));
                 result.Artifacts.AddRange(GetInstallSectionFromConfig(currentConfig, "artifacts").Where(r => !r.StartsWith("module ")));
                 result.Artifacts.AddRange(GetInstallSectionFromConfig(currentConfig, "artefacts").Where(r => !r.StartsWith("module ")));
                 result.ExternalModules.AddRange(currentDeps.Where(r => r.StartsWith("module ")));
+                result.NuGetPackages.AddRange(currentDeps.Where(r => r.StartsWith("nuget ")));
                 if (!IsInherited(currentConfig))
                     continue;
                 var childConfigurations = GetParentConfigurations(currentConfig);

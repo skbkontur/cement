@@ -27,6 +27,7 @@ namespace Common
         public InstallData Get(string configName = null)
         {
             var proceededModules = new HashSet<string>();
+            var proceededNuGetPackages = new HashSet<string>();
             if (!File.Exists(Path.Combine(path, Helper.YamlSpecFile)))
                 return new InstallData();
 
@@ -42,15 +43,17 @@ namespace Common
             {
                 var externalModule = queue.Dequeue();
                 proceededModules.Add(externalModule);
-                var proceededExternal = ProceedExternalModule(externalModule, proceededModules);
+                var proceededExternal = ProceedExternalModule(externalModule, proceededModules, proceededNuGetPackages);
                 result.BuildFiles.AddRange(proceededExternal.BuildFiles.Where(f => !result.BuildFiles.Contains(f)));
                 result.ExternalModules.AddRange(proceededExternal.ExternalModules);
+                result.NuGetPackages.AddRange(proceededExternal.NuGetPackages);
+                proceededExternal.NuGetPackages.ForEach(m => proceededNuGetPackages.Add(m));
                 EnqueueRange(queue, proceededExternal.ExternalModules);
             }
             return result;
         }
 
-        private InstallData ProceedExternalModule(string moduleNameWithConfiguration, HashSet<string> proceededModules)
+        private InstallData ProceedExternalModule(string moduleNameWithConfiguration, HashSet<string> proceededModules, HashSet<string> proceededNuGetPackages)
         {
             var dep = new Dep(moduleNameWithConfiguration);
             var externalModulePath = Path.Combine(path, "..", dep.Name);
@@ -61,7 +64,10 @@ namespace Common
                     .ToList(),
                 externalInstallData.ExternalModules
                     .Where(m => !proceededModules.Contains(m))
-                    .ToList());
+                    .ToList(),
+                externalInstallData.NuGetPackages
+                .Where(m => !proceededNuGetPackages.Contains(m))
+                .ToList());
         }
     }
 }

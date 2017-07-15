@@ -158,6 +158,11 @@ namespace Commands
 
             if (!testReplaces)
                 csproj.Save();
+
+            var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
+            var packagesDirectory = Path.Combine(currentModuleDirectory, "packages");
+            foreach (var nuGetPackage in installData.NuGetPackages)
+                NuGetPackageHepler.Install(nuGetPackage, packagesDirectory, projectPath);
         }
 
         private void CheckExistBuildFile(string file)

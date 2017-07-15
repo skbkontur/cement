@@ -23,6 +23,21 @@ full-build:
             Assert.AreEqual("ext", result[0]);
         }
 
+        [Test]
+        public void TestGetNuGetInstalls()
+        {
+            var text = @"
+full-build:
+    deps:
+        - ext
+    install:
+        - current
+        - nuget Newtonsoft.Json";
+            var result = YamlFromText.InstallParser(text).Get().NuGetPackages;
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual("Newtonsoft.Json", result[0]);
+        }
+
         private void CreateModule(string moduleName, string content)
         {
             if (!Directory.Exists(moduleName))
@@ -168,7 +183,8 @@ client:
                 CreateModule("ext", externalModuleText);
                 CreateModule("cur", moduleText);
                 var result = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
-                Assert.AreEqual(new[] {@"cur\current", @"cur\current.client", @"ext\external", @"ext\external.client", @"q\q.sdk"},
+                Assert.AreEqual(
+                    new[] {@"cur\current", @"cur\current.client", @"ext\external", @"ext\external.client", @"q\q.sdk"},
                     result.BuildFiles.ToArray());
             }
         }
