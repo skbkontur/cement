@@ -66,8 +66,8 @@ namespace Common
                     .Where(m => !proceededModules.Contains(m))
                     .ToList(),
                 externalInstallData.NuGetPackages
-                .Where(m => !proceededNuGetPackages.Contains(m))
-                .ToList());
+                    .Where(m => !proceededNuGetPackages.Contains(m))
+                    .ToList());
         }
     }
 }
