@@ -55,6 +55,7 @@ full-build:
 full-build:
     install:
         - external
+        - nuget pExternal
 ";
             var moduleText = @"
 full-build:
@@ -62,15 +63,19 @@ full-build:
         - ext
     install:
         - current
-        - module ext";
+        - module ext
+        - nuget pCurrent";
             using (var tempDir = new TempDirectory())
             {
                 using (new DirectoryJumper(tempDir.Path))
                 {
                     CreateModule("ext", externalModuleText);
                     CreateModule("cur", moduleText);
-                    var result = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get().BuildFiles.ToArray();
-                    Assert.AreEqual(new[] {@"cur\current", @"ext\external"}, result);
+                    var installData = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
+                    var buildFiles = installData.BuildFiles.ToArray();
+                    var nugetPackages = installData.NuGetPackages.ToArray();
+                    Assert.AreEqual(new[] {@"cur\current", @"ext\external"}, buildFiles);
+                    Assert.AreEqual(new[] {"pCurrent", "pExternal"}, nugetPackages);
                 }
             }
         }
@@ -154,15 +159,18 @@ sdk:
     install:
         - q.sdk
         - module ext/client
+        - nuget q.sdk
 ";
             var externalModuleText = @"
 full-build:
     install:
         - external
         - module q/sdk
+        - nuget external
 client:
     install:
         - external.client
+        - nuget external.client
 ";
             var moduleText = @"
 full-build > client:
@@ -171,10 +179,12 @@ full-build > client:
     install:
         - current
         - module ext
+        - nuget current
 client:
     install:
         - current.client
         - module ext/client
+        - nuget client
 ";
             using (var tempDir = new TempDirectory())
             using (new DirectoryJumper(tempDir.Path))
@@ -182,10 +192,13 @@ client:
                 CreateModule("q", qText);
                 CreateModule("ext", externalModuleText);
                 CreateModule("cur", moduleText);
-                var result = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
+                var installData = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
                 Assert.AreEqual(
                     new[] {@"cur\current", @"cur\current.client", @"ext\external", @"ext\external.client", @"q\q.sdk"},
-                    result.BuildFiles.ToArray());
+                    installData.BuildFiles.ToArray());
+                Assert.AreEqual(
+                    new[] { "current", "client", "external", "external.client", "q.sdk" },
+                    installData.NuGetPackages.ToArray());
             }
         }
     }
