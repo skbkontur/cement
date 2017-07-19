@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using log4net;
 using NuGet.CommandLine;
@@ -31,6 +33,7 @@ namespace Common
             private readonly MSBuildProjectSystem projectSystem;
             private readonly List<SourceRepository> repositories;
             private readonly HashSet<PackageIdentity> installedPackages;
+            private readonly string originalLineEndings;
 
             public NuGetProject(List<string> packagesList, string packagesPath, string projectFilePath)
             {
@@ -41,6 +44,9 @@ namespace Common
                 repositories = sourceProvider.LoadPackageSources().Select(sourceRepositoryProvider.CreateRepository)
                     .ToList();
                 logger = new Console();
+
+                var projectFileContent = File.ReadAllText(projectFilePath);
+                originalLineEndings = projectFileContent.Contains("\r\n") ? "\r\n" : "\n";
 
                 var msbuildDirectory =
                     Path.GetDirectoryName(ModuleBuilderHelper.FindMsBuild(null, "Cement NuGet Package Installer"));
@@ -64,6 +70,16 @@ namespace Common
                         InstallPackageWithDependencies(package, packageDownloadContext);
                     }
                 }
+                projectSystem.Save();
+
+                var projectFileContent = File.ReadAllText(projectSystem.ProjectFileFullPath);
+                var contentLines = projectFileContent
+                    .Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+                contentLines[0] = contentLines[0].Replace("utf-16", "utf-8");
+                File.WriteAllText(
+                    projectSystem.ProjectFileFullPath,
+                    string.Join(originalLineEndings, contentLines),
+                    new UTF8Encoding(true));
             }
 
             private void InstallPackageWithDependencies(PackageIdentity package,
@@ -97,7 +113,6 @@ namespace Common
                     .Result;
                 if (installSuccess)
                 {
-                    projectSystem.Save();
                     Log.Info($"Installed {package}");
                 }
                 else
