@@ -106,7 +106,7 @@
       <MergeAssemblies Include="$(OutputPath)\NDesk.Options.dll" />
       <MergeAssemblies Include="$(OutputPath)\SharpYaml.dll" />
       <MergeAssemblies Condition="Exists('$(SolutionDir)\..\log4stash\bin\lib\net45\log4stash.dll')" Include="$(SolutionDir)\..\log4stash\bin\lib\net45\log4stash.dll" />
-      <MergeAssemblies Include="$(OutputPath)\Newtonsoft.Json.dll" />
+      <MergeAssemblies Include="$(OutputPath)\NuGet.exe" />
     </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputPath)\cm.exe</OutputAssembly>

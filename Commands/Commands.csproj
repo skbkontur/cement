@@ -55,9 +55,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\externals\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="NuGet, Version=4.1.0.2450, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NuGet.CommandLine.4.1.0\tools\NuGet.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
