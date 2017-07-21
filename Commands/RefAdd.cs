@@ -150,7 +150,7 @@ namespace Commands
             {
                 var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
                 var packagesDirectory = Path.Combine(currentModuleDirectory, "packages");
-                NuGetPackageHepler.InstallPackages(installData.NuGetPackages, packagesDirectory, projectPath);
+                new NuGetPackageHepler(Log).InstallPackages(installData.NuGetPackages, packagesDirectory, projectPath);
             }
             catch (Exception e)
             {

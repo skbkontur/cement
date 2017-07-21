@@ -20,9 +20,14 @@ using Settings = NuGet.Configuration.Settings;
 
 namespace Common
 {
-    public static class NuGetPackageHepler
+    public class NuGetPackageHepler
     {
-        private static readonly ILog Log = LogManager.GetLogger("NuGetPackageHelper");
+        private readonly ILog log;
+
+        public NuGetPackageHepler(ILog log)
+        {
+            this.log = log;
+        }
 
         private class NuGetProject
         {
@@ -34,9 +39,11 @@ namespace Common
             private readonly List<SourceRepository> repositories;
             private readonly HashSet<PackageIdentity> installedPackages;
             private readonly string originalLineEndings;
+            private readonly ILog log;
 
-            public NuGetProject(List<string> packagesList, string packagesPath, string projectFilePath)
+            public NuGetProject(List<string> packagesList, string packagesPath, string projectFilePath, ILog log)
             {
+                this.log = log;
                 this.packagesList = packagesList;
                 installedPackages = new HashSet<PackageIdentity>();
                 var sourceProvider = new PackageSourceProvider(Settings.LoadDefaultSettings(null));
@@ -85,7 +92,7 @@ namespace Common
             private void InstallPackageWithDependencies(PackageIdentity package,
                 PackageDownloadContext packageDownloadContext)
             {
-                Log.Info($"Loading package {package}");
+                log.Info($"Loading package {package}");
                 var downloadResourceResult = LoadPackage(package, packageDownloadContext);
                 var dependencyGroups = downloadResourceResult.PackageReader.GetPackageDependencies().ToList();
                 var mostCompatibleFramework = new FrameworkReducer().GetNearest(
@@ -99,7 +106,7 @@ namespace Common
                     {
                         var dependencyIdentity = new PackageIdentity(dependency.Id,
                             NuGetVersion.Parse(dependency.VersionRange.MinVersion.ToFullString()));
-                        Log.Info($"Resolved dependency of {package}: {dependencyIdentity}");
+                        log.Info($"Resolved dependency of {package}: {dependencyIdentity}");
                         if (installedPackages.Contains(dependencyIdentity)) continue;
                         InstallPackageWithDependencies(dependencyIdentity, packageDownloadContext);
                         installedPackages.Add(dependencyIdentity);
@@ -113,11 +120,11 @@ namespace Common
                     .Result;
                 if (installSuccess)
                 {
-                    Log.Info($"Installed {package}");
+                    log.Info($"Installed {package}");
                 }
                 else
                 {
-                    Log.Info($"{package} not installed");
+                    log.Info($"{package} not installed");
                     ConsoleWriter.WriteWarning($"Nuget package {package} not installed");
                 }
             }
@@ -147,9 +154,9 @@ namespace Common
             }
         }
 
-        public static void InstallPackages(List<string> packagesList, string packagesPath, string projectFilePath)
+        public void InstallPackages(List<string> packagesList, string packagesPath, string projectFilePath)
         {
-            new NuGetProject(packagesList, packagesPath, projectFilePath).Install();
+            new NuGetProject(packagesList, packagesPath, projectFilePath, log).Install();
         }
     }
 }
