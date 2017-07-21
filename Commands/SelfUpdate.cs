@@ -134,6 +134,7 @@ exit $exit_code";
         {
             var currentCommitHash = Helper.GetCurrentBuildCommitHash();
 
+            ConsoleWriter.WriteProgressWithoutSave("Looking for cement updates");
             var newCommitHash = updater.GetNewCommitHash();
             if (newCommitHash == null)
                 return -1;

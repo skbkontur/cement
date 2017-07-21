@@ -22,7 +22,6 @@ namespace Common
             var webClient = new WebClient();
             try
             {
-                ConsoleWriter.WriteProgressWithoutSave("Looking for cement updates");
                 var infoModel = JsonConvert.DeserializeObject<InfoResponseModel>(webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/cement/info/head/" + branch));
                 return infoModel?.CommitHash;
             }

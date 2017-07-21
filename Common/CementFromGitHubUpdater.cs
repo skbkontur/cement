@@ -19,8 +19,6 @@ namespace Common
         {
             try
             {
-                ConsoleWriter.WriteProgressWithoutSave("Looking for cement updates");
-
                 var webClient = new WebClient();
                 webClient.Headers.Add("User-Agent", "Anything");
                 var json = webClient.DownloadString("https://api.github.com/repos/skbkontur/cement/releases/latest");
