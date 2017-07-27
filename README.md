@@ -1,34 +1,34 @@
 # Cement [![Build status](https://ci.appveyor.com/api/projects/status/nfbn7d6rxmk88o2q?svg=true)](https://ci.appveyor.com/project/beevee12723/cement)
 
-- Dependency management tool, mostly for C# projects
-- Allow get and build your projects with dependencies
-- Every project is git repository
-- Every project is one solution or some content module
+- Dependency management tool, mainly for C# projects
+- Allow getting and building your projects with dependencies
+- Every project is a git repository
+- Every project is a solution or a content module
 
 # Get started
 
 ## Install
 
-1. You should have installed git and Visual Studio or MSBuild Tools
+1. You should have git and Visual Studio or MSBuild Tools installed 
 2. Download zip from https://github.com/skbkontur/cement/releases/latest
 3. Unzip and run `dotnet\install.cmd`
 4. Restart terminal
-5. Command `cm` should show you aviable commands in any directory
+5. Command `cm` shows you aviable commands in any directory
 
 ## Work with cement
 
-Use `cm help` to see all cement commands.
-Use `cm %command_name% /?` or `cm help %command_name%` to see command description.
+Use `cm help` to view all cement commands.
+Use `cm %command_name% /?` or `cm help %command_name%` to view command description.
 
-All modules description stored in special git repo. 
+All module descriptions are stored in a special git repo. 
 
-At start your cement will use sample modules from https://github.com/KungA/cement-sample-modules/blob/master/modules
+In the beginning your cement will use sample modules from https://github.com/KungA/cement-sample-modules/blob/master/modules
 
-Command `cm ls` should shows modules A, B, C, D.
+Command `cm ls` shows modules A, B, C, D.
 
 ## Get modules
 
-Lets run some commands to get and build module A, which use modules B, C, D.
+Let some commands run to get and build module A, which uses modules B, C, D.
 
 ### cm init
 All modules should be downloaded into one 'cement tracked' directory.
@@ -40,7 +40,7 @@ Download module A with deps B, C, D.
 Go to module directory.
 
 ### cm build-deps
-Build dependencies for current module in right order.
+Build dependencies for current module in the right order.
 
 ### cm build
 Build current module. You can use it now.
@@ -60,7 +60,7 @@ And current module.
 
 ## Creating modules
 
-1. Specify git repo witch will contain all modules description like https://github.com/KungA/cement-sample-modules
+1. Specify git repo witch will contain all module descriptions like https://github.com/KungA/cement-sample-modules
 2. Add empty `modules` file to it and push
 2. Fill it into `%userprofile%\.cement\settings` file instead of `git@github.com:KungA/cement-sample-modules.git`
 3. Create repositories for your modules like
