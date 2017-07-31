@@ -26,9 +26,9 @@ namespace Commands
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseCheckDeps(args);
-            configuration = (string) (parsedArgs["configuration"]);
-            showAll = (bool) (parsedArgs["all"]);
-            showShort = (bool) (parsedArgs["short"]);
+            configuration = (string) parsedArgs["configuration"];
+            showAll = (bool) parsedArgs["all"];
+            showShort = (bool) parsedArgs["short"];
         }
 
         protected override int Execute()

@@ -240,7 +240,7 @@ namespace Common
 
         public bool HasLocalChanges()
         {
-            return (ShowLocalChanges()).Split('\n').Any(line => line.Trim().Length > 0);
+            return ShowLocalChanges().Split('\n').Any(line => line.Trim().Length > 0);
         }
 
         public IList<string> LocalBranches()
@@ -357,7 +357,7 @@ namespace Common
         {
             log.Info($"{"[" + ModuleName + "]",-30}Reset hard {treeish}");
             BuiltHelper.RemoveModuleFromBuiltInfo(ModuleName);
-            runner.RunInDirectory(RepoPath, "git reset --hard " + (treeish == null ? "" : ("origin/" + treeish)));
+            runner.RunInDirectory(RepoPath, "git reset --hard " + (treeish == null ? "" : "origin/" + treeish));
         }
 
         public bool FastForwardPullAllowed(string treeish)

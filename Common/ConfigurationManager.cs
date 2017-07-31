@@ -81,7 +81,7 @@ namespace Common
 
         private bool ProcessedParentDfs(string config)
         {
-            return (ProcessedDeps.Contains(config) || (config != null && configHierarchy.ContainsKey(config) && configHierarchy[config].Any(ProcessedParentDfs)));
+            return ProcessedDeps.Contains(config) || config != null && configHierarchy.ContainsKey(config) && configHierarchy[config].Any(ProcessedParentDfs);
         }
     }
 }

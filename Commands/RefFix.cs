@@ -145,7 +145,7 @@ namespace Commands
             var answer = Console.ReadLine();
             int index;
             if (int.TryParse(answer, out index))
-                answer = (index <= 0 || index >= withSameName.Count()) ? null : withSameName[index];
+                answer = index <= 0 || index >= withSameName.Count() ? null : withSameName[index];
             else
                 answer = null;
             return answer;

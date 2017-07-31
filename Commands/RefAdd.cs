@@ -243,7 +243,7 @@ namespace Commands
             ConsoleWriter.WriteWarning(
                 $"'{project}' already contains ref '{refName}'.\n\n<<<<\n{oldRef}\n\n>>>>\n{newRef}\nDo you want to replace (y/N)?");
             var answer = Console.ReadLine();
-            return (answer != null && answer.Trim().ToLowerInvariant() == "y");
+            return answer != null && answer.Trim().ToLowerInvariant() == "y";
         }
 
         public override string HelpMessage => @"";

@@ -44,7 +44,7 @@ namespace Commands
             var startInfo = new ProcessStartInfo
             {
                 FileName = Helper.OsIsUnix() ? "/bin/bash" : "cmd",
-                Arguments = (Helper.OsIsUnix() ? " -lc " : " /c "),
+                Arguments = Helper.OsIsUnix() ? " -lc " : " /c ",
                 UseShellExecute = false
             };
             startInfo.Arguments = startInfo.Arguments + "\"" + cmd + "\"";

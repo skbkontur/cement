@@ -33,9 +33,9 @@ namespace Commands
                 throw new CementException("You should specify the name of the module");
 
             treeish = (string) parsedArgs["treeish"];
-            configuration = (string) (parsedArgs["configuration"]);
-            mergedBranch = (string) (parsedArgs["merged"]);
-            verbose = (bool) (parsedArgs["verbose"]);
+            configuration = (string) parsedArgs["configuration"];
+            mergedBranch = (string) parsedArgs["merged"];
+            verbose = (bool) parsedArgs["verbose"];
             policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
         }
 

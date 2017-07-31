@@ -143,8 +143,8 @@ namespace Common
                 processed.Select(d => d.Treeish)
                     .Any(
                         dtreeish =>
-                            (dtreeish == null && dep.Treeish == null) ||
-                            (dtreeish != null && (dtreeish.Equals(dep.Treeish) || dep.Treeish == null)));
+                            dtreeish == null && dep.Treeish == null ||
+                            dtreeish != null && (dtreeish.Equals(dep.Treeish) || dep.Treeish == null));
         }
 
         public static void ThrowOnTreeishConflict(DepWithParent depWithParent, IList<DepWithParent> processed)

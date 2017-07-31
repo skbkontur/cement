@@ -142,10 +142,10 @@ full-build:
                 var content = "";
                 if (depsByConfig[config] != null)
                 {
-                    content = (depsByConfig[config].Force != null
+                    content = depsByConfig[config].Force != null
                         ? @"[main]
 force = " + depsByConfig[config].Force + "\r\n"
-                        : "");
+                        : "";
                     foreach (var dep in depsByConfig[config].Deps)
                     {
                         content += $"[module {dep.Name}]\r\n";
