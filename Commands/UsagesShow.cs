@@ -29,9 +29,9 @@ namespace Commands
             if (Helper.GetModules().All(m => m.Name.ToLower() != module.ToLower()))
                 ConsoleWriter.WriteWarning("Module " + module + " not found");
             branch = (string) parsedArgs["branch"];
-            configuration = (string) (parsedArgs["configuration"]);
-            showAll = (bool) (parsedArgs["all"]);
-            printEdges = (bool) (parsedArgs["edges"]);
+            configuration = (string) parsedArgs["configuration"];
+            showAll = (bool) parsedArgs["all"];
+            printEdges = (bool) parsedArgs["edges"];
         }
 
         protected override int Execute()

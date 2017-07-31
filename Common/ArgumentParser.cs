@@ -26,12 +26,12 @@ namespace Common
             var all = parsedArguments.ContainsKey("all") ? 1 : 0;
             if (local + all > 1)
             {
-                throw new BadArgumentException("Bad arguments");
+                throw new BadArgumentException("Bad arguments: all and local");
             }
             return parsedArguments;
         }
 
-        public static Dictionary<string, object> ParseUpdatedeps(string[] args)
+        public static Dictionary<string, object> ParseUpdateDeps(string[] args)
         {
             var parsedArguments = new Dictionary<string, object>
             {
@@ -194,8 +194,7 @@ namespace Common
                 {"W", f => parsedArguments["obsolete"] = true},
                 {"v|verbose", v => parsedArguments["verbose"] = true},
                 {"p|progress", p => parsedArguments["progress"] = true},
-                {"restore", p => parsedArguments["restore"] = true},
-                {"no-restore", p => parsedArguments["restore"] = false}
+                {"restore", p => parsedArguments["restore"] = true}
             };
             var extraArgs = parser.Parse(args.Skip(1));
             ThrowIfHasExtraArgs(extraArgs);
@@ -252,58 +251,6 @@ namespace Common
             };
             var extraArgs = parser.Parse(args.Skip(2));
             ThrowIfHasExtraArgs(extraArgs);
-            return parsedArguments;
-        }
-
-        public static Dictionary<string, object> ParseGroupLs(string[] args)
-        {
-            var parsedArguments = new Dictionary<string, object>
-            {
-                {"verbose", false}
-            };
-            var parser = new OptionSet
-            {
-                {"v|verbose", v => parsedArguments["verbose"] = true}
-            };
-            var extraArgs = parser.Parse(args);
-            ThrowIfHasExtraArgs(extraArgs);
-            return parsedArguments;
-        }
-
-        public static Dictionary<string, object> ParseGroupBranch(string[] args)
-        {
-            var parsedArguments = new Dictionary<string, object>
-            {
-                {"remote", false},
-                {"all", false},
-                {"common", false},
-                {"local", false}
-            };
-            var parser = new OptionSet
-            {
-                {"r|remote", r => parsedArguments["remote"] = true},
-                {"a|all", a => parsedArguments["all"] = true},
-                {"c|common", c => parsedArguments["common"] = true},
-                {"l|local", l => parsedArguments["local"] = true}
-            };
-            var extraArgs = parser.Parse(args);
-            if (extraArgs.Count != 1)
-            {
-                throw new BadArgumentException();
-            }
-            parsedArguments["group"] = extraArgs[0];
-            if ((bool) parsedArguments["local"] && (bool) parsedArguments["remote"])
-            {
-                throw new BadArgumentException();
-            }
-            if (((bool) parsedArguments["local"] || (bool) parsedArguments["remote"]) && (bool) parsedArguments["all"])
-            {
-                throw new BadArgumentException();
-            }
-            if (!(bool) parsedArguments["local"] && !(bool) parsedArguments["remote"] && !(bool) parsedArguments["all"])
-            {
-                parsedArguments["local"] = true;
-            }
             return parsedArguments;
         }
 

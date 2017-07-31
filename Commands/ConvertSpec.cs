@@ -47,7 +47,7 @@ namespace Commands
             foreach (var configuration in hierarchy.Keys)
             {
                 var children = hierarchy.Keys.Where(key => hierarchy[key].Contains(configuration)).ToList();
-                var isDefault = (configuration == defaultConfiguration && configuration != "full-build");
+                var isDefault = configuration == defaultConfiguration && configuration != "full-build";
                 Convert(configuration, children, isDefault);
             }
         }
@@ -141,7 +141,7 @@ namespace Commands
         }
 
         public override string HelpMessage => @"
-    Converts information about module to new format - module.yaml
+    Converts information about module from old dep format to new format - module.yaml
 
     Usage:
         cm convert-spec

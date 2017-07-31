@@ -17,7 +17,7 @@ namespace Tests.UtilsTests
                 "-c",
                 "client"
             };
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
+            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
             Assert.AreEqual("client", parsedArgs["configuration"]);
         }
 
@@ -72,7 +72,7 @@ namespace Tests.UtilsTests
                 "--force",
                 "--reset"
             };
-            Assert.Throws<BadArgumentException>(() => ArgumentParser.ParseUpdatedeps(args));
+            Assert.Throws<BadArgumentException>(() => ArgumentParser.ParseUpdateDeps(args));
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace Tests.UtilsTests
             {
                 "update-deps"
             };
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
+            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
             Assert.IsNull(parsedArgs["merged"]);
         }
 
@@ -94,7 +94,7 @@ namespace Tests.UtilsTests
                 "update-deps",
                 "-m"
             };
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
+            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
             Assert.AreEqual("master", parsedArgs["merged"]);
         }
 
@@ -106,7 +106,7 @@ namespace Tests.UtilsTests
                 "update-deps",
                 "--merged=new"
             };
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
+            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
             Assert.AreEqual("new", parsedArgs["merged"]);
         }
 
@@ -117,7 +117,7 @@ namespace Tests.UtilsTests
             {
                 "update-deps"
             };
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
+            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
             Assert.IsFalse((bool) parsedArgs["localBranchForce"]);
         }
 
@@ -129,7 +129,7 @@ namespace Tests.UtilsTests
                 "update-deps",
                 "--allow-local-branch-force"
             };
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
+            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
             Assert.IsTrue((bool) parsedArgs["localBranchForce"]);
         }
 
@@ -141,7 +141,7 @@ namespace Tests.UtilsTests
                 "update-deps",
                 "--verbose"
             };
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
+            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
             Assert.IsTrue((bool) parsedArgs["verbose"]);
         }
 
@@ -152,7 +152,7 @@ namespace Tests.UtilsTests
             {
                 "update-deps"
             };
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
+            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
             Assert.IsFalse((bool) parsedArgs["verbose"]);
         }
     }

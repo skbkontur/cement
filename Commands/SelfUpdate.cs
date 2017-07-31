@@ -340,10 +340,10 @@ exit $exit_code";
         }
 
         public override string HelpMessage => @"
-    Updates cement itself
+    Updates cement itself (automatically updated every 5 hours)
 
     Usage:
-        cm self-update [-b <branch name>]
+        cm self-update
 ";
     }
 }

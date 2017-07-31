@@ -78,8 +78,8 @@ namespace Common
 
         private void DeleteMsBuild(SortedSet<string> refs)
         {
-            refs.RemoveWhere(r => (r.StartsWith("msbuild/") || r.StartsWith("msbuild\\")));
-            refs.RemoveWhere(r => (r.StartsWith("nuget/") || r.StartsWith("nuget\\")));
+            refs.RemoveWhere(r => r.StartsWith("msbuild/") || r.StartsWith("msbuild\\"));
+            refs.RemoveWhere(r => r.StartsWith("nuget/") || r.StartsWith("nuget\\"));
         }
     }
 

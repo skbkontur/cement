@@ -15,7 +15,8 @@ namespace Commands
                 LogFileName = null,
                 MeasureElapsedTime = false,
                 RequireModuleYaml = false,
-                Location = CommandSettings.CommandLocation.RootModuleDirectory
+                Location = CommandSettings.CommandLocation.RootModuleDirectory,
+                IsHiddenCommand = true
             })
         {
         }

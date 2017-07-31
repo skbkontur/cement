@@ -44,11 +44,6 @@ namespace Commands
         Example:
             change	<HintPath>..\..\props\libprops\bin\Release\4.0\Kontur.Core.dll</HintPath>
             to		<HintPath>..\..\core\bin\Release\Kontur.Core.dll</HintPath>
-
-        see also check-deps command
-
-    Note:
-        does not work with old dep format
 ";
 
         public bool IsHiddenCommand => false;

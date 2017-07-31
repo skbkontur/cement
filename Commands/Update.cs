@@ -46,7 +46,7 @@ namespace Commands
         {
             var parsedArgs = ArgumentParser.ParseUpdate(args);
             treeish = (string) parsedArgs["treeish"];
-            verbose = (bool) (parsedArgs["verbose"]);
+            verbose = (bool) parsedArgs["verbose"];
             policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
         }
 

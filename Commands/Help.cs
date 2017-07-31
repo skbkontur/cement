@@ -43,8 +43,8 @@ namespace Commands
 
     Usage:
         cm help <command-name>
-		cm <command-name> /?
-		cm <command-name> --help
+        cm <command-name> /?
+        cm <command-name> --help
 
     Example:
         cm help init

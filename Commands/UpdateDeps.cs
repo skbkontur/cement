@@ -27,11 +27,11 @@ namespace Commands
         {
             Helper.RemoveOldKey(ref args, "-n", Log);
 
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
-            configuration = (string) (parsedArgs["configuration"]);
-            mergedBranch = (string) (parsedArgs["merged"]);
-            localBranchForce = (bool) (parsedArgs["localBranchForce"]);
-            verbose = (bool) (parsedArgs["verbose"]);
+            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
+            configuration = (string) parsedArgs["configuration"];
+            mergedBranch = (string) parsedArgs["merged"];
+            localBranchForce = (bool) parsedArgs["localBranchForce"];
+            verbose = (bool) parsedArgs["verbose"];
             policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
         }
 
@@ -86,7 +86,7 @@ namespace Commands
         -v/--verbose                show commit info for deps
 
     Example:
-        cm update-deps -f --progress
+        cm update-deps -r --progress
 ";
     }
 }
