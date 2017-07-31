@@ -40,7 +40,7 @@ namespace Commands
         cm init
 
     Note:
-        $HOME directory cannot be used with this command.
+        $HOME directory cannot be used with this command
 ";
 
         public bool IsHiddenCommand => false;
