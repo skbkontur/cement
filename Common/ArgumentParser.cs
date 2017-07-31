@@ -26,7 +26,7 @@ namespace Common
             var all = parsedArguments.ContainsKey("all") ? 1 : 0;
             if (local + all > 1)
             {
-                throw new BadArgumentException("Bad arguments");
+                throw new BadArgumentException("Bad arguments: all and local");
             }
             return parsedArguments;
         }
