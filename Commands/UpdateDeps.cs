@@ -86,7 +86,7 @@ namespace Commands
         -v/--verbose                show commit info for deps
 
     Example:
-        cm update-deps -f --progress
+        cm update-deps -r --progress
 ";
     }
 }
