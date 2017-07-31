@@ -141,7 +141,7 @@ namespace Commands
         }
 
         public override string HelpMessage => @"
-    Converts information about module to new format - module.yaml
+    Converts information about module from old dep format to new format - module.yaml
 
     Usage:
         cm convert-spec
