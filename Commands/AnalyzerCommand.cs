@@ -39,9 +39,6 @@ namespace Commands
                 Adds analyzer from module analyzers.code-style to all projects in current solution and adds analyzers.code-style to 'module.yaml' file
             cm analyzer add analyzers.async-code mysolution.sln
                 Adds analyzer from module analyzers.code-style to all projects in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
-
-    Note:
-        does not work with old dep format
 ";
 
         public bool IsHiddenCommand => false;
