@@ -186,6 +186,7 @@ namespace Commands
 
         public string HelpMessage => @"
     Adds new or changes existing cement module
+    Don't delete old modules
 
     Usage:
         cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url]
