@@ -10,11 +10,11 @@ namespace Commands
     public abstract class Command : ICommand
     {
         protected static ILog Log = LogManager.GetLogger(typeof(Command));
-        private readonly CommandSettings commandSettings;
+        protected readonly CommandSettings CommandSettings;
 
         protected Command(CommandSettings settings)
         {
-            commandSettings = settings;
+            CommandSettings = settings;
         }
 
         public int Run(string[] args)
@@ -30,10 +30,10 @@ namespace Commands
 
                 var exitCode = Execute();
 
-                if (!commandSettings.NoElkLog)
+                if (!CommandSettings.NoElkLog)
                     LogHelper.SendSavedLog();
 
-                if (commandSettings.MeasureElapsedTime)
+                if (CommandSettings.MeasureElapsedTime)
                 {
                     ConsoleWriter.WriteInfo("Total time: " + sw.Elapsed);
                     Log.Debug("Total time: " + sw.Elapsed);
@@ -63,8 +63,8 @@ namespace Commands
 
         private void CheckRequireYaml()
         {
-            if (commandSettings.Location == CommandSettings.CommandLocation.RootModuleDirectory &&
-                commandSettings.RequireModuleYaml &&
+            if (CommandSettings.Location == CommandSettings.CommandLocation.RootModuleDirectory &&
+                CommandSettings.RequireModuleYaml &&
                 !File.Exists(Helper.YamlSpecFile))
                 throw new CementException("This command require module.yaml file.\nUse convert-spec for convert old spec to module.yaml.");
         }
@@ -72,19 +72,19 @@ namespace Commands
         private void SetWorkspace()
         {
             var cwd = Directory.GetCurrentDirectory();
-            if (commandSettings.Location == CommandSettings.CommandLocation.WorkspaceDirectory)
+            if (CommandSettings.Location == CommandSettings.CommandLocation.WorkspaceDirectory)
             {
                 if (!Helper.IsCementTrackedDirectory(cwd))
                     throw new CementTrackException(cwd + " is not cement workspace directory.");
                 Helper.SetWorkspace(cwd);
             }
-            if (commandSettings.Location == CommandSettings.CommandLocation.RootModuleDirectory)
+            if (CommandSettings.Location == CommandSettings.CommandLocation.RootModuleDirectory)
             {
                 if (!Helper.IsCurrentDirectoryModule(cwd))
                     throw new CementTrackException(cwd + " is not cement module directory.");
                 Helper.SetWorkspace(Directory.GetParent(cwd).FullName);
             }
-            if (commandSettings.Location == CommandSettings.CommandLocation.InsideModuleDirectory)
+            if (CommandSettings.Location == CommandSettings.CommandLocation.InsideModuleDirectory)
             {
                 var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
                 if (currentModuleDirectory == null)
@@ -95,10 +95,10 @@ namespace Commands
 
         private void InitLogging()
         {
-            Log = new PrefixAppender(commandSettings.LogPerfix, LogManager.GetLogger(GetType().Name));
-            if (commandSettings.LogFileName != null)
-                LogHelper.InitializeFileAndElkLogging(commandSettings.LogFileName);
-            else if (!commandSettings.NoElkLog)
+            Log = new PrefixAppender(CommandSettings.LogPerfix, LogManager.GetLogger(GetType().Name));
+            if (CommandSettings.LogFileName != null)
+                LogHelper.InitializeFileAndElkLogging(CommandSettings.LogFileName);
+            else if (!CommandSettings.NoElkLog)
                 LogHelper.InitializeElkOnlyLogging();
 
             try
@@ -122,7 +122,7 @@ namespace Commands
         protected abstract void ParseArgs(string[] args);
         public abstract string HelpMessage { get; }
 
-        public bool IsHiddenCommand => commandSettings.IsHiddenCommand;
+        public bool IsHiddenCommand => CommandSettings.IsHiddenCommand;
     }
 
     public class CommandSettings

@@ -5,6 +5,7 @@
         public ReInstall()
         {
             IsInstallingCement = true;
+            CommandSettings.IsHiddenCommand = true;
         }
 
         public override string HelpMessage => @"
