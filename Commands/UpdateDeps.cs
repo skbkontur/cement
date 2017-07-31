@@ -27,7 +27,7 @@ namespace Commands
         {
             Helper.RemoveOldKey(ref args, "-n", Log);
 
-            var parsedArgs = ArgumentParser.ParseUpdatedeps(args);
+            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
             configuration = (string) (parsedArgs["configuration"]);
             mergedBranch = (string) (parsedArgs["merged"]);
             localBranchForce = (bool) (parsedArgs["localBranchForce"]);

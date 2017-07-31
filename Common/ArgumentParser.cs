@@ -31,7 +31,7 @@ namespace Common
             return parsedArguments;
         }
 
-        public static Dictionary<string, object> ParseUpdatedeps(string[] args)
+        public static Dictionary<string, object> ParseUpdateDeps(string[] args)
         {
             var parsedArguments = new Dictionary<string, object>
             {
