@@ -100,8 +100,6 @@ namespace Commands
         -c/--configuration      - check deps for specific configuration
         -a/--all                - show csproj names which has bad references
         -s/--short              - show only section with bad references
-
-    see also ref fix command
 ";
     }
 }
