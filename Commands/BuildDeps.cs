@@ -60,9 +60,8 @@ namespace Commands
                 builtStorage.RemoveBuildInfo(dep.Name);
 
             var builder = new ModuleBuilder(Log, buildSettings);
-
-            if (restore)
-                TryNugetRestore(modulesToBuild, builder);
+            
+            TryNugetRestore(modulesToBuild, builder);
 
             int built = 1;
             for (var i = 0; i < topSortedDeps.Count - 1; i++)
@@ -140,11 +139,10 @@ namespace Commands
     Performs build for current module dependencies
 
     Usage:
-        cm build-deps [-r|--rebuild] [-v|--verbose|-w|--warnings] [-p|--progress] [-c|--configuration <config-name>] [--restore]
+        cm build-deps [-r|--rebuild] [-v|--verbose|-w|--warnings] [-p|--progress] [-c|--configuration <config-name>]
 
         -r/--rebuild              - rebuild all deps (default skip module if it was already built, according to its commit-hash)
         -c/--configuration        - build deps for corresponding configuration
-        --restore                 - run 'nuget restore' in your solution directory before build
 
         -v/--verbose              - show full msbuild output
         -w/--warnings             - show warnings
