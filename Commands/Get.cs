@@ -78,7 +78,7 @@ namespace Commands
     Gets module with all deps
 
     Usage:
-        cm get [-f/-r/-p] [-v] [-m[=branch]] [-c <config-name>] module_name [treeish]
+        cm get [-f/-r/-p] [-v] [-m[=branch]] [-c <config-name>] module_name[/configuration][@treeish] [treeish]
         cm get module_name@treeish/configuration
 
         -c/--configuration          gets deps for corresponding configuration
@@ -92,7 +92,8 @@ namespace Commands
         -v/--verbose                show commit info for deps
 
     Example:
-        cm get kanso/client -rv
+        cm get kanso/client@release -rv
+        cm get kanso -c client release -rv
 ";
     }
 }
