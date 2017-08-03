@@ -1,4 +1,7 @@
-﻿using Common;
+﻿using System;
+using System.IO;
+using System.Linq;
+using Common;
 
 namespace Commands
 {
@@ -6,6 +9,12 @@ namespace Commands
     {
         public int Run(string[] args)
         {
+            if (args.Contains("--gen"))
+            {
+                GenerateReadme(args[2]);
+                return 0;
+            }
+
             if (args.Length == 1)
             {
                 CommandsList.Print();
@@ -31,6 +40,15 @@ namespace Commands
 
             ConsoleWriter.WriteError("Bad command: '" + command + "'");
             return -1;
+        }
+
+        private static void GenerateReadme(string file)
+        {
+            var text = File.ReadAllText(file);
+            var index = text.IndexOf("# Commands", StringComparison.Ordinal)
+                        + "# Commands".Length;
+            text = text.Substring(0, index) + ReadmeGenerator.Generate();
+            File.WriteAllText(file, text);
         }
 
         private static void PrintHelpFooter()
