@@ -172,8 +172,8 @@ And current module.
 
         -v/--verbose                show commit info for deps
 
-    This command runs 'update' ('git pull origin treeish') command for module.
-    If treeish isn't specified, cement uses current.
+    This command runs 'update' ('git pull origin treeish') command for module
+    If treeish isn't specified, cement uses current
 
 
 ### cm build-deps
@@ -288,10 +288,10 @@ And current module.
 
 ### cm status
 
-    Prints status of modifed git repos in the cement tracked dir.
-    It checks repo for push/pull and local state.
+    Prints status of modifed git repos in the cement tracked dir
+    It checks repo for push/pull and local state
 
     Usage:
         cm status
 
-    Runs anywhere in the cement tracked tree.
+    Runs anywhere in the cement tracked tree
