@@ -1,4 +1,4 @@
-# module.yaml
+# module.yaml
 Информация о модуле содержится в файле `module.yaml`.
 
 Каждый модуль может состоять из одной либо нескольких конфигураций (например конфигурация клиента, конфигурация с серверной частью, и конфигурация включающая тесты).
@@ -35,7 +35,7 @@
 	  
 	  # информация о построении данного модуля в данной конфигурации
 	  build:
-		#build solution Kontur.Drive.sln in Client configuration
+	    #build solution Kontur.Drive.sln in Client configuration
 	    target: Kontur.Drive.sln
 	    configuration: Client	   
 
