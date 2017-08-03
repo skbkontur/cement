@@ -35,7 +35,7 @@
 	  
 	  # информация о построении данного модуля в данной конфигурации
 	  build:
-		#build solution Kontur.Drive.sln in Client configuration
+		# build solution Kontur.Drive.sln in Client configuration
 	    target: Kontur.Drive.sln
 	    configuration: Client	   
 
