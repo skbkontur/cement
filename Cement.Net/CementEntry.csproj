@@ -105,7 +105,7 @@
       <MergeAssemblies Include="$(OutputPath)\log4net.dll" />
       <MergeAssemblies Include="$(OutputPath)\NDesk.Options.dll" />
       <MergeAssemblies Include="$(OutputPath)\SharpYaml.dll" />
-      <MergeAssemblies Condition="Exists('$(SolutionDir)\..\log4stash\bin\lib\net45\log4stash.dll')" Include="$(SolutionDir)\..\log4stash\bin\lib\net45\log4stash.dll" />
+      <MergeAssemblies Include="$(SolutionDir)\externals\log4stash.dll" />
       <MergeAssemblies Include="$(OutputPath)\NuGet.exe" />
     </ItemGroup>
     <PropertyGroup>
