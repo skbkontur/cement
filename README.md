@@ -13,7 +13,7 @@
 2. Download zip from https://github.com/skbkontur/cement/releases/latest
 3. Unzip and run `dotnet\install.cmd`
 4. Restart terminal
-5. Command `cm` shows you aviable commands in any directory
+5. Command `cm` shows you available commands in any directory
 
 ## Work with cement
 
@@ -74,7 +74,7 @@ And current module.
    https://github.com/KungA/cement-sample-D
    
 4. Run `cm module add A git@github.com:KungA/cement-sample-A.git` to add your modules to cement
-5. Fill `module.yaml` file, describing cement modules
+5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](README-module.yaml.md)) 
 
 # Commands
 ### cm help
