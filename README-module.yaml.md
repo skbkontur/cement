@@ -1,29 +1,29 @@
 # module.yaml
-Информация о модуле содержится в файле `module.yaml`.
+Information about the module is contained in `module.yaml`.
 
-Каждый модуль может состоять из одной либо нескольких конфигураций (например конфигурация клиента, конфигурация с серверной частью, и конфигурация включающая тесты).
+Each module may consist of one or several configurations (for example, client configuration, configuration with server part, configuration including tests).
 
-Каждая конфигурация может включать в себя следующие секции:
+Each configuration may include the following sections:
 
 - deps
 - build
 - install/artifacts
 
-Конфигурации можно наследовать, что бы избежать дублирования информации о зависимостях.
+Configurations may be inherited in order to avoid repeating of dependencies information.
 
-В модуле должна присутствовать конфигурация `full-build`, которая должна по возможности включать в себя остальные. Она будет использоваться при выполнении команд `cm get` и `cm build`.
+A module shall contain configuration `full-build`, including all the others, if possible. It will be used while execution of the following commands `cm get` and `cm build`.
 
-Необязательная конфигурация `default` является родителем для всех остальных.
+Optional configuration `default` is a parent for all the others.
 
-Пример:
+Example:
 
-	# секция описания конфигурации client
+	# configuration description section client
 	client: 
-	  # список зависимостей конфигурации client
-	  # зависимость указывается в следующем виде: <moduleName>[@branchName][/configName]
-	  # kanso - ссылка на модуль kanso. 
-	  # kanso/client - ссылка на kanso в конфигурации client. 
-	  # kanso@develop/client - kanso из ветки develop в конфигурации client
+	  # list of dependencies of client configuration
+	  # dependencies are listed in the following form: <moduleName>[@branchName][/configName]
+	  # kanso – reference to kanso module. 
+	  # kanso/client – reference to kanso in client configuration. 
+	  # kanso@develop/client - kanso from develop branch in client configuration
 	  deps: 
 	    - core
 	    - log4net
@@ -33,22 +33,22 @@
 	    - http.rp
 	    - topology
 	  
-	  # информация о построении данного модуля в данной конфигурации
+	  # information on build of the present module in the present configuration
 	  build:
 	    # build solution Kontur.Drive.sln in Client configuration
 	    target: Kontur.Drive.sln
 	    configuration: Client
 
-	  # Информация о том, что является результатом билда данной конфигурации
+	  # Information on results of the present configuration build
 	  install:
 	    - bin/Kontur.Drive.Client.dll
 	    - bin/Kontur.Drive.ServiceModel.dll
-	    - module logging                      # Для работы Kontur.Drive.Client.dll нужна ссылка на результаты билда модуля logging
-	    - nuget Newtonsoft.Json/6.0.8         # Либо нужена ссылка на nuget пакет
+	    - module logging                      # For operation of Kontur.Drive.Client.dll you need a reference on logging module build
+	    - nuget Newtonsoft.Json/6.0.8         # Or a reference on nuget bundle
 	  
-	# Конфигурация sdk "расширяет" конфигурацию client (> client) и является конфигурацией по умолчанию (*default) (используется при добавлении ссылки на данный модуль)
+	# Configuration sdk "expands" configuration client (> client) and is a configuration at default (*default) (it is used at referencing on this module)
 	sdk > client *default:
-	  # Для избежания дублирования списков зависимостей, deps от client наследуются сюда и их не нужно повторно прописывать
+	  # in order to avoid repetition of dependencies lists, deps from client are inherited here and you have no need to state them once again
 	  deps:
 	    - auth
 	    - libfront
@@ -60,21 +60,21 @@
 	    - config
 	    - zookeeper
 	  
-	  # Секция build НЕ наследуется
+	  # Section build is NOT inherited 
 	  build:
 	    target: Kontur.Drive.sln
 	    configuration: Sdk
 	  
-	  # Секция install наследуется, т.е. необходимо дописать лишь недостающие бинари
+	  # Section install is not inherited, so you need to add only missing binaries
 	  install:
 	    - Kontur.Drive.TestHost/bin/Release/Kontur.Drive.TestHost.exe
 	    - Kontur.Drive.TestHost/bin/Release/ServiceStack.Interfaces.dll
 	  
 	  
-	# Конфигурация full-build расширяет client и sdk
+	# Configuration full-build expands client and sdk
 	full-build > client, sdk:
 	  deps:
-	    # Так указывается diff на deps (в конфигурации full-build используется kanso/full-build. Сначала "удаляем" kanso из зависимостей, потом добавляем kanso/full-build)
+	    # So you state diff on deps (in configuration full-build kanso/full-build is used. At first, we “delete” kanso from dependencies, then add kanso/full-build)
 	    - -kanso
 	    - kanso/full-build
 	 
@@ -85,32 +85,32 @@
 
 # build section
 
-#### Для модуля который не надо строить:
+#### For a module which does need to be built:
 
 	build:
 	  target: None
 	  configuration: None
 
-#### Если нужно указать дополнительные параметры:
+#### If it is necessary to state additional parameters:
 	
 	build:                                             
-	  target: Solution.sln                              # Указание цели построения
+	  target: Solution.sln                              # A statement of build target
 	  tool:                                        
-	    name: msbuild                                   # Инструмент для сборки. msbuild - для MSBuild.exe на Windows и xbuild на *nix.
-	    version: "14.0"                                 # Версия msbuild, по умолчанию - последняя
+	    name: msbuild                                   # An assembling tool. msbuild - for MSBuild.exe at Windows and xbuild at *nix.
+	    version: "14.0"                                 # msbuild version, the latest at default
 	                                                    # set VS150COMNTOOLS=D:\Program Files\Microsoft Visual Studio\2017\Professional\Common7\Tools\
-	                                                    # Обязательно в кавычках
-	  configuration: Release                            # Конфигурация солюшена
-	  parameters: "/p:WarningLevel=0"                   # Здесь можно указать свои параметры. Параметры по умолчанию не используются. Кавычки в параметрах экранируются символом '\'.
-	                                                    # Параметры по умолчанию для msbuild:
+	                                                    # Quotation marks is a must
+	  configuration: Release                            # Solution configuration
+	  parameters: "/p:WarningLevel=0"                   # You can state your parameters here. Default parameters are not used. Quotation marks in parameters are shielded by '\'.
+	                                                    # Default parameters for msbuild:
 	                                                    # /t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0
-	                                                    # /p:VisualStudioVersion=14.0 (если явно указана)
+	                                                    # /p:VisualStudioVersion=14.0 (if not stated)
 
 
-#### Если в модуле несколько солюшенов
+#### If there are several solutions in a module
 	
 	build:
-	  - name: a.release                                # Нужно назвать каждую часть
+	  - name: a.release                                # You shall name each part
 	    target: a.sln
 	    configuration: release
 	  - name: b.debug
@@ -137,21 +137,20 @@ module.yaml:
 
 # Git hooks
 	
-	default:                                        # Описываем в конфигурации default
+	default:                                        # Description in a default configuration
 	  hooks:
-	    - myhooks/pre-push                          # Путь до хука в репозитории
-	                                                # будет скопирован в <module_name>/.git/hooks
-	    - pre-commit.cement                         # Встроенный в цемент pre-commit хук, который проверит, что файлы содержащие не ASCII символы имеют кодировку UTF-8 with BOM
-	                                                # не может быть более 1 хука с одинаковым именем
+	    - myhooks/pre-push                          # A way to a hook in a repository 
+	                                                # will be copied to <module_name>/.git/hooks
+	    - pre-commit.cement                         # A hook inbuilt into pre-commit will check that files containing non- ASCII symbols have UTF-8 with BOM coding
+	                                                # one hook – one name
 	  
-	full-build *default:                            # Остальные конфигурации модуля
+	full-build *default:                            # Other module configurations
 
 
-Если в текущей ветке есть хук, то при переключении на другую ветку он не удалится.
-Если вы хотите использовать ваш хук с pre-commit.cement, просто добавьте его вызов в свой хук:
+If there is a hook in a present branch, then it is not deleted when you switch to another branch.
+If you want to use your hook with pre-commit.cement, just add its call-out into your hook
 
 	.git/hooks/pre-commit.cement
 	if [ $? -ne 0 ]; then
 	  exit 1
 	fi
-
