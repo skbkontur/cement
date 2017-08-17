@@ -65,7 +65,7 @@ Example:
 	    target: Kontur.Drive.sln
 	    configuration: Sdk
 	  
-	  # Section install is not inherited, so you need to add only missing binaries
+	  # Section install is inherited, so you need to add only missing binaries
 	  install:
 	    - Kontur.Drive.TestHost/bin/Release/Kontur.Drive.TestHost.exe
 	    - Kontur.Drive.TestHost/bin/Release/ServiceStack.Interfaces.dll
@@ -85,7 +85,7 @@ Example:
 
 # build section
 
-#### For a module which does need to be built:
+#### For a module which does not need to be built:
 
 	build:
 	  target: None
