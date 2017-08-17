@@ -1,4 +1,4 @@
-# module.yaml
+﻿# module.yaml
 Information about the module is contained in `module.yaml`.
 
 Each module may consist of one or several configurations (for example, client configuration, configuration with server part, configuration including tests).
@@ -47,7 +47,7 @@ Example:
         - module logging
         # Or a reference on nuget bundle
         - nuget Newtonsoft.Json/6.0.8
-      
+
     # Configuration sdk "expands" configuration client (> client) 
     # and is a configuration at default (*default) (it is used at referencing on this module)
     sdk > client *default:
@@ -63,18 +63,18 @@ Example:
         - zebra-utils
         - config
         - zookeeper
-      
+
       # Section build is NOT inherited 
       build:
         target: Kontur.Drive.sln
         configuration: Sdk
-      
+
       # Section install is inherited, so you need to add only missing binaries
       install:
         - Kontur.Drive.TestHost/bin/Release/Kontur.Drive.TestHost.exe
         - Kontur.Drive.TestHost/bin/Release/ServiceStack.Interfaces.dll
-      
-      
+
+
     # Configuration full-build expands client and sdk
     full-build > client, sdk:
       deps:
@@ -97,27 +97,28 @@ Example:
       configuration: None
 
 #### If it is necessary to state additional parameters:
-    
-    build:     
+
+    build:
       # A statement of build target
-      target: Solution.sln                     
-      tool:                                        
+      target: Solution.sln
+      tool:
         # An assembling tool. msbuild - for MSBuild.exe at Windows and xbuild at *nix.
-        name: msbuild        
+        name: msbuild
         # msbuild version, the latest at default
         version: "14.0"
         # set VS150COMNTOOLS=D:\Program Files\Microsoft Visual Studio\2017\Professional\Common7\Tools\
       # Solution configuration
       configuration: Release
-      # You can state your parameters here. Default parameters are not used. Quotation marks in parameters are shielded by '\'.
+      # You can state your parameters here. Default parameters are not used. 
+      # Quotation marks in parameters are shielded by '\'.
       # Default parameters for msbuild:
       # /t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0 /p:VisualStudioVersion=14.0 (if not stated)
       parameters: "/p:WarningLevel=0"
 
 #### If there are several solutions in a module
-    
+
     build:
-      - name: a.release                                # You shall name each part
+      - name: a.release             # You shall name each part
         target: a.sln
         configuration: release
       - name: b.debug
@@ -143,15 +144,15 @@ module.yaml:
         configuration: Release
 
 # Git hooks
-    
-    default:                                        # Description in a default configuration
+
+    default:                  # Description in a default configuration
       hooks:
-        - myhooks/pre-push                          # A way to a hook in a repository 
-                                                    # will be copied to <module_name>/.git/hooks
-        - pre-commit.cement                         # A hook inbuilt into pre-commit will check that files containing non- ASCII symbols have UTF-8 with BOM coding
-                                                    # one hook – one name
-      
-    full-build *default:                            # Other module configurations
+        - myhooks/pre-push    # A way to a hook in a repository 
+                              # will be copied to <module_name>/.git/hooks
+        - pre-commit.cement   # A hook inbuilt into pre-commit will check that files containing non-ASCII symbols have UTF-8 with BOM coding
+                              # one hook – one name
+
+    full-build *default:      # Other module configurations
 
 
 If there is a hook in a present branch, then it is not deleted when you switch to another branch.
