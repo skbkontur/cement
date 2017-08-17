@@ -149,8 +149,8 @@ module.yaml:
       hooks:
         - myhooks/pre-push    # A way to a hook in a repository 
                               # will be copied to <module_name>/.git/hooks
-        - pre-commit.cement   # A hook inbuilt into pre-commit will check that files containing non-ASCII symbols have UTF-8 with BOM coding
-                              # one hook – one name
+        # A hook inbuilt into pre-commit will check that files containing non-ASCII symbols have UTF-8 with BOM coding
+        - pre-commit.cement
 
     full-build *default:      # Other module configurations
 
