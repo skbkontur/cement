@@ -43,12 +43,16 @@ Example:
 	  install:
 	    - bin/Kontur.Drive.Client.dll
 	    - bin/Kontur.Drive.ServiceModel.dll
-	    - module logging                      # For operation of Kontur.Drive.Client.dll you need a reference on logging module build
-	    - nuget Newtonsoft.Json/6.0.8         # Or a reference on nuget bundle
+	    # For operation of Kontur.Drive.Client.dll you need a reference on logging module build
+	    - module logging
+		# Or a reference on nuget bundle
+	    - nuget Newtonsoft.Json/6.0.8
 	  
-	# Configuration sdk "expands" configuration client (> client) and is a configuration at default (*default) (it is used at referencing on this module)
+	# Configuration sdk "expands" configuration client (> client) 
+	# and is a configuration at default (*default) (it is used at referencing on this module)
 	sdk > client *default:
-	  # in order to avoid repetition of dependencies lists, deps from client are inherited here and you have no need to state them once again
+	  # in order to avoid repetition of dependencies lists
+	  # deps from client are inherited here and you have no need to state them once again
 	  deps:
 	    - auth
 	    - libfront
@@ -74,7 +78,8 @@ Example:
 	# Configuration full-build expands client and sdk
 	full-build > client, sdk:
 	  deps:
-	    # So you state diff on deps (in configuration full-build kanso/full-build is used. At first, we “delete” kanso from dependencies, then add kanso/full-build)
+	    # So you state diff on deps (in configuration full-build kanso/full-build is used. 
+		# At first, we “delete” kanso from dependencies, then add kanso/full-build)
 	    - -kanso
 	    - kanso/full-build
 	 
@@ -93,19 +98,21 @@ Example:
 
 #### If it is necessary to state additional parameters:
 	
-	build:                                             
-	  target: Solution.sln                              # A statement of build target
+	build:     
+	  # A statement of build target
+	  target: Solution.sln                     
 	  tool:                                        
-	    name: msbuild                                   # An assembling tool. msbuild - for MSBuild.exe at Windows and xbuild at *nix.
-	    version: "14.0"                                 # msbuild version, the latest at default
-	                                                    # set VS150COMNTOOLS=D:\Program Files\Microsoft Visual Studio\2017\Professional\Common7\Tools\
-	                                                    # Quotation marks is a must
-	  configuration: Release                            # Solution configuration
-	  parameters: "/p:WarningLevel=0"                   # You can state your parameters here. Default parameters are not used. Quotation marks in parameters are shielded by '\'.
-	                                                    # Default parameters for msbuild:
-	                                                    # /t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0
-	                                                    # /p:VisualStudioVersion=14.0 (if not stated)
-
+	    # An assembling tool. msbuild - for MSBuild.exe at Windows and xbuild at *nix.
+	    name: msbuild        
+		# msbuild version, the latest at default
+	    version: "14.0"
+	    # set VS150COMNTOOLS=D:\Program Files\Microsoft Visual Studio\2017\Professional\Common7\Tools\
+	  # Solution configuration
+	  configuration: Release
+	  # You can state your parameters here. Default parameters are not used. Quotation marks in parameters are shielded by '\'.
+	  # Default parameters for msbuild:
+	  # /t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0 /p:VisualStudioVersion=14.0 (if not stated)
+	  parameters: "/p:WarningLevel=0"
 
 #### If there are several solutions in a module
 	
