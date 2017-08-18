@@ -73,6 +73,10 @@ Example:
       install:
         - Kontur.Drive.TestHost/bin/Release/Kontur.Drive.TestHost.exe
         - Kontur.Drive.TestHost/bin/Release/ServiceStack.Interfaces.dll
+      # Дллки которые могут быть использованы другими модулями,
+      # но игнорирующиеся при выполнении команды cm ref add
+      artifacts:
+        - Kontur.Drive.TestHost/bin/Release/SomeOther.dll
 
 
     # Configuration full-build expands client and sdk
