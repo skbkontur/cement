@@ -73,8 +73,8 @@ Example:
       install:
         - Kontur.Drive.TestHost/bin/Release/Kontur.Drive.TestHost.exe
         - Kontur.Drive.TestHost/bin/Release/ServiceStack.Interfaces.dll
-      # Дллки которые могут быть использованы другими модулями,
-      # но игнорирующиеся при выполнении команды cm ref add
+      # DLL files that can be used by other modules,
+      # but are ignored while running cm ref add
       artifacts:
         - Kontur.Drive.TestHost/bin/Release/SomeOther.dll
 
