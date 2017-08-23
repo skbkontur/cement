@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -167,9 +167,12 @@ namespace Common
                     success = true;
                 else
                 {
-                    var msg = $"Failed to fetch {RepoPath}:{branch} [Retries left: {tries}]. Error message:\n{runner.Errors}";
                     if (tries > 0)
+                    {
+                        var msg = $"Failed to fetch {RepoPath}:{branch} [Retries left: {tries}]. Error message:\n{runner.Errors}";
                         log.Error(msg);
+                        tries--;
+                    }
                     else
                         throw new GitPullException($"Failed to fetch {RepoPath}:{branch}. Error message:\n{runner.Errors}");
                 }
@@ -345,6 +348,7 @@ namespace Common
                     {
                         var msg = $"Failed to get remote branches in {RepoPath} [Retries left: {tries}]. Error message:\n{runner.Errors}";
                         log.Error(msg);
+                        tries--;
                     }
                     else
                         throw new GitBranchException($"Failed to get remote branches in {RepoPath}. Error message:\n{runner.Errors}");
