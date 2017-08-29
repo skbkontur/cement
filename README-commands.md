@@ -1,3 +1,4 @@
+# Commands
 
 [cm help](#cm-help)
 
@@ -31,7 +32,6 @@
 
 [cm status](#cm-status)
 
-# Commands
 
 ### cm help
 

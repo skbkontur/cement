@@ -8,8 +8,7 @@ namespace Commands
         {
             var commands = CommandsList.Commands;
 
-            var result = $@"# Commands
-
+            var result = $@"
 ### cm help
 {commands["help"].HelpMessage}
 
@@ -48,7 +47,8 @@ namespace Commands
 ### cm status
 {commands["status"].HelpMessage}";
 
-            string menu = Environment.NewLine;
+            var menu = "# Commands" + Environment.NewLine + Environment.NewLine;
+
             var lines = result.Split(new[] {"\r\n", "\n"}, StringSplitOptions.None);
             foreach (var line in lines)
             {
