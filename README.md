@@ -77,6 +77,8 @@ And current module.
 5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](README-module.yaml.md)) 
 
 # Commands
+[create an anchor](#cm-help)
+
 ### cm help
 
     Prints help for command
