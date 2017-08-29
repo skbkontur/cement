@@ -44,10 +44,7 @@ namespace Commands
 
         private static void GenerateReadme(string file)
         {
-            var text = File.ReadAllText(file);
-            var index = text.IndexOf("# Commands", StringComparison.Ordinal)
-                        + "# Commands".Length;
-            text = text.Substring(0, index) + ReadmeGenerator.Generate();
+            var text = ReadmeGenerator.Generate();
             File.WriteAllText(file, text);
         }
 

@@ -48,7 +48,7 @@ namespace Commands
 {commands["status"].HelpMessage}";
 
             string menu = Environment.NewLine;
-            var lines = result.Split(new string[] {"\r\n", "\n"}, StringSplitOptions.None);
+            var lines = result.Split(new[] {"\r\n", "\n"}, StringSplitOptions.None);
             foreach (var line in lines)
             {
                 if (line.StartsWith("### "))
