@@ -143,7 +143,8 @@
     Usage:
         cm build-deps [-r|--rebuild] [-v|--verbose|-w|--warnings] [-p|--progress] [-c|--configuration <config-name>]
 
-        -r/--rebuild              - rebuild all deps (default skip module if it was already built, according to its commit-hash)
+        -r/--rebuild              - rebuild all deps (default skip module if it was already built,
+                                    according to its commit-hash)
         -c/--configuration        - build deps for corresponding configuration
 
         -v/--verbose              - show full msbuild output
@@ -232,9 +233,11 @@
 
         Example:
             cm analyzer add analyzers.async-code/warn
-                Adds analyzer from module analyzers.code-style to all projects in current solution and adds analyzers.code-style to 'module.yaml' file
+                Adds analyzer from module analyzers.code-style to all projects 
+                in current solution and adds analyzers.code-style to 'module.yaml' file
             cm analyzer add analyzers.async-code mysolution.sln
-                Adds analyzer from module analyzers.code-style to all projects in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
+                Adds analyzer from module analyzers.code-style to all projects 
+                in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
 
 ### cm show-configs
 
@@ -274,7 +277,8 @@
             -c/--configuration     - configuration name (* by default)
             -b/--branch            - branch name (* by default)
             -a/--all               - show every branch of each parent
-            -e/--edges             - prints graph in proper format for graph visualizers(i.e. arborjs.org/halfviz/)
+            -e/--edges             - prints graph in proper format 
+                                     for graph visualizers(i.e. arborjs.org/halfviz/)
 
         Example:
             cm usages show -m=logging
@@ -289,10 +293,12 @@
             -p/--pause             - pause on errors
 
     usages grep
-        search for given pattern in modules (in masters) linked to the current (<branch>, master by default)
+        search for given pattern in modules (in masters) 
+        linked to the current (<branch>, master by default)
 
         Usage:
-            cm usages grep [-b=<branch>] [-i/--ignore-case] [-s/--skip-get] <patterns> [-f <patternFile>] [-- <fileMask>]
+            cm usages grep [-b=<branch>] [-i/--ignore-case] [-s/--skip-get] <patterns> 
+                [-f <patternFile>] [-- <fileMask>]
             -i/--ignore-case
             -s/--skip-get           - skip cloning modules
             -f <patternFile>        - search for patterns from file (line delimited)

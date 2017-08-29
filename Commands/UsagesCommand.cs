@@ -34,7 +34,8 @@ namespace Commands
             -c/--configuration     - configuration name (* by default)
             -b/--branch            - branch name (* by default)
             -a/--all               - show every branch of each parent
-            -e/--edges             - prints graph in proper format for graph visualizers(i.e. arborjs.org/halfviz/)
+            -e/--edges             - prints graph in proper format 
+                                     for graph visualizers(i.e. arborjs.org/halfviz/)
 
         Example:
             cm usages show -m=logging
@@ -49,10 +50,12 @@ namespace Commands
             -p/--pause             - pause on errors
 
     usages grep
-        search for given pattern in modules (in masters) linked to the current (<branch>, master by default)
+        search for given pattern in modules (in masters) 
+        linked to the current (<branch>, master by default)
 
         Usage:
-            cm usages grep [-b=<branch>] [-i/--ignore-case] [-s/--skip-get] <patterns> [-f <patternFile>] [-- <fileMask>]
+            cm usages grep [-b=<branch>] [-i/--ignore-case] [-s/--skip-get] <patterns> 
+                [-f <patternFile>] [-- <fileMask>]
             -i/--ignore-case
             -s/--skip-get           - skip cloning modules
             -f <patternFile>        - search for patterns from file (line delimited)

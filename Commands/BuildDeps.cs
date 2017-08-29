@@ -141,7 +141,8 @@ namespace Commands
     Usage:
         cm build-deps [-r|--rebuild] [-v|--verbose|-w|--warnings] [-p|--progress] [-c|--configuration <config-name>]
 
-        -r/--rebuild              - rebuild all deps (default skip module if it was already built, according to its commit-hash)
+        -r/--rebuild              - rebuild all deps (default skip module if it was already built,
+                                    according to its commit-hash)
         -c/--configuration        - build deps for corresponding configuration
 
         -v/--verbose              - show full msbuild output
