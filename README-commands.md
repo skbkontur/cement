@@ -89,7 +89,8 @@
         -r/--reset                  resetting all local changes
         -p/--pull-anyway            try to fast-forward pull if local changes are found
 
-        -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state. Checks for 'master' by default
+        -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state. 
+                                    Checks for 'master' by default
 
         -v/--verbose                show commit info for deps
 
@@ -110,7 +111,8 @@
         -r/--reset                  resetting all local changes
         -p/--pull-anyway            try to fast-forward pull if local changes are found
 
-        -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state. Checks for 'master' by default
+        -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state.
+                                    Checks for 'master' by default
 
         --allow-local-branch-force  allows forcing local-only branches
 
