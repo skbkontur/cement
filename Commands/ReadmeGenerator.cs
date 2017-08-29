@@ -8,7 +8,8 @@ namespace Commands
         {
             var commands = CommandsList.Commands;
 
-            var result = $@"
+            var result = $@"# Commands
+
 ### cm help
 {commands["help"].HelpMessage}
 
