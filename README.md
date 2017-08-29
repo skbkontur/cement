@@ -77,7 +77,22 @@ And current module.
 5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](README-module.yaml.md)) 
 
 # Commands
-[create an anchor](#cm-help)
+[cm help](cm-help)
+[cm self-update](cm-self-update)
+[cm --version](cm---version)
+[cm init](cm-init)
+[cm get](cm-get)
+[cm update-deps](cm-update-deps)
+[cm update](cm-update)
+[cm build-deps](cm-build-deps)
+[cm build](cm-build)
+[cm ls](cm-ls)
+[cm module](cm-module)
+[cm ref](cm-ref)
+[cm show-configs](cm-show-configs)
+[cm check-deps](cm-check-deps)
+[cm show-deps](cm-show-deps)
+[cm status](cm-status)
 
 ### cm help
 

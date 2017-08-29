@@ -1,4 +1,6 @@
-﻿namespace Commands
+﻿using System;
+
+namespace Commands
 {
     public static class ReadmeGenerator
     {
@@ -6,9 +8,7 @@
         {
             var commands = CommandsList.Commands;
 
-            return $@"
-[create an anchor](#cm-help)
-
+            var result = $@"
 ### cm help
 {commands["help"].HelpMessage}
 
@@ -46,6 +46,20 @@
 
 ### cm status
 {commands["status"].HelpMessage}";
+
+            string menu = Environment.NewLine;
+            var lines = result.Split(new string[] {"\r\n", "\n"}, StringSplitOptions.None);
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("### "))
+                {
+                    var name = line.Substring(4);
+                    menu += $"[{name}]({name.Replace(' ', '-')})" + Environment.NewLine;
+                }
+            }
+
+            result = menu + result;
+            return result;
         }
     }
 }
