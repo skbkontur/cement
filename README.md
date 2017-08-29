@@ -78,4 +78,4 @@ And current module.
 
 
 ## All commands description
-[here](README-commands.md)
+[here](README-commands.md#commands)
