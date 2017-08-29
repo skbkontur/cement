@@ -24,11 +24,15 @@
 
 [cm ref](#cm-ref)
 
+[cm analyzer](#cm-analyzer)
+
 [cm show-configs](#cm-show-configs)
 
 [cm check-deps](#cm-check-deps)
 
 [cm show-deps](#cm-show-deps)
+
+[cm usages](#cm-usages)
 
 [cm status](#cm-status)
 
@@ -216,6 +220,22 @@
             change	<HintPath>..\..\props\libprops\bin\Release\4.0\Kontur.Core.dll</HintPath>
             to		<HintPath>..\..\core\bin\Release\Kontur.Core.dll</HintPath>
 
+### cm analyzer
+
+    Adds analyzers in *.sln
+
+    analyzer add
+        Adds analyzer target reference assemblies to msbuild project files into solution
+
+        Usage:
+            cm analyzer add <module-name>/[<configuration>] [<solution-file>]
+
+        Example:
+            cm analyzer add analyzers.async-code/warn
+                Adds analyzer from module analyzers.code-style to all projects in current solution and adds analyzers.code-style to 'module.yaml' file
+            cm analyzer add analyzers.async-code mysolution.sln
+                Adds analyzer from module analyzers.code-style to all projects in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
+
 ### cm show-configs
 
     Shows configurations of module
@@ -240,6 +260,50 @@
 
     Usage:
         cm show-deps [-c <config-name>]
+
+### cm usages
+
+    Performs operations with module usages
+
+    usages show
+        shows the modules linked to the given dependence
+
+        Usage:
+            cm usages show [-m=<module>] [-c=<configuration>] [-b=<branch>] [-a]
+            -m/--module            - module name (current module name by default)
+            -c/--configuration     - configuration name (* by default)
+            -b/--branch            - branch name (* by default)
+            -a/--all               - show every branch of each parent
+            -e/--edges             - prints graph in proper format for graph visualizers(i.e. arborjs.org/halfviz/)
+
+        Example:
+            cm usages show -m=logging
+                show the modules which linked to the logging/full-build master
+
+    usages build
+        tries get and build all modules (in masters) linked to the current
+
+        Usage:
+            cm usages build [-b=<branch>] [-p]
+            -b/--branch            - checking parents which use this branch (current by default)
+            -p/--pause             - pause on errors
+
+    usages grep
+        search for given pattern in modules (in masters) linked to the current (<branch>, master by default)
+
+        Usage:
+            cm usages grep [-b=<branch>] [-i/--ignore-case] [-s/--skip-get] <patterns> [-f <patternFile>] [-- <fileMask>]
+            -i/--ignore-case
+            -s/--skip-get           - skip cloning modules
+            -f <patternFile>        - search for patterns from file (line delimited)
+            <patterns>              - patterns for search
+            <fileMasks>             - limit the search to paths matching at least one pattern
+            patterns combined with --or by default, can be combined with --and (<p1> --and <p2>)
+            for other options see help for `git grep` command
+
+        Example:
+            cm usages grep "new Class" "Class.New" -- *.cs
+                show lines contains "new Class" or "Class.New" in modules linked to the current, only in *.cs files
 
 
 ### cm status

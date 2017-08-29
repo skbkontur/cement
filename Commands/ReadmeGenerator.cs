@@ -37,12 +37,16 @@ namespace Commands
 {commands["module"].HelpMessage}
 ### cm ref
 {commands["ref"].HelpMessage}
+### cm analyzer
+{commands["analyzer"].HelpMessage}
 ### cm show-configs
 {commands["show-configs"].HelpMessage}
 ### cm check-deps
 {commands["check-deps"].HelpMessage}
 ### cm show-deps
 {commands["show-deps"].HelpMessage}
+### cm usages
+{commands["usages"].HelpMessage}
 
 ### cm status
 {commands["status"].HelpMessage}";
