@@ -74,7 +74,7 @@ And current module.
    https://github.com/KungA/cement-sample-D
    
 4. Run `cm module add A git@github.com:KungA/cement-sample-A.git` to add your modules to cement
-5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](README-module.yaml.md)) 
+5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](README-module.yaml.md#moduleyaml)) 
 
 
 ## All commands description
