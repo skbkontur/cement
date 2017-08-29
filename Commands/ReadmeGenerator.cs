@@ -54,7 +54,7 @@ namespace Commands
                 if (line.StartsWith("### "))
                 {
                     var name = line.Substring(4);
-                    menu += $"[{name}]({name.Replace(' ', '-')})" + Environment.NewLine + Environment.NewLine;
+                    menu += $"[{name}](#{name.Replace(' ', '-')})" + Environment.NewLine + Environment.NewLine;
                 }
             }
 
