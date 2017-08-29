@@ -7,6 +7,8 @@
             var commands = CommandsList.Commands;
 
             return $@"
+[create an anchor](#cm-help)
+
 ### cm help
 {commands["help"].HelpMessage}
 
