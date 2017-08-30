@@ -129,7 +129,7 @@
   	<Exec Command="mkdir ~/bin/dotnet" />
     <Exec Command="cp $(OutputAssembly) ~/bin/dotnet/cm.exe" />
     <Exec Command="cp $(OutputAssembly).config ~/bin/dotnet/cm.exe.config" />
-    <Exec Command="cp -R $(SolutionDir)/files-common ~/bin/dotnet" />
-    <Exec Condition="Exists('$(SolutionDir)/files-kontur')" Command="cp $(SolutionDir)/files-kontur ~/bin/dotnet" />
+    <Exec Command="cp -R $(SolutionDir)/files-common/* ~/bin/dotnet" />
+    <Exec Condition="Exists('$(SolutionDir)/files-kontur')" Command="cp -R $(SolutionDir)/files-kontur/* ~/bin/dotnet" />
   </Target>
 </Project>
