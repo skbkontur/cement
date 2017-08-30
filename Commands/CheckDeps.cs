@@ -26,9 +26,9 @@ namespace Commands
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseCheckDeps(args);
-            configuration = (string) (parsedArgs["configuration"]);
-            showAll = (bool) (parsedArgs["all"]);
-            showShort = (bool) (parsedArgs["short"]);
+            configuration = (string) parsedArgs["configuration"];
+            showAll = (bool) parsedArgs["all"];
+            showShort = (bool) parsedArgs["short"];
         }
 
         protected override int Execute()
@@ -100,8 +100,6 @@ namespace Commands
         -c/--configuration      - check deps for specific configuration
         -a/--all                - show csproj names which has bad references
         -s/--short              - show only section with bad references
-
-    see also ref fix command
 ";
     }
 }

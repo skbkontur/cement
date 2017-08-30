@@ -1,4 +1,4 @@
-# Cement [![Build status](https://ci.appveyor.com/api/projects/status/nfbn7d6rxmk88o2q?svg=true)](https://ci.appveyor.com/project/beevee12723/cement)
+# Cement [![Build status](https://ci.appveyor.com/api/projects/status/nfbn7d6rxmk88o2q/branch/master?svg=true)](https://ci.appveyor.com/project/beevee12723/cement/branch/master)
 
 - Dependency management tool, mainly for C# projects
 - Allow getting and building your projects with dependencies
@@ -13,11 +13,11 @@
 2. Download zip from https://github.com/skbkontur/cement/releases/latest
 3. Unzip and run `dotnet\install.cmd`
 4. Restart terminal
-5. Command `cm` shows you aviable commands in any directory
+5. Command `cm` shows you available commands in any directory
 
 ## Work with cement
 
-Use `cm help` to view all cement commands.
+Use `cm help` to view [all cement commands](README-commands.md#commands).
 Use `cm %command_name% /?` or `cm help %command_name%` to view command description.
 
 All module descriptions are stored in a special git repo. 
@@ -74,4 +74,11 @@ And current module.
    https://github.com/KungA/cement-sample-D
    
 4. Run `cm module add A git@github.com:KungA/cement-sample-A.git` to add your modules to cement
-5. Fill `module.yaml` file, describing cement modules
+5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](README-module.yaml.md#moduleyaml)) 
+
+
+## All commands description
+[here](README-commands.md#commands)
+
+## Module.yaml format
+[here](README-module.yaml.md#moduleyaml)

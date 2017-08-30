@@ -101,10 +101,10 @@ namespace Commands
         cm ls [-l|-a] [-b=<branch>] [-u] [-p]
 
         -l/--local                   lists modules in current directory
-        -a/--all                     lists all cement-known modules
+        -a/--all                     lists all cement-known modules (default)
 
-        -b/--has-branch<=branch>     lists all modules which have such branch. --local key by default
-                                     if not used, --all key is set by default
+        -b/--has-branch<=branch>     lists all modules which have such branch
+                                     --local key by default
 
         -u/--url                     shows module fetch url
         -p/--pushurl                 shows module pushurl

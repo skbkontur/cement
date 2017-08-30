@@ -36,12 +36,11 @@ namespace Commands
 
         Example:
             cm analyzer add analyzers.async-code/warn
-                Adds analyzer from module analyzers.code-style to all projects in current solution and adds analyzers.code-style to 'module.yaml' file
+                Adds analyzer from module analyzers.code-style to all projects 
+                in current solution and adds analyzers.code-style to 'module.yaml' file
             cm analyzer add analyzers.async-code mysolution.sln
-                Adds analyzer from module analyzers.code-style to all projects in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
-
-    Note:
-        does not work with old dep format
+                Adds analyzer from module analyzers.code-style to all projects 
+                in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
 ";
 
         public bool IsHiddenCommand => false;

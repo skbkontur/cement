@@ -46,7 +46,7 @@ namespace Commands
         {
             var parsedArgs = ArgumentParser.ParseUpdate(args);
             treeish = (string) parsedArgs["treeish"];
-            verbose = (bool) (parsedArgs["verbose"]);
+            verbose = (bool) parsedArgs["verbose"];
             policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
         }
 
@@ -62,8 +62,8 @@ namespace Commands
 
         -v/--verbose                show commit info for deps
 
-    This command runs 'update' ('git pull origin treeish') command for module.
-    If treeish isn't specified, cement uses current.
+    This command runs 'update' ('git pull origin treeish') command for module
+    If treeish isn't specified, cement uses current
 ";
     }
 }

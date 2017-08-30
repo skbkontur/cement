@@ -33,9 +33,9 @@ namespace Commands
                 throw new CementException("You should specify the name of the module");
 
             treeish = (string) parsedArgs["treeish"];
-            configuration = (string) (parsedArgs["configuration"]);
-            mergedBranch = (string) (parsedArgs["merged"]);
-            verbose = (bool) (parsedArgs["verbose"]);
+            configuration = (string) parsedArgs["configuration"];
+            mergedBranch = (string) parsedArgs["merged"];
+            verbose = (bool) parsedArgs["verbose"];
             policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
         }
 
@@ -78,7 +78,7 @@ namespace Commands
     Gets module with all deps
 
     Usage:
-        cm get [-f/-r/-p] [-v] [-m[=branch]] [-c <config-name>] module_name [treeish]
+        cm get [-f/-r/-p] [-v] [-m[=branch]] [-c <config-name>] module_name[/configuration][@treeish] [treeish]
         cm get module_name@treeish/configuration
 
         -c/--configuration          gets deps for corresponding configuration
@@ -87,12 +87,14 @@ namespace Commands
         -r/--reset                  resetting all local changes
         -p/--pull-anyway            try to fast-forward pull if local changes are found
 
-        -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state. Checks for 'master' by default
+        -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state. 
+                                    Checks for 'master' by default
 
         -v/--verbose                show commit info for deps
 
     Example:
-        cm get kanso/client -rv
+        cm get kanso/client@release -rv
+        cm get kanso -c client release -rv
 ";
     }
 }

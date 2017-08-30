@@ -130,7 +130,7 @@ namespace Common
 
         public static string DefineForce(string force, GitRepository rootRepo)
         {
-            if (force == null || (!force.Contains("->") && !force.Contains("CURRENT_BRANCH")))
+            if (force == null || !force.Contains("->") && !force.Contains("CURRENT_BRANCH"))
                 return force;
             if (force.Equals("%CURRENT_BRANCH%") || force.Equals("$CURRENT_BRANCH"))
                 return rootRepo.CurrentLocalTreeish().Value;
@@ -140,7 +140,7 @@ namespace Common
 
         public static string DefineForce(string force, string branch)
         {
-            if (force == null || (!force.Contains("->") && !force.Contains("CURRENT_BRANCH")))
+            if (force == null || !force.Contains("->") && !force.Contains("CURRENT_BRANCH"))
                 return force;
             if (force.Equals("%CURRENT_BRANCH%") || force.Equals("$CURRENT_BRANCH"))
                 return branch;

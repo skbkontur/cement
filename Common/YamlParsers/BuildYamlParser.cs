@@ -56,7 +56,7 @@ namespace Common.YamlParsers
             if (!buildSection.ContainsKey("target") || string.IsNullOrEmpty((string) buildSection["target"]))
                 buildSection["target"] = "";
             if ((!buildSection.ContainsKey("configuration") || string.IsNullOrEmpty((string) buildSection["configuration"]))
-                && ((string) (buildSection["target"])).EndsWith(".sln"))
+                && ((string) buildSection["target"]).EndsWith(".sln"))
                 throw new BadYamlException(ModuleName, "build", "Build configuration not found in " + configName);
             if (!buildSection.ContainsKey("tool") || buildSection["tool"] == null)
                 buildSection["tool"] = "msbuild";

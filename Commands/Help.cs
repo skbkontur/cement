@@ -1,4 +1,7 @@
-﻿using Common;
+﻿using System;
+using System.IO;
+using System.Linq;
+using Common;
 
 namespace Commands
 {
@@ -6,6 +9,12 @@ namespace Commands
     {
         public int Run(string[] args)
         {
+            if (args.Contains("--gen"))
+            {
+                GenerateReadme(args[2]);
+                return 0;
+            }
+
             if (args.Length == 1)
             {
                 CommandsList.Print();
@@ -33,6 +42,12 @@ namespace Commands
             return -1;
         }
 
+        private static void GenerateReadme(string file)
+        {
+            var text = ReadmeGenerator.Generate();
+            File.WriteAllText(file, text);
+        }
+
         private static void PrintHelpFooter()
         {
             ConsoleWriter.WriteLine("Cement. 2017.");
@@ -43,8 +58,8 @@ namespace Commands
 
     Usage:
         cm help <command-name>
-		cm <command-name> /?
-		cm <command-name> --help
+        cm <command-name> /?
+        cm <command-name> --help
 
     Example:
         cm help init

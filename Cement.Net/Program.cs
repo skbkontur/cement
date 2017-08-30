@@ -17,7 +17,8 @@ namespace cm
             ConsoleWriter.ResetProgress();
 
             var command = args[0];
-            if (command != "complete" && command != "check-pre-commit")
+            if (command != "complete" && command != "check-pre-commit"
+                && (command != "help" || !args.Contains("--gen")))
                 SelfUpdate.UpdateIfOld();
             
             return exitCode == 0 ? 0 : 13;

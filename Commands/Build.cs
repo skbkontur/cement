@@ -59,9 +59,8 @@ namespace Commands
 
             var builder = new ModuleBuilder(Log, buildSettings);
             var module = new Dep(moduleName, null, configuration);
-
-            if (restore)
-                BuildDeps.TryNugetRestore(new List<Dep> {module}, builder);
+            
+            BuildDeps.TryNugetRestore(new List<Dep> {module}, builder);
 
             if (!builder.Build(module))
             {
@@ -77,10 +76,9 @@ namespace Commands
     Performs build for the current module
 
     Usage:
-        cm build [-v|--verbose|-w|-W|--warnings] [-p|--progress] [-c|--configuration <config-name>] [--restore]
+        cm build [-v|--verbose|-w|-W|--warnings] [-p|--progress] [-c|--configuration <config-name>]
 
         -c/--configuration      - build corresponding configuration
-        --restore               - run 'nuget restore' in your solution directory before build
 
         -v/--verbose            - show full msbuild output
         -w/--warnings           - show warnings

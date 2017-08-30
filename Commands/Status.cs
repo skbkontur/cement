@@ -63,13 +63,13 @@ namespace Commands
         }
 
         public string HelpMessage => @"
-    Prints status of modifed git repos in the cement tracked dir.
-    It checks repo for push/pull and local state.
+    Prints status of modifed git repos in the cement tracked dir
+    It checks repo for push/pull and local state
 
     Usage:
         cm status
 
-    Runs anywhere in the cement tracked tree.
+    Runs anywhere in the cement tracked tree
 ";
 
         public bool IsHiddenCommand => false;
