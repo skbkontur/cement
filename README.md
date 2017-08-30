@@ -17,7 +17,7 @@
 
 ## Work with cement
 
-Use `cm help` to view all cement commands.
+Use `cm help` to view [all cement commands](README-commands.md#commands).
 Use `cm %command_name% /?` or `cm help %command_name%` to view command description.
 
 All module descriptions are stored in a special git repo. 
@@ -79,3 +79,6 @@ And current module.
 
 ## All commands description
 [here](README-commands.md#commands)
+
+## Module.yaml format
+[here](README-module.yaml.md#moduleyaml)
