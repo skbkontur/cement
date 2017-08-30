@@ -53,7 +53,7 @@ namespace Common
             if (buildTool.Name != "msbuild")
                 return buildTool.Name;
             if (Helper.OsIsUnix())
-                return "xbuild";
+                return "msbuild";
 
             return ModuleBuilderHelper.FindMsBuild(buildTool.Version, moduleName);
         }
