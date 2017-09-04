@@ -32,7 +32,10 @@ Example:
         - http
         - http.rp
         - topology
-      
+        # to prefer current branch in deps
+        - force: $CURRENT_BRANCH
+        # or use <moduleName>@$CURRENT_BRANCH to prefer current branch in some module
+
       # information on build of the present module in the present configuration
       build:
         # build solution Kontur.Drive.sln in Client configuration
