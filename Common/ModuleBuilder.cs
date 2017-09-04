@@ -139,7 +139,7 @@ namespace Common
             var buildName = script.BuildData == null ? "" : script.BuildData.Name;
             if (exitCode != 0)
             {
-                PrintBuildFailResult(dep, buildName, runner);
+                PrintBuildFailResult(dep, buildName, script, runner);
                 return false;
             }
 
@@ -147,7 +147,7 @@ namespace Common
             return true;
         }
 
-        private static void PrintBuildFailResult(Dep dep, string buildName, ShellRunner runner)
+        private static void PrintBuildFailResult(Dep dep, string buildName, BuildScriptWithBuildData script, ShellRunner runner)
         {
             ConsoleWriter.WriteBuildError(
                 $"Failed to build {dep.Name}{(dep.Configuration == null ? "" : "/" + dep.Configuration)} {buildName}");
@@ -158,6 +158,8 @@ namespace Common
             ConsoleWriter.WriteInfo("Errors summary:");
             foreach (var line in runner.Output.Split('\n'))
                 ModuleBuilderHelper.WriteIfErrorToStandartStream(line);
+
+            ConsoleWriter.WriteLine($"({script.Script})");
         }
 
         private void PrintBuildResult(Dep dep, string buildName, int warnCount, string elapsedTime, List<string> obsoleteUsages)
