@@ -10,7 +10,7 @@ namespace Common
 {
     public class ModuleBuilder
     {
-        private ILog log;
+        private readonly ILog log;
         public static TimeSpan TotalMsbuildTime = TimeSpan.Zero;
         private readonly BuildSettings buildSettings;
 
@@ -21,7 +21,7 @@ namespace Common
             VsDevHelper.ReplaceVariablesToVs();
         }
 
-        public void NugetRestore(Dep dep)
+        public void NugetRestore(Dep dep, string nuGetPath)
         {
             if (Yaml.Exists(dep.Name))
             {
@@ -31,22 +31,18 @@ namespace Common
                     if (buildSection.Target == null || !buildSection.Target.EndsWith(".sln"))
                         continue;
                     var target = Path.Combine(Helper.CurrentWorkspace, dep.Name, buildSection.Target);
-                    RunNugetRestore(target);
+                    RunNugetRestore(target, nuGetPath);
                 }
             }
             else
-                RunNugetRestore(Path.Combine(Helper.CurrentWorkspace, dep.Name, "build.cmd"));
+                RunNugetRestore(Path.Combine(Helper.CurrentWorkspace, dep.Name, "build.cmd"), nuGetPath);
         }
 
-        private void RunNugetRestore(string buildFile)
+        private void RunNugetRestore(string buildFile, string nuGetPath)
         {
-            var nuget = Path.Combine(Helper.CurrentWorkspace, "nuget", "bin", "NuGet.exe");
-            if (!File.Exists(nuget))
-                return;
-
             var buildFolder = Directory.GetParent(buildFile).FullName;
             var target = buildFile.EndsWith(".sln") ? Path.GetFileName(buildFile) : "";
-            var command = $"\"{nuget}\" restore {target} -Verbosity {(buildSettings.ShowOutput ? "normal" : "quiet")}";
+            var command = $"\"{nuGetPath}\" restore {target} -Verbosity {(buildSettings.ShowOutput ? "normal" : "quiet")}";
             log.Info(command);
 
             var runner = PrepareShellRunner();

@@ -10,7 +10,7 @@ namespace Commands
     public class BuildDeps : Command
     {
         private string configuration;
-        private bool rebuild, restore;
+        private bool rebuild;
         private BuildSettings buildSettings;
 
         public BuildDeps()
@@ -37,7 +37,6 @@ namespace Commands
                 ShowOutput = (bool) parsedArgs["verbose"],
                 ShowProgress = (bool) parsedArgs["progress"]
             };
-            restore = (bool) parsedArgs["restore"];
         }
 
         protected override int Execute()
@@ -104,11 +103,15 @@ namespace Commands
             ConsoleWriter.ResetProgress();
             try
             {
+                var nuget = NuGetHelper.FindNuGet();
+                if (nuget == null)
+                    return;
+
                 var uniqueDeps = modulesToUpdate.GroupBy(d => d.Name).Select(g => g.First()).ToList();
                 Parallel.ForEach(uniqueDeps, Helper.ParallelOptions, dep =>
                 {
                     ConsoleWriter.WriteProgress($"{dep.Name,-30} nuget restoring");
-                    builder.NugetRestore(dep);
+                    builder.NugetRestore(dep, nuget);
                     ConsoleWriter.SaveToProcessedModules(dep.Name);
                 });
             }
