@@ -99,7 +99,7 @@ namespace Commands
 
         public static void TryNugetRestore(List<Dep> modulesToUpdate, ModuleBuilder builder)
         {
-            Log.Debug("Restoing nuget packages");
+            Log.Debug("Restoring NuGet packages");
             ConsoleWriter.ResetProgress();
             try
             {
@@ -123,7 +123,7 @@ namespace Commands
             {
                 Log.Error(e);
             }
-            Log.Debug("OK nuget packages restored");
+            Log.Debug("OK NuGet packages restored");
             ConsoleWriter.ResetProgress();
         }
 
