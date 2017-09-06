@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -158,12 +158,25 @@ namespace Common
         {
             log.Info($"{"[" + ModuleName + "]",-30}Fetching {branch}");
 
-            var exitCode = runner.RunInDirectory(RepoPath, "git fetch origin " + branch, TimeSpan.FromMinutes(60));
-
-            if (exitCode != 0)
+            bool success = false;
+            int tries = 3;
+            do
             {
-                throw new GitPullException($"Failed to fetch {RepoPath}:{branch}. Error message:\n{runner.Errors}");
-            }
+                var exitCode = runner.RunInDirectory(RepoPath, "git fetch origin " + branch, TimeSpan.FromMinutes(60));
+                if (exitCode == 0)
+                    success = true;
+                else
+                {
+                    if (tries > 0)
+                    {
+                        var msg = $"Failed to fetch {RepoPath}:{branch} [Retries left: {tries}]. Error message:\n{runner.Errors}";
+                        log.Error(msg);
+                        tries--;
+                    }
+                    else
+                        throw new GitPullException($"Failed to fetch {RepoPath}:{branch}. Error message:\n{runner.Errors}");
+                }
+            } while (!success);
         }
 
         public void Pull(string treeish)
@@ -315,18 +328,32 @@ namespace Common
         public IList<Branch> GetRemoteBranches()
         {
             log.Info($"{"[" + ModuleName + "]",-30}Get remote branches");
-            var sw = Stopwatch.StartNew();
-            var exitCode = runner.RunInDirectory(RepoPath, "git ls-remote --heads", TimoutHelper.GetStartTimeout());
 
-            sw.Stop();
-            if (sw.Elapsed > TimeSpan.FromSeconds(10))
-                log.DebugFormat("{0, -30}Elapsed git ls-remote --heads: [{1}]", "[" + ModuleName + "]", sw.Elapsed);
+            bool success = false;
+            int tries = 3;
 
-            if (exitCode != 0)
+            do
             {
-                throw new GitBranchException(
-                    $"Failed to get remote branches in {RepoPath}. Error message:\n{runner.Errors}");
-            }
+                var sw = Stopwatch.StartNew();
+                var exitCode = runner.RunInDirectory(RepoPath, "git ls-remote --heads", TimoutHelper.GetStartTimeout());
+                sw.Stop();
+                if (sw.Elapsed > TimeSpan.FromSeconds(10))
+                    log.DebugFormat("{0, -30}Elapsed git ls-remote --heads: [{1}]", "[" + ModuleName + "]", sw.Elapsed);
+
+                if (exitCode == 0)
+                    success = true;
+                else
+                {
+                    if (tries > 0)
+                    {
+                        var msg = $"Failed to get remote branches in {RepoPath} [Retries left: {tries}]. Error message:\n{runner.Errors}";
+                        log.Error(msg);
+                        tries--;
+                    }
+                    else
+                        throw new GitBranchException($"Failed to get remote branches in {RepoPath}. Error message:\n{runner.Errors}");
+                }
+            } while (!success);
 
             var branches = runner.Output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
             return branches.Select(s => new Branch(s)).Where(b => b.Name != null).ToList();
