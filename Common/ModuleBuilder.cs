@@ -43,6 +43,8 @@ namespace Common
             var buildFolder = Directory.GetParent(buildFile).FullName;
             var target = buildFile.EndsWith(".sln") ? Path.GetFileName(buildFile) : "";
             var command = $"\"{nuGetPath}\" restore {target} -Verbosity {(buildSettings.ShowOutput ? "normal" : "quiet")}";
+            if (Helper.OsIsUnix())
+                command = $"mono {command}";
             log.Info(command);
 
             var runner = PrepareShellRunner();

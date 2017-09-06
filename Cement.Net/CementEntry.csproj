@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build; CopyExe" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build; CopyExe; CopyExeUnix;" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <UsingTask TaskName="Kontur.MsBuild.GitCommit2AssemblyTitle" AssemblyFile="..\externals\Kontur.MsBuild.dll" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -116,12 +116,20 @@
     <Exec Command="$(Merger) /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
     <Exec Command="$(OutputAssembly) help --gen $(SolutionDir)\README-commands.md" />
   </Target>
-  <Target Name="CopyExe" DependsOnTargets="AfterBuild">
+  <Target Name="CopyExe" DependsOnTargets="AfterBuild" Condition="'$(OS)' != 'Unix'">
   	<Exec Command="rmdir /S /Q %25userprofile%25\bin\dotnet" />
   	<Exec Command="mkdir %25userprofile%25\bin\dotnet" />
     <Exec Command="copy $(OutputAssembly) %25userprofile%25\bin\dotnet\cm.exe" />
     <Exec Command="copy $(OutputAssembly).config %25userprofile%25\bin\dotnet\cm.exe.config" />
     <Exec Command="xcopy $(SolutionDir)\files-common %25userprofile%25\bin\dotnet /s /i /Y" />
     <Exec Condition="Exists('$(SolutionDir)\files-kontur')" Command="xcopy $(SolutionDir)\files-kontur %25userprofile%25\bin\dotnet /s /i /Y" />
+  </Target>
+  <Target Name="CopyExeUnix" DependsOnTargets="AfterBuild" Condition="'$(OS)' == 'Unix'">
+    <Exec Command="rm -rf ~/bin/dotnet" />
+  	<Exec Command="mkdir ~/bin/dotnet" />
+    <Exec Command="cp $(OutputAssembly) ~/bin/dotnet/cm.exe" />
+    <Exec Command="cp $(OutputAssembly).config ~/bin/dotnet/cm.exe.config" />
+    <Exec Command="cp -R $(SolutionDir)/files-common/* ~/bin/dotnet" />
+    <Exec Condition="Exists('$(SolutionDir)/files-kontur')" Command="cp -R $(SolutionDir)/files-kontur/* ~/bin/dotnet" />
   </Target>
 </Project>
