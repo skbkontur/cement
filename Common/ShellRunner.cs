@@ -232,8 +232,8 @@ namespace Common
 
     public static class TimoutHelper
     {
-        private static readonly TimeSpan smallTimeout = TimeSpan.FromSeconds(30);
-        private static readonly TimeSpan bigTimeout = TimeSpan.FromMinutes(10);
+        private static readonly TimeSpan SmallTimeout = TimeSpan.FromSeconds(30);
+        private static readonly TimeSpan BigTimeout = TimeSpan.FromMinutes(10);
         private const int TimesForUseBigDefault = 1;
 
         private static int badTimes;
@@ -241,14 +241,14 @@ namespace Common
         public static TimeSpan IncreaceTimeout(TimeSpan was)
         {
             badTimes++;
-            return was < bigTimeout ? bigTimeout : was;
+            return was < BigTimeout ? BigTimeout : was;
         }
 
         public static TimeSpan GetStartTimeout()
         {
             if (badTimes > TimesForUseBigDefault)
-                return bigTimeout;
-            return smallTimeout;
+                return BigTimeout;
+            return SmallTimeout;
         }
     }
 }
