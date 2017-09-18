@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -316,7 +316,7 @@ namespace Common
         {
             log.Info($"{"[" + ModuleName + "]",-30}Get remote branches");
             var sw = Stopwatch.StartNew();
-            var exitCode = runner.RunInDirectory(RepoPath, "git ls-remote --heads", TimoutHelper.GetStartTimeout());
+            var exitCode = runner.RunInDirectory(RepoPath, "git ls-remote --heads", TimoutHelper.GetStartTimeout(), RetryStrategy.IfTimeoutOrFailed);
 
             sw.Stop();
             if (sw.Elapsed > TimeSpan.FromSeconds(10))

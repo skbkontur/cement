@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -75,8 +75,7 @@ namespace Common
             while (!output.EndOfStream)
             {
                 var line = output.ReadLine();
-                if (evt != null)
-                    evt(line);
+                evt?.Invoke(line);
                 result.Append(line + "\n");
             }
             return result.ToString();
@@ -92,17 +91,27 @@ namespace Common
             Errors = ReadStream(pr.StandardError, OnErrorsChange);
         }
 
-        private int RunThreeTimes(string commandWithArguments, string workingDirectory, TimeSpan timeout)
+        private int RunThreeTimes(string commandWithArguments, string workingDirectory, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
         {
             int result = RunOnce(commandWithArguments, workingDirectory, timeout);
-            if (!HasTimeout)
-                return result;
-
-            timeout = TimoutHelper.IncreaceTimeout(timeout);
             int times = 2;
-            while (times-- > 0 && HasTimeout)
+
+            while (times-- > 0 && NeedRunAgain(retryStrategy))
+            {
+                if (HasTimeout)
+                    timeout = TimoutHelper.IncreaceTimeout(timeout);
                 result = RunOnce(commandWithArguments, workingDirectory, timeout);
+            }
             return result;
+        }
+
+        private bool NeedRunAgain(RetryStrategy retryStrategy)
+        {
+            if (retryStrategy == RetryStrategy.IfTimeout)
+                return HasTimeout;
+            if (retryStrategy == RetryStrategy.IfTimeoutOrFailed)
+                return true;
+            return false;
         }
 
         public int RunOnce(string commandWithArguments, string workingDirectory, TimeSpan timeout)
@@ -208,16 +217,23 @@ namespace Common
             return RunInDirectory(path, commandWithArguments, DefaultTimeout);
         }
 
-        public int RunInDirectory(string path, string commandWithArguments, TimeSpan timeout)
+        public int RunInDirectory(string path, string commandWithArguments, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
         {
-            return RunThreeTimes(commandWithArguments, path, timeout);
+            return RunThreeTimes(commandWithArguments, path, timeout, retryStrategy);
         }
+    }
+
+    public enum RetryStrategy
+    {
+        None,
+        IfTimeout,
+        IfTimeoutOrFailed
     }
 
     public static class TimoutHelper
     {
-        private static readonly TimeSpan smallTimeout = TimeSpan.FromSeconds(30);
-        private static readonly TimeSpan bigTimeout = TimeSpan.FromMinutes(10);
+        private static readonly TimeSpan SmallTimeout = TimeSpan.FromSeconds(30);
+        private static readonly TimeSpan BigTimeout = TimeSpan.FromMinutes(10);
         private const int TimesForUseBigDefault = 1;
 
         private static int badTimes;
@@ -225,14 +241,14 @@ namespace Common
         public static TimeSpan IncreaceTimeout(TimeSpan was)
         {
             badTimes++;
-            return was < bigTimeout ? bigTimeout : was;
+            return was < BigTimeout ? BigTimeout : was;
         }
 
         public static TimeSpan GetStartTimeout()
         {
             if (badTimes > TimesForUseBigDefault)
-                return bigTimeout;
-            return smallTimeout;
+                return BigTimeout;
+            return SmallTimeout;
         }
     }
 }
