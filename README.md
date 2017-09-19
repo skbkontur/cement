@@ -1,4 +1,4 @@
-# Cement [![Build status](https://ci.appveyor.com/api/projects/status/nfbn7d6rxmk88o2q/branch/master?svg=true)](https://ci.appveyor.com/project/beevee12723/cement/branch/master)
+# Cement [![Build status](https://ci.appveyor.com/api/projects/status/nfbn7d6rxmk88o2q/branch/master?svg=true)](https://ci.appveyor.com/project/vostok/cement/branch/master)
 
 - Dependency management tool, mainly for C# projects
 - Allow getting and building your projects with dependencies
