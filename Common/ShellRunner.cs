@@ -93,23 +93,23 @@ namespace Common
 
         private int RunThreeTimes(string commandWithArguments, string workingDirectory, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
         {
-            int result = RunOnce(commandWithArguments, workingDirectory, timeout);
+            int exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
             int times = 2;
 
-            while (times-- > 0 && NeedRunAgain(retryStrategy))
+            while (times-- > 0 && NeedRunAgain(retryStrategy, exitCode))
             {
                 if (HasTimeout)
                     timeout = TimoutHelper.IncreaceTimeout(timeout);
-                result = RunOnce(commandWithArguments, workingDirectory, timeout);
+                exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
             }
-            return result;
+            return exitCode;
         }
 
-        private bool NeedRunAgain(RetryStrategy retryStrategy)
+        private bool NeedRunAgain(RetryStrategy retryStrategy, int exitCode)
         {
             if (retryStrategy == RetryStrategy.IfTimeout)
                 return HasTimeout;
-            if (retryStrategy == RetryStrategy.IfTimeoutOrFailed)
+            if (retryStrategy == RetryStrategy.IfTimeoutOrFailed && exitCode != 0)
                 return true;
             return false;
         }
