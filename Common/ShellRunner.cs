@@ -107,9 +107,9 @@ namespace Common
 
         private bool NeedRunAgain(RetryStrategy retryStrategy, int exitCode)
         {
-            if (retryStrategy == RetryStrategy.IfTimeout)
-                return HasTimeout;
-            if (retryStrategy == RetryStrategy.IfTimeoutOrFailed && exitCode != 0)
+            if (retryStrategy == RetryStrategy.IfTimeout && HasTimeout)
+                return true;
+            if (retryStrategy == RetryStrategy.IfTimeoutOrFailed && (exitCode != 0 || HasTimeout))
                 return true;
             return false;
         }
