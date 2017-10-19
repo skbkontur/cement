@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -31,6 +31,8 @@ namespace Common
         private static CementSettings GetDefaultSettings()
         {
             var path = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "defaultSettings.json");
+            if (!File.Exists(path))
+                ConsoleWriter.WriteError($"{path} not found");
             return ReadSettings(path);
         }
 

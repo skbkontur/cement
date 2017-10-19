@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -87,7 +87,7 @@ namespace Common
 
         public static IList<Package> GetPackages()
         {
-            return CementSettings.Get().Packages;
+            return CementSettings.Get().Packages ?? throw new CementException("Packages not specified.");
         }
 
         public static IList<Module> GetModulesFromPackage(Package package)
