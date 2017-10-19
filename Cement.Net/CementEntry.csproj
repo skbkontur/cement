@@ -110,11 +110,12 @@
     </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputPath)\cm.exe</OutputAssembly>
-      <Merger>"$(SolutionDir)\packages\ILRepack.1.26.0\tools\ILRepack.exe"</Merger>
+      <Merger Condition="('$(OS)' == 'Windows_NT')">"$(SolutionDir)\packages\ILRepack.1.26.0\tools\ILRepack.exe"</Merger>
+      <Merger Condition="('$(OS)' != 'Windows_NT')">mono --runtime=v4.0.30319 &quot;$(SolutionDir)\packages\ILRepack.1.26.0\tools\ILRepack.exe&quot;</Merger>
     </PropertyGroup>
     <Message Text="MERGING: @(MergeAssemblies->'%(Filename)') into $(OutputAssembly)" Importance="High" />
     <Exec Command="$(Merger) /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
-    <Exec Command="$(OutputAssembly) help --gen $(SolutionDir)\README-commands.md" />
+    <Exec Condition="('$(OS)' == 'Windows_NT')" Command="$(OutputAssembly) help --gen $(SolutionDir)\README-commands.md" />
   </Target>
   <Target Name="CopyExe" DependsOnTargets="AfterBuild" Condition="'$(OS)' != 'Unix'">
   	<Exec Command="rmdir /S /Q %25userprofile%25\bin\dotnet" />
