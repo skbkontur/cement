@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -219,7 +219,7 @@ exit $exit_code";
             from = Path.Combine(from, "cement", "dotnet");
             if (!Directory.Exists(from))
             {
-                ConsoleWriter.WriteError("Someting bad with self-update.");
+                ConsoleWriter.WriteError($"Someting bad with self-update: {from} not found.");
                 Log.Error("Someting bad with self-update.");
                 return;
             }
