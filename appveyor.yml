@@ -1,6 +1,6 @@
 skip_branch_with_pr: true
 version: '{build}-{branch}'
-image: Visual Studio 2015
+image: Visual Studio 2017
 install:
   - nuget restore
 configuration: Debug
