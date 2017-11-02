@@ -9,11 +9,35 @@
 
 ## Install
 
+### Windows
 1. You should have git and Visual Studio or MSBuild Tools installed 
 2. Download zip from https://github.com/skbkontur/cement/releases/latest
 3. Unzip and run `dotnet\install.cmd`
 4. Restart terminal
 5. Command `cm` shows you available commands in any directory
+
+### macOS
+1. You should have git and mono (5 or above) installed
+2. Download zip from https://github.com/skbkontur/cement/releases/latest
+3. Unzip and run `./install.sh` from the dotnet directory
+4. Either add `~/bin/` to your `PATH` variable or run `alias cm='mono ~/bin/dotnet/cm.exe'`
+5. Run `cm` to see the list of commands
+
+### Linux
+Here is a Dockerfile example of how to get Ubuntu image with cement installed
+```Dockerfile
+FROM ubuntu
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+RUN echo "deb http://download.mono-project.com/repo/ubuntu xenial main" | tee /etc/apt/sources.list.d/mono-official.list
+RUN apt-get update
+RUN apt-get install -y mono-devel git wget
+RUN cd ~
+RUN git clone https://github.com/skbkontur/cement.git ~/cement
+RUN wget -O ~/cement/nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+RUN mkdir ~/bin
+RUN cd ~/cement && mono nuget.exe restore -OutputDir packages/ && msbuild /p:Configuration=Release
+RUN mono ~/bin/dotnet/cm.exe reinstall
+```
 
 ## Work with cement
 
