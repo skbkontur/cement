@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
@@ -130,7 +130,7 @@ namespace Commands
                 dep.Configuration,
                 Helper.GetModules());
 
-            var owerhead = checker.GetCheckDepsResult().ConfigOverhead;
+            var owerhead = checker.GetCheckDepsResult(false).ConfigOverhead;
             var names = owerhead.Select(path => path.Split('/', '\\').FirstOrDefault()).Distinct().ToList();
             return owerheadCache[dep] = names;
         }

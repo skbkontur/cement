@@ -76,14 +76,62 @@ namespace Common
 
             var csprojDir = Path.GetDirectoryName(csprojPath);
 
+            if (notOnlyCement)
+                return GetAllReferencesFromCsproj(xml, csprojPath);
+            
             var refs = xml.GetElementsByTagName("HintPath");
+
             foreach (XmlNode reference in refs)
             {
-                var data = reference.ChildNodes[0].Value;
-                data = data.Replace("$(ProjectDir)", "");
-                if (notOnlyCement || IsReferenceToCementModule(data, csprojDir))
-                    result.Add(GetRelaxedPath(data, csprojPath));
+                var path = reference.ChildNodes[0].Value;
+                path = path.Replace("$(ProjectDir)", "");
+                if (IsReferenceToCementModule(path, csprojDir))
+                    result.Add(GetRelaxedPath(path, csprojPath));
             }
+            return result;
+        }
+
+        private List<string> GetAllReferencesFromCsproj(XmlDocument xml, string csprojPath)
+        {
+            var result = new List<string>();
+
+            var references = xml.GetElementsByTagName("Reference");
+            foreach (var reference in references)
+            {
+                var node = reference as XmlNode;
+                if (node == null)
+                    continue;
+
+                var path = "";
+
+                foreach (var child in node.ChildNodes)
+                {
+                    var childNode = child as XmlNode;
+                    if (childNode == null)
+                        continue;
+
+                    if (childNode.Name == "HintPath")
+                        path = childNode.InnerText;
+                }
+
+                if (path == "" && node.Attributes != null)
+                {
+                    foreach (var attribute in node.Attributes)
+                    {
+                        var a = attribute as XmlAttribute;
+                        if (a?.Name == "Include")
+                        {
+                            var value = a?.Value ?? "";
+                            value = value.Split(',').First();
+                            path = value + ".dll";
+                        }
+                    }
+                }
+
+                path = path.Replace("$(ProjectDir)", "");
+                result.Add(GetRelaxedPath(path, csprojPath));
+            }
+
             return result;
         }
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common.YamlParsers;
@@ -22,7 +22,7 @@ namespace Common
             moduleDirectory = cwd;
         }
 
-        public CheckDepsResult GetCheckDepsResult()
+        public CheckDepsResult GetCheckDepsResult(bool notOnlyCement)
         {
             var refsList = new List<ReferenceWithCsproj>();
             foreach (var bulid in buildData)
@@ -32,7 +32,7 @@ namespace Common
                 var vsParser = new VisualStudioProjectParser(Path.Combine(moduleDirectory, bulid.Target), modules);
                 var files = vsParser.GetCsprojList(bulid.Configuration);
                 var refs = files.SelectMany(file =>
-                    vsParser.GetReferencesFromCsproj(file).Select(reference => reference.Replace('/', '\\')).Select(r => new ReferenceWithCsproj(r, file)));
+                    vsParser.GetReferencesFromCsproj(file, notOnlyCement).Select(reference => reference.Replace('/', '\\')).Select(r => new ReferenceWithCsproj(r, file)));
                 refsList.AddRange(refs);
             }
             return GetCheckDepsResult(refsList);

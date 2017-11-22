@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
@@ -9,6 +9,7 @@ namespace Commands
     {
         private string configuration;
         private bool showAll;
+        private bool fixExternal;
         private bool showShort;
 
         public CheckDeps()
@@ -29,6 +30,7 @@ namespace Commands
             configuration = (string) parsedArgs["configuration"];
             showAll = (bool) parsedArgs["all"];
             showShort = (bool) parsedArgs["short"];
+            fixExternal = (bool)parsedArgs["external"];
         }
 
         protected override int Execute()
@@ -38,7 +40,7 @@ namespace Commands
             configuration = configuration ?? "full-build";
 
             ConsoleWriter.WriteInfo($"Checking {configuration} configuration result:");
-            var result = new DepsChecker(cwd, configuration, Helper.GetModules()).GetCheckDepsResult();
+            var result = new DepsChecker(cwd, configuration, Helper.GetModules()).GetCheckDepsResult(fixExternal);
             if (result.NoYamlInstallSection.Any())
             {
                 ok = false;
