@@ -70,12 +70,12 @@ namespace Commands
                     ConsoleWriter.WriteBuildWarning("\t- " + m);
             }
 
-            var owerhead = new SortedSet<string>(result.ConfigOverhead.Where(m => !result.NotUsedDeps.Contains(m)));
-            if (owerhead.Any() && !showShort)
+            var overhead = new SortedSet<string>(result.ConfigOverhead.Where(m => !result.NotUsedDeps.Contains(m)));
+            if (overhead.Any() && !showShort)
             {
                 ok = false;
-                ConsoleWriter.WriteWarning("Config owerhead:");
-                foreach (var m in owerhead)
+                ConsoleWriter.WriteWarning("Config overhead:");
+                foreach (var m in overhead)
                     ConsoleWriter.WriteBuildWarning("\t- " + m);
             }
 
