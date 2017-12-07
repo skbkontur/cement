@@ -86,10 +86,10 @@ namespace Tests.UtilsTests
         }
 
         [Test]
-        public void TestShellRunnerOwerflow()
+        public void TestShellRunnerOverflow()
         {
             var count = 10000;
-            var bat = "test_owerflow.bat";
+            var bat = "test_overflow.bat";
             File.WriteAllText(bat, @"
 @echo off
 FOR /L %%G IN (1,1," + count + @") DO echo %%G");

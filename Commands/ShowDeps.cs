@@ -110,7 +110,7 @@ namespace Commands
 
             if (Yaml.Exists(from.Name))
             {
-                var names = GetOwerhead(from);
+                var names = GetOverhead(from);
                 if (names.Contains(to.Name))
                     edge += " {color:red, weight:2}";
             }
@@ -118,21 +118,21 @@ namespace Commands
             result.Add(edge);
         }
 
-        private static readonly Dictionary<Dep, List<string>> owerheadCache = new Dictionary<Dep, List<string>>();
+        private static readonly Dictionary<Dep, List<string>> overheadCache = new Dictionary<Dep, List<string>>();
 
-        private static List<string> GetOwerhead(Dep dep)
+        private static List<string> GetOverhead(Dep dep)
         {
-            if (owerheadCache.ContainsKey(dep))
-                return owerheadCache[dep];
+            if (overheadCache.ContainsKey(dep))
+                return overheadCache[dep];
 
             var checker = new DepsChecker(
                 Path.Combine(Helper.CurrentWorkspace, dep.Name),
                 dep.Configuration,
                 Helper.GetModules());
 
-            var owerhead = checker.GetCheckDepsResult().ConfigOverhead;
-            var names = owerhead.Select(path => path.Split('/', '\\').FirstOrDefault()).Distinct().ToList();
-            return owerheadCache[dep] = names;
+            var overhead = checker.GetCheckDepsResult().ConfigOverhead;
+            var names = overhead.Select(path => path.Split('/', '\\').FirstOrDefault()).Distinct().ToList();
+            return overheadCache[dep] = names;
         }
 
         private static List<Dep> GetDeps(Dep root)
