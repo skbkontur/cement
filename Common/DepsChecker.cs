@@ -73,7 +73,11 @@ namespace Common
 
             var innerRefs = csprojRefs
                 .Where(r => GetModuleName(r.Reference) == moduleName)
+                .Where(r => !r.Reference.ToLower().Contains("\\packages\\"))
                 .ToList();
+            var allInstalls = new HashSet<string>(
+                InstallHelper.GetAllInstallFiles().Select(Path.GetFileName));
+            notInDeps.AddRange(innerRefs.Where(i => allInstalls.Contains(Path.GetFileName(i.Reference))));
             
             foreach (var r in csprojRefs)
             {

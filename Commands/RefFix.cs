@@ -103,10 +103,10 @@ namespace Commands
                 return;
             }
 
-            var installFiles = GetAllInstallFiles(moduleName).ToList();
+            var installFiles = InstallHelper.GetAllInstallFiles(moduleName).ToList();
             var withSameName = installFiles.Where(file => Path.GetFileName(file).Equals(Path.GetFileName(reference))).ToList();
             if (!withSameName.Any())
-                withSameName = GetAllInstallFilesFromTree().Where(file => Path.GetFileName(file).Equals(Path.GetFileName(reference))).ToList();
+                withSameName = InstallHelper.GetAllInstallFiles().Where(file => Path.GetFileName(file).Equals(Path.GetFileName(reference))).ToList();
             if (withSameName.Any(r => Path.GetFullPath(r) == Path.GetFullPath(reference)))
             {
                 TryAddToDeps(reference, project);
@@ -151,26 +151,7 @@ namespace Commands
             return answer;
         }
 
-        private List<string> allInstallFilesFromTree;
-
-        private List<string> GetAllInstallFilesFromTree()
-        {
-            if (allInstallFilesFromTree != null)
-                return allInstallFilesFromTree;
-            var deps = BuildPreparer.BuildConfigsGraph(rootModuleName, "full-build");
-            var usedModules = deps.Select(dep => dep.Key.Name).Distinct().ToList();
-            allInstallFilesFromTree = usedModules.SelectMany(GetAllInstallFiles).ToList();
-            return allInstallFilesFromTree;
-        }
-
-        private List<string> GetAllInstallFiles(string module)
-        {
-            if (!File.Exists(Path.Combine(Helper.CurrentWorkspace, module, Helper.YamlSpecFile)))
-                return new List<string>();
-            var configs = Yaml.ConfigurationParser(module).GetConfigurations();
-            var result = configs.Select(config => Yaml.InstallParser(module).Get(config)).SelectMany(parser => parser.Artifacts);
-            return result.Distinct().Select(file => Path.Combine(module, file)).ToList();
-        }
+        
 
         private void UpdateReference(string reference, string project)
         {
@@ -225,9 +206,9 @@ namespace Commands
 
     class FixReferenceResult
     {
-        public Dictionary<string, List<string>> NotFound = new Dictionary<string, List<string>>();
-        public Dictionary<string, List<string>> Replaced = new Dictionary<string, List<string>>();
-        public HashSet<string> NoYamlModules = new HashSet<string>();
+        public readonly Dictionary<string, List<string>> NotFound = new Dictionary<string, List<string>>();
+        public readonly Dictionary<string, List<string>> Replaced = new Dictionary<string, List<string>>();
+        public readonly HashSet<string> NoYamlModules = new HashSet<string>();
 
         public void Print()
         {
