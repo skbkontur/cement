@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
@@ -9,6 +9,7 @@ namespace Commands
     {
         private string configuration;
         private bool showAll;
+        private bool findExternal;
         private bool showShort;
 
         public CheckDeps()
@@ -29,6 +30,7 @@ namespace Commands
             configuration = (string) parsedArgs["configuration"];
             showAll = (bool) parsedArgs["all"];
             showShort = (bool) parsedArgs["short"];
+            findExternal = (bool)parsedArgs["external"];
         }
 
         protected override int Execute()
@@ -38,7 +40,7 @@ namespace Commands
             configuration = configuration ?? "full-build";
 
             ConsoleWriter.WriteInfo($"Checking {configuration} configuration result:");
-            var result = new DepsChecker(cwd, configuration, Helper.GetModules()).GetCheckDepsResult();
+            var result = new DepsChecker(cwd, configuration, Helper.GetModules()).GetCheckDepsResult(findExternal);
             if (result.NoYamlInstallSection.Any())
             {
                 ok = false;
@@ -100,6 +102,7 @@ namespace Commands
         -c/--configuration      - check deps for specific configuration
         -a/--all                - show csproj names which has bad references
         -s/--short              - show only section with bad references
+        -e/--external           - check references to not cement modules or to current module
 ";
     }
 }

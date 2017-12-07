@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -211,13 +211,15 @@ namespace Common
             {
                 {"configuration", null},
                 {"all", false},
-                {"short", false}
+                {"short", false},
+                {"external", false}
             };
             var parser = new OptionSet
             {
                 {"c|configuration=", conf => parsedArguments["configuration"] = conf},
                 {"a|all", a => parsedArguments["all"] = true},
-                {"s|short", s => parsedArguments["short"] = true}
+                {"s|short", s => parsedArguments["short"] = true},
+                {"e|external", e => parsedArguments["external"] = true}
             };
             var extraArgs = parser.Parse(args.Skip(1));
             ThrowIfHasExtraArgs(extraArgs);

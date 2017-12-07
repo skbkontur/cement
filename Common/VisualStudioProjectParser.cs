@@ -29,7 +29,7 @@ namespace Common
         public List<string> GetReferences(string configName)
         {
             var configCsprojList = GetCsprojList(configName).Select(csproj => Path.Combine(cwd, csproj)).ToList();
-            return GetReferencesFromCsprojList(configCsprojList);
+            return GetReferencesFromCsprojList(configCsprojList, configName);
         }
 
         public List<string> GetSolutionConfigsByCsproj(string csprojFullPath)
@@ -53,17 +53,17 @@ namespace Common
             return result;
         }
 
-        private List<string> GetReferencesFromCsprojList(IEnumerable<string> csprojList)
+        private List<string> GetReferencesFromCsprojList(IEnumerable<string> csprojList, string configuration)
         {
             var result = new List<string>();
             foreach (var csproj in csprojList)
             {
-                result.AddRange(GetReferencesFromCsproj(csproj));
+                result.AddRange(GetReferencesFromCsproj(csproj, configuration, false));
             }
             return result;
         }
 
-        public IEnumerable<string> GetReferencesFromCsproj(string csprojPath, bool notOnlyCement = false)
+        public IEnumerable<string> GetReferencesFromCsproj(string csprojPath, string configuration, bool allReferences)
         {
             if (!File.Exists(csprojPath))
             {
@@ -76,31 +76,73 @@ namespace Common
 
             var csprojDir = Path.GetDirectoryName(csprojPath);
 
+            if (allReferences)
+                return GetAllReferencesFromCsproj(xml, csprojPath, configuration);
+            
             var refs = xml.GetElementsByTagName("HintPath");
+
             foreach (XmlNode reference in refs)
             {
-                var data = reference.ChildNodes[0].Value;
-                data = data.Replace("$(ProjectDir)", "");
-                if (notOnlyCement || IsReferenceToCementModule(data, csprojDir))
-                    result.Add(GetRelaxedPath(data, csprojPath));
+                var path = reference.ChildNodes[0].Value;
+                path = path.Replace("$(ProjectDir)", "");
+                if (IsReferenceToCementModule(path, csprojDir))
+                    result.Add(GetRelaxedPath(path, csprojPath));
             }
             return result;
         }
 
-        public static List<string> GetOutputPathFromCsproj(string csprojPath)
+        private List<string> GetAllReferencesFromCsproj(XmlDocument xml, string csprojPath, string configuration)
         {
             var result = new List<string>();
-            var xml = new XmlDocument();
-            xml.Load(csprojPath);
+            var outputPath = GetOutputPathFromCsproj(xml, csprojPath, configuration);
 
-            var csprojDir = Path.GetDirectoryName(csprojPath);
-            var refs = xml.GetElementsByTagName("OutputPath");
+            var references = xml.GetElementsByTagName("Reference");
+            foreach (XmlNode reference in references)
+            {
+                string path = null;
+
+                foreach (XmlNode child in reference.ChildNodes)
+                {
+                    if (child.Name == "HintPath")
+                        path = child.InnerText;
+                }
+
+                if (path == null && reference.Attributes != null)
+                {
+                    var includeAttribute = reference.Attributes?.GetNamedItem("Include");
+                    if (includeAttribute != null)
+                    {
+                        var value = includeAttribute.Value ?? "";
+                        value = value.Split(',').First();
+                        path = value + ".dll";
+                        path = Path.Combine(outputPath, path);
+                    }
+                }
+
+                path = path?.Replace("$(ProjectDir)", "");
+                if (path != null)
+                    result.Add(GetRelaxedPath(path, csprojPath));
+            }
+
+            return result;
+        }
+
+        public string GetOutputPathFromCsproj(XmlDocument xml, string csprojPath, string configuration)
+        {
+            var refs = xml.GetElementsByTagName("PropertyGroup");
             foreach (XmlNode reference in refs)
             {
-                var data = reference.ChildNodes[0].Value;
-                result.Add(Path.Combine(csprojDir, data).TrimEnd('\\'));
+                var condition = reference?.Attributes?.GetNamedItem("Condition");
+                if (condition == null || !condition.InnerText.ToLower().Contains(configuration.ToLower()))
+                    continue;
+
+                foreach (XmlNode child in reference.ChildNodes)
+                {
+                    if (child.Name == "OutputPath")
+                        return child.InnerText.Trim('\\', '/');
+                }
             }
-            return result;
+            return "";
         }
 
         private List<string> GetSplitedReference(string reference)

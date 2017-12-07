@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Common;
 
 namespace Commands
@@ -39,7 +39,7 @@ namespace Commands
 
         Usage:
             cm ref fix [-e]
-            -e/--external       try to fix references to not cement modules
+            -e/--external       try to fix references to not cement modules or to current module
 
         Example:
             change	<HintPath>..\..\props\libprops\bin\Release\4.0\Kontur.Core.dll</HintPath>

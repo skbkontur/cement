@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
@@ -130,7 +130,7 @@ namespace Commands
                 dep.Configuration,
                 Helper.GetModules());
 
-            var overhead = checker.GetCheckDepsResult().ConfigOverhead;
+            var overhead = checker.GetCheckDepsResult(false).ConfigOverhead;
             var names = overhead.Select(path => path.Split('/', '\\').FirstOrDefault()).Distinct().ToList();
             return overheadCache[dep] = names;
         }
