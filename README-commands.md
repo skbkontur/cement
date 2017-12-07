@@ -217,7 +217,7 @@
 
         Usage:
             cm ref fix [-e]
-            -e/--external       try to fix references to not cement modules
+            -e/--external       try to fix references to not cement modules or to current module
 
         Example:
             change	<HintPath>..\..\props\libprops\bin\Release\4.0\Kontur.Core.dll</HintPath>
@@ -258,6 +258,7 @@
         -c/--configuration      - check deps for specific configuration
         -a/--all                - show csproj names which has bad references
         -s/--short              - show only section with bad references
+        -e/--external           - check references to not cement modules or to current module
 
 ### cm show-deps
 

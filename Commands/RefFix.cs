@@ -88,6 +88,9 @@ namespace Commands
         private void Fix(string project, string reference)
         {
             var moduleName = Helper.GetRootFolder(reference);
+            if (moduleName == rootModuleName && reference.ToLower().Contains("\\packages\\"))
+                return;
+
             if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, moduleName)))
             {
                 if (!missingModules.Contains(moduleName))
@@ -175,6 +178,8 @@ namespace Commands
         private void TryAddToDeps(string reference, string project)
         {
             var moduleDep = Helper.GetRootFolder(reference);
+            if (moduleDep == rootModuleName)
+                return;
 
             var configs = Yaml.ConfigurationParser(moduleDep).GetConfigurations();
             var configsWithArtifact =
@@ -232,7 +237,7 @@ namespace Commands
             {
                 if (!NotFound[key].Any())
                     continue;
-                ConsoleWriter.WriteError(key + "\n\tnot found references in install/artifacts section of any dep module:");
+                ConsoleWriter.WriteError(key + "\n\tnot found references in install/artifacts section of any module:");
                 foreach (var value in NotFound[key])
                     ConsoleWriter.WriteLine("\t" + value);
             }
