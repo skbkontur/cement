@@ -11,6 +11,7 @@ namespace Common
         private readonly DepsReferencesCollector depsRefsCollector;
         private readonly List<string> modules;
         private readonly string moduleDirectory;
+        private readonly string moduleName;
 
         public DepsChecker(string cwd, string config, List<Module> modules)
         {
@@ -20,6 +21,7 @@ namespace Common
             depsRefsCollector = new DepsReferencesCollector(cwd, config);
             this.modules = modules.Select(m => m.Name).ToList();
             moduleDirectory = cwd;
+            moduleName = Path.GetFileName(moduleDirectory);
         }
 
         public CheckDepsResult GetCheckDepsResult(bool notOnlyCement)
@@ -64,10 +66,18 @@ namespace Common
             }
 
             var lowerInDeps = inDeps.Select(r => r.ToLower()).ToList();
-            var notInDeps = csprojRefs.Where(r => !lowerInDeps.Contains(r.Reference.ToLower())).ToList();
+            var notInDeps = csprojRefs
+                .Where(r => !lowerInDeps.Contains(r.Reference.ToLower()))
+                .Where(r => GetModuleName(r.Reference) != moduleName)
+                .ToList();
+
+            var innerRefs = csprojRefs
+                .Where(r => GetModuleName(r.Reference) == moduleName)
+                .ToList();
+            
             foreach (var r in csprojRefs)
             {
-                var moduleName = r.Reference.Split('\\')[0];
+                var moduleName = GetModuleName(r.Reference);
                 notUsedDeps.Remove(moduleName);
             }
 
@@ -76,10 +86,15 @@ namespace Common
             return new CheckDepsResult(notUsedDeps, notInDeps, noYamlInstall, configOverhead);
         }
 
+        private string GetModuleName(string reference)
+        {
+            return reference.Split('\\')[0];
+        }
+
         private void DeleteMsBuild(SortedSet<string> refs)
         {
-            refs.RemoveWhere(r => r.StartsWith("msbuild/") || r.StartsWith("msbuild\\"));
-            refs.RemoveWhere(r => r.StartsWith("nuget/") || r.StartsWith("nuget\\"));
+            refs.RemoveWhere(r => r == "msbuild" || r.StartsWith("msbuild/") || r.StartsWith("msbuild\\"));
+            refs.RemoveWhere(r => r == "nuget" || r.StartsWith("nuget/") || r.StartsWith("nuget\\"));
         }
     }
 

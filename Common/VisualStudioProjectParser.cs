@@ -58,12 +58,12 @@ namespace Common
             var result = new List<string>();
             foreach (var csproj in csprojList)
             {
-                result.AddRange(GetReferencesFromCsproj(csproj, configuration));
+                result.AddRange(GetReferencesFromCsproj(csproj, configuration, false));
             }
             return result;
         }
 
-        public IEnumerable<string> GetReferencesFromCsproj(string csprojPath, string configuration, bool notOnlyCement = false)
+        public IEnumerable<string> GetReferencesFromCsproj(string csprojPath, string configuration, bool allReferences)
         {
             if (!File.Exists(csprojPath))
             {
@@ -76,7 +76,7 @@ namespace Common
 
             var csprojDir = Path.GetDirectoryName(csprojPath);
 
-            if (notOnlyCement)
+            if (allReferences)
                 return GetAllReferencesFromCsproj(xml, csprojPath, configuration);
             
             var refs = xml.GetElementsByTagName("HintPath");
