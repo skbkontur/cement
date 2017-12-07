@@ -9,7 +9,7 @@ namespace Commands
     {
         private string configuration;
         private bool showAll;
-        private bool fixExternal;
+        private bool findExternal;
         private bool showShort;
 
         public CheckDeps()
@@ -30,7 +30,7 @@ namespace Commands
             configuration = (string) parsedArgs["configuration"];
             showAll = (bool) parsedArgs["all"];
             showShort = (bool) parsedArgs["short"];
-            fixExternal = (bool)parsedArgs["external"];
+            findExternal = (bool)parsedArgs["external"];
         }
 
         protected override int Execute()
@@ -40,7 +40,7 @@ namespace Commands
             configuration = configuration ?? "full-build";
 
             ConsoleWriter.WriteInfo($"Checking {configuration} configuration result:");
-            var result = new DepsChecker(cwd, configuration, Helper.GetModules()).GetCheckDepsResult(fixExternal);
+            var result = new DepsChecker(cwd, configuration, Helper.GetModules()).GetCheckDepsResult(findExternal);
             if (result.NoYamlInstallSection.Any())
             {
                 ok = false;

@@ -32,7 +32,7 @@ namespace Common
                 var vsParser = new VisualStudioProjectParser(Path.Combine(moduleDirectory, bulid.Target), modules);
                 var files = vsParser.GetCsprojList(bulid.Configuration);
                 var refs = files.SelectMany(file =>
-                    vsParser.GetReferencesFromCsproj(file, notOnlyCement).Select(reference => reference.Replace('/', '\\')).Select(r => new ReferenceWithCsproj(r, file)));
+                    vsParser.GetReferencesFromCsproj(file, bulid.Configuration, notOnlyCement).Select(reference => reference.Replace('/', '\\')).Select(r => new ReferenceWithCsproj(r, file)));
                 refsList.AddRange(refs);
             }
             return GetCheckDepsResult(refsList);

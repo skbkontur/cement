@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -168,33 +168,7 @@ namespace Tests.ParsersTests
             Assert.IsTrue(proj.ContainsRef("log4net", out refXml));
             Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
         }
-
-        [Test]
-        public void TestGetOutputDir()
-        {
-            var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<PropertyGroup>
-	<PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
-		<DebugSymbols>true</DebugSymbols>
-		<OutputPath>bin\</OutputPath>
-	</PropertyGroup>
-	<PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
-		<DebugSymbols>true </DebugSymbols>
-		<OutputPath>bin\release\</OutputPath>
-	</PropertyGroup>
-</PropertyGroup>
-   ";
-            using (var dir = new TempDirectory())
-            {
-                var path = Path.Combine(dir.Path, "1.csproj");
-                File.WriteAllText(Path.Combine(dir.Path, "1.csproj"), content);
-                var outputs = VisualStudioProjectParser.GetOutputPathFromCsproj(path);
-                Assert.AreEqual(Path.Combine(dir.Path, "bin"), outputs[0]);
-                Assert.AreEqual(Path.Combine(dir.Path, "bin", "release"), outputs[1]);
-                Assert.AreEqual(2, outputs.Count);
-            }
-        }
-
+        
         [Test]
         public void Costructor_GetXmlFromFile_IfFileExist()
         {

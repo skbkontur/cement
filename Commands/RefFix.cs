@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -79,7 +79,7 @@ namespace Commands
                 processedFiles.Add(file);
                 fixReferenceResult.NotFound[file] = new List<string>();
                 fixReferenceResult.Replaced[file] = new List<string>();
-                var refs = vsParser.GetReferencesFromCsproj(file, fixExternal);
+                var refs = vsParser.GetReferencesFromCsproj(file, buildInfo.Configuration, fixExternal);
                 foreach (var r in refs)
                     Fix(file, r);
             }
