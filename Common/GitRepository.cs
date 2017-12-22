@@ -46,7 +46,7 @@ namespace Common
             log.Info($"{"[" + ModuleName + "]",-30}Cloning treeish {treeish ?? "master"} into {RepoPath}");
             var treeishSuffix = "-b " + (treeish ?? "master");
             var cmd = $"git clone {url} {treeishSuffix} \"{RepoPath}\" 2>&1";
-            var exitCode = runner.Run(cmd, TimeSpan.FromMinutes(60));
+            var exitCode = runner.Run(cmd, TimeSpan.FromMinutes(60), RetryStrategy.IfTimeoutOrFailed);
             if (exitCode != 0)
             {
                 throw new GitCloneException($"Failed to clone {url}:{treeish}. Error message:{runner.Output}");

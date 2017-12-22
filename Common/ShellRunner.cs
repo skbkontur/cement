@@ -101,6 +101,7 @@ namespace Common
                 if (HasTimeout)
                     timeout = TimoutHelper.IncreaceTimeout(timeout);
                 exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
+                log.Debug($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} with exitCode {exitCode} and retryStrategy {retryStrategy}");
             }
             return exitCode;
         }
@@ -207,9 +208,9 @@ namespace Common
             return Run(commandWithArguments, DefaultTimeout);
         }
 
-        public int Run(string commandWithArguments, TimeSpan timeout)
+        public int Run(string commandWithArguments, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
         {
-            return RunThreeTimes(commandWithArguments, Directory.GetCurrentDirectory(), timeout);
+            return RunThreeTimes(commandWithArguments, Directory.GetCurrentDirectory(), timeout, retryStrategy);
         }
 
         public int RunInDirectory(string path, string commandWithArguments)
