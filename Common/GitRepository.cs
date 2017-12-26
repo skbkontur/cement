@@ -158,7 +158,7 @@ namespace Common
         {
             log.Info($"{"[" + ModuleName + "]",-30}Fetching {branch}");
 
-            var exitCode = runner.RunInDirectory(RepoPath, "git fetch origin " + branch, TimeSpan.FromMinutes(60));
+            var exitCode = runner.RunInDirectory(RepoPath, "git fetch origin " + branch, TimeSpan.FromMinutes(60), RetryStrategy.IfTimeoutOrFailed);
 
             if (exitCode != 0)
             {
