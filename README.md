@@ -15,6 +15,7 @@
 3. Unzip and run `dotnet\install.cmd`
 4. Restart terminal
 5. Command `cm` shows you available commands in any directory
+6. If you have installed Visual Studio 2017 in custom folder run `set VS150COMNTOOLS=D:\Program Files\Microsoft Visual Studio\2017\Professional\Common7\Tools\` (with your custom foler path) in cmd.
 
 ### macOS
 1. You should have git and mono (5 or above) installed
