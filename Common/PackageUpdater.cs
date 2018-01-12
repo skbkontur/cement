@@ -1,6 +1,6 @@
-﻿using System;
-using System.IO;
 using log4net;
+using System;
+using System.IO;
 
 namespace Common
 {
@@ -44,7 +44,7 @@ namespace Common
                 using (var tempDir = new TempDirectory())
                 {
                     if (runner.RunOnce(
-                            $"git clone {package.Url} {Path.Combine(tempDir.Path, package.Name)}",
+                            $"git clone {package.Url} \"{Path.Combine(tempDir.Path, package.Name)}\"",
                             Directory.GetCurrentDirectory(),
                             timeout)
                         != 0)
