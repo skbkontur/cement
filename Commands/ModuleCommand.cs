@@ -1,8 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Linq;
 using Common;
 using log4net;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace Commands
 {
@@ -165,6 +165,9 @@ namespace Commands
             PackageUpdater.UpdatePackages();
             var packages = Helper.GetPackages();
 
+            if (packages.Count > 1 && packageName == null)
+                throw new CementException($"Specify --package={string.Join("|", packages.Select(p => p.Name))}");
+
             var package = packageName == null
                 ? packages.FirstOrDefault(p => p.Type == "git")
                 : packages.FirstOrDefault(p => p.Name == packageName);
@@ -189,8 +192,9 @@ namespace Commands
     Don't delete old modules
 
     Usage:
-        cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url]
-        --pushurl		 - module push url
+        cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url] [--package=package_name]
+        --pushurl        - module push url
+        --package        - name of repository with modules description, specify if multiple
 ";
 
         public bool IsHiddenCommand => false;

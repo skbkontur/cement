@@ -195,8 +195,9 @@
     Don't delete old modules
 
     Usage:
-        cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url]
-        --pushurl		 - module push url
+        cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url] [--package=package_name]
+        --pushurl        - module push url
+        --package        - name of repository with modules description, specify if multiple
 
 ### cm ref
 
