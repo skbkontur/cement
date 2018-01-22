@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Common.YamlParsers;
+using System.Collections.Generic;
 using System.Linq;
-using Common.YamlParsers;
 
 namespace Common
 {
@@ -17,13 +17,25 @@ namespace Common
                     result.Add(null);
                 else
                 {
-                    var script = buildSection.Tool.Name == "msbuild" ? BuildMsbuildScript(buildSection, dep.Name) : BuildShellScript(buildSection);
+                    var script = MakeScript(dep, buildSection);
                     result.Add(new BuildScriptWithBuildData(
                         script,
                         buildSection));
                 }
             }
             return result;
+        }
+
+        private static string MakeScript(Dep dep, BuildData buildSection)
+        {
+            switch (buildSection.Tool.Name)
+            {
+                case "msbuild":
+                case "dotnet":
+                    return BuildMsbuildScript(buildSection, dep.Name);
+                default:
+                    return BuildShellScript(buildSection);
+            }
         }
 
         private static string BuildShellScript(BuildData buildSection)
@@ -37,7 +49,7 @@ namespace Common
         private static string BuildMsbuildScript(BuildData buildSection, string moduleName)
         {
             var tool = FindTool(buildSection.Tool, moduleName);
-            var parameters = (buildSection.Parameters.Count == 0 ? GetDefaultMsbuildParameters(buildSection.Tool.Version) : buildSection.Parameters).ToList();
+            var parameters = (buildSection.Parameters.Count == 0 ? GetDefaultMsbuildParameters(buildSection.Tool) : buildSection.Parameters).ToList();
             parameters.Add("/p:Configuration=" + buildSection.Configuration);
             parameters.Add(buildSection.Target);
 
@@ -70,12 +82,26 @@ namespace Common
             @"/v:m"
         };
 
-        private static List<string> GetDefaultMsbuildParameters(string toolVersion)
+        private static readonly string[] DefaultDotnetParameters =
         {
-            var parameters = (Helper.OsIsUnix() ? DefaultXbuildParameters : DefaultMsbuildParameters).ToList();
+            @"build"
+        };
+
+        private static List<string> GetDefaultMsbuildParameters(Tool tool)
+        {
+            var parameters = GetDefaultMsbuildParameters(tool.Name);
+            var toolVersion = tool.Version;
             if (!Helper.OsIsUnix() && Helper.IsVisualStudioVersion(toolVersion))
                 parameters.Add($"/p:VisualStudioVersion={toolVersion}");
             return parameters;
+        }
+
+        private static List<string> GetDefaultMsbuildParameters(string toolName)
+        {
+            if (toolName == "dotnet")
+                return DefaultDotnetParameters.ToList();
+
+            return (Helper.OsIsUnix() ? DefaultXbuildParameters : DefaultMsbuildParameters).ToList();
         }
     }
 }
