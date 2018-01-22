@@ -262,6 +262,41 @@ namespace Tests.ParsersTests
             Assert.AreEqual(1, SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'dummyDir\\Another.dll']").Count);
         }
 
+
+        [Test]
+        public void TestMakeCsProjWithNugetReferences()
+        {
+            var content = @"<Project Sdk=""Microsoft.NET.Sdk"">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Vostok.Clusterclient</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Vostok team</Authors>
+    <Company>SKB Kontur</Company>
+    <Product>Vostok</Product>
+    <Description>ClusterClient library enables developers to build resilient and efficient clients for HTTP microservices.</Description>
+    <PackageProjectUrl />
+    <RepositoryUrl>https://github.com/vostok-project/clusterclient</RepositoryUrl>
+    <PackageTags>vostok clusterclient</PackageTags>
+  </PropertyGroup>
+            
+  <ItemGroup>
+    <Reference Include = ""Vostok.Core"" >
+        <HintPath>..\..\vostok.core\Vostok.Core\bin\Release\netstandard2.0\Vostok.Core.dll </HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
+            ";
+            
+            var proj = CreateProjectFile(content);
+            var projWithNugetReferences = proj.CreateCsProjWithNugetReferences(new List<Dep> { new Dep("vostok.core") });
+
+            var xmlDocument = XmlDocumentHelper.Create(File.ReadAllText(projWithNugetReferences));
+            Assert.Null(xmlDocument.SelectSingleNode("//Reference[@Include='Vostok.Core']"));
+            Assert.NotNull(xmlDocument.SelectSingleNode("//PackageReference[@Include='vostok.core']"));
+        }
+
         private ProjectFile CreateProjectFile(string projectFileContent)
         {
             var projectFilePath = CreateProjectFilePath();

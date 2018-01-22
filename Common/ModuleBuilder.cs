@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 using Common.YamlParsers;
 using log4net;
+=======
+>>>>>>> add pack command
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,6 +22,16 @@ namespace Common
             this.log = log;
             this.buildSettings = buildSettings;
             VsDevHelper.ReplaceVariablesToVs();
+        }
+
+        public void DotnetPack(string directory, string projectFileName)
+        {
+            var runner = PrepareShellRunner();
+            var exitCode = runner.RunInDirectory(directory, $"dotnet pack \\\"{projectFileName}\\\" ");
+            if (exitCode != 0)
+            {
+                log.Warn($"Failed to build nuget package {projectFileName}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
+            }
         }
 
         public void NugetRestore(Dep dep, string nuGetPath)

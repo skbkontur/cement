@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 
 namespace Common
@@ -12,6 +14,7 @@ namespace Common
 
         public readonly string FilePath;
         public readonly XmlDocument Document;
+        private bool newFormat;
 
         public ProjectFile(string csprojFilePath)
         {
@@ -20,6 +23,7 @@ namespace Common
             lineEndings = fileContent.Contains("\r\n") ? "\r\n" : "\n";
             FilePath = csprojFilePath;
             Document = XmlDocumentHelper.Create(fileContent);
+            newFormat = !string.IsNullOrEmpty(Document.DocumentElement?.GetAttribute("Sdk"));
         }
 
         public void BindRuleset(RulesetFile rulesetFile)
@@ -147,6 +151,41 @@ namespace Common
             {
                 throw new Exception($"Failed to replace ref {refName} in {FilePath}", e);
             }
+        }
+
+        public string CreateCsProjWithNugetReferences(List<Dep> deps)
+        {
+            var fileContent = File.ReadAllText(FilePath);
+            var patchedProjDoc = XmlDocumentHelper.Create(fileContent);
+            var itemGroup = patchedProjDoc.CreateElement("ItemGroup");
+            if (patchedProjDoc.DocumentElement == null)
+                throw new Exception("DocumentElement is null at csproj");
+            patchedProjDoc.DocumentElement?.AppendChild(itemGroup);
+            foreach (var dep in deps)
+            {
+                var refNodes = patchedProjDoc.SelectNodes("//Reference");
+                if (refNodes != null)
+                {
+                    var node = refNodes.Cast<XmlNode>().FirstOrDefault(x =>
+                    {
+                        var moduleName = x.Attributes?["Include"]?.Value;
+                        return moduleName != null && moduleName.Equals(dep.Name, StringComparison.InvariantCultureIgnoreCase);
+                    });
+                    node?.ParentNode?.RemoveChild(node);
+                }
+                var refElement = patchedProjDoc.CreateElement("PackageReference");
+                var includeAttr = patchedProjDoc.CreateAttribute("Include");
+                includeAttr.Value = dep.Name;
+                refElement.Attributes.Append(includeAttr);
+                var versionAttr = patchedProjDoc.CreateAttribute("Version");
+                versionAttr.Value = "1.0.0-pre*";
+                refElement.Attributes.Append(versionAttr);
+                itemGroup.AppendChild(refElement);
+            }
+
+            var patchedFilePath = Path.Combine(Path.GetDirectoryName(FilePath) ?? "", "tmp." + Path.GetFileName(FilePath));
+            XmlDocumentHelper.Save(patchedProjDoc, patchedFilePath, lineEndings);
+            return patchedFilePath;
         }
 
         public void Save()
