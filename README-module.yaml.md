@@ -1,4 +1,4 @@
-﻿# module.yaml
+# module.yaml
 Information about the module is contained in `module.yaml`.
 
 Each module may consist of one or several configurations (for example, client configuration, configuration with server part, configuration including tests).
@@ -109,7 +109,7 @@ Example:
       # A statement of build target
       target: Solution.sln
       tool:
-        # An assembling tool. msbuild - for MSBuild.exe at Windows and xbuild at *nix.
+        # An assembling tool. msbuild - for MSBuild.exe at Windows and xbuild at *nix. dotnet - for new .NET Core
         name: msbuild
         # msbuild version, the latest at default
         version: "14.0"
