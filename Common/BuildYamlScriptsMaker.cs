@@ -18,10 +18,8 @@ namespace Common
                 else
                 {
                     var script = buildSection.Tool.Name == "msbuild" ? BuildMsbuildScript(buildSection, dep.Name) : BuildShellScript(buildSection);
-                    var scriptIfFail = buildSection.Tool.Name == "msbuild" ? BuildMsbuildScript(buildSection, dep.Name) : BuildShellScript(buildSection);
                     result.Add(new BuildScriptWithBuildData(
                         script,
-                        scriptIfFail,
                         buildSection));
                 }
             }

@@ -1,10 +1,10 @@
-﻿using System;
+using Common.YamlParsers;
+using log4net;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Common.YamlParsers;
-using log4net;
 
 namespace Common
 {
@@ -110,7 +110,7 @@ namespace Common
 
         private bool BuildByCmd(Dep dep, string cmdFile)
         {
-            return RunBuildScript(dep, new BuildScriptWithBuildData(cmdFile, cmdFile, null));
+            return RunBuildScript(dep, new BuildScriptWithBuildData(cmdFile, null));
         }
 
         private bool RunBuildScript(Dep dep, BuildScriptWithBuildData script)
@@ -123,8 +123,6 @@ namespace Common
             for (int timesTry = 0; timesTry < 2 && exitCode != 0; timesTry++)
             {
                 ModuleBuilderHelper.KillMsBuild(log);
-                if (timesTry != 0)
-                    command = script.ScriptIfFail;
                 log.DebugFormat("Build command: '{0}'", command);
                 if (buildSettings.ShowOutput)
                     ConsoleWriter.WriteInfo($"BUILDING {command}");
@@ -210,13 +208,11 @@ namespace Common
     public class BuildScriptWithBuildData
     {
         public readonly string Script;
-        public readonly string ScriptIfFail;
         public readonly BuildData BuildData;
 
-        public BuildScriptWithBuildData(string script, string scriptIfFail, BuildData buildData)
+        public BuildScriptWithBuildData(string script, BuildData buildData)
         {
             Script = script;
-            ScriptIfFail = scriptIfFail;
             BuildData = buildData;
         }
     }
