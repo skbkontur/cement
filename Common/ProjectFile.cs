@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using log4net;
 
 namespace Common
 {
@@ -15,10 +16,12 @@ namespace Common
         public readonly string FilePath;
         public readonly XmlDocument Document;
         private bool newFormat;
+        private ILog log;
 
         public ProjectFile(string csprojFilePath)
         {
             var fileContent = File.ReadAllText(csprojFilePath);
+            log = LogManager.GetLogger(typeof(ProjectFile));
 
             lineEndings = fileContent.Contains("\r\n") ? "\r\n" : "\n";
             FilePath = csprojFilePath;
@@ -153,8 +156,10 @@ namespace Common
             }
         }
 
-        public string CreateCsProjWithNugetReferences(List<Dep> deps)
+        public string CreateCsProjWithNugetReferences(List<Dep> deps, string moduleDirectory)
         {
+            if (!newFormat)
+                throw new Exception("Only on csproj format supported");
             var fileContent = File.ReadAllText(FilePath);
             var patchedProjDoc = XmlDocumentHelper.Create(fileContent);
             var itemGroup = patchedProjDoc.CreateElement("ItemGroup");
@@ -177,15 +182,37 @@ namespace Common
                 var includeAttr = patchedProjDoc.CreateAttribute("Include");
                 includeAttr.Value = dep.Name;
                 refElement.Attributes.Append(includeAttr);
-                var versionAttr = patchedProjDoc.CreateAttribute("Version");
-                versionAttr.Value = "1.0.0-pre*";
-                refElement.Attributes.Append(versionAttr);
+                var packageVersion = GetNugetPackageVersion(moduleDirectory, dep.Name);
+                if (!string.IsNullOrEmpty(packageVersion))
+                {
+                    var versionAttr = patchedProjDoc.CreateAttribute("Version");
+                    versionAttr.Value = packageVersion;
+                    refElement.Attributes.Append(versionAttr);
+                }
                 itemGroup.AppendChild(refElement);
             }
 
             var patchedFilePath = Path.Combine(Path.GetDirectoryName(FilePath) ?? "", "tmp." + Path.GetFileName(FilePath));
             XmlDocumentHelper.Save(patchedProjDoc, patchedFilePath, lineEndings);
             return patchedFilePath;
+        }
+
+        private string GetNugetPackageVersion(string directory, string packageName)
+        {
+            var shellRunner = new ShellRunner();
+            shellRunner.RunInDirectory(directory, $"nuget list {packageName} -NonInteractive");
+            foreach (var line in shellRunner.Output.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var lineTokens = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (lineTokens.Length == 2 &&
+                    lineTokens[0].Equals(packageName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    log.Debug($"Got package version: {lineTokens[1]} for {packageName}");
+                    return lineTokens[1];
+                }
+            }
+            log.Debug("not found package version. nuget output: " + shellRunner.Output);
+            return null;
         }
 
         public void Save()

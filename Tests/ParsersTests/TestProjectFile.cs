@@ -290,7 +290,7 @@ namespace Tests.ParsersTests
             ";
             
             var proj = CreateProjectFile(content);
-            var projWithNugetReferences = proj.CreateCsProjWithNugetReferences(new List<Dep> { new Dep("vostok.core") });
+            var projWithNugetReferences = proj.CreateCsProjWithNugetReferences(new List<Dep> { new Dep("vostok.core") }, ".");
 
             var xmlDocument = XmlDocumentHelper.Create(File.ReadAllText(projWithNugetReferences));
             Assert.Null(xmlDocument.SelectSingleNode("//Reference[@Include='Vostok.Core']"));

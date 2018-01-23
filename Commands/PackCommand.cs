@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Common;
 using Common.YamlParsers;
 
@@ -24,28 +25,32 @@ namespace Commands
 
         protected override int Execute()
         {
-            var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
-            var currentModule = Path.GetFileName(currentModuleDirectory);
-            project = Yaml.GetProjectFilename(project, currentModule);
+            var modulePath = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
+            var moduleName = Path.GetFileName(modulePath);
+            project = Yaml.GetProjectFilename(project, moduleName);
+            configuration = configuration ?? "full-build";
 
             if (project == null)
                 return -1;
 
+            var buildData = Yaml.BuildParser(moduleName).Get(configuration).FirstOrDefault(t => !t.Target.IsFakeTarget());
+
             var projectPath = Path.GetFullPath(project);
             var csproj = new ProjectFile(projectPath);
-            var deps = new DepsParser(currentModuleDirectory).Get(configuration);
-            var patchedFileName = csproj.CreateCsProjWithNugetReferences(deps.Deps);
+            var deps = new DepsParser(modulePath).Get(configuration);
+            var patchedFileName = csproj.CreateCsProjWithNugetReferences(deps.Deps, modulePath);
             var tmpFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "_tmp" + Path.GetFileName(projectPath));
             File.Move(projectPath, tmpFileName);
             try
             {
                 File.Move(patchedFileName, projectPath);
                 var moduleBuilder = new ModuleBuilder(Log, buildSettings);
-                moduleBuilder.DotnetPack(currentModuleDirectory, projectPath);
+                moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release");
             }
             finally 
             {
-                File.Move(projectPath, patchedFileName);
+                if (File.Exists(projectPath))
+                    File.Delete(projectPath);
                 File.Move(tmpFileName, projectPath);
             }
             return 0;
