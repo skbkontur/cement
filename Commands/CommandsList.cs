@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Common;
 
@@ -30,7 +30,8 @@ namespace Commands
             {"update", new Update()},
             {"convert-spec", new ConvertSpec()},
             {"reinstall", new ReInstall()},
-            {"complete", new CompleteCommand()}
+            {"complete", new CompleteCommand()},
+            {"pack", new PackCommand()}
         };
 
         public static void Print()
