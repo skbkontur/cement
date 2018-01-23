@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 using Common.YamlParsers;
 using log4net;
-=======
->>>>>>> add pack command
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
