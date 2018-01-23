@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="AnalyzerAdd.cs" />
     <Compile Include="AnalyzerCommand.cs" />
+    <Compile Include="PackCommand.cs" />
     <Compile Include="ReadmeGenerator.cs" />
     <Compile Include="RefAdd.cs" />
     <Compile Include="Build.cs" />
