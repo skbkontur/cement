@@ -156,12 +156,14 @@ namespace Common
             }
         }
 
-        public string CreateCsProjWithNugetReferences(List<Dep> deps, string moduleDirectory)
+        public XmlDocument CreateCsProjWithNugetReferences(List<Dep> deps, string moduleDirectory)
         {
             if (!newFormat)
-                throw new Exception("Only on csproj format supported");
+                throw new Exception("Only new csproj format supported");
             var fileContent = File.ReadAllText(FilePath);
             var patchedProjDoc = XmlDocumentHelper.Create(fileContent);
+            var genPackageNode = patchedProjDoc.SelectSingleNode("//PropertyGroup/GeneratePackageOnBuild");
+            genPackageNode?.ParentNode?.RemoveChild(genPackageNode);
             var itemGroup = patchedProjDoc.CreateElement("ItemGroup");
             if (patchedProjDoc.DocumentElement == null)
                 throw new Exception("DocumentElement is null at csproj");
@@ -192,11 +194,7 @@ namespace Common
                 itemGroup.AppendChild(refElement);
             }
 
-            var patchedFilePath = Path.Combine(Path.GetDirectoryName(FilePath) ?? "", "tmp." + Path.GetFileName(FilePath));
-            if (File.Exists(patchedFilePath))
-                File.Delete(patchedFilePath);
-            XmlDocumentHelper.Save(patchedProjDoc, patchedFilePath, lineEndings);
-            return patchedFilePath;
+            return patchedProjDoc;
         }
 
         private string GetNugetPackageVersion(string directory, string packageName)

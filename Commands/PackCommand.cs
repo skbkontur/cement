@@ -39,14 +39,14 @@ namespace Commands
             var csproj = new ProjectFile(projectPath);
             var deps = new DepsParser(modulePath).Get(configuration);
             ConsoleWriter.WriteInfo("patching csproj");
-            var patchedFileName = csproj.CreateCsProjWithNugetReferences(deps.Deps, modulePath);
+            var patchedDocument = csproj.CreateCsProjWithNugetReferences(deps.Deps, modulePath);
             var backupFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "backup." + Path.GetFileName(projectPath));
             if (File.Exists(backupFileName))
                 File.Delete(backupFileName);
             File.Move(projectPath, backupFileName);
             try
             {
-                File.Move(patchedFileName, projectPath);
+                XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
                 var moduleBuilder = new ModuleBuilder(Log, buildSettings);
                 ConsoleWriter.WriteInfo("start pack");
                 moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release");
