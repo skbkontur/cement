@@ -70,9 +70,6 @@ namespace Commands
 
         public static int AddModule(Package package, string moduleName, string pushUrl, string fetchUrl)
         {
-            if (fetchUrl.StartsWith("https://"))
-                throw new CementException("HTTPS url not allowed. You should use SSH url.");
-
             using (var tempDir = new TempDirectory())
             {
                 var repo = new GitRepository("modules_git", tempDir.Path, Log);

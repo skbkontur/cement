@@ -193,6 +193,8 @@ namespace Common
             }
 
             var patchedFilePath = Path.Combine(Path.GetDirectoryName(FilePath) ?? "", "tmp." + Path.GetFileName(FilePath));
+            if (File.Exists(patchedFilePath))
+                File.Delete(patchedFilePath);
             XmlDocumentHelper.Save(patchedProjDoc, patchedFilePath, lineEndings);
             return patchedFilePath;
         }
@@ -200,6 +202,8 @@ namespace Common
         private string GetNugetPackageVersion(string directory, string packageName)
         {
             var shellRunner = new ShellRunner();
+            ConsoleWriter.WriteInfo("Get package verion for " + packageName);
+
             shellRunner.RunInDirectory(directory, $"nuget list {packageName} -NonInteractive");
             foreach (var line in shellRunner.Output.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
             {
@@ -207,11 +211,16 @@ namespace Common
                 if (lineTokens.Length == 2 &&
                     lineTokens[0].Equals(packageName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    log.Debug($"Got package version: {lineTokens[1]} for {packageName}");
+                    var msg = $"Got package version: {lineTokens[1]} for {packageName}";
+                    log.Info(msg);
+                    ConsoleWriter.WriteInfo(msg);
                     return lineTokens[1];
                 }
             }
-            log.Debug("not found package version. nuget output: " + shellRunner.Output);
+
+            var message = "not found package version. nuget output: " + shellRunner.Output;
+            log.Debug(message);
+            ConsoleWriter.WriteInfo(message);
             return null;
         }
 

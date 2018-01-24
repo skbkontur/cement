@@ -25,6 +25,7 @@ namespace Common
         {
             var runner = PrepareShellRunner();
             var exitCode = runner.RunInDirectory(directory, $"dotnet pack \\\"{projectFileName}\\\" -c {buildConfiguration}");
+            ConsoleWriter.Write(runner.Output);
             if (exitCode != 0)
             {
                 log.Warn($"Failed to build nuget package {projectFileName}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");

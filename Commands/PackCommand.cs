@@ -38,20 +38,24 @@ namespace Commands
             var projectPath = Path.GetFullPath(project);
             var csproj = new ProjectFile(projectPath);
             var deps = new DepsParser(modulePath).Get(configuration);
+            ConsoleWriter.WriteInfo("patching csproj");
             var patchedFileName = csproj.CreateCsProjWithNugetReferences(deps.Deps, modulePath);
-            var tmpFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "_tmp" + Path.GetFileName(projectPath));
-            File.Move(projectPath, tmpFileName);
+            var backupFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "backup." + Path.GetFileName(projectPath));
+            if (File.Exists(backupFileName))
+                File.Delete(backupFileName);
+            File.Move(projectPath, backupFileName);
             try
             {
                 File.Move(patchedFileName, projectPath);
                 var moduleBuilder = new ModuleBuilder(Log, buildSettings);
+                ConsoleWriter.WriteInfo("start pack");
                 moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release");
             }
             finally 
             {
                 if (File.Exists(projectPath))
                     File.Delete(projectPath);
-                File.Move(tmpFileName, projectPath);
+                File.Move(backupFileName, projectPath);
             }
             return 0;
         }
