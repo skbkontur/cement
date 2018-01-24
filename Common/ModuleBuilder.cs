@@ -41,8 +41,11 @@ namespace Common
                 {
                     if (buildSection.Target == null || !buildSection.Target.EndsWith(".sln"))
                         continue;
-                    var target = Path.Combine(Helper.CurrentWorkspace, dep.Name, buildSection.Target);
-                    RunNugetRestore(target, nuGetPath);
+                    if (buildSection.Tool.Name != "dotnet")
+                    {
+                        var target = Path.Combine(Helper.CurrentWorkspace, dep.Name, buildSection.Target);
+                        RunNugetRestore(target, nuGetPath);
+                    }
                 }
             }
             else
