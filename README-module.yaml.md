@@ -13,7 +13,7 @@ Configurations may be inherited in order to avoid repeating of dependencies info
 
 A module shall contain configuration `full-build`, including all the others, if possible. It will be used while execution of the following commands `cm get` and `cm build`.
 
-Optional configuration `default` is a parent for all the others.
+Optional configuration `default` can contain default build and deps sections.
 
 Example:
 
