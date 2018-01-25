@@ -86,16 +86,13 @@ namespace Common.YamlParsers
                 return project;
             }
 
-            var all = Yaml.GetCsprojsList(moduleName);
-            var maybe = all.FirstOrDefault(f =>
+            var all = GetCsprojsList(moduleName);
+            var projectNameFromSln = all.FirstOrDefault(f =>
                 string.Equals(Path.GetFileName(f), project, StringComparison.CurrentCultureIgnoreCase));
-            if (maybe != null)
-                project = maybe;
+            if (projectNameFromSln != null && File.Exists(projectNameFromSln))
+                return projectNameFromSln;
 
-            if (File.Exists(project))
-                return project;
-            ConsoleWriter.WriteError($"Project file '{project}' does not exist.");
-            return null;
+            throw new CementException($"Project file '{project}' does not exist.");
         }
 
         public static List<string> GetSolutionList(string moduleName)

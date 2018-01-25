@@ -47,8 +47,6 @@ namespace Commands
             var currentModule = Path.GetFileName(currentModuleDirectory);
 
             project = Yaml.GetProjectFilename(project, currentModule);
-            if (project == null)
-                return -1;
 
             var moduleToInsert = Helper.TryFixModuleCase(dep.Name);
             dep = new Dep(moduleToInsert, dep.Treeish, dep.Configuration);

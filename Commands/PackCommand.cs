@@ -30,9 +30,6 @@ namespace Commands
             project = Yaml.GetProjectFilename(project, moduleName);
             configuration = configuration ?? "full-build";
 
-            if (project == null)
-                return -1;
-
             var buildData = Yaml.BuildParser(moduleName).Get(configuration).FirstOrDefault(t => !t.Target.IsFakeTarget());
 
             var projectPath = Path.GetFullPath(project);
