@@ -1,9 +1,9 @@
-﻿using System;
+using Common.YamlParsers;
+using log4net;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Common.YamlParsers;
-using log4net;
 
 namespace Common
 {
@@ -145,6 +145,9 @@ namespace Common
 
         private TokensList MoudleCsprojs()
         {
+            var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
+            Helper.SetWorkspace(workspace);
+
             var moduleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
             if (moduleDirectory == null)
                 return null;
@@ -214,6 +217,7 @@ namespace Common
                         {"show", ModuleKeyWithModules}
                     }
                 },
+                {"pack", MoudleCsprojs },
                 "--version"
             };
 

@@ -1,11 +1,9 @@
+using log4net;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
-using log4net;
 
 namespace Common
 {
@@ -187,7 +185,7 @@ namespace Common
                 var includeAttr = patchedProjDoc.CreateAttribute("Include");
                 includeAttr.Value = dep.Name;
                 refElement.Attributes.Append(includeAttr);
-                var packageVersion = GetNugetPackageVersion(moduleDirectory, dep.Name, nugetRunCommand);
+                var packageVersion = NuGetHelper.GetNugetPackageVersion(dep.Name, nugetRunCommand);
                 if (!string.IsNullOrEmpty(packageVersion))
                 {
                     var versionAttr = patchedProjDoc.CreateAttribute("Version");
@@ -199,32 +197,7 @@ namespace Common
 
             return patchedProjDoc;
         }
-
-        private string GetNugetPackageVersion(string directory, string packageName, string nugetRunCommand)
-        {
-            var shellRunner = new ShellRunner();
-            ConsoleWriter.WriteInfo("Get package verion for " + packageName);
-
-            shellRunner.RunInDirectory(directory, $"{nugetRunCommand} list {packageName} -NonInteractive");
-            foreach (var line in shellRunner.Output.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                var lineTokens = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (lineTokens.Length == 2 &&
-                    lineTokens[0].Equals(packageName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var msg = $"Got package version: {lineTokens[1]} for {packageName}";
-                    log.Info(msg);
-                    ConsoleWriter.WriteInfo(msg);
-                    return lineTokens[1];
-                }
-            }
-
-            var message = "not found package version. nuget output: " + shellRunner.Output + shellRunner.Errors;
-            log.Debug(message);
-            ConsoleWriter.WriteInfo(message);
-            return null;
-        }
-
+        
         public void Save()
         {
             XmlDocumentHelper.Save(Document, FilePath, lineEndings);

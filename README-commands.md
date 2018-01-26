@@ -34,6 +34,8 @@
 
 [cm usages](#cm-usages)
 
+[cm pack](#cm-pack)
+
 [cm status](#cm-status)
 
 
@@ -314,6 +316,22 @@
         Example:
             cm usages grep "new Class" "Class.New" -- *.cs
                 show lines contains "new Class" or "Class.New" in modules linked to the current, only in *.cs files
+
+### cm pack
+
+    Packs project to nuget package. Replaces file references to package references in csproj file and runs 'dotnet pack' command.
+    Allows to publish nuget package to use outside of cement.
+    Searches cement deps in nuget by module name.
+
+    Usage:
+        cm pack [-v|--verbose|-w|-W|--warnings] [-p|--progress] [-c configName] <project-file>
+        -c/--configuration      - build package for specific configuration
+
+        -v/--verbose            - show full msbuild output
+        -w/--warnings           - show warnings
+        -W                      - show only obsolete warnings
+
+        -p/--progress           - show msbuild output in one line
 
 
 ### cm status

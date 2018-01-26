@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Commands
 {
@@ -47,6 +47,8 @@ namespace Commands
 {commands["show-deps"].HelpMessage}
 ### cm usages
 {commands["usages"].HelpMessage}
+### cm pack
+{commands["pack"].HelpMessage}
 
 ### cm status
 {commands["status"].HelpMessage}";

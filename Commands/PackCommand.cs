@@ -1,8 +1,7 @@
-using System;
-using System.IO;
-using System.Linq;
 using Common;
 using Common.YamlParsers;
+using System.IO;
+using System.Linq;
 
 namespace Commands
 {
@@ -79,8 +78,9 @@ namespace Commands
         }
 
         public override string HelpMessage => @"
-    Pack project to nuget package. Replace file references to package references in csproj file and run 'dotnet pack' command.
+    Packs project to nuget package. Replaces file references to package references in csproj file and runs 'dotnet pack' command.
     Allows to publish nuget package to use outside of cement.
+    Searches cement deps in nuget by module name.
 
     Usage:
         cm pack [-v|--verbose|-w|-W|--warnings] [-p|--progress] [-c configName] <project-file>
