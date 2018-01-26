@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -103,15 +103,15 @@ namespace Commands
             ConsoleWriter.ResetProgress();
             try
             {
-                var nuget = NuGetHelper.FindNuGet();
-                if (nuget == null)
+                var nugetRunCommand = NuGetHelper.GetNugetRunCommand();
+                if (nugetRunCommand == null)
                     return;
 
                 var uniqueDeps = modulesToUpdate.GroupBy(d => d.Name).Select(g => g.First()).ToList();
                 Parallel.ForEach(uniqueDeps, Helper.ParallelOptions, dep =>
                 {
                     ConsoleWriter.WriteProgress($"{dep.Name,-30} nuget restoring");
-                    builder.NugetRestore(dep, nuget);
+                    builder.NugetRestore(dep, nugetRunCommand);
                     ConsoleWriter.SaveToProcessedModules(dep.Name);
                 });
             }

@@ -168,6 +168,9 @@ namespace Common
             if (patchedProjDoc.DocumentElement == null)
                 throw new Exception("DocumentElement is null at csproj");
             patchedProjDoc.DocumentElement?.AppendChild(itemGroup);
+
+            var nugetRunCommand = NuGetHelper.GetNugetRunCommand();
+
             foreach (var dep in deps)
             {
                 var refNodes = patchedProjDoc.SelectNodes("//Reference");
@@ -184,7 +187,7 @@ namespace Common
                 var includeAttr = patchedProjDoc.CreateAttribute("Include");
                 includeAttr.Value = dep.Name;
                 refElement.Attributes.Append(includeAttr);
-                var packageVersion = GetNugetPackageVersion(moduleDirectory, dep.Name);
+                var packageVersion = GetNugetPackageVersion(moduleDirectory, dep.Name, nugetRunCommand);
                 if (!string.IsNullOrEmpty(packageVersion))
                 {
                     var versionAttr = patchedProjDoc.CreateAttribute("Version");
@@ -197,12 +200,12 @@ namespace Common
             return patchedProjDoc;
         }
 
-        private string GetNugetPackageVersion(string directory, string packageName)
+        private string GetNugetPackageVersion(string directory, string packageName, string nugetRunCommand)
         {
             var shellRunner = new ShellRunner();
             ConsoleWriter.WriteInfo("Get package verion for " + packageName);
 
-            shellRunner.RunInDirectory(directory, $"nuget list {packageName} -NonInteractive");
+            shellRunner.RunInDirectory(directory, $"{nugetRunCommand} list {packageName} -NonInteractive");
             foreach (var line in shellRunner.Output.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var lineTokens = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
