@@ -27,7 +27,7 @@ namespace Commands
         {
             var modulePath = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
             var moduleName = Path.GetFileName(modulePath);
-            project = Yaml.GetProjectFilename(project, moduleName);
+            project = Yaml.GetProjectFileName(project, moduleName);
             configuration = configuration ?? "full-build";
 
             var buildData = Yaml.BuildParser(moduleName).Get(configuration).FirstOrDefault(t => !t.Target.IsFakeTarget());

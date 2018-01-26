@@ -79,7 +79,7 @@ namespace Common.YamlParsers
             return files.Distinct().ToList();
         }
 
-        public static string GetProjectFilename(string project, string moduleName)
+        public static string GetProjectFileName(string project, string moduleName)
         {
             if (File.Exists(project))
             {
