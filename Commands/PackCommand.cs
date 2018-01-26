@@ -78,7 +78,8 @@ namespace Commands
         }
 
         public override string HelpMessage => @"
-    Packs project to nuget package. Replaces file references to package references in csproj file and runs 'dotnet pack' command.
+    Packs project to nuget package.
+    Replaces file references to package references in csproj file and runs 'dotnet pack' command.
     Allows to publish nuget package to use outside of cement.
     Searches cement deps in nuget by module name.
 
