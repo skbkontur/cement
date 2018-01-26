@@ -21,7 +21,18 @@ namespace Common
             VsDevHelper.ReplaceVariablesToVs();
         }
 
-        public void NugetRestore(Dep dep, string nuGetPath)
+        public void DotnetPack(string directory, string projectFileName, string buildConfiguration)
+        {
+            var runner = PrepareShellRunner();
+            var exitCode = runner.RunInDirectory(directory, $"dotnet pack \\\"{projectFileName}\\\" -c {buildConfiguration}");
+            ConsoleWriter.Write(runner.Output);
+            if (exitCode != 0)
+            {
+                log.Warn($"Failed to build nuget package {projectFileName}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
+            }
+        }
+
+        public void NugetRestore(Dep dep, string nugetRunCommand)
         {
             if (Yaml.Exists(dep.Name))
             {
@@ -30,21 +41,22 @@ namespace Common
                 {
                     if (buildSection.Target == null || !buildSection.Target.EndsWith(".sln"))
                         continue;
-                    var target = Path.Combine(Helper.CurrentWorkspace, dep.Name, buildSection.Target);
-                    RunNugetRestore(target, nuGetPath);
+                    if (buildSection.Tool.Name != "dotnet")
+                    {
+                        var target = Path.Combine(Helper.CurrentWorkspace, dep.Name, buildSection.Target);
+                        RunNugetRestore(target, nugetRunCommand);
+                    }
                 }
             }
             else
-                RunNugetRestore(Path.Combine(Helper.CurrentWorkspace, dep.Name, "build.cmd"), nuGetPath);
+                RunNugetRestore(Path.Combine(Helper.CurrentWorkspace, dep.Name, "build.cmd"), nugetRunCommand);
         }
 
-        private void RunNugetRestore(string buildFile, string nuGetPath)
+        private void RunNugetRestore(string buildFile, string nugetRunCommand)
         {
             var buildFolder = Directory.GetParent(buildFile).FullName;
             var target = buildFile.EndsWith(".sln") ? Path.GetFileName(buildFile) : "";
-            var command = $"\"{nuGetPath}\" restore {target} -Verbosity {(buildSettings.ShowOutput ? "normal" : "quiet")}";
-            if (Helper.OsIsUnix())
-                command = $"mono {command}";
+            var command = $"{nugetRunCommand} restore {target} -Verbosity {(buildSettings.ShowOutput ? "normal" : "quiet")}";
             log.Info(command);
 
             var runner = PrepareShellRunner();

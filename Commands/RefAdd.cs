@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -46,20 +46,7 @@ namespace Commands
             var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
             var currentModule = Path.GetFileName(currentModuleDirectory);
 
-            if (!File.Exists(project))
-            {
-                var all = Yaml.GetCsprojsList(currentModule);
-                var maybe = all.FirstOrDefault(f =>
-                    string.Equals(Path.GetFileName(f), project, StringComparison.CurrentCultureIgnoreCase));
-                if (maybe != null)
-                    project = maybe;
-            }
-
-            if (!File.Exists(project))
-            {
-                ConsoleWriter.WriteError($"Project file '{project}' does not exist.");
-                return -1;
-            }
+            project = Yaml.GetProjectFileName(project, currentModule);
 
             var moduleToInsert = Helper.TryFixModuleCase(dep.Name);
             dep = new Dep(moduleToInsert, dep.Treeish, dep.Configuration);

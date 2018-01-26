@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -76,6 +77,22 @@ namespace Common.YamlParsers
             }
 
             return files.Distinct().ToList();
+        }
+
+        public static string GetProjectFileName(string project, string moduleName)
+        {
+            if (File.Exists(project))
+            {
+                return project;
+            }
+
+            var all = GetCsprojsList(moduleName);
+            var projectNameFromSln = all.FirstOrDefault(f =>
+                string.Equals(Path.GetFileName(f), project, StringComparison.CurrentCultureIgnoreCase));
+            if (projectNameFromSln != null && File.Exists(projectNameFromSln))
+                return projectNameFromSln;
+
+            throw new CementException($"Project file '{project}' does not exist.");
         }
 
         public static List<string> GetSolutionList(string moduleName)

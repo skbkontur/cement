@@ -1,8 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
+using log4net;
 
 namespace Common
 {
@@ -12,14 +15,18 @@ namespace Common
 
         public readonly string FilePath;
         public readonly XmlDocument Document;
+        private bool newFormat;
+        private ILog log;
 
         public ProjectFile(string csprojFilePath)
         {
             var fileContent = File.ReadAllText(csprojFilePath);
+            log = LogManager.GetLogger(typeof(ProjectFile));
 
             lineEndings = fileContent.Contains("\r\n") ? "\r\n" : "\n";
             FilePath = csprojFilePath;
             Document = XmlDocumentHelper.Create(fileContent);
+            newFormat = !string.IsNullOrEmpty(Document.DocumentElement?.GetAttribute("Sdk"));
         }
 
         public void BindRuleset(RulesetFile rulesetFile)
@@ -147,6 +154,75 @@ namespace Common
             {
                 throw new Exception($"Failed to replace ref {refName} in {FilePath}", e);
             }
+        }
+
+        public XmlDocument CreateCsProjWithNugetReferences(List<Dep> deps, string moduleDirectory)
+        {
+            if (!newFormat)
+                throw new Exception("Only new csproj format supported");
+            var fileContent = File.ReadAllText(FilePath);
+            var patchedProjDoc = XmlDocumentHelper.Create(fileContent);
+            var genPackageNode = patchedProjDoc.SelectSingleNode("//PropertyGroup/GeneratePackageOnBuild");
+            genPackageNode?.ParentNode?.RemoveChild(genPackageNode);
+            var itemGroup = patchedProjDoc.CreateElement("ItemGroup");
+            if (patchedProjDoc.DocumentElement == null)
+                throw new Exception("DocumentElement is null at csproj");
+            patchedProjDoc.DocumentElement?.AppendChild(itemGroup);
+
+            var nugetRunCommand = NuGetHelper.GetNugetRunCommand();
+
+            foreach (var dep in deps)
+            {
+                var refNodes = patchedProjDoc.SelectNodes("//Reference");
+                if (refNodes != null)
+                {
+                    var node = refNodes.Cast<XmlNode>().FirstOrDefault(x =>
+                    {
+                        var moduleName = x.Attributes?["Include"]?.Value;
+                        return moduleName != null && moduleName.Equals(dep.Name, StringComparison.InvariantCultureIgnoreCase);
+                    });
+                    node?.ParentNode?.RemoveChild(node);
+                }
+                var refElement = patchedProjDoc.CreateElement("PackageReference");
+                var includeAttr = patchedProjDoc.CreateAttribute("Include");
+                includeAttr.Value = dep.Name;
+                refElement.Attributes.Append(includeAttr);
+                var packageVersion = GetNugetPackageVersion(moduleDirectory, dep.Name, nugetRunCommand);
+                if (!string.IsNullOrEmpty(packageVersion))
+                {
+                    var versionAttr = patchedProjDoc.CreateAttribute("Version");
+                    versionAttr.Value = packageVersion;
+                    refElement.Attributes.Append(versionAttr);
+                }
+                itemGroup.AppendChild(refElement);
+            }
+
+            return patchedProjDoc;
+        }
+
+        private string GetNugetPackageVersion(string directory, string packageName, string nugetRunCommand)
+        {
+            var shellRunner = new ShellRunner();
+            ConsoleWriter.WriteInfo("Get package verion for " + packageName);
+
+            shellRunner.RunInDirectory(directory, $"{nugetRunCommand} list {packageName} -NonInteractive");
+            foreach (var line in shellRunner.Output.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var lineTokens = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (lineTokens.Length == 2 &&
+                    lineTokens[0].Equals(packageName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var msg = $"Got package version: {lineTokens[1]} for {packageName}";
+                    log.Info(msg);
+                    ConsoleWriter.WriteInfo(msg);
+                    return lineTokens[1];
+                }
+            }
+
+            var message = "not found package version. nuget output: " + shellRunner.Output + shellRunner.Errors;
+            log.Debug(message);
+            ConsoleWriter.WriteInfo(message);
+            return null;
         }
 
         public void Save()
