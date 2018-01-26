@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Net;
 using log4net;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Net;
 
 namespace Common
 {
@@ -19,7 +19,7 @@ namespace Common
         {
             try
             {
-                var webClient = new WebClient();
+                var webClient = new WebClientWithTimeout();
                 webClient.Headers.Add("User-Agent", "Anything");
                 var json = webClient.DownloadString("https://api.github.com/repos/skbkontur/cement/releases/latest");
                 var release = JsonConvert.DeserializeObject<GitHubRelease>(json);
@@ -49,7 +49,7 @@ namespace Common
 
         public byte[] GetNewCementZip()
         {
-            var client = new WebClient();
+            var client = new WebClientWithTimeout();
             var zipContent = client.DownloadData(downloadUri);
             return zipContent;
         }

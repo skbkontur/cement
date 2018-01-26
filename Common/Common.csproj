@@ -110,6 +110,7 @@
     <Compile Include="ShowParentsAnswer.cs" />
     <Compile Include="Usages.cs" />
     <Compile Include="VsDevHelper.cs" />
+    <Compile Include="WebClientWithTimeout.cs" />
     <Compile Include="XmlDocumentHelper.cs" />
     <Compile Include="YamlParsers\BuildYamlParser.cs" />
     <Compile Include="ConsoleWriter.cs" />
