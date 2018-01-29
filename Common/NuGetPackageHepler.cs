@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,19 +32,20 @@ namespace Common
         private class NuGetProject
         {
             private readonly List<string> packagesList;
+            private readonly ProjectFile projectFile;
             private readonly Console logger;
             private readonly MSBuildNuGetProject project;
             private readonly ConsoleProjectContext projectContext;
             private readonly MSBuildProjectSystem projectSystem;
             private readonly List<SourceRepository> repositories;
             private readonly HashSet<PackageIdentity> installedPackages;
-            private readonly string originalLineEndings;
             private readonly ILog log;
 
-            public NuGetProject(List<string> packagesList, string packagesPath, string projectFilePath, ILog log)
+            public NuGetProject(List<string> packagesList, string packagesPath, ProjectFile projectFile, ILog log)
             {
                 this.log = log;
                 this.packagesList = packagesList;
+                this.projectFile = projectFile;
                 installedPackages = new HashSet<PackageIdentity>();
                 var sourceProvider = new PackageSourceProvider(Settings.LoadDefaultSettings(null));
                 var sourceRepositoryProvider = new CommandLineSourceRepositoryProvider(sourceProvider);
@@ -52,8 +53,7 @@ namespace Common
                     .ToList();
                 logger = new Console();
 
-                var projectFileContent = File.ReadAllText(projectFilePath);
-                originalLineEndings = projectFileContent.Contains("\r\n") ? "\r\n" : "\n";
+                var projectFilePath = projectFile.FilePath;
 
                 var msbuildDirectory =
                     Path.GetDirectoryName(ModuleBuilderHelper.FindMsBuild(null, "Cement NuGet Package Installer"));
@@ -85,7 +85,7 @@ namespace Common
                 contentLines[0] = contentLines[0].Replace("utf-16", "utf-8");
                 File.WriteAllText(
                     projectSystem.ProjectFileFullPath,
-                    string.Join(originalLineEndings, contentLines),
+                    string.Join(projectFile.LineEndings, contentLines),
                     new UTF8Encoding(true));
             }
 
@@ -154,7 +154,7 @@ namespace Common
             }
         }
 
-        public void InstallPackages(List<string> packagesList, string packagesPath, string projectFilePath)
+        public void InstallPackages(List<string> packagesList, string packagesPath, ProjectFile projectFilePath)
         {
             new NuGetProject(packagesList, packagesPath, projectFilePath, log).Install();
         }
