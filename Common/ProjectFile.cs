@@ -9,11 +9,11 @@ namespace Common
 {
     public class ProjectFile
     {
-        private readonly string lineEndings;
+        public readonly string LineEndings;
 
         public readonly string FilePath;
         public readonly XmlDocument Document;
-        private bool newFormat;
+        private readonly bool newFormat;
         private ILog log;
 
         public ProjectFile(string csprojFilePath)
@@ -21,7 +21,7 @@ namespace Common
             var fileContent = File.ReadAllText(csprojFilePath);
             log = LogManager.GetLogger(typeof(ProjectFile));
 
-            lineEndings = fileContent.Contains("\r\n") ? "\r\n" : "\n";
+            LineEndings = fileContent.Contains("\r\n") ? "\r\n" : "\n";
             FilePath = csprojFilePath;
             Document = XmlDocumentHelper.Create(fileContent);
             newFormat = !string.IsNullOrEmpty(Document.DocumentElement?.GetAttribute("Sdk"));
@@ -98,6 +98,13 @@ namespace Common
             elementToInsert.AppendChild(specificVersion);
             elementToInsert.AppendChild(hintPath);
 
+            return elementToInsert;
+        }
+        public XmlNode CreateNuGetReference(string refName, string version)
+        {
+            var elementToInsert = Document.CreateElement("PackageReference", Document.DocumentElement.NamespaceURI);
+            elementToInsert.SetAttribute("Include", refName);
+            elementToInsert.SetAttribute("Version", version);
             return elementToInsert;
         }
 
@@ -200,7 +207,7 @@ namespace Common
         
         public void Save()
         {
-            XmlDocumentHelper.Save(Document, FilePath, lineEndings);
+            XmlDocumentHelper.Save(Document, FilePath, LineEndings);
         }
 
         private XmlNode CreateAnalyzerGroup()
@@ -221,6 +228,12 @@ namespace Common
                 .Cast<XmlNode>()
                 .Any(childNode => childNode.Name == "Reference");
         }
+        private bool IsPackageReferenceGroup(XmlNode xmlNode)
+        {
+            return xmlNode.ChildNodes
+                .Cast<XmlNode>()
+                .Any(childNode => childNode.Name == "PackageReference");
+        }
 
         private XmlNode CreateItemGroup()
         {
@@ -238,6 +251,56 @@ namespace Common
             rootNode.AppendChild(itemGroup);
 
             return itemGroup;
+        }
+
+        public void InstallNuGetPackages(List<string> nuGetPackages)
+        {
+            if (newFormat)
+            {
+                foreach (var package in nuGetPackages)
+                {
+                    var splitted = package.Split('/');
+                    if (splitted.Length != 2)
+                    {
+                        log.Error("package version is not defined: " + package);
+                    }
+                    else
+                    {
+                        InstallNuGetPackage(splitted[0], splitted[1]);
+                    }
+                }
+            }
+            else
+            {
+                var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
+                var packagesDirectory = Path.Combine(currentModuleDirectory, "packages");
+                new NuGetPackageHepler(log).InstallPackages(nuGetPackages, packagesDirectory, this);
+            }
+        }
+
+        private void InstallNuGetPackage(string packageName, string packageVersion)
+        {
+            try
+            {
+                var referenceGroup = Document
+                                         .GetElementsByTagName("ItemGroup")
+                                         .Cast<XmlNode>()
+                                         .FirstOrDefault(IsPackageReferenceGroup) ?? CreateItemGroup();
+                var packageNode = Document.SelectNodes("*/ItemGroup/PackageReference")?.Cast<XmlElement>()
+                    .FirstOrDefault(el => el.Attributes["Include", Document.DocumentElement.NamespaceURI].Value.Equals(packageName, StringComparison.InvariantCultureIgnoreCase));
+                if (packageNode == null)
+                    referenceGroup?.AppendChild(CreateNuGetReference(packageName, packageVersion));
+                else
+                {
+                    packageNode.ParentNode?.RemoveChild(packageNode);
+                    packageNode.SetAttribute("Version", packageVersion);
+                    referenceGroup?.AppendChild(packageNode);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Failed to add ref {packageName} to {FilePath}", e);
+            }
         }
     }
 }
