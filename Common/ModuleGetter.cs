@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -44,12 +44,6 @@ namespace Common
             rootRepoTreeish = rootRepo.CurrentLocalTreeish().Value;
 
             var depsContent = new DepsParser(rootRepo.RepoPath).Get(rootModule.Configuration);
-            if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, "nuget"))
-                && modules.Any(m => m.Name == "nuget"))
-            {
-                depsContent.Deps.Add(new Dep("nuget"));
-            }
-
             depsContent.Force = Helper.DefineForce(depsContent.Force, rootRepo);
             Log.Info("OK");
 

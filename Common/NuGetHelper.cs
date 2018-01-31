@@ -49,11 +49,6 @@ namespace Common
             if (!File.Exists(nuget))
             {
                 Log.Error($"NuGet.exe not found in {nuget}");
-                nuget = Path.Combine(Helper.CurrentWorkspace, "nuget", "bin", "NuGet.exe");
-            }
-            if (!File.Exists(nuget))
-            {
-                Log.Error($"NuGet.exe not found in {nuget}");
                 return null;
             }
 
