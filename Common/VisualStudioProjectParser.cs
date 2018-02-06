@@ -26,10 +26,10 @@ namespace Common
             solutionContent = File.ReadAllText(solutionPath).Split('\n');
         }
 
-        public List<string> GetReferences(string configName)
+        public List<string> GetReferences(BuildData buildData)
         {
-            var configCsprojList = GetCsprojList(configName).Select(csproj => Path.Combine(cwd, csproj)).ToList();
-            return GetReferencesFromCsprojList(configCsprojList, configName);
+            var configCsprojList = GetCsprojList(buildData).Select(csproj => Path.Combine(cwd, csproj)).ToList();
+            return GetReferencesFromCsprojList(configCsprojList, buildData.Configuration);
         }
 
         public List<string> GetSolutionConfigsByCsproj(string csprojFullPath)
@@ -216,10 +216,13 @@ namespace Common
             return guidToCsprojDict.Select(kvp => kvp.Value).ToList();
         }
 
-        public IEnumerable<string> GetCsprojList(string configName)
+        public IEnumerable<string> GetCsprojList(BuildData buildData)
         {
+            if (buildData.Target.EndsWith(".csproj"))
+                return new List<string> { Path.Combine(cwd, buildData.Target)};
+
             var guidToCsprojDict = GetGuidToCsprojDict();
-            var guidSetForConfig = GetGuidSetForConfig(configName);
+            var guidSetForConfig = GetGuidSetForConfig(buildData.Configuration);
             return guidSetForConfig.Where(guid => guidToCsprojDict.ContainsKey(guid)).Select(guid => guidToCsprojDict[guid]).ToList();
         }
 

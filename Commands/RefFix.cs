@@ -72,7 +72,7 @@ namespace Commands
                 throw new TargetNotFoundException(rootModuleName);
 
             var vsParser = new VisualStudioProjectParser(buildInfo.Target, modules);
-            foreach (var file in vsParser.GetCsprojList(buildInfo.Configuration))
+            foreach (var file in vsParser.GetCsprojList(buildInfo))
             {
                 if (processedFiles.Contains(file))
                     continue;

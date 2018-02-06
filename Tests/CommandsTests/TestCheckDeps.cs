@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
@@ -60,7 +60,7 @@ Project(""C"") = ""CName"", ""CName\CName.csproj"", ""{CCC}""
 
                 File.WriteAllText(Path.Combine(tempDir.Path, "solution.sln"), slnContent);
                 var vsParser = new VisualStudioProjectParser(Path.Combine(tempDir.Path, "solution.sln"), cementModules);
-                var references = vsParser.GetReferences("Client");
+                var references = vsParser.GetReferences(new BuildData("solution.sln", "Client"));
 
                 Assert.AreEqual(new[] {@"Dep2\src\bin\Kontur.Logging.dll"}, references);
             }
