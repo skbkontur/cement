@@ -46,6 +46,7 @@ namespace Commands
             var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
             var currentModule = Path.GetFileName(currentModuleDirectory);
 
+            PackageUpdater.UpdatePackages();
             project = Yaml.GetProjectFileName(project, currentModule);
 
             var moduleToInsert = Helper.TryFixModuleCase(dep.Name);
