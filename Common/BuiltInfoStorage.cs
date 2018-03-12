@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -73,7 +73,7 @@ namespace Common
 
         public List<Dep> GetUpdatedModules(List<Dep> modules, Dictionary<string, string> currentCommitHashes)
         {
-            return modules.Where(module => IsModuleUpdate(currentCommitHashes, module)).ToList();
+            return modules.AsParallel().Where(module => IsModuleUpdate(currentCommitHashes, module)).ToList();
         }
 
         private bool IsModuleUpdate(Dictionary<string, string> currentCommitHashes, Dep module)

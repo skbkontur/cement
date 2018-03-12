@@ -20,16 +20,14 @@ namespace Common
         {
             log.Debug("Building configurations graph");
             ConsoleWriter.WriteProgress("Building configurations graph");
-
             var configsGraph = BuildConfigsGraph(moduleName, configuration);
             configsGraph = EraseExtraChildren(configsGraph);
             topSortedVertices = GetTopologicallySortedGraph(configsGraph, moduleName, configuration);
-
+            
             log.Debug("Getting current commit hashes");
             ConsoleWriter.WriteProgress("Getting current commit hashes");
             currentCommitHashes = GetCurrentCommitHashes(configsGraph);
             updatedModules = BuiltInfoStorage.Deserialize().GetUpdatedModules(topSortedVertices, currentCommitHashes);
-
             ConsoleWriter.ResetProgress();
         }
 
@@ -149,22 +147,33 @@ namespace Common
             return graph;
         }
 
-        private static void Dfs(Dep dep, Dictionary<Dep, List<Dep>> graph, HashSet<Dep> visitedConfigurations)
+        private static readonly Dictionary<string, bool> DepConfigurationExistsCache = new Dictionary<string, bool>();
+        private static void CheckAndUpdateDepConfiguration(Dep dep)
         {
             dep.UpdateConfigurationIfNull();
-
-            if (Yaml.Exists(dep.Name) && !Yaml.ConfigurationParser(dep.Name).ConfigurationExists(dep.Configuration))
+            var key = dep.ToString();
+            if (!DepConfigurationExistsCache.ContainsKey(key))
             {
-                ConsoleWriter.WriteWarning($"Configuration '{dep.Configuration}' was not found in {dep.Name}. Will take full-build config");
+                if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, dep.Name)))
+                {
+                    throw new CementBuildException("Failed to find module '" + dep.Name + "'");
+                }
+                DepConfigurationExistsCache[key] = !Yaml.Exists(dep.Name) ||
+                    Yaml.ConfigurationParser(dep.Name).ConfigurationExists(dep.Configuration);
+            }
+            if (!DepConfigurationExistsCache[key])
+            {
+                ConsoleWriter.WriteWarning(
+                    $"Configuration '{dep.Configuration}' was not found in {dep.Name}. Will take full-build config");
                 dep.Configuration = "full-build";
             }
+        }
 
+        private static void Dfs(Dep dep, Dictionary<Dep, List<Dep>> graph, HashSet<Dep> visitedConfigurations)
+        {
+            CheckAndUpdateDepConfiguration(dep);
             visitedConfigurations.Add(dep);
             graph[dep] = new List<Dep>();
-            if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, dep.Name)))
-            {
-                throw new CementBuildException("Failed to find module '" + dep.Name + "'");
-            }
             var currentDeps = new DepsParser(Path.Combine(Helper.CurrentWorkspace, dep.Name)).Get(dep.Configuration).Deps ?? new List<Dep>();
             currentDeps = currentDeps.Select(d => new Dep(d.Name, null, d.Configuration)).ToList();
             foreach (var d in currentDeps)
