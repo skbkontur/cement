@@ -51,6 +51,10 @@ namespace Commands
             var builder = new ModuleBuilder(Log, buildSettings);
             var builderInitTask = Task.Run(() => builder.Init());
             new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build", out topSortedDeps, out modulesToBuild, out currentCommitHases);
+            if (modulesToBuild.Count > 0 && modulesToBuild[modulesToBuild.Count - 1].Name == moduleName)
+            {
+                modulesToBuild.RemoveAt(modulesToBuild.Count - 1); //remove root
+            }
             if (rebuild)
                 modulesToBuild = topSortedDeps;
 
@@ -61,7 +65,7 @@ namespace Commands
             builderInitTask.Wait();
             TryNugetRestore(modulesToBuild, builder);
             int built = 1;
-            for (var i = 0; i < topSortedDeps.Count; i++)
+            for (var i = 0; i < topSortedDeps.Count - 1; i++)
             {
                 var dep = topSortedDeps[i];
 

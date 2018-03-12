@@ -23,7 +23,6 @@ namespace Common
             var configsGraph = BuildConfigsGraph(moduleName, configuration);
             configsGraph = EraseExtraChildren(configsGraph);
             topSortedVertices = GetTopologicallySortedGraph(configsGraph, moduleName, configuration);
-            topSortedVertices.RemoveAt(topSortedVertices.Count - 1); // remove root 
             
             log.Debug("Getting current commit hashes");
             ConsoleWriter.WriteProgress("Getting current commit hashes");
