@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using Common;
 using Common.YamlParsers;
@@ -634,7 +634,7 @@ namespace Tests.CommandsTests
         }
 
         [Test]
-        public void TestGetDepsWithBranches()
+        public void TestGetDepsWithBranchesFullBuild()
         {
             using (var env = new TestEnvironment())
             {
@@ -657,12 +657,30 @@ namespace Tests.CommandsTests
                 env.Get("A");
                 Assert.IsTrue(Directory.Exists(Path.Combine(dir, "C")));
                 Assert.AreEqual("branch1", new GitRepository("C", dir, Log).CurrentLocalTreeish().Value);
+            }
+        }
 
+        [Test]
+        public void TestGetDepsWithBranchesClientBuild()
+        {
+            using (var env = new TestEnvironment())
+            {
+                var dir = env.WorkingDirectory.Path;
+
+                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                {
+                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B@master")})}
+                });
                 env.CreateRepo("B", new Dictionary<string, DepsContent>
                 {
                     {"full-build", new DepsContent(null, new List<Dep> {new Dep("C@branch1")})},
                     {"client *default", new DepsContent(null, new List<Dep> {new Dep("C@branch2")})}
                 });
+                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                {
+                    {"full-build", new DepsContent(null, new List<Dep>())}
+                }, new[] { "master", "branch1", "branch2" });
+                
                 env.Get("A");
                 Assert.IsTrue(Directory.Exists(Path.Combine(dir, "C")));
                 Assert.AreEqual("branch2", new GitRepository("C", dir, Log).CurrentLocalTreeish().Value);
