@@ -18,6 +18,10 @@ namespace Common
         {
             this.log = log;
             this.buildSettings = buildSettings;
+        }
+
+        public void Init()
+        {
             VsDevHelper.ReplaceVariablesToVs();
         }
 

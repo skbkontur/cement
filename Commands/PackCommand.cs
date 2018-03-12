@@ -44,6 +44,7 @@ namespace Commands
             {
                 XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
                 var moduleBuilder = new ModuleBuilder(Log, buildSettings);
+                moduleBuilder.Init();
                 ConsoleWriter.WriteInfo("start pack");
                 moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release");
             }

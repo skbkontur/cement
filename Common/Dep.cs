@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +13,7 @@ namespace Common
         public string Treeish { get; set; }
         public string Configuration { get; set; }
         public bool NeedSrc { get; set; }
+        static readonly Dictionary<string, string> DepDefaultConfigurationCache = new Dictionary<string, string>();
 
         public Dep(string name, string treeish = null, string configuration = null)
         {
@@ -53,6 +54,7 @@ namespace Common
                 Configuration = null;
         }
 
+        
         public void UpdateConfigurationIfNull()
         {
             UpdateConfigurationIfNull(Helper.CurrentWorkspace);
@@ -60,9 +62,15 @@ namespace Common
 
         public void UpdateConfigurationIfNull(string workspace)
         {
-            Configuration = Configuration ??
-                            new ConfigurationParser(new FileInfo(Path.Combine(workspace, Name)))
-                                .GetDefaultConfigurationName();
+            if (!string.IsNullOrEmpty(Configuration)) return;
+            var path = Path.Combine(workspace, Name);
+            if (!DepDefaultConfigurationCache.ContainsKey(path))
+            {
+                DepDefaultConfigurationCache[path] =
+                    new ConfigurationParser(new FileInfo(Path.Combine(workspace, Name)))
+                        .GetDefaultConfigurationName();
+            }
+            Configuration = DepDefaultConfigurationCache[path];
         }
 
         private string UnEscapeBadChars(string str)

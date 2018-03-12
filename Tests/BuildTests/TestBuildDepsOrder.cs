@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
@@ -111,9 +111,8 @@ namespace Tests.BuildTests
                 new BuildPreparer(Log).GetModulesOrder("A", null, out topSortedDeps, out modulesToUpdate, out currentCommitHashes);
                 Assert.IsFalse(topSortedDeps.Contains(new Dep("C/client")));
                 Assert.IsTrue(topSortedDeps.Contains(new Dep("C", null, "full-build")));
-                Assert.IsTrue(topSortedDeps.Contains(new Dep("A", null, "full-build")));
                 Assert.IsTrue(topSortedDeps.Contains(new Dep("B", null, "full-build")));
-                Assert.AreEqual(3, topSortedDeps.Count);
+                Assert.AreEqual(2, topSortedDeps.Count);
             }
         }
 
@@ -148,16 +147,14 @@ namespace Tests.BuildTests
                 List<Dep> topSortedDeps;
                 new BuildPreparer(Log).GetModulesOrder("A", null, out topSortedDeps, out modulesToUpdate, out currentCommitHashes);
                 Assert.IsFalse(topSortedDeps.Contains(new Dep("X/client")));
-                Assert.IsTrue(topSortedDeps.Contains(new Dep("A", null, "full-build")));
                 Assert.IsTrue(topSortedDeps.Contains(new Dep("B", null, "full-build")));
                 Assert.IsTrue(topSortedDeps.Contains(new Dep("C", null, "full-build")));
-                Assert.AreEqual(4, topSortedDeps.Count);
+                Assert.AreEqual(3, topSortedDeps.Count);
                 CollectionAssert.AreEqual(new List<Dep>
                 {
                     new Dep("X", null, "full-build"),
                     new Dep("B", null, "full-build"),
-                    new Dep("C", null, "full-build"),
-                    new Dep("A", null, "full-build")
+                    new Dep("C", null, "full-build")
                 }, topSortedDeps);
             }
         }
@@ -186,8 +183,7 @@ namespace Tests.BuildTests
                 new BuildPreparer(Log).GetModulesOrder("A", null, out topSortedDeps, out modulesToUpdate, out currentCommitHashes);
                 Assert.IsFalse(topSortedDeps.Contains(new Dep("X", null, "full-build")));
                 Assert.IsTrue(topSortedDeps.Contains(new Dep("X", null, "client")));
-                Assert.IsTrue(topSortedDeps.Contains(new Dep("A", null, "full-build")));
-                Assert.AreEqual(2, topSortedDeps.Count);
+                Assert.AreEqual(1, topSortedDeps.Count);
             }
         }
 
@@ -217,8 +213,7 @@ namespace Tests.BuildTests
                 CollectionAssert.AreEqual(new List<Dep>
                 {
                     new Dep("A", null, "client"),
-                    new Dep("X", null, "full-build"),
-                    new Dep("A", null, "full-build")
+                    new Dep("X", null, "full-build")
                 }, topSortedDeps);
             }
         }

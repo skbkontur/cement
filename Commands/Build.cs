@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Common;
 
 namespace Commands
@@ -52,12 +53,15 @@ namespace Commands
                 return -1;
             }
 
+            var builder = new ModuleBuilder(Log, buildSettings);
+            var builderInitTask = Task.Run(() => builder.Init());
+
             new BuildPreparer(Log).GetModulesOrder(moduleName, configuration, out topSortedDeps, out modulesToUpdate, out currentCommitHases);
 
             var builtStorage = BuiltInfoStorage.Deserialize();
             builtStorage.RemoveBuildInfo(moduleName);
 
-            var builder = new ModuleBuilder(Log, buildSettings);
+            builderInitTask.Wait();
             var module = new Dep(moduleName, null, configuration);
             
             BuildDeps.TryNugetRestore(new List<Dep> {module}, builder);

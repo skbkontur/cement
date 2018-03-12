@@ -45,11 +45,11 @@ namespace Commands
             var moduleName = Path.GetFileName(cwd);
 
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
-
             List<Dep> modulesToBuild;
             List<Dep> topSortedDeps;
             Dictionary<string, string> currentCommitHases;
-
+            var builder = new ModuleBuilder(Log, buildSettings);
+            var builderInitTask = Task.Run(() => builder.Init());
             new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build", out topSortedDeps, out modulesToBuild, out currentCommitHases);
             if (rebuild)
                 modulesToBuild = topSortedDeps;
@@ -57,13 +57,11 @@ namespace Commands
             var builtStorage = BuiltInfoStorage.Deserialize();
             foreach (var dep in modulesToBuild)
                 builtStorage.RemoveBuildInfo(dep.Name);
-
-            var builder = new ModuleBuilder(Log, buildSettings);
             
+            builderInitTask.Wait();
             TryNugetRestore(modulesToBuild, builder);
-
             int built = 1;
-            for (var i = 0; i < topSortedDeps.Count - 1; i++)
+            for (var i = 0; i < topSortedDeps.Count; i++)
             {
                 var dep = topSortedDeps[i];
 
@@ -92,7 +90,6 @@ namespace Commands
                 built++;
             }
             builtStorage.Save();
-
             Log.Debug("msbuild time: " + ModuleBuilder.TotalMsbuildTime);
             return 0;
         }
