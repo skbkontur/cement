@@ -75,7 +75,7 @@ namespace Commands
                     continue;
                 }
 
-                ConsoleWriter.WriteProgress($"{dep.ToBuildString(),-49} {$"{built}/{modulesToBuild.Count - 1}",10}");
+                ConsoleWriter.WriteProgress($"{dep.ToBuildString(),-49} {$"{built}/{modulesToBuild.Count}",10}");
                 try
                 {
                     if (!builder.Build(dep))
