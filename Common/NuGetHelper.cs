@@ -26,7 +26,7 @@ namespace Common
                 }
             }
 
-            var message = "not found package version. nuget output: " + shellRunner.Output + shellRunner.Errors;
+            var message = $"not found package version for package {packageName}. nuget output: " + shellRunner.Output + shellRunner.Errors;
             Log.Debug(message);
             ConsoleWriter.WriteWarning(message);
             return null;
