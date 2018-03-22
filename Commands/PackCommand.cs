@@ -1,3 +1,4 @@
+using System;
 using Common;
 using Common.YamlParsers;
 using System.IO;
@@ -47,7 +48,8 @@ namespace Commands
                 var moduleBuilder = new ModuleBuilder(Log, buildSettings);
                 moduleBuilder.Init();
                 ConsoleWriter.WriteInfo("start pack");
-                moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release");
+                if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))
+                    return -1;
             }
             finally 
             {
