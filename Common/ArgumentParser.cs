@@ -99,6 +99,7 @@ namespace Common
                 {"obsolete", false},
                 {"verbose", false},
                 {"progress", false},
+                {"prerelease", false}
             };
             var parser = new OptionSet
             {
@@ -107,6 +108,7 @@ namespace Common
                 {"W", f => parsedArguments["obsolete"] = true},
                 {"v|verbose", v => parsedArguments["verbose"] = true},
                 {"p|progress", p => parsedArguments["progress"] = true},
+                {"prerelease", p => parsedArguments["prerelease"] = true},
             };
             args = parser.Parse(args).ToArray();
 

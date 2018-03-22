@@ -8,12 +8,12 @@ namespace Common
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NuGetHelper));
 
-        public static string GetNugetPackageVersion(string packageName, string nugetRunCommand)
+        public static string GetNugetPackageVersion(string packageName, string nugetRunCommand, bool preRelease)
         {
             var shellRunner = new ShellRunner();
             ConsoleWriter.WriteProgressWithoutSave("Get package verion for " + packageName);
 
-            shellRunner.Run($"{nugetRunCommand} list {packageName} -NonInteractive");
+            shellRunner.Run($"{nugetRunCommand} list {packageName} -NonInteractive" + (preRelease ? " -PreRelease" : ""));
             foreach (var line in shellRunner.Output.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var lineTokens = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);

@@ -10,6 +10,7 @@ namespace Commands
         private string project;
         private string configuration;
         private BuildSettings buildSettings;
+        private bool preRelease = false;
 
         public PackCommand() : base(new CommandSettings
         {
@@ -35,7 +36,7 @@ namespace Commands
             var csproj = new ProjectFile(projectPath);
             var deps = new DepsParser(modulePath).Get(configuration);
             ConsoleWriter.WriteInfo("patching csproj");
-            var patchedDocument = csproj.CreateCsProjWithNugetReferences(deps.Deps, modulePath);
+            var patchedDocument = csproj.CreateCsProjWithNugetReferences(deps.Deps, preRelease);
             var backupFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "backup." + Path.GetFileName(projectPath));
             if (File.Exists(backupFileName))
                 File.Delete(backupFileName);
@@ -64,6 +65,8 @@ namespace Commands
             //dep = new Dep((string)parsedArgs["module"]);
             if (parsedArgs["configuration"] != null)
                 configuration = (string)parsedArgs["configuration"];
+            preRelease = (bool)parsedArgs["prerelease"];
+            
             buildSettings = new BuildSettings
             {
                 ShowAllWarnings = (bool)parsedArgs["warnings"],

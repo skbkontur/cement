@@ -334,6 +334,7 @@
 
         -p/--progress           - show msbuild output in one line
 
+        -prerelease             - load prerelease versions of packages
 
 ### cm status
 
