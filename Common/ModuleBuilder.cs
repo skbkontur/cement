@@ -25,15 +25,15 @@ namespace Common
             VsDevHelper.ReplaceVariablesToVs();
         }
 
-        public void DotnetPack(string directory, string projectFileName, string buildConfiguration)
+        public bool DotnetPack(string directory, string projectFileName, string buildConfiguration)
         {
             var runner = PrepareShellRunner();
             var exitCode = runner.RunInDirectory(directory, $"dotnet pack \\\"{projectFileName}\\\" -c {buildConfiguration}");
             ConsoleWriter.Write(runner.Output);
-            if (exitCode != 0)
-            {
-                log.Warn($"Failed to build nuget package {projectFileName}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
-            }
+            if (exitCode == 0)
+                return true;
+            log.Warn($"Failed to build nuget package {projectFileName}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
+            return false;
         }
 
         public void NugetRestore(Dep dep, string nugetRunCommand)

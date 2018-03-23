@@ -161,7 +161,7 @@ namespace Common
             }
         }
 
-        public XmlDocument CreateCsProjWithNugetReferences(List<Dep> deps, string moduleDirectory)
+        public XmlDocument CreateCsProjWithNugetReferences(List<Dep> deps, bool preRelease)
         {
             if (!newFormat)
                 throw new Exception("Only new csproj format supported");
@@ -192,7 +192,7 @@ namespace Common
                 var includeAttr = patchedProjDoc.CreateAttribute("Include");
                 includeAttr.Value = dep.Name;
                 refElement.Attributes.Append(includeAttr);
-                var packageVersion = NuGetHelper.GetNugetPackageVersion(dep.Name, nugetRunCommand);
+                var packageVersion = NuGetHelper.GetNugetPackageVersion(dep.Name, nugetRunCommand, preRelease);
                 if (!string.IsNullOrEmpty(packageVersion))
                 {
                     var versionAttr = patchedProjDoc.CreateAttribute("Version");
