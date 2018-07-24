@@ -122,7 +122,6 @@
     <Exec Command="copy $(OutputAssembly).config %25userprofile%25\bin\dotnet\cm.exe.config" />
     <Exec Command="xcopy $(SolutionDir)\files-common %25userprofile%25\bin\dotnet /s /i /Y" />
     <Exec Condition="Exists('$(SolutionDir)\files-kontur')" Command="xcopy $(SolutionDir)\files-kontur %25userprofile%25\bin\dotnet /s /i /Y" />
-	<Exec Command="$(OutputAssembly) help --gen $(SolutionDir)\README-commands.md" />
   </Target>
   <Target Name="CopyExeUnix" DependsOnTargets="AfterBuild" Condition="'$(OS)' == 'Unix'">
     <Exec Command="rm -rf ~/bin/dotnet" />
