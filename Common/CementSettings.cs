@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Common
@@ -43,7 +44,14 @@ namespace Common
 
             var settings = ReadSettings(path);
             settings = settings ?? defaultSettings;
+
             settings.Packages = settings.Packages ?? defaultSettings.Packages;
+            foreach (var package in defaultSettings.Packages)
+            {
+                if (settings.Packages.All(p => p.Name != package.Name))
+                    settings.Packages.Add(package);
+            }
+
             settings.SelfUpdateTreeish = settings.SelfUpdateTreeish ?? defaultSettings.SelfUpdateTreeish;
             settings.UserCommands = settings.UserCommands ?? defaultSettings.UserCommands;
             settings.CementServer = settings.CementServer ?? defaultSettings.CementServer;

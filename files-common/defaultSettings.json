@@ -11,7 +11,12 @@
       "Name": "sample",
       "Url": "https://github.com/KungA/cement-sample-modules",
       "Type": "git"
-    }
+    },
+	{
+		"Name": "vostok",
+		"Url": "https://github.com/vostok/cement-modules.git",
+		"Type": "git"
+	}
   ],
   "UserCommands": {
     "full": "cm init && cm get {0} && cd {0} && cm build-deps && cm build"
