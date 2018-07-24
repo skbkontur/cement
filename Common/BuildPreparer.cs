@@ -92,9 +92,9 @@ namespace Common
                 var repo = new GitRepository(moduleName, Helper.CurrentWorkspace, log);
                 return repo.CurrentLocalCommitHash();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                ConsoleWriter.WriteWarning($"Failed to retrieve local commit hash for '{moduleName}'");
+                ConsoleWriter.WriteWarning($"Failed to retrieve local commit hash for '{moduleName}': {e}");
                 return null;
             }
         }
