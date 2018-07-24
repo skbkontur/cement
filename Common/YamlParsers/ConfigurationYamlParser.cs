@@ -141,10 +141,10 @@ namespace Common.YamlParsers
 
     public class DepsContent
     {
-        public string Force { get; set; }
+        public string[] Force { get; set; }
         public List<Dep> Deps { get; set; }
 
-        public DepsContent(string force, List<Dep> deps)
+        public DepsContent(string[] force, List<Dep> deps)
         {
             Force = force;
             Deps = deps;

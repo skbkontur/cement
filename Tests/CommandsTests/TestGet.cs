@@ -113,7 +113,7 @@ namespace Tests.CommandsTests
 
                 env.CreateRepo("A", new Dictionary<string, DepsContent>
                 {
-                    {"full-build", new DepsContent("new", new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsContent(new[] {"new"}, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new"});
                 env.Get("A");
@@ -129,7 +129,7 @@ namespace Tests.CommandsTests
             {
                 env.CreateRepo("A", new Dictionary<string, DepsContent>
                 {
-                    {"full-build", new DepsContent("new", new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsContent(new[] {"new"}, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new"});
                 env.Get("A");
@@ -147,7 +147,7 @@ namespace Tests.CommandsTests
 
                 env.CreateRepo("A", new Dictionary<string, DepsContent>
                 {
-                    {"full-build", new DepsContent("new", new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsContent(new[] {"new"}, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new"});
                 env.Get("A");
@@ -170,7 +170,7 @@ namespace Tests.CommandsTests
 
                 env.CreateRepo("A", new Dictionary<string, DepsContent>
                 {
-                    {"full-build", new DepsContent("new", new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsContent(new[] {"new"}, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new"});
                 env.Get("A");
@@ -268,7 +268,7 @@ namespace Tests.CommandsTests
 
                 env.CreateRepo("A", new Dictionary<string, DepsContent>
                 {
-                    {"full-build", new DepsContent("%CURRENT_BRANCH%", new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsContent(new[] {"%CURRENT_BRANCH%"}, new List<Dep> {new Dep("B")})}
                 }, new[] {"new"}, DepsFormatStyle.Ini);
                 env.Checkout("A", "new");
 
@@ -289,7 +289,7 @@ namespace Tests.CommandsTests
 
                 env.CreateRepo("A", new Dictionary<string, DepsContent>
                 {
-                    {"full-build", new DepsContent("%CURRENT_BRANCH%", new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsContent(new[]  {"%CURRENT_BRANCH%"}, new List<Dep> {new Dep("B")})}
                 }, new[] {"new"}, DepsFormatStyle.Ini);
                 env.Checkout("A", "new");
 
@@ -313,7 +313,7 @@ namespace Tests.CommandsTests
 
                 env.CreateRepo("A", new Dictionary<string, DepsContent>
                 {
-                    {"full-build", new DepsContent("new", new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsContent(new[] {"new"}, new List<Dep> {new Dep("B")})}
                 }, new[] {"new"}, DepsFormatStyle.Ini);
 
                 env.CreateRepo("B", new Dictionary<string, DepsContent>
@@ -339,7 +339,7 @@ namespace Tests.CommandsTests
 
                 env.CreateRepo("A", new Dictionary<string, DepsContent>
                 {
-                    {"full-build", new DepsContent("$CURRENT_BRANCH", new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsContent(new[] {"$CURRENT_BRANCH"}, new List<Dep> {new Dep("B")})}
                 }, new[] {"new"});
                 env.Checkout("A", "new");
 
@@ -680,7 +680,7 @@ namespace Tests.CommandsTests
                 {
                     {"full-build", new DepsContent(null, new List<Dep>())}
                 }, new[] { "master", "branch1", "branch2" });
-                
+
                 env.Get("A");
                 Assert.IsTrue(Directory.Exists(Path.Combine(dir, "C")));
                 Assert.AreEqual("branch2", new GitRepository("C", dir, Log).CurrentLocalTreeish().Value);

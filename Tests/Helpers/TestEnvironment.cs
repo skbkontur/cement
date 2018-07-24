@@ -117,7 +117,7 @@ full-build:
   deps:{
                             (depsByConfig[config]
                                  .Force != null
-                                ? "\r\n    - force: " + depsByConfig[config].Force
+                                ? $"\r\n    - force: " + string.Join(",", depsByConfig[config].Force)
                                 : "")
                         }
 ", (current, dep) => current +
@@ -144,7 +144,7 @@ full-build:
                 {
                     content = depsByConfig[config].Force != null
                         ? @"[main]
-force = " + depsByConfig[config].Force + "\r\n"
+force = " + string.Join(",", depsByConfig[config].Force) + "\r\n"
                         : "";
                     foreach (var dep in depsByConfig[config].Deps)
                     {

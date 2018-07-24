@@ -73,7 +73,7 @@ namespace Commands
             writer.WriteLine("  deps:");
             if (deps.Force != null)
             {
-                deps.Force = deps.Force.Replace("%CURRENT_BRANCH%", "$CURRENT_BRANCH");
+                deps.Force = deps.Force.Select(x => x.Replace("%CURRENT_BRANCH%", "$CURRENT_BRANCH")).ToArray();
                 writer.WriteLine("    - force: " + deps.Force);
             }
             if (deps.Deps == null)
