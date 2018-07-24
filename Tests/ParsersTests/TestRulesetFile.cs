@@ -86,7 +86,7 @@ namespace Tests.ParsersTests
             var dummyPath = Path.Combine(workDirectory.Path, $"{Guid.NewGuid()}.ruleset");
             var rulesetFile = new RulesetFile(dummyPath);
 
-            var expectedRelRulesetPath = $"../dummyFolder/{Guid.NewGuid()}.ruleset";
+            var expectedRelRulesetPath = $"..\\dummyFolder\\{Guid.NewGuid()}.ruleset";
             var absoluteRulesetPath = Path.GetFullPath(Path.Combine(workDirectory.Path, expectedRelRulesetPath));
             rulesetFile.Include(absoluteRulesetPath);
 

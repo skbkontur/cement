@@ -259,7 +259,7 @@ namespace Tests.ParsersTests
             projectFile.AddAnalyzer(analyzerDllFullPath);
 
             Assert.AreEqual(0, SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'Another.dll']").Count);
-            Assert.AreEqual(1, SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'dummyDir/Another.dll']").Count);
+            Assert.AreEqual(1, SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'dummyDir\\Another.dll']").Count);
         }
 
 
