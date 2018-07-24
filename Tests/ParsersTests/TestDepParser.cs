@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Common;
 using NUnit.Framework;
 using Tests.Helpers;
@@ -19,7 +20,7 @@ default:
         - B
 client:";
             var depsContent = YamlFromText.DepsParser(text).Get("client");
-            Assert.AreEqual("master", depsContent.Force);
+            Assert.AreEqual("master", depsContent.Force.Single());
             Assert.AreEqual(2, depsContent.Deps.Count);
             Assert.AreEqual("A", depsContent.Deps[0].Name);
             Assert.AreEqual("B", depsContent.Deps[1].Name);
@@ -36,7 +37,7 @@ default:
         - B
 client:";
             var depsContent = YamlFromText.DepsParser(text).Get("client");
-            Assert.AreEqual("master", depsContent.Force);
+            Assert.AreEqual("master", depsContent.Force.Single());
             Assert.AreEqual(2, depsContent.Deps.Count);
             Assert.AreEqual("A", depsContent.Deps[0].Name);
             Assert.AreEqual("B", depsContent.Deps[1].Name);
@@ -55,7 +56,7 @@ client:
     deps:
         - C";
             var depsContent = YamlFromText.DepsParser(text).Get("client");
-            Assert.AreEqual("master", depsContent.Force);
+            Assert.AreEqual("master", depsContent.Force.Single());
             Assert.AreEqual(3, depsContent.Deps.Count);
             Assert.AreEqual("A", depsContent.Deps[0].Name);
             Assert.AreEqual("B", depsContent.Deps[1].Name);
@@ -75,7 +76,7 @@ client:
     deps:
         - C";
             var depsContent = YamlFromText.DepsParser(text).Get("sdk");
-            Assert.AreEqual("master", depsContent.Force);
+            Assert.AreEqual("master", depsContent.Force.Single());
             Assert.AreEqual(3, depsContent.Deps.Count);
             Assert.AreEqual("C", depsContent.Deps[0].Name);
             Assert.AreEqual("A", depsContent.Deps[1].Name);
@@ -220,7 +221,7 @@ default:
 full-build:
     deps:";
             var dc = YamlFromText.DepsParser(text).Get();
-            Assert.AreEqual("a -> b\nc -> b\n$CURRENT_BRANCH\n", dc.Force);
+            Assert.AreEqual("a -> b\nc -> b\n$CURRENT_BRANCH\n", dc.Force.Single());
         }
 
         [Test]
@@ -260,7 +261,7 @@ client:
     - B/full-build
 ";
             var dc = YamlFromText.DepsParser(text).Get("client");
-            Assert.AreEqual("master", dc.Force);
+            Assert.AreEqual("master", dc.Force.Single());
             Assert.AreEqual(2, dc.Deps.Count);
             Assert.AreEqual(new Dep("A", "branch", "sdk"), dc.Deps[0]);
             Assert.IsTrue(dc.Deps[0].NeedSrc);
@@ -280,7 +281,7 @@ client:
     - B/full-build
 ";
             var dc = YamlFromText.DepsParser(text).Get("client");
-            Assert.AreEqual("master", dc.Force);
+            Assert.AreEqual("master", dc.Force.Single());
             Assert.AreEqual(2, dc.Deps.Count);
             Assert.AreEqual(new Dep("A", "branch", "sdk"), dc.Deps[0]);
             Assert.IsFalse(dc.Deps[0].NeedSrc);
