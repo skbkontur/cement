@@ -63,7 +63,7 @@ namespace Tests.CommandsTests
 
             var readedDeps = new DepsIniParser(new FileInfo(depsFileName)).Get();
             CollectionAssert.AreEquivalent(readedDeps.Deps, deps);
-            Assert.AreEqual(force, readedDeps.Force.Single());
+            Assert.AreEqual(force, readedDeps.Force?.Single());
         }
 
         private static void WriteDeps(List<Dep> deps, string force, string depsFileName)
