@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -30,7 +30,7 @@ namespace Common
             var result = 80;
             try
             {
-                result = Console.WindowWidth;
+                result = Math.Max(result, Console.WindowWidth);
             }
             catch
             {
@@ -123,7 +123,7 @@ namespace Common
             lock (Helper.LockObject)
             {
                 Console.ForegroundColor = color;
-                if (!Console.IsOutputRedirected)
+                if (!Console.IsErrorRedirected)
                     Console.Error.Write("\r{0,-" + $"{ConsoleWindowWidth - 1}" + "}\r", "");
                 Console.Error.WriteLine(text);
                 if (emptyLineAfter)
