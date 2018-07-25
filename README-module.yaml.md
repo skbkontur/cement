@@ -34,7 +34,12 @@ Example:
         - topology
         # to prefer current branch in deps
         - force: $CURRENT_BRANCH
-        # or use <moduleName>@$CURRENT_BRANCH to prefer current branch in some module
+        # or use <moduleName>@$CURRENT_BRANCH to prefer current branch in some module;
+        # you can also choose any specific branch name in deps:
+        # - force: mybestbranch
+        # or provide a comma-separated list of preferred branches:
+        # - force: mybestbranch,notsogoodbranch,leastfavoritebranch
+        # master branch is always the default option if all forced branches are missing
 
       # information on build of the present module in the present configuration
       build:
