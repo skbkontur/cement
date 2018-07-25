@@ -123,6 +123,42 @@ namespace Tests.CommandsTests
         }
 
         [Test]
+        public void TestGetDepsOneDepWithMultipleForce()
+        {
+            using (var env = new TestEnvironment())
+            {
+                var dir = env.WorkingDirectory.Path;
+
+                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                {
+                    {"full-build", new DepsContent(new[] {"priority", "new"}, new List<Dep> {new Dep("B")})}
+                });
+                env.CreateRepo("B", null, new[] {"new", "priority"});
+                env.Get("A");
+                Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
+                Assert.AreEqual("priority", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            }
+        }
+
+        [Test]
+        public void TestGetDepsOneDepWithMultipleForceOneBranchMissing()
+        {
+            using (var env = new TestEnvironment())
+            {
+                var dir = env.WorkingDirectory.Path;
+
+                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                {
+                    {"full-build", new DepsContent(new[] {"missing", "priority", "new"}, new List<Dep> {new Dep("B")})}
+                });
+                env.CreateRepo("B", null, new[] {"new", "priority"});
+                env.Get("A");
+                Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
+                Assert.AreEqual("priority", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            }
+        }
+
+        [Test]
         public void TestGetDepsOneDepWithResetThrowsDueToPolicy()
         {
             using (var env = new TestEnvironment())

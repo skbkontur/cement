@@ -27,6 +27,23 @@ client:";
         }
 
         [Test]
+        public void TestGetDepsMultipleForce()
+        {
+            var text = @"
+default:
+    deps:
+        - force: priority,master
+        - A
+        - B
+client:";
+            var depsContent = YamlFromText.DepsParser(text).Get("client");
+            CollectionAssert.AreEqual(new[] {"priority", "master"}, depsContent.Force.ToArray());
+            Assert.AreEqual(2, depsContent.Deps.Count);
+            Assert.AreEqual("A", depsContent.Deps[0].Name);
+            Assert.AreEqual("B", depsContent.Deps[1].Name);
+        }
+
+        [Test]
         public void TestForceNotFirstLine()
         {
             var text = @"
