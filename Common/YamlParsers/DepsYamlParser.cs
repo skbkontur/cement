@@ -155,14 +155,14 @@ sdk:
                 return new DepsContent(null, new List<Dep>());
 
             var deps = new List<Dep>();
-            string force = null;
+            string[] force = null;
             foreach (var depSection in (List<object>) configSection["deps"])
             {
                 if (depSection is Dictionary<object, object>)
                 {
                     var dict = depSection as Dictionary<object, object>;
                     if (dict.Keys.Count == 1 && (string) dict.Keys.First() == "force")
-                        force = (string) dict.Values.First();
+                        force = ((string) dict.Values.First()).Split(',');
                     else
                         deps.Add(GetDepFromDictFormat(dict));
                 }

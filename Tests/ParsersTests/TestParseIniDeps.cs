@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System.Linq;
+using Common;
 using NUnit.Framework;
 
 namespace Tests.ParsersTests
@@ -32,7 +33,7 @@ config = sdk
 A -> B
 C -> B
 $CURRENT_BRANCH";
-            Assert.AreEqual(expectedForce, depsContent.Force);
+            Assert.AreEqual(expectedForce, depsContent.Force.Single());
             Assert.AreEqual(4, deps.Count);
             Assert.AreEqual("A", deps[0].Name);
             Assert.AreEqual("develop", deps[0].Treeish);

@@ -44,7 +44,7 @@ namespace Common
             rootRepoTreeish = rootRepo.CurrentLocalTreeish().Value;
 
             var depsContent = new DepsParser(rootRepo.RepoPath).Get(rootModule.Configuration);
-            depsContent.Force = Helper.DefineForce(depsContent.Force, rootRepo);
+            depsContent.Force = depsContent.Force?.Select(f => Helper.DefineForce(f, rootRepo)).ToArray();
             Log.Info("OK");
 
             var queue = new DepsQueue();
@@ -74,7 +74,7 @@ namespace Common
             }
         }
 
-        private void GetDeps(string force, DepsQueue queue, ModulesContainer processed)
+        private void GetDeps(string[] force, DepsQueue queue, ModulesContainer processed)
         {
             while (!queue.IsEmpty())
             {
@@ -95,7 +95,7 @@ namespace Common
                 ConsoleWriter.WriteWarning($"Branch '{mergedBranch}' was not merged into some of dependencies");
         }
 
-        private void ProcessDeps(string force, List<DepWithParent> depsPool)
+        private void ProcessDeps(string[] force, List<DepWithParent> depsPool)
         {
             if (depsPool.Any())
                 Log.Info("Parallel update-deps iteration: " + depsPool.Select(d => d.Dep.ToString() + "(" + d.ParentModule + ")").Aggregate((a, b) => a + " " + b));
@@ -153,12 +153,12 @@ namespace Common
             return deps;
         }
 
-        private void GetModule(Dep dep, string force)
+        private void GetModule(Dep dep, string[] force)
         {
             Log.Info($"{"[" + dep.Name + "]",-30}Update '{dep.Treeish ?? "master"}'");
             if (dep.Treeish == "$CURRENT_BRANCH")
             {
-                force = Helper.DefineForce(dep.Treeish, rootRepoTreeish);
+                force = new[] {Helper.DefineForce(dep.Treeish, rootRepoTreeish)};
                 dep.Treeish = null;
             }
             ConsoleWriter.WriteProgress(dep.Name + "   " + dep.Treeish);
@@ -170,7 +170,7 @@ namespace Common
             GetFullModule(dep, force);
         }
 
-        private void GetFullModule(Dep dep, string force)
+        private void GetFullModule(Dep dep, string[] force)
         {
             var getInfo = new GetInfo();
             var module = modules.FirstOrDefault(m => m.Name.Equals(dep.Name));
@@ -194,7 +194,7 @@ namespace Common
                 getInfo.CommitInfo = repo.GetCommitInfo();
             if (HooksHelper.InstallHooks(dep.Name))
                 getInfo.HookUpdated = true;
-            PrintProcessedModuleInfo(dep, getInfo, getInfo.Forced ? force : dep.Treeish);
+            PrintProcessedModuleInfo(dep, getInfo, getInfo.Forced ? getInfo.ForcedBranch : dep.Treeish);
             WarnIfNotMerged(repo);
         }
 
@@ -287,16 +287,16 @@ namespace Common
             }
         }
 
-        private void GetTreeish(GitRepository repo, Dep dep, string force, string treeish, GetInfo getInfo)
+        private void GetTreeish(GitRepository repo, Dep dep, string[] force, string treeish, GetInfo getInfo)
         {
             treeish = treeish ?? "master";
             Log.Info($"{"[" + dep.Name + "]",-30}Getting treeish '{treeish}'");
 
             var hasRemoteBranch = repo.HasRemoteBranch(treeish);
-            getInfo.Forced = HaveToForce(dep, force, repo);
+            getInfo.ForcedBranch = HaveToForce(dep, force, repo);
             if (getInfo.Forced)
             {
-                treeish = force;
+                treeish = getInfo.ForcedBranch;
                 Log.Info($"{"[" + dep.Name + "]",-30}treeish '{treeish}' was forced");
             }
 
@@ -390,15 +390,22 @@ namespace Common
             }
         }
 
-        private bool HaveToForce(Dep dep, string force, GitRepository repo)
+        private string HaveToForce(Dep dep, string[] force, GitRepository repo)
         {
-            if (!localBranchForce && repo.HasLocalBranch(force) && !repo.HasRemoteBranch(force))
-            {
-                ConsoleWriter.WriteWarning(
-                    $"Module '{repo.ModuleName}' has local-only branch '{force}' which will not be forced.\nUse --allow-local-branch-force key to force it");
-                return false;
-            }
-            return dep.Treeish == null && force != null && repo.HasRemoteBranch(force);
+            if (force != null)
+                foreach (var f in force)
+                {
+                    if (!localBranchForce && repo.HasLocalBranch(f) && !repo.HasRemoteBranch(f))
+                    {
+                        ConsoleWriter.WriteWarning(
+                            $"Module '{repo.ModuleName}' has local-only branch '{force}' which will not be forced.\nUse --allow-local-branch-force key to force it");
+                        continue;
+                    }
+
+                    if (dep.Treeish == null && repo.HasRemoteBranch(f))
+                        return f;
+                }
+            return null;
         }
 
         private LocalChangesAction DefineLocalChangesPolicy(GitRepository repo, string localSha, string remoteSha)
@@ -472,7 +479,8 @@ namespace Common
     public class GetInfo
     {
         public bool Cloned;
-        public bool Forced;
+        public bool Forced => ForcedBranch != null;
+        public string ForcedBranch;
         public bool Changed;
         public bool ForcedLocal;
         public bool Pulled;
@@ -483,7 +491,7 @@ namespace Common
         public GetInfo()
         {
             Cloned = false;
-            Forced = false;
+            ForcedBranch = null;
             Changed = false;
             ForcedLocal = false;
             Pulled = false;

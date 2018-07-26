@@ -54,10 +54,10 @@ namespace Common
             return deps;
         }
 
-        private string GetForceFromIni(IniData parsed)
+        private string[] GetForceFromIni(IniData parsed)
         {
             var force = parsed.GetValue("force", "main");
-            return force == "" ? null : force;
+            return force == "" ? null : force.Split(',');
         }
     }
 }

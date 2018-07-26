@@ -168,7 +168,7 @@ namespace Tests.ParsersTests
             Assert.IsTrue(proj.ContainsRef("log4net", out refXml));
             Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
         }
-        
+
         [Test]
         public void Costructor_GetXmlFromFile_IfFileExist()
         {
@@ -280,7 +280,7 @@ namespace Tests.ParsersTests
     <RepositoryUrl>https://github.com/vostok-project/clusterclient</RepositoryUrl>
     <PackageTags>vostok clusterclient</PackageTags>
   </PropertyGroup>
-            
+
   <ItemGroup>
     <Reference Include = ""Vostok.Core"" >
         <HintPath>..\..\vostok.core\Vostok.Core\bin\Release\netstandard2.0\Vostok.Core.dll </HintPath>
@@ -288,7 +288,7 @@ namespace Tests.ParsersTests
   </ItemGroup>
 </Project>
             ";
-            
+
             var proj = CreateProjectFile(content);
             var xmlDocument = proj.CreateCsProjWithNugetReferences(new List<Dep> { new Dep("vostok.core") }, true);
 
