@@ -398,7 +398,7 @@ namespace Common
                     if (!localBranchForce && repo.HasLocalBranch(f) && !repo.HasRemoteBranch(f))
                     {
                         ConsoleWriter.WriteWarning(
-                            $"Module '{repo.ModuleName}' has local-only branch '{force}' which will not be forced.\nUse --allow-local-branch-force key to force it");
+                            $"Module '{repo.ModuleName}' has local-only branch '{f}' which will not be forced.\nUse --allow-local-branch-force key to force it");
                         continue;
                     }
 
