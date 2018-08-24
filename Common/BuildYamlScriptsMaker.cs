@@ -49,7 +49,9 @@ namespace Common
         private static string BuildMsbuildScript(BuildData buildSection, string moduleName)
         {
             var tool = FindTool(buildSection.Tool, moduleName);
-            var parameters = (buildSection.Parameters.Count == 0 ? GetDefaultMsbuildParameters(buildSection.Tool) : buildSection.Parameters).ToList();
+            var parameters = (buildSection.Parameters.Count == 0
+                ? GetDefaultMsbuildParameters(buildSection.Tool)
+                : buildSection.Parameters.Select(EscapeSemicolon)).ToList();
             parameters.Add("/p:Configuration=" + buildSection.Configuration);
             parameters.Add(buildSection.Target);
 
@@ -102,6 +104,13 @@ namespace Common
                 return DefaultDotnetParameters.ToList();
 
             return (Helper.OsIsUnix() ? DefaultXbuildParameters : DefaultMsbuildParameters).ToList();
+        }
+
+        private static string EscapeSemicolon(string cmdPart)
+        {
+            if (!Helper.OsIsUnix())
+                return cmdPart;
+            return cmdPart.Replace(";", "\\;");
         }
     }
 }
