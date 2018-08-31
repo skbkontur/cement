@@ -99,8 +99,9 @@ cmd /C exit %exit_code% > nul";
 
             var bashTextUnix = @"#!/bin/bash
 path=""`dirname \""$0\""`/dotnet/cm.exe""
-args=$@
-mono $path $args
+cmd=""mono $path""
+for word in ""$@""; do cmd=""$cmd \""$word\""""; done
+eval $cmd
 exit_code=$?
 if [ -f ~/bin/dotnet/cm_new.exe ];
 then
