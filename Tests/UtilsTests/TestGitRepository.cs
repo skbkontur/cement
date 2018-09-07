@@ -494,7 +494,8 @@ namespace Tests.UtilsTests
                 env.ChangeUrl("A", "B");
                 var repo = new GitRepository("A", env.WorkingDirectory.Path, Log);
                 repo.TryUpdateUrl(env.GetModules().First(d => d.Name.Equals("A")));
-                Assert.AreEqual(Path.Combine(env.RemoteWorkspace, "B"), repo.RemoteOriginUrl());
+                repo.RemoteOriginUrls(out var fetchUrl, out _);
+                Assert.AreEqual(Path.Combine(env.RemoteWorkspace, "B"), fetchUrl);
             }
         }
     }

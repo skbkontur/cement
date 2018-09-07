@@ -279,6 +279,17 @@ namespace Common
             }
         }
 
+        public void SetPushUrl(string url)
+        {
+            log.Info($"{"[" + ModuleName + "]",-30}Set push url");
+            var exitCode = runner.RunInDirectory(RepoPath, "git remote set-url origin --push " + url);
+
+            if (exitCode != 0)
+            {
+                throw new GitCheckoutException($"Failed to set push url origin to {ModuleName}. Error message:\n{runner.Errors}");
+            }
+        }
+
         public void DeleteUntrackedFiles()
         {
             log.Info($"{"[" + ModuleName + "]",-30}Deliting untaracked files");
@@ -391,7 +402,7 @@ namespace Common
                 .Any(l => l.EndsWith("/" + treeish));
         }
 
-        public string RemoteOriginUrl()
+        public void RemoteOriginUrls(out string fetchUrl, out string pushUrl)
         {
             log.Info($"{"[" + ModuleName + "]",-30}Remote origin URL");
             var exitCode = runner.RunInDirectory(RepoPath, "git remote -v");
@@ -406,7 +417,9 @@ namespace Common
                 .Select(line => line.Trim()).ToList();
 
             var linesWithFetch = lines.Where(l => l.StartsWith("origin") && l.EndsWith("(fetch)")).ToList();
-            return linesWithFetch.Any() ? linesWithFetch.First().Split().ElementAt(1) : "";
+            fetchUrl = linesWithFetch.Any() ? linesWithFetch.First().Split().ElementAt(1) : "";
+            var linesWithPush = lines.Where(l => l.StartsWith("origin") && l.EndsWith("(push)")).ToList();
+            pushUrl = linesWithPush.Any() ? linesWithPush.First().Split().ElementAt(1) : "";
         }
 
         public void TryUpdateUrl(Module module)
@@ -414,14 +427,23 @@ namespace Common
             if (module == null)
                 return;
 
-            var origin = RemoteOriginUrl();
+            var targetPushUrl = module.Pushurl ?? module.Url;
 
-            if (!origin.Equals(module.Url))
+            RemoteOriginUrls(out var fetchUrl, out var pushUrl);
+
+            if (fetchUrl.Equals(module.Url) && pushUrl.Equals(targetPushUrl))
+                return;
+
+            log.Info($"{"[" + ModuleName + "]",-30}Updating URL");
+            ConsoleWriter.WriteInfo($"Update url for {RepoPath}: {fetchUrl} => {module.Url}");
+            RemoveOrigin();
+            AddOrigin(module.Url);
+
+            if (module.Pushurl != null)
             {
-                log.Info($"{"[" + ModuleName + "]",-30}Updating URL");
-                ConsoleWriter.WriteInfo($"Update url for {RepoPath}: {origin} => {module.Url}");
-                RemoveOrigin();
-                AddOrigin(module.Url);
+                log.Info($"{"[" + ModuleName + "]",-30}Updating push URL");
+                ConsoleWriter.WriteInfo($"Update push url for {RepoPath}: {pushUrl} => {module.Pushurl}");
+                SetPushUrl(module.Pushurl);
             }
         }
 
