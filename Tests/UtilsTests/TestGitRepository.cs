@@ -498,5 +498,35 @@ namespace Tests.UtilsTests
                 Assert.AreEqual(Path.Combine(env.RemoteWorkspace, "B"), fetchUrl);
             }
         }
+
+        [Test]
+        public void TestUpdatePushUrl()
+        {
+            using (var env = new TestEnvironment())
+            {
+                env.CreateRepo("A");
+                env.Get("A");
+                var repo = new GitRepository("A", env.WorkingDirectory.Path, Log);
+                var expectedPushUrl = "C";
+                var module = new Module("A", "A", expectedPushUrl);
+                repo.TryUpdateUrl(module);
+                repo.RemoteOriginUrls(out _, out var pushUrl);
+                Assert.AreEqual(expectedPushUrl, pushUrl);
+            }
+        }
+
+        [Test]
+        public void TestGetPushUrl()
+        {
+            using (var env = new TestEnvironment())
+            {
+                var expectedPushUrl = "C";
+                env.CreateRepo("A", pushUrl: expectedPushUrl);
+                env.Get("A");
+                var repo = new GitRepository("A", env.WorkingDirectory.Path, Log);
+                repo.RemoteOriginUrls(out _, out var pushUrl);
+                Assert.AreEqual(expectedPushUrl, pushUrl);
+            }
+        }
     }
 }

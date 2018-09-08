@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Common;
 using Common.YamlParsers;
 using log4net;
@@ -34,7 +35,7 @@ namespace Tests.Helpers
             Helper.SetWorkspace(WorkingDirectory.Path);
         }
 
-        public void CreateRepo(string moduleName, Dictionary<string, DepsContent> depsByConfig = null, IList<string> branches = null, DepsFormatStyle depsStyle = DepsFormatStyle.Yaml)
+        public void CreateRepo(string moduleName, Dictionary<string, DepsContent> depsByConfig = null, IList<string> branches = null, DepsFormatStyle depsStyle = DepsFormatStyle.Yaml, string pushUrl = null)
         {
             var modulePath = Path.Combine(RemoteWorkspace, moduleName);
             using (new DirectoryJumper(modulePath))
@@ -43,7 +44,7 @@ namespace Tests.Helpers
                 CreateDepsAndCommitThem(modulePath, depsByConfig, depsStyle);
                 CreateBranches(branches);
             }
-            AppendModule(moduleName, modulePath);
+            AppendModule(moduleName, modulePath, pushUrl);
         }
 
         public void Get(string module, string treeish = null, LocalChangesPolicy localChangesPolicy = LocalChangesPolicy.FailOnLocalChanges)
@@ -63,13 +64,17 @@ namespace Tests.Helpers
             return ModuleIniParser.Parse(File.ReadAllText(PackageFile));
         }
 
-        private void AppendModule(string moduleName, string modulePath)
+        private void AppendModule(string moduleName, string modulePath, string pushUrl)
         {
-            File.AppendAllText(Path.Combine(RemoteWorkspace, PackageFile),
-                $@"
-[module {moduleName}]
-url={modulePath}
-");
+            var sb = new StringBuilder()
+                .AppendLine($"[module {moduleName}]")
+                .AppendLine($"url={modulePath}");
+
+            if (pushUrl != null)
+                sb.AppendLine($"pushurl={pushUrl}");
+
+
+            File.AppendAllText(Path.Combine(RemoteWorkspace, PackageFile), sb.ToString());
         }
 
         private void CreateBranches(IList<string> branches)
