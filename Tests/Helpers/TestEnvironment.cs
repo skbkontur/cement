@@ -67,6 +67,7 @@ namespace Tests.Helpers
         private void AppendModule(string moduleName, string modulePath, string pushUrl)
         {
             var sb = new StringBuilder()
+                .AppendLine()
                 .AppendLine($"[module {moduleName}]")
                 .AppendLine($"url={modulePath}");
 
