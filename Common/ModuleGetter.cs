@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -202,6 +202,8 @@ namespace Common
         {
             repo.Init();
             repo.AddOrigin(module.Url);
+            if (module.Pushurl != null)
+                repo.SetPushUrl(module.Pushurl);
             repo.Fetch("");
             repo.ResetHard("master");
             repo.DeleteUntrackedFiles();
@@ -217,6 +219,9 @@ namespace Common
             {
                 repo.Clone(module.Url);
             }
+
+            if (module.Pushurl != null)
+                repo.SetPushUrl(module.Pushurl);
         }
 
         private void WarnIfNotMerged(GitRepository repo)
