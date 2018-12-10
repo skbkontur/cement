@@ -13,6 +13,9 @@ namespace Common
 
         public static string FindMsBuild(string version, string moduleName)
         {
+            if (Helper.OsIsUnix())
+                return FindMsBuildUnix(version, moduleName);
+
             var msBuilds = FindAviableMsBuilds();
 
             if (version != null)
@@ -21,6 +24,18 @@ namespace Common
             if (!msBuilds.Any())
                 throw new CementException($"Failed to find msbuild.exe {version ?? ""} for {moduleName}");
             return msBuilds.First().Value;
+        }
+
+        private static string FindMsBuildUnix(string version, string moduleName)
+        {
+            var monoRuntime = Type.GetType("Mono.Runtime");
+            if (monoRuntime == null)
+                throw new CementException($"Failed to find msbuild.exe {version ?? ""} for {moduleName}");
+            var monoRuntimePath = monoRuntime.Assembly.Location;
+            var monoRuntimeDir = Path.GetDirectoryName(monoRuntimePath);
+            if (monoRuntimeDir == null)
+                throw new CementException($"Failed to find msbuild.exe {version ?? ""} for {moduleName}");
+            return Path.Combine(monoRuntimeDir, "../msbuild/15.0/bin/");
         }
 
         private static List<KeyValuePair<string, string>> msBuildsCache;

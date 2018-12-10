@@ -147,11 +147,19 @@ namespace Commands
 
             foreach (var buildItem in installData.BuildFiles)
             {
-                var refName = Path.GetFileNameWithoutExtension(buildItem);
-                var hintPath = Helper.GetRelativePath(Path.Combine(Helper.CurrentWorkspace, buildItem),
+                var buildItemPath = Helper.OsIsUnix() ? Helper.WindowsPathSlashesToUnix(buildItem) : buildItem;
+                var refName = Path.GetFileNameWithoutExtension(buildItemPath);
+
+                var hintPath = Helper.GetRelativePath(Path.Combine(Helper.CurrentWorkspace, buildItemPath),
                     Directory.GetParent(projectPath).FullName);
+
+                if (Helper.OsIsUnix())
+                {
+                    hintPath = Helper.UnixPathSlashesToWindows(hintPath);
+                }
+
                 AddRef(csproj, refName, hintPath);
-                CheckExistBuildFile(Path.Combine(Helper.CurrentWorkspace, buildItem));
+                CheckExistBuildFile(Path.Combine(Helper.CurrentWorkspace, buildItemPath));
             }
 
             if (!testReplaces)
