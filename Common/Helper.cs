@@ -325,5 +325,15 @@ namespace Common
         {
             return text.Replace("\r\n", "\n");
         }
+
+        public static string UnixPathSlashesToWindows(string path)
+        {
+            return path.Replace('/', '\\');
+        }
+
+        public static string WindowsPathSlashesToUnix(string path)
+        {
+            return path.Replace('\\', '/');
+        }
     }
 }
