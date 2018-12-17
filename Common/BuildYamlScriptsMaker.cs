@@ -1,4 +1,4 @@
-﻿using Common.YamlParsers;
+using Common.YamlParsers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -72,7 +72,7 @@ namespace Common
 
         private static readonly string[] DefaultMsbuildParameters =
         {
-            @"/t:Rebuild",
+            @"/t:Rebuild;Restore",
             @"/nodeReuse:false",
             @"/maxcpucount",
             @"/v:m"
