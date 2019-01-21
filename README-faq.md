@@ -1,5 +1,10 @@
 # Frequently asked questions
 
+#### 0. I can't build or clone some module
+Cement just finds your local `git` and `msbuild`, and executes commands.
+
+Your can always run this comands in console, without cement.
+
 #### 1. How to use msbuild installed in custom location?
 Fill VS150COMNTOOLS variable with your custom location:
 
