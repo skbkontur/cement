@@ -10,4 +10,4 @@ Fill VS150COMNTOOLS variable with your custom location:
 
 `set VS150COMNTOOLS=D:\Program Files\Microsoft Visual Studio\2017\Professional\Common7\Tools\`
 
-Cement will run `VsDevCmd.bat` from this folder before search `msbuild.exe`.
+Cement will run `VsDevCmd.bat` from this folder before search `msbuild.exe` file.
