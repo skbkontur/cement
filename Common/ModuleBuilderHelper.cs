@@ -16,7 +16,7 @@ namespace Common
             if (Helper.OsIsUnix())
                 return FindMsBuildUnix(version, moduleName);
 
-            var msBuilds = FindAviableMsBuilds();
+            var msBuilds = FindAvilableMsBuilds();
 
             if (version != null)
                 msBuilds = msBuilds.Where(b => b.Key == version).ToList();
@@ -40,7 +40,7 @@ namespace Common
 
         private static List<KeyValuePair<string, string>> msBuildsCache;
 
-        private static List<KeyValuePair<string, string>> FindAviableMsBuilds()
+        private static List<KeyValuePair<string, string>> FindAvilableMsBuilds()
         {
             if (msBuildsCache != null)
                 return msBuildsCache;
