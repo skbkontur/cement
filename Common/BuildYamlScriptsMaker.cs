@@ -75,7 +75,8 @@ namespace Common
             @"/t:Rebuild",
             @"/nodeReuse:false",
             @"/maxcpucount",
-            @"/v:m"
+            @"/v:m",
+            @"/restore"
         };
 
         private static readonly string[] DefaultXbuildParameters =
