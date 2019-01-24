@@ -48,7 +48,7 @@ namespace Common
 
         private static string BuildMsbuildScript(BuildData buildSection, string moduleName)
         {
-            var tool = FindTool(buildSection.Tool, moduleName, out var toolVersion);
+            var tool = FindTool(buildSection.Tool, moduleName);
             var parameters = (buildSection.Parameters.Count == 0
                 ? GetDefaultMsbuildParameters(buildSection.Tool)
                 : buildSection.Parameters.Select(EscapeSemicolon)).ToList();
@@ -65,9 +65,8 @@ namespace Common
             return toolPath + " " + string.Join(" ", parameters);
         }
 
-        private static MsBuildLikeTool FindTool(Tool buildTool, string moduleName, out string toolVersion)
+        private static MsBuildLikeTool FindTool(Tool buildTool, string moduleName)
         {
-            toolVersion = null;
             if (buildTool.Name != "msbuild")
                 return new MsBuildLikeTool(buildTool.Name);
             if (Helper.OsIsUnix())
