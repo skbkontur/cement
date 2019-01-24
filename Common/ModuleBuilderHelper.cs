@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,10 +11,10 @@ namespace Common
     {
         private static readonly ILog Log = LogManager.GetLogger("moduleBuilderHelper");
 
-        public static string FindMsBuild(string version, string moduleName)
+        public static MsBuildLikeTool FindMsBuild(string version, string moduleName)
         {
             if (Helper.OsIsUnix())
-                return FindMsBuildUnix(version, moduleName);
+                return new MsBuildLikeTool(FindMsBuildUnix(version, moduleName));
 
             var msBuilds = FindAvilableMsBuilds();
 
@@ -23,7 +23,12 @@ namespace Common
 
             if (!msBuilds.Any())
                 throw new CementException($"Failed to find msbuild.exe {version ?? ""} for {moduleName}");
-            return msBuilds.First().Value;
+
+            var msbuild = msBuilds.First();
+            return new MsBuildLikeTool(
+                msbuild.Value,
+                msbuild.Key,
+                true);
         }
 
         private static string FindMsBuildUnix(string version, string moduleName)

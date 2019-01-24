@@ -1,4 +1,4 @@
-﻿using Common.YamlParsers;
+using Common.YamlParsers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -48,26 +48,34 @@ namespace Common
 
         private static string BuildMsbuildScript(BuildData buildSection, string moduleName)
         {
-            var tool = FindTool(buildSection.Tool, moduleName);
+            var tool = FindTool(buildSection.Tool, moduleName, out var toolVersion);
             var parameters = (buildSection.Parameters.Count == 0
                 ? GetDefaultMsbuildParameters(buildSection.Tool)
                 : buildSection.Parameters.Select(EscapeSemicolon)).ToList();
             parameters.Add("/p:Configuration=" + buildSection.Configuration);
             parameters.Add(buildSection.Target);
 
+            if (tool.IsWindowsMsBuild && tool.Version.Major >= 15)
+                parameters.Add("/restore");
+
+            var toolPath = tool.Path;
+
             if (!Helper.OsIsUnix())
-                tool = "\"" + tool + "\"";
-            return tool + " " + string.Join(" ", parameters);
+                toolPath = "\"" + tool.Path + "\"";
+            return toolPath + " " + string.Join(" ", parameters);
         }
 
-        private static string FindTool(Tool buildTool, string moduleName)
+        private static MsBuildLikeTool FindTool(Tool buildTool, string moduleName, out string toolVersion)
         {
+            toolVersion = null;
             if (buildTool.Name != "msbuild")
-                return buildTool.Name;
+                return new MsBuildLikeTool(buildTool.Name);
             if (Helper.OsIsUnix())
-                return "msbuild";
+                return new MsBuildLikeTool("msbuild");
 
-            return ModuleBuilderHelper.FindMsBuild(buildTool.Version, moduleName);
+            var tool = ModuleBuilderHelper.FindMsBuild(buildTool.Version, moduleName);
+
+            return tool;
         }
 
         private static readonly string[] DefaultMsbuildParameters =
@@ -76,7 +84,6 @@ namespace Common
             @"/nodeReuse:false",
             @"/maxcpucount",
             @"/v:m",
-            @"/restore"
         };
 
         private static readonly string[] DefaultXbuildParameters =

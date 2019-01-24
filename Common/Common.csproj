@@ -80,6 +80,7 @@
     <Compile Include="Branch.cs" />
     <Compile Include="BuildPreparer.cs" />
     <Compile Include="BuildSettings.cs" />
+    <Compile Include="BuildTool.cs" />
     <Compile Include="BuildYamlScriptsMaker.cs" />
     <Compile Include="BuiltHelper.cs" />
     <Compile Include="BuiltInfoStorage.cs" />
