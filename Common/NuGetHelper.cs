@@ -11,7 +11,7 @@ namespace Common
         public static string GetNugetPackageVersion(string packageName, string nugetRunCommand, bool preRelease)
         {
             var shellRunner = new ShellRunner();
-            ConsoleWriter.WriteProgressWithoutSave("Get package verion for " + packageName);
+            ConsoleWriter.WriteProgressWithoutSave("Get package version for " + packageName);
 
             shellRunner.Run($"{nugetRunCommand} list {packageName} -NonInteractive" + (preRelease ? " -PreRelease" : ""));
             foreach (var line in shellRunner.Output.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))

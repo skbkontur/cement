@@ -104,6 +104,7 @@
     <Compile Include="Models.cs" />
     <Compile Include="BuildData.cs" />
     <Compile Include="ModuleBuilderHelper.cs" />
+    <Compile Include="MsBuildLikeTool.cs" />
     <Compile Include="NuGetHelper.cs" />
     <Compile Include="NuGetPackageHepler.cs" />
     <Compile Include="RulesetFile.cs" />

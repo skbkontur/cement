@@ -56,7 +56,7 @@ namespace Common
                 var projectFilePath = projectFile.FilePath;
 
                 var msbuildDirectory =
-                    Path.GetDirectoryName(ModuleBuilderHelper.FindMsBuild(null, "Cement NuGet Package Installer"));
+                    Path.GetDirectoryName(ModuleBuilderHelper.FindMsBuild(null, "Cement NuGet Package Installer").Path);
                 projectContext = new ConsoleProjectContext(logger);
                 projectSystem = new MSBuildProjectSystem(
                     msbuildDirectory,

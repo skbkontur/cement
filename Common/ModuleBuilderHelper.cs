@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,19 +11,24 @@ namespace Common
     {
         private static readonly ILog Log = LogManager.GetLogger("moduleBuilderHelper");
 
-        public static string FindMsBuild(string version, string moduleName)
+        public static MsBuildLikeTool FindMsBuild(string version, string moduleName)
         {
             if (Helper.OsIsUnix())
-                return FindMsBuildUnix(version, moduleName);
+                return new MsBuildLikeTool(FindMsBuildUnix(version, moduleName));
 
-            var msBuilds = FindAviableMsBuilds();
+            var msBuilds = FindAvilableMsBuilds();
 
             if (version != null)
                 msBuilds = msBuilds.Where(b => b.Key == version).ToList();
 
             if (!msBuilds.Any())
                 throw new CementException($"Failed to find msbuild.exe {version ?? ""} for {moduleName}");
-            return msBuilds.First().Value;
+
+            var msbuild = msBuilds.First();
+            return new MsBuildLikeTool(
+                msbuild.Value,
+                msbuild.Key,
+                true);
         }
 
         private static string FindMsBuildUnix(string version, string moduleName)
@@ -40,7 +45,7 @@ namespace Common
 
         private static List<KeyValuePair<string, string>> msBuildsCache;
 
-        private static List<KeyValuePair<string, string>> FindAviableMsBuilds()
+        private static List<KeyValuePair<string, string>> FindAvilableMsBuilds()
         {
             if (msBuildsCache != null)
                 return msBuildsCache;
