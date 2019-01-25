@@ -80,7 +80,6 @@
     <Compile Include="Branch.cs" />
     <Compile Include="BuildPreparer.cs" />
     <Compile Include="BuildSettings.cs" />
-    <Compile Include="BuildTool.cs" />
     <Compile Include="BuildYamlScriptsMaker.cs" />
     <Compile Include="BuiltHelper.cs" />
     <Compile Include="BuiltInfoStorage.cs" />
@@ -105,6 +104,7 @@
     <Compile Include="Models.cs" />
     <Compile Include="BuildData.cs" />
     <Compile Include="ModuleBuilderHelper.cs" />
+    <Compile Include="MsBuildLikeTool.cs" />
     <Compile Include="NuGetHelper.cs" />
     <Compile Include="NuGetPackageHepler.cs" />
     <Compile Include="RulesetFile.cs" />
