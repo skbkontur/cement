@@ -1,3 +1,4 @@
+using System;
 using Common.YamlParsers;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +56,9 @@ namespace Common
             parameters.Add("/p:Configuration=" + buildSection.Configuration);
             parameters.Add(buildSection.Target);
 
-            if (tool.IsWindowsMsBuild && tool.Version.Major >= 15)
+            var minMsBuildVersionWithRestoreTarget = new Version(15, 5, 180);
+
+            if (tool.IsWindowsMsBuild && tool.Version >= minMsBuildVersionWithRestoreTarget)
                 parameters.Add("/restore");
 
             var toolPath = tool.Path;
