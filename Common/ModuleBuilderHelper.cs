@@ -27,7 +27,7 @@ namespace Common
             var msbuild = msBuilds.First();
             return new MsBuildLikeTool(
                 msbuild.Value,
-                msbuild.Key,
+                FileVersionInfo.GetVersionInfo(msbuild.Value).FileVersion,
                 true);
         }
 
