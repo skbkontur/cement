@@ -158,7 +158,7 @@ namespace Common
                 var depInstall = new InstallCollector(Path.Combine(workspace, dep.Name)).Get(dep.Configuration);
                 if (!depInstall.Artifacts.Any())
                 {
-                    if (!Yaml.Exists(dep.Name) || !IsContentModuel(dep))
+                    if (!Yaml.Exists(dep.Name) || !IsContentModule(dep))
                         notFoundInstall.Add(dep.Name);
                 }
                 else
@@ -176,7 +176,7 @@ namespace Common
             return new DepsReferenceSearchModel(resultInstallData, notFoundInstall);
         }
 
-        private static bool IsContentModuel(Dep dep)
+        private static bool IsContentModule(Dep dep)
         {
             return Yaml.SettingsParser(dep.Name).Get().IsContentModule || Yaml.BuildParser(dep.Name).Get(dep.Configuration)
                 .All(t => t.Target == "None");
