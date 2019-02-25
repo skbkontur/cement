@@ -130,6 +130,9 @@ namespace Common
 
         public static void KillMsBuild(ILog log)
         {
+            if (!CementSettings.Get().KillMsBuild)
+                return;
+
             try
             {
                 foreach (var process in Process.GetProcessesByName("MSBuild"))

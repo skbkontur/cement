@@ -16,6 +16,7 @@ namespace Common
         public string EncryptedPassword;
         public string DefaultMsBuildVersion;
         public string CementServer;
+        public bool KillMsBuild = true;
         public string SelfUpdateTreeish;
         public List<Package> Packages;
 
