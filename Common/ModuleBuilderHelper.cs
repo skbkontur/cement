@@ -16,7 +16,7 @@ namespace Common
             if (Helper.OsIsUnix())
                 return new MsBuildLikeTool(FindMsBuildUnix(version, moduleName));
 
-            var msBuilds = FindAvilableMsBuilds();
+            var msBuilds = FindAvailableMsBuilds();
 
             if (version != null)
                 msBuilds = msBuilds.Where(b => b.Key == version).ToList();
@@ -45,15 +45,15 @@ namespace Common
 
         private static List<KeyValuePair<string, string>> msBuildsCache;
 
-        private static List<KeyValuePair<string, string>> FindAvilableMsBuilds()
+        private static List<KeyValuePair<string, string>> FindAvailableMsBuilds()
         {
             if (msBuildsCache != null)
                 return msBuildsCache;
 
             var result = new List<KeyValuePair<string, string>>();
 
-            var ms1 = FindAviableMsBuildsInProgramFiles();
-            var ms2 = FindAviableMsBuildsInWindows();
+            var ms1 = FindAvailableMsBuildsInProgramFiles();
+            var ms2 = FindAvailableMsBuildsInWindows();
             result.AddRange(ms1);
             result.AddRange(ms2);
 
@@ -62,7 +62,7 @@ namespace Common
             return msBuildsCache = result;
         }
 
-        private static List<KeyValuePair<string, string>> FindAviableMsBuildsInProgramFiles()
+        private static List<KeyValuePair<string, string>> FindAvailableMsBuildsInProgramFiles()
         {
             var programFiles = Helper.ProgramFiles();
             if (programFiles == null)
@@ -74,35 +74,45 @@ namespace Common
             if (variables.ContainsKey("VSINSTALLDIR"))
                 folders.Add(variables["VSINSTALLDIR"]);
 
-            folders.AddRange(Helper.VisualStudioVersions().Select(
-                version => Path.Combine(programFiles, "Microsoft Visual Studio", "2017", version)));
+            foreach (var version in Helper.VisualStudioVersions)
+            foreach (var edition in Helper.VisualStudioEditions)
+            {
+                folders.Add(Path.Combine(programFiles, "Microsoft Visual Studio", version, edition));
+            }
 
-            return folders.SelectMany(FindAviableMsBuildsIn).Distinct().OrderByDescending(k => k.Key).ToList();
+            return folders.SelectMany(FindAvailableMsBuildsIn).Distinct().OrderByDescending(k => k.Key).ToList();
         }
 
-        private static List<KeyValuePair<string, string>> FindAviableMsBuildsIn(string folder)
+        private static List<KeyValuePair<string, string>> FindAvailableMsBuildsIn(string folder)
         {
             var result = new List<KeyValuePair<string, string>>();
             folder = Path.Combine(folder, "MSBuild");
             if (!Directory.Exists(folder))
                 return result;
+
             var subDirs = new DirectoryInfo(folder).GetDirectories().OrderByDescending(x => x.Name);
             foreach (var subDir in subDirs)
             {
                 var currentVersion = subDir.Name;
-                if (!Helper.IsVisualStudioVersion(currentVersion))
+                if (!Helper.IsVisualStudioVersion(currentVersion) && currentVersion != "Current")
                     continue;
+
                 var bin = Path.Combine(subDir.FullName, "Bin");
                 if (!Directory.Exists(bin))
                     continue;
-                var matches = new DirectoryInfo(bin).GetFiles("msbuild.exe").ToList();
-                if (matches.Any())
-                    result.Add(new KeyValuePair<string, string>(currentVersion, matches.Last().FullName));
+
+                var match = new DirectoryInfo(bin).GetFiles("msbuild.exe")
+                    .Select(m => new {fullPath = m.FullName, version = Helper.GetMsBuildVersion(m.FullName) })
+                    .LastOrDefault(v => !string.IsNullOrEmpty(v.version));
+                if (match != null)
+                {
+                    result.Add(new KeyValuePair<string, string>(match.version, match.fullPath));
+                }
             }
             return result;
         }
 
-        private static List<KeyValuePair<string, string>> FindAviableMsBuildsInWindows()
+        private static List<KeyValuePair<string, string>> FindAvailableMsBuildsInWindows()
         {
             var winDir = Environment.GetEnvironmentVariable("WINDIR");
             if (winDir == null)
@@ -115,7 +125,11 @@ namespace Common
             frameworkDirectory = Path.Combine(winDir, "Microsoft.NET", "Framework64");
             msbuilds.AddRange(SearchMsBuild(frameworkDirectory));
 
-            return msbuilds.Select(path => new KeyValuePair<string, string>(Directory.GetParent(path.FullName).Name, path.FullName)).Reverse().ToList();
+            return msbuilds.Select(path => new {path = path.FullName, version = Helper.GetMsBuildVersion(path.FullName)})
+                .Where(i => !string.IsNullOrEmpty(i.version))
+                .Select(i => new KeyValuePair<string, string>(i.version, i.path))
+                .Reverse()
+                .ToList();
         }
 
         private static List<FileInfo> SearchMsBuild(string frameworkDirectory)

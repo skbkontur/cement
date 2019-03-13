@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -21,6 +22,7 @@ namespace Common
         public static string CurrentWorkspace { get; private set; }
         public static readonly object LockObject = new object();
         public static readonly object PackageLockObject = new object();
+        private static readonly ILog Log = LogManager.GetLogger("commonHelper");
 
         public static void SetWorkspace(string workspace)
         {
@@ -287,16 +289,21 @@ namespace Common
             return programFiles;
         }
 
-        public static List<string> VisualStudioVersions()
-        {
-            return new List<string>
+        public static IReadOnlyList<string> VisualStudioEditions { get; } =
+            new List<string>
             {
                 "Community",
                 "Professional",
                 "Enterprise",
-                "BuildTools"
-            };
-        }
+                "BuildTools",
+            }.AsReadOnly();
+
+        public static IReadOnlyList<string> VisualStudioVersions { get; } =
+            new List<string>
+            {
+                "2017",
+                "2019",
+            }.AsReadOnly();
 
         public static bool IsVisualStudioVersion(string version)
         {
@@ -334,6 +341,46 @@ namespace Common
         public static string WindowsPathSlashesToUnix(string path)
         {
             return path.Replace('\\', '/');
+        }
+
+        public static string GetMsBuildVersion(string fullPathToMsBuild)
+        {
+            if (!File.Exists(fullPathToMsBuild))
+                return null;
+
+            try
+            {
+                using (var proc = new Process
+                {
+                    StartInfo = new ProcessStartInfo(fullPathToMsBuild, "-version")
+                    {
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        StandardOutputEncoding = Encoding.UTF8,
+                    },
+                })
+                {
+                    proc.Start();
+                    var stdout = proc.StandardOutput.ReadToEnd();
+                    proc.WaitForExit();
+                    if (!string.IsNullOrEmpty(stdout))
+                    {
+                        var versionMatches = Regex.Matches(stdout, @"^(?<version>\d+(\.\d+)+)", RegexOptions.ExplicitCapture | RegexOptions.Multiline);
+                        if (versionMatches.Count > 0)
+                        {
+                            var version = versionMatches[versionMatches.Count - 1].Groups["version"].Value;
+                            if (!string.IsNullOrEmpty(version))
+                                return version;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Warn("Failed to get MSBuild version from " + fullPathToMsBuild, e);
+            }
+            return null;
         }
     }
 }
