@@ -18,8 +18,8 @@ namespace Common
 
             var msBuilds = FindAvailableMsBuilds();
 
-            if (version != null)
-                msBuilds = msBuilds.Where(b => b.Key == version).ToList();
+            if (version != null && Version.TryParse(version, out var minVersion))
+                msBuilds = msBuilds.Where(b => Version.TryParse(b.Key, out var msBuildVersion) && msBuildVersion >= minVersion).ToList();
 
             if (!msBuilds.Any())
                 throw new CementException($"Failed to find msbuild.exe {version ?? ""} for {moduleName}");
