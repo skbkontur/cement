@@ -350,31 +350,20 @@ namespace Common
 
             try
             {
-                using (var proc = new Process
+                var shellRunner = new ShellRunner();
+                var exitCode = shellRunner.RunOnce(Path.GetFileName(fullPathToMsBuild) + " -version", Path.GetDirectoryName(fullPathToMsBuild), TimeSpan.FromSeconds(10));
+                if (exitCode == 0 && !string.IsNullOrEmpty(shellRunner.Output))
                 {
-                    StartInfo = new ProcessStartInfo(fullPathToMsBuild, "-version")
+                    var versionMatches = Regex.Matches(shellRunner.Output, @"^(?<version>\d+(\.\d+)+)", RegexOptions.ExplicitCapture | RegexOptions.Multiline);
+                    if (versionMatches.Count > 0)
                     {
-                        CreateNoWindow = true,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        StandardOutputEncoding = Encoding.UTF8,
-                    },
-                })
-                {
-                    proc.Start();
-                    var stdout = proc.StandardOutput.ReadToEnd();
-                    proc.WaitForExit();
-                    if (!string.IsNullOrEmpty(stdout))
-                    {
-                        var versionMatches = Regex.Matches(stdout, @"^(?<version>\d+(\.\d+)+)", RegexOptions.ExplicitCapture | RegexOptions.Multiline);
-                        if (versionMatches.Count > 0)
-                        {
-                            var version = versionMatches[versionMatches.Count - 1].Groups["version"].Value;
-                            if (!string.IsNullOrEmpty(version))
-                                return version;
-                        }
+                        var version = versionMatches[versionMatches.Count - 1].Groups["version"].Value;
+                        if (!string.IsNullOrEmpty(version))
+                            return version;
                     }
                 }
+                else
+                    Log.Debug("Failed to get msbuild version for " + fullPathToMsBuild);
             }
             catch (Exception e)
             {

@@ -51,7 +51,7 @@ namespace Common
                     {
                         if (runner.HasTimeout && i < 2)
                         {
-                            timeout = TimoutHelper.IncreaceTimeout(timeout);
+                            timeout = TimeoutHelper.IncreaseTimeout(timeout);
                             continue;
                         }
 
