@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -21,6 +22,7 @@ namespace Common
         public static string CurrentWorkspace { get; private set; }
         public static readonly object LockObject = new object();
         public static readonly object PackageLockObject = new object();
+        private static readonly ILog Log = LogManager.GetLogger("commonHelper");
 
         public static void SetWorkspace(string workspace)
         {
@@ -287,16 +289,21 @@ namespace Common
             return programFiles;
         }
 
-        public static List<string> VisualStudioVersions()
-        {
-            return new List<string>
+        public static IReadOnlyList<string> VisualStudioEditions { get; } =
+            new List<string>
             {
                 "Community",
                 "Professional",
                 "Enterprise",
-                "BuildTools"
-            };
-        }
+                "BuildTools",
+            }.AsReadOnly();
+
+        public static IReadOnlyList<string> VisualStudioVersions { get; } =
+            new List<string>
+            {
+                "2017",
+                "2019",
+            }.AsReadOnly();
 
         public static bool IsVisualStudioVersion(string version)
         {
@@ -334,6 +341,35 @@ namespace Common
         public static string WindowsPathSlashesToUnix(string path)
         {
             return path.Replace('\\', '/');
+        }
+
+        public static string GetMsBuildVersion(string fullPathToMsBuild)
+        {
+            if (!File.Exists(fullPathToMsBuild))
+                return null;
+
+            try
+            {
+                var shellRunner = new ShellRunner();
+                var exitCode = shellRunner.RunOnce(Path.GetFileName(fullPathToMsBuild) + " -version", Path.GetDirectoryName(fullPathToMsBuild), TimeSpan.FromSeconds(10));
+                if (exitCode == 0 && !string.IsNullOrEmpty(shellRunner.Output))
+                {
+                    var versionMatches = Regex.Matches(shellRunner.Output, @"^(?<version>\d+(\.\d+)+)", RegexOptions.ExplicitCapture | RegexOptions.Multiline);
+                    if (versionMatches.Count > 0)
+                    {
+                        var version = versionMatches[versionMatches.Count - 1].Groups["version"].Value;
+                        if (!string.IsNullOrEmpty(version))
+                            return version;
+                    }
+                }
+                else
+                    Log.Debug("Failed to get msbuild version for " + fullPathToMsBuild);
+            }
+            catch (Exception e)
+            {
+                Log.Warn("Failed to get MSBuild version from " + fullPathToMsBuild, e);
+            }
+            return null;
         }
     }
 }
