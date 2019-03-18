@@ -16,19 +16,30 @@ namespace Common
             this.log = log;
         }
 
-        public void GetModulesOrder(string moduleName, string configuration, out List<Dep> topSortedVertices, out List<Dep> updatedModules, out Dictionary<string, string> currentCommitHashes)
+        public ModulesOrder GetModulesOrder(string moduleName, string configuration, bool forParallel = false)
         {
+            var modulesOrder = new ModulesOrder();
             log.Debug("Building configurations graph");
             ConsoleWriter.WriteProgress("Building configurations graph");
-            var configsGraph = BuildConfigsGraph(moduleName, configuration);
-            configsGraph = EraseExtraChildren(configsGraph);
-            topSortedVertices = GetTopologicallySortedGraph(configsGraph, moduleName, configuration);
+            modulesOrder.ConfigsGraph = BuildConfigsGraph(moduleName, configuration);
+            modulesOrder.ConfigsGraph = EraseExtraChildren(modulesOrder.ConfigsGraph);
             
+            if (forParallel)
+            {
+                log.Debug("Optimize graph sort order for parallel");
+                modulesOrder.BuildOrder = GetOptimizedForParallelBuildOrder(modulesOrder.ConfigsGraph);
+            }
+            else
+            {
+                modulesOrder.BuildOrder = GetTopologicallySortedGraph(modulesOrder.ConfigsGraph, moduleName, configuration);
+            }
+
             log.Debug("Getting current commit hashes");
             ConsoleWriter.WriteProgress("Getting current commit hashes");
-            currentCommitHashes = GetCurrentCommitHashes(configsGraph);
-            updatedModules = BuiltInfoStorage.Deserialize().GetUpdatedModules(topSortedVertices, currentCommitHashes);
+            modulesOrder.CurrentCommitHashes = GetCurrentCommitHashes(modulesOrder.ConfigsGraph);
+            modulesOrder.UpdatedModules = BuiltInfoStorage.Deserialize().GetUpdatedModules(modulesOrder.BuildOrder, modulesOrder.CurrentCommitHashes);
             ConsoleWriter.ResetProgress();
+            return modulesOrder;
         }
 
         private static Dictionary<Dep, List<Dep>> EraseExtraChildren(Dictionary<Dep, List<Dep>> configsGraph)
@@ -97,6 +108,27 @@ namespace Common
                 ConsoleWriter.WriteWarning($"Failed to retrieve local commit hash for '{moduleName}': {e}");
                 return null;
             }
+        }
+
+        public static List<Dep> GetOptimizedForParallelBuildOrder(Dictionary<Dep, List<Dep>> graph)
+        {
+            var optimizedDeps = new HashSet<Dep>();
+            while (true)
+            {
+                var depsCanRunInParallel = graph.Keys
+                    .Where(dep => !optimizedDeps.Contains(dep) && graph[dep].All(d => optimizedDeps.Contains(d)))
+                    .ToList();
+                if (depsCanRunInParallel.Count == 0) break;
+                foreach (var dep in depsCanRunInParallel)
+                {
+                    optimizedDeps.Add(dep);
+                }
+            }
+            if (graph.Keys.Count > optimizedDeps.Count)
+            {
+                throw new CementException("Unable to build! Circular dependency found!");
+            }
+            return optimizedDeps.ToList();
         }
 
         public static List<Dep> GetTopologicallySortedGraph(Dictionary<Dep, List<Dep>> graph, string root, string config, bool printCycle = true)
@@ -186,5 +218,13 @@ namespace Common
                 }
             }
         }
+    }
+
+    public class ModulesOrder
+    {
+        public List<Dep> BuildOrder;
+        public List<Dep> UpdatedModules;
+        public Dictionary<string, string> CurrentCommitHashes;
+        public Dictionary<Dep, List<Dep>> ConfigsGraph;
     }
 }
