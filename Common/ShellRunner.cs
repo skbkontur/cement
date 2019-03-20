@@ -19,7 +19,6 @@ namespace Common
         public bool HasTimeout;
 
         private readonly ProcessStartInfo startInfo;
-        private Process process;
         private readonly ILog log;
 
         public ShellRunner(ILog log = null)
@@ -99,7 +98,7 @@ namespace Common
             while (times-- > 0 && NeedRunAgain(retryStrategy, exitCode))
             {
                 if (HasTimeout)
-                    timeout = TimoutHelper.IncreaceTimeout(timeout);
+                    timeout = TimeoutHelper.IncreaseTimeout(timeout);
                 exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
                 log.Debug($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} with exitCode {exitCode} and retryStrategy {retryStrategy}");
             }
@@ -122,7 +121,7 @@ namespace Common
             startInfo.WorkingDirectory = workingDirectory;
 
             var sw = Stopwatch.StartNew();
-            using (process = Process.Start(startInfo))
+            using (var process = Process.Start(startInfo))
             {
                 try
                 {
@@ -172,8 +171,7 @@ namespace Common
                 return;
             killed.Add(pid);
 
-            var searcher = new ManagementObjectSearcher
-                ("Select * From Win32_Process Where ParentProcessID=" + pid);
+            var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
             var moc = searcher.Get();
             foreach (var mo in moc)
             {
@@ -187,14 +185,12 @@ namespace Common
                 if (!IsCementProcess(proc.ProcessName))
                     return;
 
-                if (log != null)
-                    log.Debug("kill " + proc.ProcessName + "#" + proc.Id);
+                log?.Debug("kill " + proc.ProcessName + "#" + proc.Id);
                 proc.Kill();
             }
             catch (Exception exception)
             {
-                if (log != null)
-                    log.Debug("killing already exited process #" + pid, exception);
+                log?.Debug("killing already exited process #" + pid, exception);
             }
         }
 
@@ -231,7 +227,7 @@ namespace Common
         IfTimeoutOrFailed
     }
 
-    public static class TimoutHelper
+    public static class TimeoutHelper
     {
         private static readonly TimeSpan SmallTimeout = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan BigTimeout = TimeSpan.FromMinutes(10);
@@ -239,7 +235,7 @@ namespace Common
 
         private static int badTimes;
 
-        public static TimeSpan IncreaceTimeout(TimeSpan was)
+        public static TimeSpan IncreaseTimeout(TimeSpan was)
         {
             badTimes++;
             return was < BigTimeout ? BigTimeout : was;

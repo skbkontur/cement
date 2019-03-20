@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -85,11 +85,12 @@ namespace Common
             if (programFiles == null)
                 return null;
 
-            foreach (var version in Helper.VisualStudioVersions())
+            foreach (var version in Helper.VisualStudioVersions)
+            foreach (var edition in Helper.VisualStudioEditions)
             {
                 paths.Add(new KeyValuePair<string, string>(
                     "VS150COMNTOOLS",
-                    Path.Combine(programFiles, "Microsoft Visual Studio", "2017", version, "Common7", "Tools", "VsDevCmd.bat")));
+                    Path.Combine(programFiles, "Microsoft Visual Studio", version, edition, "Common7", "Tools", "VsDevCmd.bat")));
             }
 
             paths = paths.OrderByDescending(x => x.Key).Where(x => File.Exists(x.Value)).ToList();
