@@ -112,23 +112,25 @@ namespace Common
 
         public static List<Dep> GetOptimizedForParallelBuildOrder(Dictionary<Dep, List<Dep>> graph)
         {
-            var optimizedDeps = new HashSet<Dep>();
+            var optimizedDeps = new List<Dep>();
+            var optimizedDepsHash = new HashSet<Dep>();
             while (true)
             {
                 var depsCanRunInParallel = graph.Keys
-                    .Where(dep => !optimizedDeps.Contains(dep) && graph[dep].All(d => optimizedDeps.Contains(d)))
+                    .Where(dep => !optimizedDepsHash.Contains(dep) && graph[dep].All(d => optimizedDepsHash.Contains(d)))
                     .ToList();
                 if (depsCanRunInParallel.Count == 0) break;
                 foreach (var dep in depsCanRunInParallel)
                 {
+                    optimizedDepsHash.Add(dep);
                     optimizedDeps.Add(dep);
                 }
             }
-            if (graph.Keys.Count > optimizedDeps.Count)
+            if (graph.Keys.Count > optimizedDepsHash.Count)
             {
                 throw new CementException("Unable to build! Circular dependency found!");
             }
-            return optimizedDeps.ToList();
+            return optimizedDeps;
         }
 
         public static List<Dep> GetTopologicallySortedGraph(Dictionary<Dep, List<Dep>> graph, string root, string config, bool printCycle = true)
