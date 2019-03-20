@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,7 +15,7 @@ namespace Tests.BuildTests
         private static readonly ILog Log = LogManager.GetLogger("TestBuildDepsOrder");
 
         [Test]
-        public void TestBuildOrderCycle()
+        public void TestTopSortCycle()
         {
             var graph = new Dictionary<Dep, List<Dep>>
             {
@@ -25,7 +24,6 @@ namespace Tests.BuildTests
                 {new Dep("C/full-build"), new List<Dep> {new Dep("D/full-build")}},
                 {new Dep("D/full-build"), new List<Dep> {new Dep("A/full-build")}}
             };
-            Assert.Throws<CementException>(() => BuildPreparer.GetOptimizedForParallelBuildOrder(graph));
             Assert.Throws<CementException>(() => BuildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build"));
         }
 
@@ -51,52 +49,6 @@ namespace Tests.BuildTests
                 new Dep("C/client"),
                 new Dep("A/full-build")
             }, BuildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build").ToArray());
-        }
-
-        [Test]
-        public void TestBuildOrderForParallel()
-        {
-
-            var graph = new Dictionary<Dep, List<Dep>>
-            {
-                {new Dep("A/full-build"), new List<Dep> {new Dep("B/full-build"), new Dep("C/client"), new Dep("H/full-build") }},
-                {new Dep("B/full-build"), new List<Dep> {new Dep("D/full-build"), new Dep("E/full-build")}},
-                {new Dep("C/client"), new List<Dep> {new Dep("D/client"), new Dep("F/full-build")}},
-                {new Dep("D/full-build"), new List<Dep> {new Dep("E/full-build"), new Dep("G/full-build")}},
-                {new Dep("D/client"), new List<Dep>()},
-                {new Dep("E/full-build"), new List<Dep>()},
-                {new Dep("F/full-build"), new List<Dep>()},
-                {new Dep("G/full-build"), new List<Dep>()},
-                {new Dep("H/full-build"), new List<Dep> {new Dep("F/full-build"), new Dep("G/full-build") }},
-            };
-            var sortedGraph = BuildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build");
-
-            Assert.AreEqual(new[]
-            {
-                new Dep("E/full-build"),
-                new Dep("G/full-build"),
-                new Dep("D/full-build"),
-                new Dep("B/full-build"),
-                new Dep("D/client"),
-                new Dep("F/full-build"),
-                new Dep("C/client"),
-                new Dep("H/full-build"),
-                new Dep("A/full-build")
-            }, sortedGraph);
-
-            var optimizedBuildOrder = BuildPreparer.GetOptimizedForParallelBuildOrder(graph).ToArray();
-            Assert.AreEqual(new[]
-            {
-                new Dep("D/client"),
-                new Dep("E/full-build"),
-                new Dep("F/full-build"),
-                new Dep("G/full-build"),
-                new Dep("C/client"),
-                new Dep("D/full-build"),
-                new Dep("H/full-build"),
-                new Dep("B/full-build"),
-                new Dep("A/full-build")
-            }, optimizedBuildOrder);
         }
 
         [Test]
@@ -133,8 +85,7 @@ namespace Tests.BuildTests
         }
 
         [Test]
-        [TestCase(false), TestCase(true)]
-        public void TestRelaxNesting(bool forParallel)
+        public void TestRelaxNesting()
         {
             using (var env = new TestEnvironment())
             {
@@ -154,18 +105,20 @@ namespace Tests.BuildTests
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null, forParallel);
-                Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("C/client")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("C", null, "full-build")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("B", null, "full-build")));
-                Assert.AreEqual(3, modulesOrder.BuildOrder.Count);
+                List<Dep> modulesToUpdate;
+                Dictionary<string, string> currentCommitHashes;
+                List<Dep> topSortedDeps;
+                new BuildPreparer(Log).GetModulesOrder("A", null, out topSortedDeps, out modulesToUpdate, out currentCommitHashes);
+                Assert.IsFalse(topSortedDeps.Contains(new Dep("C/client")));
+                Assert.IsTrue(topSortedDeps.Contains(new Dep("C", null, "full-build")));
+                Assert.IsTrue(topSortedDeps.Contains(new Dep("A", null, "full-build")));
+                Assert.IsTrue(topSortedDeps.Contains(new Dep("B", null, "full-build")));
+                Assert.AreEqual(3, topSortedDeps.Count);
             }
         }
 
         [Test]
-        [TestCase(false), TestCase(true)]
-        public void TestNestingSkip(bool forParallel)
+        public void TestNestingSkip()
         {
             using (var env = new TestEnvironment())
             {
@@ -190,25 +143,27 @@ namespace Tests.BuildTests
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null, forParallel);
-                Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("X/client")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("B", null, "full-build")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("C", null, "full-build")));
-                Assert.AreEqual(4, modulesOrder.BuildOrder.Count);
+                List<Dep> modulesToUpdate;
+                Dictionary<string, string> currentCommitHashes;
+                List<Dep> topSortedDeps;
+                new BuildPreparer(Log).GetModulesOrder("A", null, out topSortedDeps, out modulesToUpdate, out currentCommitHashes);
+                Assert.IsFalse(topSortedDeps.Contains(new Dep("X/client")));
+                Assert.IsTrue(topSortedDeps.Contains(new Dep("A", null, "full-build")));
+                Assert.IsTrue(topSortedDeps.Contains(new Dep("B", null, "full-build")));
+                Assert.IsTrue(topSortedDeps.Contains(new Dep("C", null, "full-build")));
+                Assert.AreEqual(4, topSortedDeps.Count);
                 CollectionAssert.AreEqual(new List<Dep>
                 {
                     new Dep("X", null, "full-build"),
                     new Dep("B", null, "full-build"),
                     new Dep("C", null, "full-build"),
                     new Dep("A", null, "full-build")
-                }, modulesOrder.BuildOrder);
+                }, topSortedDeps);
             }
         }
 
         [Test]
-        [TestCase(false), TestCase(true)]
-        public void TestNestingOnlyClient(bool forParallel)
+        public void TestNestingOnlyClient()
         {
             using (var env = new TestEnvironment())
             {
@@ -225,17 +180,19 @@ namespace Tests.BuildTests
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null, forParallel);
-                Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("X", null, "full-build")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("X", null, "client")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
-                Assert.AreEqual(2, modulesOrder.BuildOrder.Count);
+                List<Dep> modulesToUpdate;
+                Dictionary<string, string> currentCommitHashes;
+                List<Dep> topSortedDeps;
+                new BuildPreparer(Log).GetModulesOrder("A", null, out topSortedDeps, out modulesToUpdate, out currentCommitHashes);
+                Assert.IsFalse(topSortedDeps.Contains(new Dep("X", null, "full-build")));
+                Assert.IsTrue(topSortedDeps.Contains(new Dep("X", null, "client")));
+                Assert.IsTrue(topSortedDeps.Contains(new Dep("A", null, "full-build")));
+                Assert.AreEqual(2, topSortedDeps.Count);
             }
         }
 
         [Test]
-        [TestCase(false), TestCase(true)]
-        public void TestNestingNeedBuildBoth(bool forParallel)
+        public void TestNestingNeedBuildBoth()
         {
             using (var env = new TestEnvironment())
             {
@@ -252,20 +209,22 @@ namespace Tests.BuildTests
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null, forParallel);
+                List<Dep> modulesToUpdate;
+                Dictionary<string, string> currentCommitHashes;
+                List<Dep> topSortedDeps;
+                new BuildPreparer(Log).GetModulesOrder("A", null, out topSortedDeps, out modulesToUpdate, out currentCommitHashes);
 
                 CollectionAssert.AreEqual(new List<Dep>
                 {
                     new Dep("A", null, "client"),
                     new Dep("X", null, "full-build"),
                     new Dep("A", null, "full-build")
-                }, modulesOrder.BuildOrder);
+                }, topSortedDeps);
             }
         }
 
         [Test]
-        [TestCase(false), TestCase(true)]
-        public void TestNestingLotChildren(bool forParallel)
+        public void TestNestingLotChildren()
         {
             using (var env = new TestEnvironment())
             {
@@ -293,11 +252,16 @@ namespace Tests.BuildTests
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null, forParallel);
+                List<Dep> modulesToUpdate;
+                Dictionary<string, string> currentCommitHashes;
+                List<Dep> topSortedDeps;
+                new BuildPreparer(Log).GetModulesOrder("A", null, out topSortedDeps, out modulesToUpdate, out currentCommitHashes);
 
-                var xDeps = modulesOrder.BuildOrder.Where(d => d.Name == "X").ToList();
-                Assert.IsTrue(xDeps.Any(d => d.Name == "X" && d.Configuration == "parent1"));
-                Assert.IsTrue(xDeps.Any(d => d.Name == "X" && d.Configuration == "child3"));
+                CollectionAssert.AreEqual(new List<Dep>
+                {
+                    new Dep("X", null, "parent1"),
+                    new Dep("X", null, "child3")
+                }, topSortedDeps.Where(d => d.Name == "X"));
             }
         }
     }

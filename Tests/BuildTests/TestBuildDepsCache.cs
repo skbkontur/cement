@@ -16,7 +16,11 @@ namespace Tests.BuildTests
 
         private List<Dep> GetUpdatedModules(Dep moduleToBuild)
         {
-            return new BuildPreparer(Log).GetModulesOrder(moduleToBuild.Name, moduleToBuild.Configuration).UpdatedModules;
+            List<Dep> modulesToUpdate;
+            Dictionary<string, string> currentCommitHashes;
+            List<Dep> topSortedDeps;
+            new BuildPreparer(Log).GetModulesOrder(moduleToBuild.Name, moduleToBuild.Configuration, out topSortedDeps, out modulesToUpdate, out currentCommitHashes);
+            return modulesToUpdate;
         }
 
         private void Build(Dep module)

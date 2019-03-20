@@ -87,7 +87,7 @@ namespace Common
 
         public override int GetHashCode()
         {
-            return ToString().GetHashCode();
+            return Name.GetHashCode();
         }
 
         public override string ToString()

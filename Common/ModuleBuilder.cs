@@ -23,8 +23,6 @@ namespace Common
         public void Init()
         {
             VsDevHelper.ReplaceVariablesToVs();
-            ModuleBuilderHelper.FindAvailableMsBuilds();
-            ModuleBuilderHelper.KillMsBuild(log);
         }
 
         public bool DotnetPack(string directory, string projectFileName, string buildConfiguration)
@@ -140,6 +138,7 @@ namespace Common
             int exitCode = -1;
             for (int timesTry = 0; timesTry < 2 && exitCode != 0; timesTry++)
             {
+                ModuleBuilderHelper.KillMsBuild(log);
                 log.DebugFormat("Build command: '{0}'", command);
                 if (buildSettings.ShowOutput)
                     ConsoleWriter.WriteInfo($"BUILDING {command}");
