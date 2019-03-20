@@ -23,7 +23,7 @@ namespace Common
         public void Init()
         {
             VsDevHelper.ReplaceVariablesToVs();
-            ModuleBuilderHelper.FindAvilableMsBuilds();
+            ModuleBuilderHelper.FindAvailableMsBuilds();
             ModuleBuilderHelper.KillMsBuild(log);
         }
 
