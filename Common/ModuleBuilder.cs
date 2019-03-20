@@ -22,9 +22,9 @@ namespace Common
 
         public void Init()
         {
-            VsDevHelper.ReplaceVariablesToVs();
             if (!Helper.OsIsUnix())
             {
+                VsDevHelper.ReplaceVariablesToVs();
                 ModuleBuilderHelper.FindMsBuildsWindows();
                 ModuleBuilderHelper.KillMsBuild(log);
             }
