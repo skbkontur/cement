@@ -129,7 +129,8 @@ namespace Commands
                         buildedDepsNames.Add(module.Name);
                         continue;
                     }
-                    if (isFailed) break;
+                    if (isFailed)
+                        break;
                 }
 
                 semaphore.Wait();
@@ -140,13 +141,13 @@ namespace Commands
                     lock (buildedDepsNames)
                     {
                         
-                        if (isFailed) break;
-                        // Может быть так, что мы уже собрали module/client и сейчас начинаем собирать module/full-build, т.е. пересборка по сути.
-                        // Сборка развалится если в этот же момент начнут собираться те, кто зависят от module/client.
-                        // Для пересобираемых модулей ждем когда все остальные таски отработают для гарантии того, что не сломаем текущие сборки.
-                        // И гарантируем, что не начнет собираться другой модуль, который зависит от пересобираемого.
-                        // В общем случае такие проблемы могут возникнуть с прямыми зависимостями модуля.
-                        // Но некоторе модули не указывают все свои прямые зависимости. Поэтому приходится смотреть всё дерево зависимостей.
+                        if (isFailed)
+                            break;
+                        // Corner case: we have already build module/client and now begin build module/full-build. In fact rebuild.
+                        // Build process will fail if at the same time begin to build another module dependent on module/client
+                        // If we need to build this module twice, wait for all other builds, because they can use our module.
+                        // In General, such problems can occur with direct dependencies of the module
+                        // But some modules do not specify all their direct dependencies. So we have to look at the whole dependency tree.
                         var allDepsIsBuilded = AllModuleDepsIsBuilded(module, buildedDepsNames, modulesOrder);
                         var isRebuildAlreadyBuildedModule = buildedDepsNames.Contains(module.Name);
                         
@@ -155,7 +156,8 @@ namespace Commands
                             buildedDepsNames.Remove(module.Name);
                             break;
                         }
-                        if (allDepsIsBuilded && !isRebuildAlreadyBuildedModule) break;
+                        if (allDepsIsBuilded && !isRebuildAlreadyBuildedModule)
+                            break;
 
                     }
                     Task.WaitAny(tasks.Where(t => !t.IsCompleted).ToArray());
@@ -174,7 +176,8 @@ namespace Commands
                     try
                     {
                         Log.Debug($"Building for {module.ToBuildString()}");
-                        if (!builder.Build(module)) isFailed = true;
+                        if (!builder.Build(module))
+                            isFailed = true;
                     }
                     catch (Exception e)
                     {
@@ -191,13 +194,15 @@ namespace Commands
                             buildedDepsNames.Add(module.Name);
                         }
                     }
+                    Log.Debug($"Builded {module.ToBuildString()}");
                     semaphore.Release();
                 }));
             }
             Task.WaitAll(tasks.Where(t => !t.IsCompleted).ToArray());
             builtStorage.Save();
             Log.Debug("msbuild time: " + ModuleBuilder.TotalMsbuildTime);
-            if (exception != null) throw exception;
+            if (exception != null)
+                throw exception;
             return !isFailed;
         }
 
