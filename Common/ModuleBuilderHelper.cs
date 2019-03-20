@@ -45,7 +45,7 @@ namespace Common
 
         private static List<KeyValuePair<string, string>> msBuildsCache;
 
-        private static List<KeyValuePair<string, string>> FindAvailableMsBuilds()
+        public static List<KeyValuePair<string, string>> FindAvailableMsBuilds()
         {
             if (msBuildsCache != null)
                 return msBuildsCache;

@@ -43,10 +43,6 @@ namespace Commands
             var moduleName = Path.GetFileName(cwd);
             configuration = configuration ?? "full-build";
 
-            List<Dep> modulesToUpdate;
-            List<Dep> topSortedDeps;
-            Dictionary<string, string> currentCommitHases;
-
             if (!new ConfigurationParser(new FileInfo(cwd)).ConfigurationExists(configuration))
             {
                 ConsoleWriter.WriteError($"Configuration '{configuration}' was not found in {moduleName}.");
@@ -55,9 +51,7 @@ namespace Commands
 
             var builder = new ModuleBuilder(Log, buildSettings);
             var builderInitTask = Task.Run(() => builder.Init());
-
-            new BuildPreparer(Log).GetModulesOrder(moduleName, configuration, out topSortedDeps, out modulesToUpdate, out currentCommitHases);
-
+            var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration);
             var builtStorage = BuiltInfoStorage.Deserialize();
             builtStorage.RemoveBuildInfo(moduleName);
 
@@ -71,7 +65,7 @@ namespace Commands
                 builtStorage.Save();
                 return -1;
             }
-            builtStorage.AddBuiltModule(module, currentCommitHases);
+            builtStorage.AddBuiltModule(module, modulesOrder.CurrentCommitHashes);
             builtStorage.Save();
             return 0;
         }
