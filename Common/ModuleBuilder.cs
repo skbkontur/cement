@@ -23,8 +23,11 @@ namespace Common
         public void Init()
         {
             VsDevHelper.ReplaceVariablesToVs();
-            ModuleBuilderHelper.FindAvailableMsBuilds();
-            ModuleBuilderHelper.KillMsBuild(log);
+            if (!Helper.OsIsUnix())
+            {
+                ModuleBuilderHelper.FindMsBuildsWindows();
+                ModuleBuilderHelper.KillMsBuild(log);
+            }
         }
 
         public bool DotnetPack(string directory, string projectFileName, string buildConfiguration)

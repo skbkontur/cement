@@ -16,7 +16,7 @@ namespace Common
             if (Helper.OsIsUnix())
                 return new MsBuildLikeTool(FindMsBuildUnix(version, moduleName));
 
-            var msBuilds = FindAvailableMsBuilds();
+            var msBuilds = FindMsBuildsWindows();
 
             if (version != null && Version.TryParse(version, out var minVersion))
                 msBuilds = msBuilds.Where(b => Version.TryParse(b.Key, out var msBuildVersion) && msBuildVersion >= minVersion).ToList();
@@ -45,7 +45,7 @@ namespace Common
 
         private static List<KeyValuePair<string, string>> msBuildsCache;
 
-        public static List<KeyValuePair<string, string>> FindAvailableMsBuilds()
+        public static List<KeyValuePair<string, string>> FindMsBuildsWindows()
         {
             if (msBuildsCache != null)
                 return msBuildsCache;
