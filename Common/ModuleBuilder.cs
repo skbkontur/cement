@@ -41,24 +41,30 @@ namespace Common
             return false;
         }
 
-        public void NugetRestore(Dep dep, string nugetRunCommand)
+        public void NugetRestore(string moduleName, List<string> configurations, string nugetRunCommand)
         {
-            if (Yaml.Exists(dep.Name))
+            if (Yaml.Exists(moduleName))
             {
-                var buildSections = Yaml.BuildParser(dep.Name).Get(dep.Configuration);
+                var buildSections = configurations.SelectMany(c => Yaml.BuildParser(moduleName).Get(c)).ToList();
+                var targets = new HashSet<string>();
                 foreach (var buildSection in buildSections)
                 {
                     if (buildSection.Target == null || !buildSection.Target.EndsWith(".sln"))
                         continue;
                     if (buildSection.Tool.Name != "dotnet")
                     {
-                        var target = Path.Combine(Helper.CurrentWorkspace, dep.Name, buildSection.Target);
-                        RunNugetRestore(target, nugetRunCommand);
+                        var target = Path.Combine(Helper.CurrentWorkspace, moduleName, buildSection.Target);
+                        targets.Add(target);
                     }
+                }
+
+                foreach (var target in targets)
+                {
+                    RunNugetRestore(target, nugetRunCommand);
                 }
             }
             else
-                RunNugetRestore(Path.Combine(Helper.CurrentWorkspace, dep.Name, "build.cmd"), nugetRunCommand);
+                RunNugetRestore(Path.Combine(Helper.CurrentWorkspace, moduleName, "build.cmd"), nugetRunCommand);
         }
 
         private void RunNugetRestore(string buildFile, string nugetRunCommand)

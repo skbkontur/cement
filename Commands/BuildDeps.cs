@@ -227,12 +227,12 @@ namespace Commands
                 if (nugetRunCommand == null)
                     return;
 
-                var uniqueDeps = modulesToUpdate.GroupBy(d => d.Name).Select(g => g.First()).ToList();
-                Parallel.ForEach(uniqueDeps, Helper.ParallelOptions, dep =>
+                var deps = modulesToUpdate.GroupBy(d => d.Name).ToList();
+                Parallel.ForEach(deps, Helper.ParallelOptions, group =>
                 {
-                    ConsoleWriter.WriteProgress($"{dep.Name,-30} nuget restoring");
-                    builder.NugetRestore(dep, nugetRunCommand);
-                    ConsoleWriter.SaveToProcessedModules(dep.Name);
+                    ConsoleWriter.WriteProgress($"{group.Key,-30} nuget restoring");
+                    builder.NugetRestore(group.Key, group.Select(d => d.Configuration).ToList(), nugetRunCommand);
+                    ConsoleWriter.SaveToProcessedModules(group.Key);
                 });
             }
             catch (AggregateException ae)
