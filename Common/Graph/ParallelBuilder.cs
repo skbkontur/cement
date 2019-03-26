@@ -1,15 +1,13 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using log4net;
-using NuGet.CommandLine;
 
 namespace Common.Graph
 {
     public class ParallelBuilder
     {
-        private static ILog log = LogManager.GetLogger(typeof(ParallelBuilder));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ParallelBuilder));
 
         private readonly Dictionary<Dep, List<Dep>> graph = new Dictionary<Dep, List<Dep>>();
         private readonly AutoResetEvent signal = new AutoResetEvent(true);
@@ -84,7 +82,7 @@ namespace Common.Graph
 
                 if (!needChecking)
                 {
-                    log.Info("Nothing to build - already checked.");
+                    Log.Info("Nothing to build - already checked.");
                     return null;
                 }
 
@@ -101,14 +99,14 @@ namespace Common.Graph
 
                     building.Add(module);
                     waiting.Remove(module);
-                    log.Info($"Building {module} with {building.Count - 1} others.");
+                    Log.Info($"Building {module} with {building.Count - 1} others.");
                     return module;
                 }
 
                 needChecking = false;
             }
 
-            log.Info("Nothing to build.");
+            Log.Info("Nothing to build.");
             return null;
         }
     }
