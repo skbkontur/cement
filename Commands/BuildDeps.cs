@@ -117,7 +117,7 @@ namespace Commands
             var tasks = new List<Task>();
             var builtCount = 1;
 
-            for (int i = 0; i < Helper.MaxDegreeOfParallelism; i++)
+            for (int i = 0; i < Environment.ProcessorCount; i++)
             {
                 tasks.Add(Task.Run(() =>
                 {
