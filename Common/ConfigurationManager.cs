@@ -48,6 +48,18 @@ namespace Common
             return children.Where(c => ProcessedDeps.Contains(c) && dep.Configuration != c).ToList();
         }
 
+        public List<string> ChildrenConfigurations(Dep dep)
+        {
+            configHierarchy = ReverseHierarchy(parser.GetConfigurationsHierarchy());
+            var config = dep.Configuration ?? parser.GetDefaultConfigurationName();
+            if (config == null || !configHierarchy.ContainsKey(config))
+                return new List<string>();
+
+            var children = new HashSet<string>();
+            GetChildrenDfs(dep.Configuration, children);
+            return children.ToList();
+        }
+
         private void GetChildrenDfs(string configuration, HashSet<string> usedVertexes)
         {
             usedVertexes.Add(configuration);

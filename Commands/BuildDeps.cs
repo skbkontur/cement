@@ -53,12 +53,14 @@ namespace Commands
             var builderInitTask = Task.Run(() => builder.Init());
             var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build");
             var modulesToBuild = modulesOrder.UpdatedModules;
+
+            if (rebuild)
+                modulesToBuild = modulesOrder.BuildOrder;
+
             if (modulesToBuild.Count > 0 && modulesToBuild[modulesToBuild.Count - 1].Name == moduleName)
             {
                 modulesToBuild.RemoveAt(modulesToBuild.Count - 1); //remove root
             }
-            if (rebuild)
-                modulesToBuild = modulesOrder.BuildOrder;
 
             var builtStorage = BuiltInfoStorage.Deserialize();
             foreach (var dep in modulesToBuild)
@@ -124,6 +126,12 @@ namespace Commands
                         var dep = parallelBuilder.TryStartBuild();
                         if (dep == null)
                             return;
+
+                        if (dep.Equals(modulesOrder.BuildOrder.LastOrDefault()))
+                        {
+                            parallelBuilder.EndBuild(dep);
+                            continue;
+                        }
 
                         if (NoNeedToBuild(dep, modulesToBuild))
                         {

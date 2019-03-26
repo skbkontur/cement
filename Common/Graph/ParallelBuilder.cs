@@ -1,12 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using log4net;
+using NuGet.CommandLine;
 
 namespace Common.Graph
 {
     public class ParallelBuilder
     {
-        private readonly Dictionary<Dep, List<Dep>> graph;
+        private static ILog log = LogManager.GetLogger(typeof(ParallelBuilder));
+
+        private readonly Dictionary<Dep, List<Dep>> graph = new Dictionary<Dep, List<Dep>>();
         private readonly AutoResetEvent signal = new AutoResetEvent(true);
         public bool IsFailed;
         private readonly object sync = new object();
@@ -14,11 +18,18 @@ namespace Common.Graph
         private readonly List<Dep> waiting = new List<Dep>();
         private readonly HashSet<Dep> building = new HashSet<Dep>();
         private readonly List<Dep> built = new List<Dep>();
+        private bool needChecking = true;
 
         public ParallelBuilder(Dictionary<Dep, List<Dep>> graph)
         {
-            this.graph = graph.ToDictionary(x => x.Key, x => x.Value);
-            waiting.AddRange(graph.Keys);
+            foreach (var key in graph.Keys)
+            {
+                this.graph[key] = GraphHelper.GetChildren(key, graph)
+                    .Where(d => d.Name != key.Name)
+                    .ToList();
+            }
+
+            waiting.AddRange(this.graph.Keys);
         }
 
         public Dep TryStartBuild()
@@ -50,6 +61,12 @@ namespace Common.Graph
                 IsFailed |= failed;
                 building.Remove(dep);
                 built.Add(dep);
+
+                var children = new ConfigurationManager(dep.Name, new Dep[0]).ChildrenConfigurations(dep);
+                foreach (var child in children)
+                    built.Add(new Dep(dep.Name, null, child));
+
+                needChecking = true;
             }
 
             signal.Set();
@@ -60,6 +77,9 @@ namespace Common.Graph
             lock (sync)
             {
                 finished = !waiting.Any();
+
+                if (!needChecking)
+                    return null;
 
                 foreach (var module in waiting)
                 {
@@ -76,6 +96,8 @@ namespace Common.Graph
                     waiting.Remove(module);
                     return module;
                 }
+
+                needChecking = false;
             }
 
             return null;
