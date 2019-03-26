@@ -96,6 +96,7 @@ namespace Common
             catch (Exception e)
             {
                 log.Error(e);
+                ConsoleWriter.WriteError($"Failed to buid {dep}.\n{e}");
                 return false;
             }
         }
