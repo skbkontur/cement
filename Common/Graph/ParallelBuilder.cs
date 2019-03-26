@@ -18,7 +18,6 @@ namespace Common.Graph
         private readonly List<Dep> waiting = new List<Dep>();
         private readonly HashSet<Dep> building = new HashSet<Dep>();
         private readonly List<Dep> built = new List<Dep>();
-        private bool needChecking = true;
 
         public ParallelBuilder(Dictionary<Dep, List<Dep>> graph)
         {
@@ -37,11 +36,17 @@ namespace Common.Graph
             while (true)
             {
                 if (IsFailed)
+                {
+                    signal.Set();
                     return null;
+                }
 
                 var dep = TryStartOnce(out var finished);
                 if (dep != null)
+                {
+                    signal.Set();
                     return dep;
+                }
 
                 if (finished)
                 {
@@ -50,7 +55,6 @@ namespace Common.Graph
                 }
 
                 signal.WaitOne();
-
             }
         }
 
@@ -65,8 +69,6 @@ namespace Common.Graph
                 var children = new ConfigurationManager(dep.Name, new Dep[0]).ChildrenConfigurations(dep);
                 foreach (var child in children)
                     built.Add(new Dep(dep.Name, null, child));
-
-                needChecking = true;
             }
 
             signal.Set();
@@ -77,9 +79,6 @@ namespace Common.Graph
             lock (sync)
             {
                 finished = !waiting.Any();
-
-                if (!needChecking)
-                    return null;
 
                 foreach (var module in waiting)
                 {
@@ -96,8 +95,6 @@ namespace Common.Graph
                     waiting.Remove(module);
                     return module;
                 }
-
-                needChecking = false;
             }
 
             return null;
