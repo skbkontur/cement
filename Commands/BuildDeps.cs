@@ -55,7 +55,7 @@ namespace Commands
             var modulesToBuild = modulesOrder.UpdatedModules;
 
             if (rebuild)
-                modulesToBuild = modulesOrder.BuildOrder;
+                modulesToBuild = modulesOrder.BuildOrder.ToList();
 
             if (modulesToBuild.Count > 0 && modulesToBuild[modulesToBuild.Count - 1].Name == moduleName)
             {
@@ -117,7 +117,7 @@ namespace Commands
             var tasks = new List<Task>();
             var builtCount = 1;
 
-            for (int i = 0; i < Environment.ProcessorCount; i++)
+            for (int i = 0; i < Helper.MaxDegreeOfParallelism; i++)
             {
                 tasks.Add(Task.Run(() =>
                 {
