@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using log4net;
@@ -18,6 +19,7 @@ namespace Common.Graph
         private readonly List<Dep> waiting = new List<Dep>();
         private readonly HashSet<Dep> building = new HashSet<Dep>();
         private readonly List<Dep> built = new List<Dep>();
+        private bool needChecking = true;
 
         public ParallelBuilder(Dictionary<Dep, List<Dep>> graph)
         {
@@ -69,9 +71,9 @@ namespace Common.Graph
                 var children = new ConfigurationManager(dep.Name, new Dep[0]).ChildrenConfigurations(dep);
                 foreach (var child in children)
                     built.Add(new Dep(dep.Name, null, child));
-            }
 
-            signal.Set();
+                needChecking = true;
+            }
         }
 
         private Dep TryStartOnce(out bool finished)
@@ -79,6 +81,12 @@ namespace Common.Graph
             lock (sync)
             {
                 finished = !waiting.Any();
+
+                if (!needChecking)
+                {
+                    log.Info("Nothing to build - already checked.");
+                    return null;
+                }
 
                 foreach (var module in waiting)
                 {
@@ -93,10 +101,14 @@ namespace Common.Graph
 
                     building.Add(module);
                     waiting.Remove(module);
+                    log.Info($"Building {module} with {building.Count - 1} others.");
                     return module;
                 }
+
+                needChecking = false;
             }
 
+            log.Info("Nothing to build.");
             return null;
         }
     }
