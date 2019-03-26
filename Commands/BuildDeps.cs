@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Common;
+using Common.Graph;
 
 namespace Commands
 {
@@ -51,7 +51,7 @@ namespace Commands
             
             var builder = new ModuleBuilder(Log, buildSettings);
             var builderInitTask = Task.Run(() => builder.Init());
-            var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build", parallel);
+            var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build");
             var modulesToBuild = modulesOrder.UpdatedModules;
             if (modulesToBuild.Count > 0 && modulesToBuild[modulesToBuild.Count - 1].Name == moduleName)
             {
@@ -69,11 +69,11 @@ namespace Commands
 
             var isSuccessful = parallel ?
                 BuildDepsParallel(modulesOrder, builtStorage, modulesToBuild, builder) :
-                BuildDepsSequental(modulesOrder, builtStorage, modulesToBuild, builder);
+                BuildDepsSequential(modulesOrder, builtStorage, modulesToBuild, builder);
             return isSuccessful ? 0 : -1;
         }
 
-        private static bool BuildDepsSequental(ModulesOrder modulesOrder, BuiltInfoStorage builtStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
+        private static bool BuildDepsSequential(ModulesOrder modulesOrder, BuiltInfoStorage builtStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
         {
             var built = 1;
             for (var i = 0; i < modulesOrder.BuildOrder.Count - 1; i++)
@@ -105,116 +105,55 @@ namespace Commands
                 built++;
             }
             builtStorage.Save();
-            Log.Debug("msbuild time: " + ModuleBuilder.TotalMsbuildTime);
+            Log.Debug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
             return true;
         }
 
         private static bool BuildDepsParallel(ModulesOrder modulesOrder, BuiltInfoStorage builtStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
         {
-            var built = 1;
-            var isFailed = false;
-            var buildedDepsNames = new HashSet<string>();
-            Exception exception = null;
-            var semaphore = new SemaphoreSlim(Helper.MaxDegreeOfParallelism);
+            var parallelBuilder = new ParallelBuilder(modulesOrder.ConfigsGraph);
             var tasks = new List<Task>();
+            var builtCount = 1;
 
-            for (var i = 0; i < modulesOrder.BuildOrder.Count - 1; i++)
+            for (int i = 0; i < Helper.MaxDegreeOfParallelism; i++)
             {
-                var module = modulesOrder.BuildOrder[i];
-                lock (buildedDepsNames)
-                {
-                    if (NoNeedToBuild(module, modulesToBuild))
-                    {
-                        builtStorage.AddBuiltModule(module, modulesOrder.CurrentCommitHashes);
-                        buildedDepsNames.Add(module.Name);
-                        continue;
-                    }
-                    if (isFailed)
-                        break;
-                }
-
-                semaphore.Wait();
-                Log.Debug($"Waiting for {module.ToBuildString()}");
-                
-                while (true)
-                {
-                    lock (buildedDepsNames)
-                    {
-                        
-                        if (isFailed)
-                            break;
-                        // Corner case: we have already build module/client and now begin build module/full-build. In fact rebuild.
-                        // Build process will fail if at the same time begin to build another module dependent on module/client
-                        // If we need to build this module twice, wait for all other builds, because they can use our module.
-                        // In General, such problems can occur with direct dependencies of the module
-                        // But some modules do not specify all their direct dependencies. So we have to look at the whole dependency tree.
-                        var allDepsIsBuilded = AllModuleDepsIsBuilded(module, buildedDepsNames, modulesOrder);
-                        var isRebuildAlreadyBuildedModule = buildedDepsNames.Contains(module.Name);
-                        
-                        if (allDepsIsBuilded && isRebuildAlreadyBuildedModule && semaphore.CurrentCount == Helper.MaxDegreeOfParallelism - 1)
-                        {
-                            buildedDepsNames.Remove(module.Name);
-                            break;
-                        }
-                        if (allDepsIsBuilded && !isRebuildAlreadyBuildedModule)
-                            break;
-
-                    }
-                    Task.WaitAny(tasks.Where(t => !t.IsCompleted).ToArray());
-                }
-
-                if (isFailed)
-                {
-                    semaphore.Release();
-                    break;
-                }
-
                 tasks.Add(Task.Run(() =>
                 {
-                    ConsoleWriter.WriteProgress($"{module.ToBuildString(),-49} {$"{built}/{modulesToBuild.Count}",10}");
-                    
-                    try
+                    while (true)
                     {
-                        Log.Debug($"Building for {module.ToBuildString()}");
-                        if (!builder.Build(module))
-                            isFailed = true;
-                    }
-                    catch (Exception e)
-                    {
-                        exception = e;
-                        isFailed = true;
-                    }
+                        var dep = parallelBuilder.TryStartBuild();
+                        if (dep == null)
+                            return;
 
-                    lock (buildedDepsNames)
-                    {
-                        if (!isFailed)
+                        if (NoNeedToBuild(dep, modulesToBuild))
                         {
-                            builtStorage.AddBuiltModule(module, modulesOrder.CurrentCommitHashes);
-                            built++;
-                            buildedDepsNames.Add(module.Name);
+                            parallelBuilder.EndBuild(dep);
+
+                            lock (builtStorage)
+                                builtStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
+                            continue;
                         }
+
+                        ConsoleWriter.WriteProgress($"{dep.ToBuildString(),-49} {$"{builtCount}/{modulesToBuild.Count}",10}");
+                        var success = builder.Build(dep);
+
+                        parallelBuilder.EndBuild(dep, !success);
+
+                        if (success)
+                            lock (builtStorage)
+                            {
+                                builtStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
+                                builtCount++;
+                            }
                     }
-                    Log.Debug($"Builded {module.ToBuildString()}");
-                    semaphore.Release();
                 }));
             }
-            Task.WaitAll(tasks.Where(t => !t.IsCompleted).ToArray());
-            builtStorage.Save();
-            Log.Debug("msbuild time: " + ModuleBuilder.TotalMsbuildTime);
-            if (exception != null)
-                throw exception;
-            return !isFailed;
-        }
 
-        private static bool AllModuleDepsIsBuilded(Dep module, HashSet<string> depsNamesToCheck, ModulesOrder modulesOrder)
-        {
-            var moduleDeps = modulesOrder.ConfigsGraph[module];
-            foreach (var dep in moduleDeps)
-            {
-                if (!depsNamesToCheck.Contains(dep.Name)) return false;
-                if (!AllModuleDepsIsBuilded(dep, depsNamesToCheck, modulesOrder)) return false;
-            }
-            return true;
+            Task.WaitAll(tasks.ToArray());
+
+            builtStorage.Save();
+            Log.Debug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
+            return !parallelBuilder.IsFailed;
         }
 
         public static void TryNugetRestore(List<Dep> modulesToUpdate, ModuleBuilder builder)
@@ -247,9 +186,9 @@ namespace Commands
             ConsoleWriter.ResetProgress();
         }
 
-        private static bool NoNeedToBuild(Dep dep, List<Dep> modulesToUpdate)
+        private static bool NoNeedToBuild(Dep dep, List<Dep> modulesToBuild)
         {
-            if (!modulesToUpdate.Contains(dep))
+            if (!modulesToBuild.Contains(dep))
             {
                 Log.Debug($"{dep.ToBuildString(),-40} *build skipped");
                 ConsoleWriter.WriteSkip($"{dep.ToBuildString(),-40}");

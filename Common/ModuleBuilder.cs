@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Common
 {
     public class ModuleBuilder
     {
         private readonly ILog log;
-        public static TimeSpan TotalMsbuildTime = TimeSpan.Zero;
+        public static long TotalMsbuildTime;
         private readonly BuildSettings buildSettings;
 
         public ModuleBuilder(ILog log, BuildSettings buildSettings)
@@ -84,11 +85,19 @@ namespace Common
 
         public bool Build(Dep dep)
         {
-            log.Debug($"{dep.ToBuildString()}");
-            if (BuildSingleModule(dep))
-                return true;
-            log.Debug($"{dep.ToBuildString(),-40} *build failed");
-            return false;
+            try
+            {
+                log.Debug($"{dep.ToBuildString()}");
+                if (BuildSingleModule(dep))
+                    return true;
+                log.Debug($"{dep.ToBuildString(),-40} *build failed");
+                return false;
+            }
+            catch (Exception e)
+            {
+                log.Error(e);
+                return false;
+            }
         }
 
         private bool BuildSingleModule(Dep dep)
@@ -156,7 +165,7 @@ namespace Common
             }
 
             sw.Stop();
-            TotalMsbuildTime += sw.Elapsed;
+            Interlocked.Add(ref TotalMsbuildTime, sw.ElapsedTicks);
 
             var elapsedTime = Helper.ConvertTime(sw.ElapsedMilliseconds);
             var warnCount = runner.Output.Split('\n').Count(ModuleBuilderHelper.IsWarning);

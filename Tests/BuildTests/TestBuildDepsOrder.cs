@@ -25,7 +25,6 @@ namespace Tests.BuildTests
                 {new Dep("C/full-build"), new List<Dep> {new Dep("D/full-build")}},
                 {new Dep("D/full-build"), new List<Dep> {new Dep("A/full-build")}}
             };
-            Assert.Throws<CementException>(() => BuildPreparer.GetOptimizedForParallelBuildOrder(graph));
             Assert.Throws<CementException>(() => BuildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build"));
         }
 
@@ -51,52 +50,6 @@ namespace Tests.BuildTests
                 new Dep("C/client"),
                 new Dep("A/full-build")
             }, BuildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build").ToArray());
-        }
-
-        [Test]
-        public void TestBuildOrderForParallel()
-        {
-
-            var graph = new Dictionary<Dep, List<Dep>>
-            {
-                {new Dep("A/full-build"), new List<Dep> {new Dep("B/full-build"), new Dep("C/client"), new Dep("H/full-build") }},
-                {new Dep("B/full-build"), new List<Dep> {new Dep("D/full-build"), new Dep("E/full-build")}},
-                {new Dep("C/client"), new List<Dep> {new Dep("D/client"), new Dep("F/full-build")}},
-                {new Dep("D/full-build"), new List<Dep> {new Dep("E/full-build"), new Dep("G/full-build")}},
-                {new Dep("D/client"), new List<Dep>()},
-                {new Dep("E/full-build"), new List<Dep>()},
-                {new Dep("F/full-build"), new List<Dep>()},
-                {new Dep("G/full-build"), new List<Dep>()},
-                {new Dep("H/full-build"), new List<Dep> {new Dep("F/full-build"), new Dep("G/full-build") }},
-            };
-            var sortedGraph = BuildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build");
-
-            Assert.AreEqual(new[]
-            {
-                new Dep("E/full-build"),
-                new Dep("G/full-build"),
-                new Dep("D/full-build"),
-                new Dep("B/full-build"),
-                new Dep("D/client"),
-                new Dep("F/full-build"),
-                new Dep("C/client"),
-                new Dep("H/full-build"),
-                new Dep("A/full-build")
-            }, sortedGraph);
-
-            var optimizedBuildOrder = BuildPreparer.GetOptimizedForParallelBuildOrder(graph).ToArray();
-            Assert.AreEqual(new[]
-            {
-                new Dep("D/client"),
-                new Dep("E/full-build"),
-                new Dep("F/full-build"),
-                new Dep("G/full-build"),
-                new Dep("C/client"),
-                new Dep("D/full-build"),
-                new Dep("H/full-build"),
-                new Dep("B/full-build"),
-                new Dep("A/full-build")
-            }, optimizedBuildOrder);
         }
 
         [Test]
@@ -154,7 +107,7 @@ namespace Tests.BuildTests
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null, forParallel);
+                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
                 Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("C/client")));
                 Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("C", null, "full-build")));
                 Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
@@ -190,7 +143,7 @@ namespace Tests.BuildTests
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null, forParallel);
+                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
                 Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("X/client")));
                 Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
                 Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("B", null, "full-build")));
@@ -225,7 +178,7 @@ namespace Tests.BuildTests
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null, forParallel);
+                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
                 Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("X", null, "full-build")));
                 Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("X", null, "client")));
                 Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
@@ -252,7 +205,7 @@ namespace Tests.BuildTests
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null, forParallel);
+                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
 
                 CollectionAssert.AreEqual(new List<Dep>
                 {
@@ -293,7 +246,7 @@ namespace Tests.BuildTests
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null, forParallel);
+                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
 
                 var xDeps = modulesOrder.BuildOrder.Where(d => d.Name == "X").ToList();
                 Assert.IsTrue(xDeps.Any(d => d.Name == "X" && d.Configuration == "parent1"));
