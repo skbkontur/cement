@@ -16,23 +16,14 @@ namespace Common
             this.log = log;
         }
 
-        public ModulesOrder GetModulesOrder(string moduleName, string configuration, bool forParallel = false)
+        public ModulesOrder GetModulesOrder(string moduleName, string configuration)
         {
             var modulesOrder = new ModulesOrder();
             log.Debug("Building configurations graph");
             ConsoleWriter.WriteProgress("Building configurations graph");
             modulesOrder.ConfigsGraph = BuildConfigsGraph(moduleName, configuration);
             modulesOrder.ConfigsGraph = EraseExtraChildren(modulesOrder.ConfigsGraph);
-            
-            if (forParallel)
-            {
-                log.Debug("Optimize graph sort order for parallel");
-                modulesOrder.BuildOrder = GetOptimizedForParallelBuildOrder(modulesOrder.ConfigsGraph);
-            }
-            else
-            {
-                modulesOrder.BuildOrder = GetTopologicallySortedGraph(modulesOrder.ConfigsGraph, moduleName, configuration);
-            }
+            modulesOrder.BuildOrder = GetTopologicallySortedGraph(modulesOrder.ConfigsGraph, moduleName, configuration);
 
             log.Debug("Getting current commit hashes");
             ConsoleWriter.WriteProgress("Getting current commit hashes");
@@ -108,29 +99,6 @@ namespace Common
                 ConsoleWriter.WriteWarning($"Failed to retrieve local commit hash for '{moduleName}': {e}");
                 return null;
             }
-        }
-
-        public static List<Dep> GetOptimizedForParallelBuildOrder(Dictionary<Dep, List<Dep>> graph)
-        {
-            var optimizedDeps = new List<Dep>();
-            var optimizedDepsHash = new HashSet<Dep>();
-            while (true)
-            {
-                var depsCanRunInParallel = graph.Keys
-                    .Where(dep => !optimizedDepsHash.Contains(dep) && graph[dep].All(d => optimizedDepsHash.Contains(d)))
-                    .ToList();
-                if (depsCanRunInParallel.Count == 0) break;
-                foreach (var dep in depsCanRunInParallel)
-                {
-                    optimizedDepsHash.Add(dep);
-                    optimizedDeps.Add(dep);
-                }
-            }
-            if (graph.Keys.Count > optimizedDepsHash.Count)
-            {
-                throw new CementException("Unable to build! Circular dependency found!");
-            }
-            return optimizedDeps;
         }
 
         public static List<Dep> GetTopologicallySortedGraph(Dictionary<Dep, List<Dep>> graph, string root, string config, bool printCycle = true)

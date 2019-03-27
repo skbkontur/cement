@@ -86,6 +86,8 @@
     <Compile Include="CementExceptions.cs" />
     <Compile Include="CementFromServerUpdater.cs" />
     <Compile Include="CementSettings.cs" />
+    <Compile Include="Graph\GraphHelper.cs" />
+    <Compile Include="Graph\ParallelBuilder.cs" />
     <Compile Include="InstallHelper.cs" />
     <Compile Include="Logging\AsyncRollingFileAppender.cs" />
     <Compile Include="Logging\BoundedBuffer.cs" />
