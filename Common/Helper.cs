@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -304,6 +303,15 @@ namespace Common
                 "2017",
                 "2019",
             }.AsReadOnly();
+
+        public static string GetEnvVariableByVisualStudioVersion(string version)
+        {
+            switch (version)
+            {
+                case "2019": return "VS160COMNTOOLS";
+                default: return "VS150COMNTOOLS";
+            }
+        }
 
         public static bool IsVisualStudioVersion(string version)
         {

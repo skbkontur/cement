@@ -89,7 +89,7 @@ namespace Common
             foreach (var edition in Helper.VisualStudioEditions)
             {
                 paths.Add(new KeyValuePair<string, string>(
-                    "VS150COMNTOOLS",
+                    Helper.GetEnvVariableByVisualStudioVersion(version),
                     Path.Combine(programFiles, "Microsoft Visual Studio", version, edition, "Common7", "Tools", "VsDevCmd.bat")));
             }
 
