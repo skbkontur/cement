@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Common
         public string Treeish { get; set; }
         public string Configuration { get; set; }
         public bool NeedSrc { get; set; }
-        static readonly Dictionary<string, string> DepDefaultConfigurationCache = new Dictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> DepDefaultConfigurationCache = new ConcurrentDictionary<string, string>();
 
         public Dep(string name, string treeish = null, string configuration = null)
         {
@@ -131,7 +132,7 @@ namespace Common
             writer.Flush();
         }
 
-        public string ToJsonValueString(Dep dep)
+        private string ToJsonValueString(Dep dep)
         {
             var str = dep.Name;
             if (dep.Configuration != null)
