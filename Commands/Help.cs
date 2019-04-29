@@ -1,3 +1,4 @@
+using System;
 using Common;
 using System.IO;
 using System.Linq;
@@ -49,7 +50,7 @@ namespace Commands
 
         private static void PrintHelpFooter()
         {
-            ConsoleWriter.WriteLine("Cement. 2018.");
+            ConsoleWriter.WriteLine($"Cement. {DateTime.Now.Year}.");
         }
 
         public string HelpMessage => @"
