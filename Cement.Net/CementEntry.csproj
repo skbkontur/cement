@@ -116,16 +116,17 @@
     <Exec Command="$(Merger) /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
   </Target>
   <Target Name="CopyExe" DependsOnTargets="AfterBuild" Condition="'$(OS)' != 'Unix'">
-  	<Exec Command="rmdir /S /Q %25userprofile%25\bin\dotnet" />
-  	<Exec Command="mkdir %25userprofile%25\bin\dotnet" />
+    <Exec Command="rmdir /S /Q %25userprofile%25\bin\dotnet" />
+    <Exec Command="mkdir %25userprofile%25\bin\dotnet" />
     <Exec Command="copy $(OutputAssembly) %25userprofile%25\bin\dotnet\cm.exe" />
     <Exec Command="copy $(OutputAssembly).config %25userprofile%25\bin\dotnet\cm.exe.config" />
     <Exec Command="xcopy $(SolutionDir)\files-common %25userprofile%25\bin\dotnet /s /i /Y" />
     <Exec Condition="Exists('$(SolutionDir)\files-kontur')" Command="xcopy $(SolutionDir)\files-kontur %25userprofile%25\bin\dotnet /s /i /Y" />
+    <Exec Command="$(OutputAssembly) help --gen $(SolutionDir)\README-commands.md" />
   </Target>
   <Target Name="CopyExeUnix" DependsOnTargets="AfterBuild" Condition="'$(OS)' == 'Unix'">
     <Exec Command="rm -rf ~/bin/dotnet" />
-  	<Exec Command="mkdir ~/bin/dotnet" />
+    <Exec Command="mkdir ~/bin/dotnet" />
     <Exec Command="cp $(OutputAssembly) ~/bin/dotnet/cm.exe" />
     <Exec Command="cp $(OutputAssembly).config ~/bin/dotnet/cm.exe.config" />
     <Exec Command="cp -R $(SolutionDir)/files-common/* ~/bin/dotnet" />

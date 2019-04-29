@@ -145,10 +145,11 @@
     Performs build for current module dependencies
 
     Usage:
-        cm build-deps [-r|--rebuild] [-v|--verbose|-w|--warnings] [-p|--progress] [-c|--configuration <config-name>]
+        cm build-deps [-r|--rebuild] [-q|--quickly] [-v|--verbose|-w|--warnings] [-p|--progress] [-c|--configuration <config-name>]
 
         -r/--rebuild              - rebuild all deps (default skip module if it was already built,
                                     according to its commit-hash)
+        -q/--quickly              - build deps in parallel
         -c/--configuration        - build deps for corresponding configuration
 
         -v/--verbose              - show full msbuild output
