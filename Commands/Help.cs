@@ -49,7 +49,7 @@ namespace Commands
 
         private static void PrintHelpFooter()
         {
-            ConsoleWriter.WriteLine("Cement. 2018.");
+            ConsoleWriter.WriteLine("Cement. 2019.");
         }
 
         public string HelpMessage => @"
