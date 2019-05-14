@@ -21,9 +21,10 @@ Example:
     client: 
       # list of dependencies of client configuration
       # dependencies are listed in the following form: <moduleName>[@branchName][/configName]
-      # kanso – reference to kanso module. 
-      # kanso/client – reference to kanso in client configuration. 
+      # kanso – reference to kanso module
+      # kanso/client – reference to kanso in client configuration 
       # kanso@develop/client - kanso from develop branch in client configuration
+      # '@' and '/' marks in branch name should be shielded by '\'
       deps: 
         - core
         - log4net
