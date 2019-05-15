@@ -66,6 +66,7 @@
     <Compile Include="ParsersTests\TestRulesetFile.cs" />
     <Compile Include="CommandsTests\TestInit.cs" />
     <Compile Include="ParsersTests\TestInstallXmlParser.cs" />
+    <Compile Include="ParsersTests\Yaml\TestConfigurationHierarchy.cs" />
     <Compile Include="UtilsTests\TestGitRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilsTests\TestLastUpdateTime.cs" />
