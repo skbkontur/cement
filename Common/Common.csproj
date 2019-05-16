@@ -131,6 +131,7 @@
     <Compile Include="DepsParser.cs" />
     <Compile Include="YamlParsers\ConfigLineParser.cs" />
     <Compile Include="YamlParsers\ConfigurationHierarchy.cs" />
+    <Compile Include="YamlParsers\DepLineParser.cs" />
     <Compile Include="YamlParsers\DepsYamlParser.cs" />
     <Compile Include="DirectoryJumper.cs" />
     <Compile Include="GitRepository.cs" />
