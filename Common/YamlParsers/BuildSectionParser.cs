@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,8 +18,14 @@ namespace Common.YamlParsers
             this.settings = settings;
         }
 
-        public BuildData[] ParseBuildSections(string module, params IDictionary<object, object>[] buildSections)
+
+
+        public BuildData[] ParseBuildSections(string module, object contents)
         {
+            var buildSections = CastContent(contents);
+            if (buildSections == null)
+                return null;
+
             var count = buildSections.Length;
             if (count == 0)
                 return new BuildData[0];
@@ -79,6 +86,21 @@ namespace Common.YamlParsers
                     return new List<string>() { str };
                 default:
                     return new List<string>();
+            }
+        }
+
+        private IDictionary<object, object>[] CastContent(object contents)
+        {
+            switch (contents)
+            {
+                case null:
+                    return null;
+                case List<object> t1:
+                    return t1.Cast<IDictionary<object, object>>().ToArray();
+                case IDictionary<object, object> t2:
+                    return new[] { t2 };
+                default:
+                    throw new Exception("Internal error: unexpected build-section contents");
             }
         }
 

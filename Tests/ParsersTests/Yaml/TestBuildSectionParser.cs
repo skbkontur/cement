@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Common;
 using Common.YamlParsers;
 using FluentAssertions;
@@ -15,7 +13,7 @@ namespace Tests.ParsersTests.Yaml
         private const string Module = "module";
 
         [TestCaseSource(nameof(GoodCasesSource))]
-        public void Parse(string input, BuildData[] expected)
+        public void ParseBuildSection(string input, BuildData[] expected)
         {
             var parser = new BuildSectionParser();
             var buildSections = GetBuildSections(input);
@@ -25,7 +23,7 @@ namespace Tests.ParsersTests.Yaml
         }
 
         [TestCaseSource(nameof(BadCasesSource))]
-        public void Throw(string input)
+        public void ThrowOnInvalidBuildSection(string input)
         {
             var parser = new BuildSectionParser();
             var buildSections = GetBuildSections(input);
@@ -198,19 +196,12 @@ namespace Tests.ParsersTests.Yaml
                 .SetName("Tool can't be an empty string"),
         };
 
-        private IDictionary<object, object>[] GetBuildSections(string text)
+        private object GetBuildSections(string text)
         {
             var serializer = new Serializer();
             var yaml = (Dictionary<object, object>) serializer.Deserialize(text);
 
-            var buildSection = yaml["build"];
-
-            if (buildSection is IDictionary<object, object> dict)
-                return new[] { dict };
-            if (buildSection is List<object> collection)
-                return collection.Cast<IDictionary<object, object>>().ToArray();
-
-            throw new Exception("Unrecognized build section type: " + buildSection.GetType().Name);
+            return yaml["build"];
         }
     }
 }
