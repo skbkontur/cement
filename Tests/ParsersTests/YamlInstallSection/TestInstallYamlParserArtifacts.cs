@@ -162,7 +162,6 @@ full-build:
                     new[] { "file1", "a1" })
                 .SetName("Install section: artifacts. Build files from install section are added to artifacts (ignoring 'module' and 'nuget' directive)."),
 
-            // possibly a bug
             new TestCaseData(@"
 full-build:
   artifacts:
@@ -173,8 +172,8 @@ full-build:
     - a2
     - nuget SomeNuget2
 ",
-                    new[] { "a1", "nuget SomeNuget1", "a2", "nuget SomeNuget2" })
-                .SetName("Install section: artifacts. Nuget packages leak into artifact section"),
+                    new[] { "a1", "a2" })
+                .SetName("Install section: artifacts. Nuget packages do not leak into artifact section"),
 
             new TestCaseData(@"
 full-build:

@@ -125,7 +125,6 @@ full-build > config1:
                     new [] { "file1", "file2", "file3", "file4", "file5" })
                 .SetName("Install section: MainConfigBuildFiles. 'modules' are not leaked into MainConfigBuildFiles."),
 
-            // possibly a bug
             new TestCaseData(@"
 default:
   install:
@@ -150,12 +149,10 @@ full-build > config1:
                         "file1",
                         "file2",
                         "file3",
-                        "nuget SomeNuget1",
                         "file4",
                         "file5",
-                        "nuget SomeNuget2",
                     })
-                .SetName("Install section: MainConfigBuildFiles. 'nuget' are leaked into MainConfigBuildFiles."),
+                .SetName("Install section: MainConfigBuildFiles. 'nuget' do not leak into MainConfigBuildFiles."),
         };
     }
 }
