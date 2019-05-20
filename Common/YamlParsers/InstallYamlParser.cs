@@ -11,6 +11,10 @@ namespace Common.YamlParsers
         {
         }
 
+        public InstallYamlParser(string moduleName, string configFileContents) : base(moduleName, configFileContents)
+        {
+        }
+
         public InstallData Get(string configuration = null)
         {
             configuration = configuration ?? GetDefaultConfigurationName();
@@ -20,6 +24,7 @@ namespace Common.YamlParsers
                 ? GetInstallContent("default")
                 : new InstallData();
             var result = GetInstallContent(configuration);
+
             result.BuildFiles.AddRange(defaultInstallContent.BuildFiles);
             result.BuildFiles = result.BuildFiles.Distinct().ToList();
             result.Artifacts.AddRange(defaultInstallContent.Artifacts);

@@ -88,6 +88,11 @@
     <Compile Include="ParsersTests\TestRulesetFile.cs" />
     <Compile Include="CommandsTests\TestInit.cs" />
     <Compile Include="ParsersTests\TestInstallXmlParser.cs" />
+    <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParserArtifacts.cs" />
+    <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParserBuildFiles.cs" />
+    <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParserExternalModules.cs" />
+    <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParserMainConfigBuildFiles.cs" />
+    <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParserNuget.cs" />
     <Compile Include="ParsersTests\Yaml\TestBuildSectionParser.cs" />
     <Compile Include="ParsersTests\Yaml\TestConfigurationHierarchy.cs" />
     <Compile Include="ParsersTests\Yaml\TestDepLineParser.cs" />
@@ -114,7 +119,6 @@
     <Compile Include="UtilsTests\TestHelper.cs" />
     <Compile Include="ParsersTests\TestIniParser.cs" />
     <Compile Include="UtilsTests\TestInstallCollector.cs" />
-    <Compile Include="ParsersTests\TestInstallYamlParser.cs" />
     <Compile Include="UtilsTests\TestModuleContainer.cs" />
     <Compile Include="ParsersTests\TestModuleIniParser.cs" />
     <Compile Include="ParsersTests\TestParseIniDeps.cs" />
