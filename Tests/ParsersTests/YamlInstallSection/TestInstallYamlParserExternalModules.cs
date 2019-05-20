@@ -168,7 +168,7 @@ full-build > config1,config2:
                         "Module8",
                         "Module9",
                     })
-                .SetName("Install section: external modules. Three-leveled multiple-ancestors configuration with 'default' section, multiple nugets"),
+                .SetName("Install section: external modules. Three-leveled multiple-ancestors configuration with 'default' section, multiple external modules"),
 
             new TestCaseData(@"
 default:
