@@ -8,12 +8,8 @@ namespace Tests.Helpers
     {
         public static ConfigurationYamlParser ConfigurationParser(string text)
         {
-            using (var dir = new TempDirectory())
-            {
-                var yamlPath = Path.Combine(dir.Path, Helper.YamlSpecFile);
-                File.WriteAllText(yamlPath, text);
-                return new ConfigurationYamlParser(new FileInfo(dir.Path));
-            }
+            const string fakeModuleName = "some_module";
+            return new ConfigurationYamlParser(fakeModuleName, text);
         }
 
         public static DepsYamlParser DepsParser(string text)
@@ -28,12 +24,8 @@ namespace Tests.Helpers
 
         public static InstallYamlParser InstallParser(string text)
         {
-            using (var dir = new TempDirectory())
-            {
-                var yamlPath = Path.Combine(dir.Path, Helper.YamlSpecFile);
-                File.WriteAllText(yamlPath, text);
-                return new InstallYamlParser(new FileInfo(dir.Path));
-            }
+            const string fakeModuleName = "some_module";
+            return new InstallYamlParser(fakeModuleName, text);
         }
 
         public static BuildYamlParser BuildParser(string text)

@@ -11,6 +11,10 @@ namespace Common.YamlParsers
         {
         }
 
+        public InstallYamlParser(string moduleName, string configFileContents) : base(moduleName, configFileContents)
+        {
+        }
+
         public InstallData Get(string configuration = null)
         {
             configuration = configuration ?? GetDefaultConfigurationName();
