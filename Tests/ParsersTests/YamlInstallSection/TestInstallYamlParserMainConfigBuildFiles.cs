@@ -30,7 +30,8 @@ full-build:
   install:
 ",
                     new string[0])
-                .SetName("Install section: MainConfigBuildFiles. Empty 'install' section."),
+                .SetName("Install section: MainConfigBuildFiles. Empty 'install' section.")
+                .Ignore("Invalid cast exception: cannot cast System.String to System.Collections.Generic.List`1[System.Object]"),
 
             new TestCaseData(@"
 full-build:

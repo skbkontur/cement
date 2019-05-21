@@ -11,6 +11,10 @@ namespace Common.YamlParsers
         {
         }
 
+        public HooksYamlParser(string moduleName, string text) : base(moduleName, text)
+        {
+        }
+
         public List<string> Get()
         {
             try

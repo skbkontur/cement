@@ -32,6 +32,16 @@ full-build:
 
             new TestCaseData(@"
 full-build:
+  artifacts:
+    - module Module1
+  artefacts:
+    - module Module2
+",
+                    new string[0])
+                .SetName("Install section. External modules cannot be "),
+
+            new TestCaseData(@"
+full-build:
   install:
     - module Module1
     - module Module2

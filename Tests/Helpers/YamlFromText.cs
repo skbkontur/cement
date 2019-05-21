@@ -50,12 +50,8 @@ namespace Tests.Helpers
 
         public static HooksYamlParser HooksParser(string text)
         {
-            using (var dir = new TempDirectory())
-            {
-                var yamlPath = Path.Combine(dir.Path, Helper.YamlSpecFile);
-                File.WriteAllText(yamlPath, text);
-                return new HooksYamlParser(new FileInfo(dir.Path));
-            }
+            const string fakeModuleName = "some_module";
+            return new HooksYamlParser(fakeModuleName, text);
         }
     }
 }

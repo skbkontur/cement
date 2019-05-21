@@ -143,7 +143,9 @@
     <Compile Include="IniParser.cs" />
     <Compile Include="InstallCollector.cs" />
     <Compile Include="InstallData.cs" />
+    <Compile Include="YamlParsers\HooksSectionParser.cs" />
     <Compile Include="YamlParsers\HooksYamlParser.cs" />
+    <Compile Include="YamlParsers\InstallSectionParser.cs" />
     <Compile Include="YamlParsers\InstallYamlParser.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="ModuleBuilder.cs" />
@@ -162,8 +164,10 @@
     <Compile Include="VisualStudioProjectParser.cs" />
     <Compile Include="YamlParsers\Models\ConfigurationLine.cs" />
     <Compile Include="YamlParsers\ModuleYamlFile.cs" />
+    <Compile Include="YamlParsers\SettingsSectionParser.cs" />
     <Compile Include="YamlParsers\SettingsYamlParser.cs" />
     <Compile Include="YamlParsers\Yaml.cs" />
+    <Compile Include="YamlParsers\YamlModuleDefaultsParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

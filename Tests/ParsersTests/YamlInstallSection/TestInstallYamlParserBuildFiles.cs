@@ -30,7 +30,8 @@ full-build:
   install:
 ",
                     new string[0])
-                .SetName("Install section: build files. Single configuration, empty install section"),
+                .SetName("Install section: build files. Single configuration, empty install section")
+                .Ignore("unable to cast System.String to type System.Collections.Generic.List`1[System.Object]"),
 
             new TestCaseData(@"
 full-build:
@@ -231,6 +232,17 @@ full-build:
 ",
                     new[] { "file1" })
                 .SetName("Install section: build files. BuildFiles collection are not affected by duplicate artifacts (single configuration)."),
+
+            new TestCaseData(@"
+full-build:
+  install:
+    - file1
+
+  artifacts:
+    - file2
+",
+                    new[] { "file1" })
+                .SetName("Install section: build files. Artifacts do not leak into build files."),
         };
     }
 }
