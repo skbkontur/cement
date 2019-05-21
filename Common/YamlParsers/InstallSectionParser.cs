@@ -38,24 +38,24 @@ namespace Common.YamlParsers
                 .Select(line => line.Substring(NugetPrefix.Length))
                 .ToList();
 
-            var buildFiles = installSection
+            var installFiles = installSection
                 .Where(IsBuildFileName)
                 .Distinct()
                 .ToList();
 
-            var artifacts = buildFiles
+            var artifacts = installFiles
                 .Concat(artifactsSection)
                 .Concat(artefactsSection)
                 .Where(IsBuildFileName)
                 .Distinct()
                 .ToList();
 
-            var mainConfigBuildFiles = new List<string>(artifacts);
+            var currentConfigurationInstallFiles = new List<string>(artifacts);
 
             return new InstallData
             {
-                BuildFiles = buildFiles,
-                MainConfigBuildFiles = mainConfigBuildFiles,
+                InstallFiles = installFiles,
+                CurrentConfigurationInstallFiles = currentConfigurationInstallFiles,
                 Artifacts = artifacts,
                 ExternalModules = externalModules,
                 NuGetPackages = nugets

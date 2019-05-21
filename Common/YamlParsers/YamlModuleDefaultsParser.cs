@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Common.YamlParsers.Models;
 using JetBrains.Annotations;
 
 namespace Common.YamlParsers

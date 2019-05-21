@@ -49,7 +49,7 @@ full-build:
     - file3
 ",
                     new [] { "file1", "file2", "file3" })
-                .SetName("Install section: CurrentConfigurationInstallFiles. Single configuration, multiple build files."),
+                .SetName("Install section: CurrentConfigurationInstallFiles. Single configuration, multiple install files."),
 
             new TestCaseData(@"
 default:

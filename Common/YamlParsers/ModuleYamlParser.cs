@@ -1,57 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.YamlParsers.Models;
-using JetBrains.Annotations;
 using SharpYaml.Serialization;
-
 
 namespace Common.YamlParsers
 {
-    public class ModuleDefinition
-    {
-        public ModuleDefinition([NotNull] Dictionary<string, ModuleConfiguration> configurations)
-        {
-            Configurations = configurations;
-        }
-
-        [NotNull]
-        public Dictionary<string, ModuleConfiguration> Configurations {get; set;}
-
-        [CanBeNull]
-        public ModuleDefaults Defaults {get; set;}
-    }
-
-    public class ModuleDefaults
-    {
-        [CanBeNull]
-        public string[] HooksSection { get; set; }
-
-        [CanBeNull]
-        public DepsContent DepsSection { get; set; }
-
-        [CanBeNull]
-        public ModuleSettings SettingsSection { get; set;}
-
-        [CanBeNull]
-        public BuildData[] BuildSection { get; set; }
-
-        [CanBeNull]
-        public InstallData InstallSection { get; set; }
-    }
-
-    public class ModuleConfiguration
-    {
-        public string Name {get;set;}
-        public bool IsDefault { get; set; }
-
-        public DepsContent Dependencies {get;set; }
-
-        public InstallData InstallSection { get;set; }
-
-        public BuildData[] BuildSection { get;set; }
-    }
-
     public class ModuleYamlParser
     {
         private readonly ConfigLineParser configLineParser;
@@ -74,7 +27,7 @@ namespace Common.YamlParsers
             this.yamlModuleDefaultsParser = yamlModuleDefaultsParser;
         }
 
-        public ModuleDefinition Parse(string module, string content)
+        public ModuleDefinition Parse(string content)
         {
             var serializer = new Serializer();
             var yaml = (Dictionary<object, object>) serializer.Deserialize(content);

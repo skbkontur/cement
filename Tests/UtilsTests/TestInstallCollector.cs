@@ -32,9 +32,9 @@ full-build:
                     CreateModule("ext", externalModuleText);
                     CreateModule("cur", moduleText);
                     var installData = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
-                    var buildFiles = installData.InstallFiles.ToArray();
+                    var installFiles = installData.InstallFiles.ToArray();
                     var nugetPackages = installData.NuGetPackages.ToArray();
-                    Assert.AreEqual(new[] {@"cur\current", @"ext\external"}, buildFiles);
+                    Assert.AreEqual(new[] {@"cur\current", @"ext\external"}, installFiles);
                     Assert.AreEqual(new[] {"pCurrent", "pExternal"}, nugetPackages);
                 }
             }

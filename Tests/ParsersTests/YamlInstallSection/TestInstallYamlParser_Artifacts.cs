@@ -160,7 +160,7 @@ full-build:
   artifacts:
     - a1",
                     new[] { "file1", "a1" })
-                .SetName("Install section: artifacts. Build files from install section are added to artifacts (ignoring 'module' and 'nuget' directive)."),
+                .SetName("Install section: artifacts. Install files from install section are added to artifacts (ignoring 'module' and 'nuget' directive)."),
 
             new TestCaseData(@"
 full-build:

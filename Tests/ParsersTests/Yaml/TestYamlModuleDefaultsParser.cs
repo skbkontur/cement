@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Common;
 using Common.YamlParsers;
+using Common.YamlParsers.Models;
 using FluentAssertions;
 using NUnit.Framework;
 using SharpYaml.Serialization;
@@ -66,8 +67,8 @@ namespace Tests.ParsersTests.Yaml
                     },
                     InstallSection = new InstallData()
                     {
-                        BuildFiles =  { "file1.dll" },
-                        MainConfigBuildFiles = { "file1.dll", "file2.dll", "file3.dll" },
+                        InstallFiles =  { "file1.dll" },
+                        CurrentConfigurationInstallFiles = { "file1.dll", "file2.dll", "file3.dll" },
                         Artifacts = { "file1.dll", "file2.dll", "file3.dll" },
                         ExternalModules = { "externalModule" },
                         NuGetPackages = { "nuget1" },
