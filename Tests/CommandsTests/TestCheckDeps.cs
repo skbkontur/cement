@@ -98,8 +98,8 @@ full-build:
                 var depsReferences =
                     new DepsReferencesCollector(Path.Combine(tempDir.Path, "A"), null).GetRefsFromDeps();
                 Assert.AreEqual(new[] {"C"}, depsReferences.NotFoundInstallSection);
-                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().BuildFiles);
-                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().MainConfigBuildFiles);
+                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().InstallFiles);
+                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().CurrentConfigurationInstallFiles);
             }
         }
 
@@ -142,8 +142,8 @@ full-build:
                 var depsReferences =
                     new DepsReferencesCollector(Path.Combine(tempDir.Path, "A"), null).GetRefsFromDeps();
                 Assert.AreEqual(new[] {"C"}, depsReferences.NotFoundInstallSection);
-                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll", "B\\bin\\Release\\B.Client.dll"}, depsReferences.FoundReferences.First().BuildFiles);
-                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().MainConfigBuildFiles);
+                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll", "B\\bin\\Release\\B.Client.dll"}, depsReferences.FoundReferences.First().InstallFiles);
+                Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().CurrentConfigurationInstallFiles);
             }
         }
     }

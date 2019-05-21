@@ -56,7 +56,7 @@ namespace Common
                     inDeps.Add(d);
                 }
                 bool isOverhead = true;
-                foreach (var d in installData.MainConfigBuildFiles)
+                foreach (var d in installData.CurrentConfigurationInstallFiles)
                 {
                     if (csprojRefs.Any(r => r.Reference.ToLower() == d.ToLower()))
                         isOverhead = false;
@@ -164,12 +164,12 @@ namespace Common
                 else
                 {
                     depInstall.ModuleName = dep.Name;
-                    depInstall.BuildFiles =
-                        depInstall.BuildFiles.Select(reference => reference.Replace('/', '\\')).ToList();
+                    depInstall.InstallFiles =
+                        depInstall.InstallFiles.Select(reference => reference.Replace('/', '\\')).ToList();
                     depInstall.Artifacts =
                         depInstall.Artifacts.Select(reference => reference.Replace('/', '\\')).ToList();
-                    depInstall.MainConfigBuildFiles =
-                        depInstall.MainConfigBuildFiles.Select(reference => reference.Replace('/', '\\')).ToList();
+                    depInstall.CurrentConfigurationInstallFiles =
+                        depInstall.CurrentConfigurationInstallFiles.Select(reference => reference.Replace('/', '\\')).ToList();
                     resultInstallData.Add(depInstall);
                 }
             }

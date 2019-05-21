@@ -5,7 +5,7 @@ using Tests.Helpers;
 namespace Tests.ParsersTests.YamlInstallSection
 {
     [TestFixture]
-    public class TestInstallYamlParserExternalModules
+    public class TestInstallYamlParser_ExternalModules
     {
         [TestCaseSource(nameof(ExternalModulesTestCaseSource))]
         public void TestGetExternalModules(string moduleYamlText, string[] expected)

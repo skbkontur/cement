@@ -24,12 +24,12 @@ namespace Common.YamlParsers
                 ? GetInstallContent("default")
                 : new InstallData();
             var result = GetInstallContent(configuration);
-            result.BuildFiles.AddRange(defaultInstallContent.BuildFiles);
-            result.BuildFiles = result.BuildFiles.Distinct().ToList();
+            result.InstallFiles.AddRange(defaultInstallContent.InstallFiles);
+            result.InstallFiles = result.InstallFiles.Distinct().ToList();
             result.Artifacts.AddRange(defaultInstallContent.Artifacts);
             result.Artifacts = result.Artifacts.Distinct().ToList();
-            result.MainConfigBuildFiles.AddRange(defaultInstallContent.MainConfigBuildFiles);
-            result.MainConfigBuildFiles = result.MainConfigBuildFiles.Distinct().ToList();
+            result.CurrentConfigurationInstallFiles.AddRange(defaultInstallContent.CurrentConfigurationInstallFiles);
+            result.CurrentConfigurationInstallFiles = result.CurrentConfigurationInstallFiles.Distinct().ToList();
             result.ExternalModules.AddRange(defaultInstallContent.ExternalModules.Where(r => !result.ExternalModules.Contains(r)));
             result.ExternalModules = result.ExternalModules.Select(m => m.Substring("module ".Length)).ToList();
             result.NuGetPackages.AddRange(defaultInstallContent.NuGetPackages.Where(r => !result.NuGetPackages.Contains(r)));
@@ -42,13 +42,13 @@ namespace Common.YamlParsers
             var result = new InstallData();
             var configQueue = new Queue<string>();
             configQueue.Enqueue(configuration);
-            result.MainConfigBuildFiles.AddRange(GetAllInstallFilesFromConfig(configuration).Where(IsBuildFileName));
+            result.CurrentConfigurationInstallFiles.AddRange(GetAllInstallFilesFromConfig(configuration).Where(IsBuildFileName));
             while (configQueue.Count > 0)
             {
                 var currentConfig = configQueue.Dequeue();
                 var currentDeps = GetInstallSectionFromConfig(currentConfig, "install");
-                result.BuildFiles.AddRange(currentDeps.Where(IsBuildFileName));
-                result.Artifacts.AddRange(result.BuildFiles.Where(r => !result.Artifacts.Contains(r)));
+                result.InstallFiles.AddRange(currentDeps.Where(IsBuildFileName));
+                result.Artifacts.AddRange(result.InstallFiles.Where(r => !result.Artifacts.Contains(r)));
                 result.Artifacts.AddRange(GetInstallSectionFromConfig(currentConfig, "artifacts").Where(IsBuildFileName));
                 result.Artifacts.AddRange(GetInstallSectionFromConfig(currentConfig, "artefacts").Where(IsBuildFileName));
                 result.ExternalModules.AddRange(currentDeps.Where(r => r.StartsWith("module ")));

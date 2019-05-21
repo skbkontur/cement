@@ -69,7 +69,7 @@ namespace Commands
 
             Log.Info("Getting install data for " + moduleToInsert + Helper.ConfigurationDelimiter + configuration);
             var installData = InstallParser.Get(moduleToInsert, configuration);
-            if (!installData.BuildFiles.Any())
+            if (!installData.InstallFiles.Any())
             {
                 ConsoleWriter.WriteWarning($"No install files found in '{moduleToInsert}'");
                 return 0;
@@ -145,7 +145,7 @@ namespace Commands
                 Log.Error("Installation of NuGet packages failed:", e);
             }
 
-            foreach (var buildItem in installData.BuildFiles)
+            foreach (var buildItem in installData.InstallFiles)
             {
                 var buildItemPath = Helper.OsIsUnix() ? Helper.WindowsPathSlashesToUnix(buildItem) : buildItem;
                 var refName = Path.GetFileNameWithoutExtension(buildItemPath);

@@ -32,9 +32,9 @@ namespace Common
                 return new InstallData();
 
             var result = new InstallYamlParser(new FileInfo(path)).Get(configName);
-            result.BuildFiles = result.BuildFiles.Select(r => Path.Combine(moduleName, r)).ToList();
+            result.InstallFiles = result.InstallFiles.Select(r => Path.Combine(moduleName, r)).ToList();
             result.Artifacts = result.Artifacts.Select(r => Path.Combine(moduleName, r)).ToList();
-            result.MainConfigBuildFiles = result.MainConfigBuildFiles.Select(r => Path.Combine(moduleName, r)).ToList();
+            result.CurrentConfigurationInstallFiles = result.CurrentConfigurationInstallFiles.Select(r => Path.Combine(moduleName, r)).ToList();
 
             proceededModules.Add(Path.GetFileName(path));
             var queue = new Queue<string>();
@@ -44,7 +44,7 @@ namespace Common
                 var externalModule = queue.Dequeue();
                 proceededModules.Add(externalModule);
                 var proceededExternal = ProceedExternalModule(externalModule, proceededModules, proceededNuGetPackages);
-                result.BuildFiles.AddRange(proceededExternal.BuildFiles.Where(f => !result.BuildFiles.Contains(f)));
+                result.InstallFiles.AddRange(proceededExternal.InstallFiles.Where(f => !result.InstallFiles.Contains(f)));
                 result.ExternalModules.AddRange(proceededExternal.ExternalModules);
                 result.NuGetPackages.AddRange(proceededExternal.NuGetPackages);
                 proceededExternal.NuGetPackages.ForEach(m => proceededNuGetPackages.Add(m));
@@ -59,7 +59,7 @@ namespace Common
             var externalModulePath = Path.Combine(path, "..", dep.Name);
             var externalInstallData = new InstallYamlParser(new FileInfo(externalModulePath)).Get(dep.Configuration);
             return new InstallData(
-                externalInstallData.BuildFiles
+                externalInstallData.InstallFiles
                     .Select(f => Path.Combine(dep.Name, f))
                     .ToList(),
                 externalInstallData.ExternalModules

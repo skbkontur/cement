@@ -5,7 +5,7 @@ using Tests.Helpers;
 namespace Tests.ParsersTests.YamlInstallSection
 {
     [TestFixture]
-    public class TestInstallYamlParserArtifacts
+    public class TestInstallYamlParser_Artifacts
     {
         [TestCaseSource(nameof(ArtifactsTestCaseSource))]
         public void TestGetArtifacts(string moduleYamlText, string[] expected)

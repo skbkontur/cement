@@ -5,7 +5,7 @@ using Tests.Helpers;
 namespace Tests.ParsersTests.YamlInstallSection
 {
     [TestFixture]
-    public class TestInstallYamlParserNuget
+    public class TestInstallYamlParser_NuGetPackages
     {
         [TestCaseSource(nameof(NugetTestCaseSource))]
         public void TestGetNuGet(string moduleYamlText, string[] expected)
