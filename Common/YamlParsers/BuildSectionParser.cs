@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Common.YamlParsers
 {
@@ -18,9 +19,17 @@ namespace Common.YamlParsers
             this.settings = settings;
         }
 
+        public BuildData[] ParseBuildDefaultsSections([CanBeNull] object contents)
+        {
+            return ParseBuildSections(contents, strict: false);
+        }
 
+        public BuildData[] ParseBuildConfigurationSections([CanBeNull] object contents)
+        {
+            return ParseBuildSections(contents, strict: true);
+        }
 
-        public BuildData[] ParseBuildSections(string module, object contents)
+        private BuildData[] ParseBuildSections([CanBeNull] object contents, bool strict)
         {
             var buildSections = CastContent(contents);
             if (buildSections == null)
@@ -35,12 +44,12 @@ namespace Common.YamlParsers
             {
                 var target = Helper.FixPath(FindValue(section, "target", string.Empty));
                 var configuration = FindValue(section, "configuration");
-                var tool = GetTools(module, section);
+                var tool = GetTools(section);
                 var parameters = GetBuildParams(section);
                 var name = FindValue(section, "name", string.Empty);
 
-                if (target.EndsWith(".sln") && string.IsNullOrEmpty(configuration))
-                    throw new BadYamlException(module, "build", "Build configuration not found");
+                if (strict && target.EndsWith(".sln") && string.IsNullOrEmpty(configuration))
+                    throw new BadYamlException("build", "Build configuration not found");
 
                 if (count > 1 && string.IsNullOrEmpty(name))
                     throw new CementException("Multiple parts of build-section require names");
@@ -51,7 +60,7 @@ namespace Common.YamlParsers
             return result.ToArray();
         }
 
-        private Tool GetTools(string module, IDictionary<object, object> section)
+        private Tool GetTools(IDictionary<object, object> section)
         {
             if (!section.TryGetValue("tool", out var tool))
                 return defaultTool;
@@ -59,7 +68,7 @@ namespace Common.YamlParsers
             switch (tool)
             {
                 case string toolString when string.IsNullOrEmpty(toolString):
-                    throw new BadYamlException(module, "tool", "empty tool");
+                    throw new BadYamlException("tool", "empty tool specified in 'build' section ('tool' subsection).'");
 
                 case string toolString:
                     return new Tool(toolString);
@@ -71,7 +80,7 @@ namespace Common.YamlParsers
                     return new Tool(name,version);
 
                 default:
-                    throw new BadYamlException(module, "tool", "not dict format");
+                    throw new BadYamlException("tool", "not dict format");
             }
         }
 

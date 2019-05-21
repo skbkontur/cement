@@ -10,14 +10,23 @@ namespace Tests.ParsersTests.Yaml
     [TestFixture]
     public class TestBuildSectionParser
     {
-        private const string Module = "module";
-
-        [TestCaseSource(nameof(GoodCasesSource))]
-        public void ParseBuildSection(string input, BuildData[] expected)
+        [TestCaseSource(nameof(GoodConfigurationCasesSource))]
+        [TestCaseSource(nameof(GoodDefaultsCasesSource))]
+        public void ParseBuildDefaultsSections(string input, BuildData[] expected)
         {
             var parser = new BuildSectionParser();
             var buildSections = GetBuildSections(input);
-            var actual = parser.ParseBuildSections(Module, buildSections);
+            var actual = parser.ParseBuildDefaultsSections(buildSections);
+
+            actual.Should().BeEquivalentTo(expected);
+        }
+
+        [TestCaseSource(nameof(GoodConfigurationCasesSource))]
+        public void ParseBuildConfigurationSections(string input, BuildData[] expected)
+        {
+            var parser = new BuildSectionParser();
+            var buildSections = GetBuildSections(input);
+            var actual = parser.ParseBuildConfigurationSections(buildSections);
 
             actual.Should().BeEquivalentTo(expected);
         }
@@ -27,10 +36,10 @@ namespace Tests.ParsersTests.Yaml
         {
             var parser = new BuildSectionParser();
             var buildSections = GetBuildSections(input);
-            parser.ParseBuildSections(Module, buildSections);
+            parser.ParseBuildConfigurationSections(buildSections);
         }
 
-        private static TestCaseData[] GoodCasesSource =
+        private static TestCaseData[] GoodConfigurationCasesSource =
         {
             new TestCaseData(@"build:
   target: Solution.sln
@@ -118,7 +127,25 @@ namespace Tests.ParsersTests.Yaml
                             "/p:SomeParam2=0"
                         }, string.Empty),
                     })
-                .SetName("Single sln-target with configuration, multiline params, no tool, no name"),
+                .SetName("Single sln-target with configuration, multiline params in quotes, no tool, no name"),
+
+            new TestCaseData(@"build:
+  target: Solution.sln
+  configuration: Release
+  parameters:
+    - /p:WarningLevel=0
+    - /p:SomeParam1=0
+    - /p:SomeParam2=0",
+                    new[]
+                    {
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>
+                        {
+                            "/p:WarningLevel=0",
+                            "/p:SomeParam1=0",
+                            "/p:SomeParam2=0"
+                        }, string.Empty),
+                    })
+                .SetName("Single sln-target with configuration, multiline params without quotes, no tool, no name"),
 
             new TestCaseData(@"build:
   - name: Utilities
@@ -168,9 +195,19 @@ namespace Tests.ParsersTests.Yaml
                             "Restore deps for PSMoiraWorks"),
                     })
                 .SetName("Multi sln-powershell-target with configuration, single-line params, with multi- and signle-line tool"),
+        };
 
+        private static TestCaseData[] GoodDefaultsCasesSource =
+        {
+            new TestCaseData(@"
+build:
+  target: Solution.sln",
+                    new[]
+                    {
+                        new BuildData("Solution.sln", null, new Tool("msbuild"), new List<string>(), string.Empty),
+                    })
 
-
+                .SetName("'configuration' is not required for *.sln targets in default section"),
         };
 
         private static TestCaseData[] BadCasesSource =
