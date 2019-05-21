@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Common.Extensions;
 using Common.YamlParsers.Models;
 using JetBrains.Annotations;
 
@@ -33,26 +34,23 @@ namespace Common.YamlParsers
             if (defaultsContents == null)
                 return null;
 
-            var result = new ModuleDefaults();
+            var installSection = defaultsContents.FindValue("install");
+            var artifactsSection = defaultsContents.FindValue("artifacts");
+            var artefactsSection = defaultsContents.FindValue("artefacts");
+            var installData = installSectionParser.Parse(installSection, artifactsSection, artefactsSection);
+            var hooksData = hooksSectionParser.Parse(defaultsContents.FindValue("hooks"));
+            var settingsData = settingsSectionParser.Parse(defaultsContents.FindValue("settings"));
+            var buildData = buildSectionParser.ParseBuildDefaultsSections(defaultsContents.FindValue("build"));
+            var depsData = depsSectionParser.Parse(defaultsContents.FindValue("deps"));
 
-            defaultsContents.TryGetValue("hooks", out var hooksSection);
-            result.HooksSection = hooksSectionParser.Parse(hooksSection);
-
-            defaultsContents.TryGetValue("settings", out var settingsSection);
-            result.SettingsSection = settingsSectionParser.Parse(settingsSection);
-
-            defaultsContents.TryGetValue("build", out var buildSection);
-            result.BuildSection = buildSectionParser.ParseBuildDefaultsSections(buildSection);
-
-            defaultsContents.TryGetValue("deps", out var depsSection);
-            result.DepsSection = depsSectionParser.Parse(depsSection);
-
-            defaultsContents.TryGetValue("install", out var installSection);
-            defaultsContents.TryGetValue("artifacts", out var artifactsSection);
-            defaultsContents.TryGetValue("artefacts", out var artefactsSection);
-            result.InstallSection = installSectionParser.Parse(installSection, artifactsSection, artefactsSection);
-
-            return result;
+            return new ModuleDefaults
+            {
+                BuildSection = buildData,
+                DepsSection = depsData,
+                InstallSection = installData,
+                SettingsSection = settingsData,
+                HooksSection = hooksData
+            };
         }
     }
 }

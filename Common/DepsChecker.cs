@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.Extensions;
 using Common.YamlParsers;
 
 namespace Common
@@ -78,7 +79,7 @@ namespace Common
             var allInstalls = new HashSet<string>(
                 InstallHelper.GetAllInstallFiles().Select(Path.GetFileName));
             notInDeps.AddRange(innerRefs.Where(i => allInstalls.Contains(Path.GetFileName(i.Reference))));
-            
+
             foreach (var r in csprojRefs)
             {
                 var moduleName = GetModuleName(r.Reference);

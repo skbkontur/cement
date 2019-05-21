@@ -3,6 +3,7 @@ using Common;
 using Common.YamlParsers;
 using System.IO;
 using System.Linq;
+using Common.Extensions;
 
 namespace Commands
 {
@@ -51,7 +52,7 @@ namespace Commands
                 if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))
                     return -1;
             }
-            finally 
+            finally
             {
                 if (File.Exists(projectPath))
                     File.Delete(projectPath);
@@ -68,7 +69,7 @@ namespace Commands
             if (parsedArgs["configuration"] != null)
                 configuration = (string)parsedArgs["configuration"];
             preRelease = (bool)parsedArgs["prerelease"];
-            
+
             buildSettings = new BuildSettings
             {
                 ShowAllWarnings = (bool)parsedArgs["warnings"],

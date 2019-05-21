@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Common.Extensions;
 using Common.YamlParsers.Models;
 using JetBrains.Annotations;
 
@@ -7,6 +8,21 @@ namespace Common.YamlParsers
 {
     public class YamlConfigurationParser
     {
+        private readonly InstallSectionParser installSectionParser;
+        private readonly DepsSectionParser depsSectionParser;
+        private readonly BuildSectionParser buildSectionParser;
+
+        public YamlConfigurationParser(
+            InstallSectionParser installSectionParser,
+            DepsSectionParser depsSectionParser,
+            BuildSectionParser buildSectionParser
+            )
+        {
+            this.installSectionParser = installSectionParser;
+            this.depsSectionParser = depsSectionParser;
+            this.buildSectionParser = buildSectionParser;
+        }
+
         public ModuleConfiguration Parse(
             [CanBeNull] ModuleDefaults defaults,
             Dictionary<object, object> configurationContents,
@@ -17,47 +33,45 @@ namespace Common.YamlParsers
             var result = new ModuleConfiguration();
 
             var parentInstalls = parentConfigs?.Select(c => knownConfigurations[c].InstallSection).ToArray();
-            configurationContents.TryGetValue("install", out var installSection);
-            configurationContents.TryGetValue("artifacts", out var artifactsSection);
-            configurationContents.TryGetValue("artefacts", out var artefactsSection);
-            result.InstallSection = Merge(defaults?.InstallSection, parentInstalls, installSection, artifactsSection, artefactsSection);
-
+            var installSection = configurationContents.FindValue("install");
+            var artifactsSection = configurationContents.FindValue("artifacts");
+            var artefactsSection = configurationContents.FindValue("artefacts");
+            var currentInstallSection = installSectionParser.Parse(installSection, artifactsSection, artefactsSection);
+            result.InstallSection = Merge(defaults?.InstallSection, currentInstallSection, parentInstalls);
 
             var parentDeps = parentConfigs?
                 .SelectMany(c => knownConfigurations[c].Dependencies.Deps)
                 .Distinct()
                 .ToArray();
-            configurationContents.TryGetValue("deps", out var depsSection);
-            result.Dependencies = Merge(parentDeps, depsSection);
 
+            var currentDepsSection = depsSectionParser.Parse(configurationContents.FindValue("deps"));
+            result.Dependencies = Merge(defaults?.BuildSection, parentDeps, currentDepsSection);
 
-            configurationContents.TryGetValue("build", out var buildSection);
-            result.BuildSection = Merge(defaults?.BuildSection, buildSection);
+            var currentBuildSection = buildSectionParser.ParseBuildConfigurationSections(configurationContents.FindValue("build"));
+            result.BuildSection = Merge(defaults?.BuildSection, currentBuildSection);
 
             return result;
         }
 
-
-        private InstallData Merge(
-            [CanBeNull] InstallData defaultsInstallSection,
-            [CanBeNull] InstallData[] parentInstalls,
-            [CanBeNull] object installSection,
-            [CanBeNull] object artifactsSection,
-            [CanBeNull] object artefactsSection)
+        private BuildData[] Merge(
+            [CanBeNull] BuildData[] defaultsBuildSection,
+            [CanBeNull] BuildData[] currentBuildSectionSection)
         {
             throw new System.NotImplementedException();
         }
 
         private DepsContent Merge(
-            [CanBeNull] Dep[] defaultsInstallSection,
-            [CanBeNull] object parentInstalls)
+            [CanBeNull] BuildData[] defaultsInstallSection,
+            [CanBeNull] Dep[] currentInstallSection,
+            [CanBeNull] DepsContent currentDepsSection)
         {
             throw new System.NotImplementedException();
         }
 
-        private BuildData[] Merge(
-            [CanBeNull] BuildData[] defaultsInstallSection,
-            [CanBeNull] object parentInstalls)
+        private InstallData Merge(
+            [CanBeNull] InstallData defaultsInstallSection,
+            [CanBeNull] InstallData currentInstallSection,
+            [CanBeNull] InstallData[] parentInstalls)
         {
             throw new System.NotImplementedException();
         }

@@ -90,12 +90,14 @@
     <Compile Include="CementExceptions.cs" />
     <Compile Include="CementFromServerUpdater.cs" />
     <Compile Include="CementSettings.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Graph\GraphHelper.cs" />
     <Compile Include="Graph\ParallelBuilder.cs" />
     <Compile Include="InstallHelper.cs" />
     <Compile Include="Logging\AsyncRollingFileAppender.cs" />
     <Compile Include="Logging\BoundedBuffer.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="ICementUpdater.cs" />
     <Compile Include="CompleteCommandAutomata.cs" />
     <Compile Include="DictionaryFriendlyContractResolver.cs" />

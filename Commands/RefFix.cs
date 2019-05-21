@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using Common;
+using Common.Extensions;
 using Common.YamlParsers;
 
 namespace Commands
@@ -154,7 +155,7 @@ namespace Commands
             return answer;
         }
 
-        
+
 
         private void UpdateReference(string reference, string project)
         {
