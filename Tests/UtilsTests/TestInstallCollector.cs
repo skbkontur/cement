@@ -9,46 +9,6 @@ namespace Tests.UtilsTests
     public class TestInstallCollector
     {
         [Test]
-        public void TestGetExternalInstalls()
-        {
-            var text = @"
-full-build:
-    deps:
-        - ext
-    install:
-        - current
-        - module ext";
-            var result = YamlFromText.InstallParser(text).Get().ExternalModules;
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("ext", result[0]);
-        }
-
-        [Test]
-        public void TestGetNuGetInstalls()
-        {
-            var text = @"
-full-build:
-    deps:
-        - ext
-    install:
-        - current
-        - nuget Newtonsoft.Json";
-            var result = YamlFromText.InstallParser(text).Get().NuGetPackages;
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("Newtonsoft.Json", result[0]);
-        }
-
-        private void CreateModule(string moduleName, string content)
-        {
-            if (!Directory.Exists(moduleName))
-            {
-                Directory.CreateDirectory(moduleName);
-            }
-            var filePath = Path.Combine(moduleName, "module.yaml");
-            File.WriteAllText(filePath, content);
-        }
-
-        [Test]
         public void TestWithExternals()
         {
             var externalModuleText = @"
@@ -200,6 +160,16 @@ client:
                     new[] { "current", "client", "external", "external.client", "q.sdk" },
                     installData.NuGetPackages.ToArray());
             }
+        }
+
+        private void CreateModule(string moduleName, string content)
+        {
+            if (!Directory.Exists(moduleName))
+            {
+                Directory.CreateDirectory(moduleName);
+            }
+            var filePath = Path.Combine(moduleName, "module.yaml");
+            File.WriteAllText(filePath, content);
         }
     }
 }
