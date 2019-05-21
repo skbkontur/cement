@@ -52,6 +52,11 @@ namespace Common
             : base($"Fail to parse {sectionName} section in {moduleName}/module.yaml: {message}")
         {
         }
+
+        public BadYamlException(string sectionName, string message)
+            : base($"Fail to parse {sectionName} section in module.yaml: {message}")
+        {
+        }
     }
 
     public class TreeishConflictException : CementException

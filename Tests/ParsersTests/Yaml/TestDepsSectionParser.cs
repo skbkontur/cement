@@ -10,8 +10,6 @@ namespace Tests.ParsersTests.Yaml
     [TestFixture]
     public class TestDepsSectionParser
     {
-        private const string Module = "MainModule";
-
         [TestCaseSource(nameof(NoParentDeps))]
         [TestCaseSource(nameof(WithParentDeps))]
         public void ParseDepsSection(string input, Dep[] parentDeps, DepsContent expectedResult)
@@ -19,7 +17,7 @@ namespace Tests.ParsersTests.Yaml
             var yaml = GetDepsSections(input);
             var parser = new DepsSectionParser(new DepLineParser());
 
-            var actual = parser.Parse(Module, yaml, parentDeps);
+            var actual = parser.Parse(yaml, parentDeps);
 
             actual.Should().BeEquivalentTo(expectedResult);
         }
@@ -29,7 +27,7 @@ namespace Tests.ParsersTests.Yaml
         {
             var yaml = GetDepsSections(input);
             var parser = new DepsSectionParser(new DepLineParser());
-            parser.Parse(Module, yaml, parentDeps);
+            parser.Parse(yaml, parentDeps);
         }
 
         private static TestCaseData[] NoParentDeps =

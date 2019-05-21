@@ -14,12 +14,12 @@ namespace Common.YamlParsers
             this.depLineParser = depLineParser;
         }
 
-        public DepsContent Parse(string module, object contents, [CanBeNull] Dep[] parentDeps)
+        public DepsContent Parse(object contents, [CanBeNull] Dep[] parentDeps = null)
         {
             var castedContent = CastContent(contents);
 
             var section = ParseSection(castedContent);
-            var resultingDeps = BuildResultingDepsMap(module, parentDeps);
+            var resultingDeps = BuildResultingDepsMap(parentDeps);
 
             foreach (var dep in section.Deps)
             {
@@ -27,7 +27,7 @@ namespace Common.YamlParsers
                 if (isRemoved)
                 {
                     if (!resultingDeps.ContainsKey(name))
-                        throw new BadYamlException(module, "deps", $"You cannot delete dependecy '{name}'. You have to add it first.");
+                        throw new BadYamlException("deps", $"You cannot delete dependecy '{name}'. You have to add it first.");
 
                     resultingDeps.Remove(name);
                 }
@@ -36,7 +36,7 @@ namespace Common.YamlParsers
                     if (resultingDeps.ContainsKey(name))
                     {
                         ConsoleWriter.WriteError(ModuleDuplicationError(name));
-                        throw new BadYamlException(module, "deps", "duplicate dep " + name);
+                        throw new BadYamlException("deps", "duplicate dep " + name);
                     }
                     resultingDeps.Add(name, dep);
                 }
@@ -45,12 +45,12 @@ namespace Common.YamlParsers
             return new DepsContent(section.Force, resultingDeps.Values.ToList());
         }
 
-        private Dictionary<string, Dep> BuildResultingDepsMap(string module, Dep[] parentDeps)
+        private Dictionary<string, Dep> BuildResultingDepsMap(Dep[] parentDeps)
         {
             if (parentDeps == null)
                 return new Dictionary<string, Dep>();
 
-            EnsureNoDuplicates(module, parentDeps);
+            EnsureNoDuplicates(parentDeps);
             return parentDeps.ToDictionary(d => d.Name);
         }
 
@@ -96,7 +96,7 @@ namespace Common.YamlParsers
             return new DepsContent(force, deps);
         }
 
-        private void EnsureNoDuplicates(string module, IEnumerable<Dep> parentDeps)
+        private void EnsureNoDuplicates(IEnumerable<Dep> parentDeps)
         {
             var duplicatedDeps = parentDeps
                 .GroupBy(d => d.Name)
@@ -108,7 +108,7 @@ namespace Common.YamlParsers
                 return;
 
             ConsoleWriter.WriteError(ModuleDuplicationError(duplicatedDeps));
-            throw new BadYamlException(module, "deps", "duplicate dep " + string.Join(",", duplicatedDeps));
+            throw new BadYamlException("deps", "duplicate dep " + string.Join(",", duplicatedDeps));
         }
 
         private IEnumerable<object> CastContent(object contents)
