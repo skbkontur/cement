@@ -7,7 +7,7 @@ namespace Tests.ParsersTests.YamlInstallSection
     [TestFixture]
     public class TestInstallYamlParser_InstallFiles
     {
-        [TestCaseSource(nameof(BuildFilesSource))]
+        [TestCaseSource(nameof(testCases))]
         public void TestGetBuildFiles(string moduleYamlText, string[] expected)
         {
             var parser = YamlFromText.InstallParser(moduleYamlText);
@@ -17,7 +17,7 @@ namespace Tests.ParsersTests.YamlInstallSection
             actual.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
-        private static TestCaseData[] BuildFilesSource =
+        private static TestCaseData[] testCases =
         {
             new TestCaseData(@"
 full-build:
