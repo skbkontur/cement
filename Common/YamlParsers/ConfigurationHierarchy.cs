@@ -25,7 +25,7 @@ namespace Common.YamlParsers
         /// Return all ancestors of a given configuration
         /// </summary>
         [CanBeNull]
-        public string[] FindParents(string configName)
+        public string[] FindAllParents(string configName)
         {
             if (configNameToParentsMap[configName] == null)
                 return null;
@@ -48,6 +48,15 @@ namespace Common.YamlParsers
                 }
             }
             return parents.ToArray();
+        }
+
+        /// <summary>
+        /// Return closest ancestors of a given configuration
+        /// </summary>
+        [CanBeNull]
+        public string[] FindClosestParents(string configName)
+        {
+            return configNameToParentsMap[configName];
         }
 
         /// <summary>

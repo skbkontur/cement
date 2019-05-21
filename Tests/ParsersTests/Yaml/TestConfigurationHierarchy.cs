@@ -16,11 +16,19 @@ namespace Tests.ParsersTests.Yaml
             this.parser = new ConfigLineParser();
         }
 
-        [TestCaseSource(nameof(FindParentSource))]
-        public void FindParents(string childConfig, string[] configLines, string[] expectedParents)
+        [TestCaseSource(nameof(FindAllParentSource))]
+        public void FindAllParents(string childConfig, string[] configLines, string[] expectedParents)
         {
             var hierarchy = GetHierarchy(configLines);
-            var actualParents = hierarchy.FindParents(childConfig);
+            var actualParents = hierarchy.FindAllParents(childConfig);
+            Assert.AreEqual(expectedParents, actualParents);
+        }
+
+        [TestCaseSource(nameof(FindClosestParentsSource))]
+        public void FindClosestParents(string childConfig, string[] configLines, string[] expectedParents)
+        {
+            var hierarchy = GetHierarchy(configLines);
+            var actualParents = hierarchy.FindClosestParents(childConfig);
             Assert.AreEqual(expectedParents, actualParents);
         }
 
@@ -43,7 +51,7 @@ namespace Tests.ParsersTests.Yaml
             Assert.AreEqual(expectedAll, actualAll, msg);
         }
 
-        private TestCaseData[] FindParentSource =
+        private TestCaseData[] FindAllParentSource =
         {
             new TestCaseData("A", new[] { "A" }, null)
                 .SetName("Single A without parent"),
@@ -102,6 +110,68 @@ namespace Tests.ParsersTests.Yaml
                 "H > E, G"
 
             }, new[] { "E", "G", "B", "F", "A" })
+                .SetName("Complex tree"),
+        };
+
+        private TestCaseData[] FindClosestParentsSource =
+        {
+            new TestCaseData("A", new[] { "A" }, null)
+                .SetName("Single A without parent"),
+            new TestCaseData("B", new[]
+                {
+                    "A *default",
+                    "B > A",
+                }, new[] { "A" })
+                .SetName("One root, one child"),
+
+            new TestCaseData("C", new[]
+                {
+                    "A *default",
+                    "B > A",
+                    "C > A"
+                }, new[] { "A" })
+                .SetName("One root, 2 children"),
+
+            new TestCaseData("D", new[]
+                {
+                    "A",
+                    "B > A",
+                    "C > A",
+                    "D > A *default",
+                }, new[] { "A" })
+                .SetName("One root, 2 usual children and one marked as default"),
+
+            new TestCaseData("E", new[]
+                {
+                    "A",
+                    "B > A",
+                    "C > A",
+                    "D > A *default",
+                    "E > B"
+                }, new[] { "B" })
+                .SetName("Two roots"),
+
+/*
+                A    F
+               /|\   |
+              B C D' G
+              \     /
+               E   /
+                \ /
+                 H
+*/
+            new TestCaseData("H", new[]
+                {
+                    "A",
+                    "B > A",
+                    "C > A",
+                    "D > A *default",
+                    "E > B",
+                    "F",
+                    "G > F",
+                    "H > E, G"
+
+                }, new[] { "E", "G" })
                 .SetName("Complex tree"),
         };
 
