@@ -5,19 +5,19 @@ using Tests.Helpers;
 namespace Tests.ParsersTests.YamlInstallSection
 {
     [TestFixture]
-    public class TestInstallYamlParserBuildFiles
+    public class TestInstallYamlParser_InstallFiles
     {
-        [TestCaseSource(nameof(BuildFilesSource))]
+        [TestCaseSource(nameof(testCases))]
         public void TestGetBuildFiles(string moduleYamlText, string[] expected)
         {
             var parser = YamlFromText.InstallParser(moduleYamlText);
             var parsed = parser.Get();
 
-            var actual = parsed.BuildFiles;
+            var actual = parsed.InstallFiles;
             actual.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
-        private static TestCaseData[] BuildFilesSource =
+        private static TestCaseData[] testCases =
         {
             new TestCaseData(@"
 full-build:
@@ -210,7 +210,7 @@ full-build > config1,config2:
     - DuplicatedFile
 ",
                     new[] { "DuplicatedFile" })
-                .SetName("Install section: build files. Three-leveled multiple-ancestors configuration configuration with 'default' section, multiple build files. BuildFiles are not duplicated."),
+                .SetName("Install section: build files. Three-leveled multiple-ancestors configuration configuration with 'default' section, multiple build files. InstallFiles are not duplicated."),
 
 
             new TestCaseData(@"
@@ -231,7 +231,7 @@ full-build:
     - file1
 ",
                     new[] { "file1" })
-                .SetName("Install section: build files. BuildFiles collection are not affected by duplicate artifacts (single configuration)."),
+                .SetName("Install section: build files. InstallFiles collection are not affected by duplicate artifacts (single configuration)."),
 
             new TestCaseData(@"
 full-build:
@@ -242,7 +242,19 @@ full-build:
     - file2
 ",
                     new[] { "file1" })
-                .SetName("Install section: build files. Artifacts do not leak into build files."),
+                .SetName("Install section: build files. InstallFiles does not contain artifacts from current configuration."),
+
+            new TestCaseData(@"
+client:
+  artifacts:
+    - file2
+
+full-build > client:
+  install:
+    - file1
+",
+                    new[] { "file1" })
+                .SetName("Install section: build files. InstallFiles does not contain artifacts from parent configuration."),
         };
     }
 }

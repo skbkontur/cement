@@ -5,9 +5,9 @@ using Tests.Helpers;
 namespace Tests.ParsersTests.YamlInstallSection
 {
     [TestFixture]
-    public class TestInstallYamlParserNuget
+    public class TestInstallYamlParser_NuGetPackages
     {
-        [TestCaseSource(nameof(NugetTestCaseSource))]
+        [TestCaseSource(nameof(testCases))]
         public void TestGetNuGet(string moduleYamlText, string[] expected)
         {
             var parser = YamlFromText.InstallParser(moduleYamlText);
@@ -17,7 +17,7 @@ namespace Tests.ParsersTests.YamlInstallSection
             actual.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
-        private TestCaseData[] NugetTestCaseSource =
+        private TestCaseData[] testCases =
         {
             new TestCaseData(@"
 full-build:

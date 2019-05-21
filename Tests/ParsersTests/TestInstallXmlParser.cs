@@ -18,8 +18,8 @@ namespace Tests.ParsersTests
 </module>
 ";
             var result = new InstallXmlParser(content, "module").Get(null);
-            Assert.AreEqual(2, result.MainConfigBuildFiles.Count);
-            Assert.AreEqual(new[] {"A/B.dll", "C/D.dll"}, result.MainConfigBuildFiles.ToArray());
+            Assert.AreEqual(2, result.CurrentConfigurationInstallFiles.Count);
+            Assert.AreEqual(new[] {"A/B.dll", "C/D.dll"}, result.CurrentConfigurationInstallFiles.ToArray());
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace Tests.ParsersTests
             {
                 "Kontur.Drive.Client/bin/Release/Kontur.Drive.Client.dll",
                 "Kontur.Drive.ServiceModel/bin/Release/Kontur.Drive.ServiceModel.dll"
-            }, result.MainConfigBuildFiles.ToArray());
+            }, result.CurrentConfigurationInstallFiles.ToArray());
         }
     }
 }

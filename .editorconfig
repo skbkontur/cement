@@ -1,21 +1,4 @@
-# editorconfig.org
-
-root = true
-
-[*]
-insert_final_newline = false
-charset = utf-8
-end_of_line = crlf
-trim_trailing_whitespace = true
+; 4-column space indentation
+[*.{cs,tt}]
 indent_style = space
 indent_size = 4
-
-[*.md]
-trim_trailing_whitespace = false
-
-[*.{config,csproj}]
-trim_trailing_whitespace = false
-indent_size = 2
-
-[{.editorconfig,appveyor.yml}]
-end_of_line = lf

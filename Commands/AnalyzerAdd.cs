@@ -62,7 +62,7 @@ namespace Commands
 
             Log.Info("Getting install data for " + analyzerModuleName + Helper.ConfigurationDelimiter + configuration);
             var installData = InstallParser.Get(analyzerModuleName, configuration);
-            if (!installData.BuildFiles.Any())
+            if (!installData.InstallFiles.Any())
             {
                 ConsoleWriter.WriteWarning($"No install files found in '{analyzerModuleName}'");
                 return 0;
@@ -79,7 +79,7 @@ namespace Commands
 
             foreach (var pair in csprojAndRulesetPairs)
             {
-                foreach (var installItem in installData.BuildFiles)
+                foreach (var installItem in installData.InstallFiles)
                 {
                     if (installItem.EndsWith(".ruleset"))
                     {
@@ -90,7 +90,7 @@ namespace Commands
 
                 pair.Csproj.BindRuleset(pair.Ruleset);
 
-                foreach (var installItem in installData.BuildFiles)
+                foreach (var installItem in installData.InstallFiles)
                 {
                     if (installItem.EndsWith(".dll"))
                     {

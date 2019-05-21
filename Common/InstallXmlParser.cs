@@ -24,7 +24,7 @@ namespace Common
                 var defaultInstall = configs.FirstOrDefault(c => !c.HasAttributes);
                 if (defaultInstall == null)
                     throw new NoSuchConfigurationException(moduleName, "default");
-                result.MainConfigBuildFiles = defaultInstall.Elements("add-ref")
+                result.CurrentConfigurationInstallFiles = defaultInstall.Elements("add-ref")
                     .Select(e => e.FirstAttribute.Value).ToList();
                 return result;
             }
@@ -34,7 +34,7 @@ namespace Common
             {
                 throw new NoSuchConfigurationException(moduleName, configuration);
             }
-            result.MainConfigBuildFiles = config.Elements("add-ref")
+            result.CurrentConfigurationInstallFiles = config.Elements("add-ref")
                 .Select(e => e.FirstAttribute.Value).ToList();
             return result;
         }

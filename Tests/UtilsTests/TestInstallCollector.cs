@@ -32,7 +32,7 @@ full-build:
                     CreateModule("ext", externalModuleText);
                     CreateModule("cur", moduleText);
                     var installData = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
-                    var buildFiles = installData.BuildFiles.ToArray();
+                    var buildFiles = installData.InstallFiles.ToArray();
                     var nugetPackages = installData.NuGetPackages.ToArray();
                     Assert.AreEqual(new[] {@"cur\current", @"ext\external"}, buildFiles);
                     Assert.AreEqual(new[] {"pCurrent", "pExternal"}, nugetPackages);
@@ -65,7 +65,7 @@ full-build:
                 CreateModule("ext", externalModuleText);
                 CreateModule("cur", moduleText);
                 var result = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
-                Assert.AreEqual(new[] {@"cur\current", @"ext\external.client"}, result.BuildFiles.ToArray());
+                Assert.AreEqual(new[] {@"cur\current", @"ext\external.client"}, result.InstallFiles.ToArray());
             }
         }
 
@@ -105,7 +105,7 @@ full-build:
                 CreateModule("cur", moduleText);
                 var result = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
                 Assert.AreEqual(new[] {@"cur\current", @"ext\external", @"q\q.sdk", @"ext\external.client"},
-                    result.BuildFiles.ToArray());
+                    result.InstallFiles.ToArray());
             }
         }
 
@@ -155,7 +155,7 @@ client:
                 var installData = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
                 Assert.AreEqual(
                     new[] {@"cur\current", @"cur\current.client", @"ext\external", @"ext\external.client", @"q\q.sdk"},
-                    installData.BuildFiles.ToArray());
+                    installData.InstallFiles.ToArray());
                 Assert.AreEqual(
                     new[] { "current", "client", "external", "external.client", "q.sdk" },
                     installData.NuGetPackages.ToArray());
