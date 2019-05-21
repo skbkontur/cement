@@ -42,15 +42,15 @@ namespace Common.YamlParsers
             var result = new InstallData();
             var configQueue = new Queue<string>();
             configQueue.Enqueue(configuration);
-            result.MainConfigBuildFiles.AddRange(GetAllInstallFilesFromConfig(configuration).Where(r => !r.StartsWith("module ")));
+            result.MainConfigBuildFiles.AddRange(GetAllInstallFilesFromConfig(configuration).Where(IsBuildFileName));
             while (configQueue.Count > 0)
             {
                 var currentConfig = configQueue.Dequeue();
                 var currentDeps = GetInstallSectionFromConfig(currentConfig, "install");
-                result.BuildFiles.AddRange(currentDeps.Where(r => !r.StartsWith("module ") && ! r.StartsWith("nuget ")));
+                result.BuildFiles.AddRange(currentDeps.Where(IsBuildFileName));
                 result.Artifacts.AddRange(result.BuildFiles.Where(r => !result.Artifacts.Contains(r)));
-                result.Artifacts.AddRange(GetInstallSectionFromConfig(currentConfig, "artifacts").Where(r => !r.StartsWith("module ")));
-                result.Artifacts.AddRange(GetInstallSectionFromConfig(currentConfig, "artefacts").Where(r => !r.StartsWith("module ")));
+                result.Artifacts.AddRange(GetInstallSectionFromConfig(currentConfig, "artifacts").Where(IsBuildFileName));
+                result.Artifacts.AddRange(GetInstallSectionFromConfig(currentConfig, "artefacts").Where(IsBuildFileName));
                 result.ExternalModules.AddRange(currentDeps.Where(r => r.StartsWith("module ")));
                 result.NuGetPackages.AddRange(currentDeps.Where(r => r.StartsWith("nuget ")));
                 if (!IsInherited(currentConfig))
@@ -106,6 +106,11 @@ namespace Common.YamlParsers
             var list = (List<object>) configSection[keyWord];
             var strList = list.Select(e => (string) e).ToList();
             return strList;
+        }
+
+        private bool IsBuildFileName(string line)
+        {
+            return !line.StartsWith("module ") && !line.StartsWith("nuget ");
         }
     }
 }
