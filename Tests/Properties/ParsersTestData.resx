@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true"></xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="module.yaml.full" xml:space="preserve">
+    <value># configuration description section client
+client:
+  # list of dependencies of client configuration
+  # dependencies are listed in the following form: &lt;moduleName&gt;[@branchName][/configName]
+  # kanso – reference to kanso module
+  # kanso/client – reference to kanso in client configuration
+  # kanso@develop/client - kanso from develop branch in client configuration
+  # '@' and '/' marks in branch name should be shielded by '\'
+  deps:
+    - core
+    - log4net
+    - nunit
+    - logging
+    - http
+    - http.rp
+    - topology
+    # to prefer current branch in deps
+    - force: $CURRENT_BRANCH
+    # or use &lt;moduleName&gt;@$CURRENT_BRANCH to prefer current branch in some module;
+    # you can also choose any specific branch name in deps:
+    # - force: mybestbranch
+    # or provide a comma-separated list of preferred branches:
+    # - force: mybestbranch,notsogoodbranch,leastfavoritebranch
+    # master branch is always the default option if all forced branches are missing
+
+  # information on build of the present module in the present configuration
+  build:
+    # build solution Kontur.Drive.sln in Client configuration
+    target: Kontur.Drive.sln
+    configuration: Client
+
+  # Information on results of the present configuration build
+  install:
+    - bin/Kontur.Drive.Client.dll
+    - bin/Kontur.Drive.ServiceModel.dll
+    # For operation of Kontur.Drive.Client.dll you need a reference on logging module build
+    - module logging
+    # Or a reference on nuget bundle
+    - nuget Newtonsoft.Json/6.0.8
+
+# Configuration sdk "expands" configuration client (&gt; client)
+# and is a configuration at default (*default) (it is used at referencing on this module)
+sdk &gt; client *default:
+  # in order to avoid repetition of dependencies lists
+  # deps from client are inherited here and you have no need to state them once again
+  deps:
+    - auth
+    - libfront
+    - zebra
+    - kanso
+    - upload-service
+    - access-control
+    - zebra-utils
+    - config
+    - libexchange:
+      type: src
+      configuration: client
+      treeish: 1.0.5
+    - zookeeper
+
+  # Section build is NOT inherited
+  build:
+    target: Kontur.Drive.sln
+    configuration: Sdk
+
+  # Section install is inherited, so you need to add only missing binaries
+  install:
+    - Kontur.Drive.TestHost/bin/Release/Kontur.Drive.TestHost.exe
+    - Kontur.Drive.TestHost/bin/Release/ServiceStack.Interfaces.dll
+  # DLL files that can be used by other modules,
+  # but are ignored while running cm ref add
+  artifacts:
+    - Kontur.Drive.TestHost/bin/Release/SomeOther.dll
+
+
+# Configuration full-build expands client and sdk
+full-build &gt; client, sdk:
+  deps:
+    # So you state diff on deps (in configuration full-build kanso/full-build is used.
+    # At first, we “delete” kanso from dependencies, then add kanso/full-build)
+    - -kanso
+    - kanso/full-build
+
+  build:
+  - name: a.release
+    target: a.sln
+    configuration: release
+  - name: b.debug
+    target: b.sln
+    configuration: debug</value>
+  </data>
+</root>

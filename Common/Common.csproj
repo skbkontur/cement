@@ -164,9 +164,11 @@
     <Compile Include="VisualStudioProjectParser.cs" />
     <Compile Include="YamlParsers\Models\ConfigurationLine.cs" />
     <Compile Include="YamlParsers\ModuleYamlFile.cs" />
+    <Compile Include="YamlParsers\ModuleYamlParser.cs" />
     <Compile Include="YamlParsers\SettingsSectionParser.cs" />
     <Compile Include="YamlParsers\SettingsYamlParser.cs" />
     <Compile Include="YamlParsers\Yaml.cs" />
+    <Compile Include="YamlParsers\YamlConfigurationParser.cs" />
     <Compile Include="YamlParsers\YamlModuleDefaultsParser.cs" />
   </ItemGroup>
   <ItemGroup>
