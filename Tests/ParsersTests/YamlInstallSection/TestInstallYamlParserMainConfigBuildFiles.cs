@@ -153,6 +153,31 @@ full-build > config1:
                         "file5",
                     })
                 .SetName("Install section: MainConfigBuildFiles. 'nuget' do not leak into MainConfigBuildFiles."),
+
+            new TestCaseData(@"
+full-build:
+  artifacts:
+    - file1
+  artefacts:
+    - file2
+",
+                    new [] { "file1", "file2" })
+                .SetName("Install section. MainConfigBuildFiles contain files from current configuration's artifacts."),
+
+            new TestCaseData(@"
+client:
+  artifacts:
+    - file3
+  artefacts:
+    - file4
+
+full-build > client:
+  artifacts:
+    - file1
+  artefacts:
+    - file2",
+                    new [] { "file1", "file2" })
+                .SetName("Install section. MainConfigBuildFiles should not contain files from parent configuration's artifacts."),
         };
     }
 }

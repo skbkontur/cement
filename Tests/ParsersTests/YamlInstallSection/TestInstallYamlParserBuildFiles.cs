@@ -231,6 +231,29 @@ full-build:
 ",
                     new[] { "file1" })
                 .SetName("Install section: build files. BuildFiles collection are not affected by duplicate artifacts (single configuration)."),
+
+            new TestCaseData(@"
+full-build:
+  install:
+    - file1
+
+  artifacts:
+    - file2
+",
+                    new[] { "file1" })
+                .SetName("Install section: build files. BuildFiles does not contain artifacts from current configuration."),
+
+            new TestCaseData(@"
+client:
+  artifacts:
+    - file2
+
+full-build > client:
+  install:
+    - file1
+",
+                    new[] { "file1" })
+                .SetName("Install section: build files. BuildFiles does not contain artifacts from parent configuration."),
         };
     }
 }
