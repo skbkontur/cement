@@ -171,6 +171,9 @@
     <Compile Include="YamlParsers\V2\ConfigurationHierarchy.cs" />
     <Compile Include="YamlParsers\V2\DepLineParser.cs" />
     <Compile Include="YamlParsers\V2\DepsSectionParser.cs" />
+    <Compile Include="YamlParsers\V2\Factories\ModuleYamlConfigurationParserInstance.cs" />
+    <Compile Include="YamlParsers\V2\Factories\ModuleYamlDefaultsParserInstance.cs" />
+    <Compile Include="YamlParsers\V2\Factories\ModuleYamlParserInstance.cs" />
     <Compile Include="YamlParsers\V2\HooksSectionParser.cs" />
     <Compile Include="YamlParsers\V2\InstallSectionParser.cs" />
     <Compile Include="YamlParsers\V2\ModuleYamlConfigurationParser.cs" />
