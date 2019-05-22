@@ -83,6 +83,7 @@
     <Compile Include="CommandsTests\TestAddModule.cs" />
     <Compile Include="CommandsTests\TestChangeModule.cs" />
     <Compile Include="CommandsTests\TestConvertSpec.cs" />
+    <Compile Include="Extensions\TestInstallDataExtensions.cs" />
     <Compile Include="ParsersTests\TestConfigLineParser.cs" />
     <Compile Include="ParsersTests\TestHooksYamlParser.cs" />
     <Compile Include="ParsersTests\TestModuleYamlParser.cs" />
