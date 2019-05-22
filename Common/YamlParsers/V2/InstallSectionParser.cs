@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using Common.Extensions;
+using Common.YamlParsers.Models;
 using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
@@ -10,49 +12,32 @@ namespace Common.YamlParsers.V2
         private const string ModulePrefix = "module ";
 
         [NotNull]
-        public InstallData Parse(
-            [CanBeNull] object installSection,
-            [CanBeNull] object artifactsSection,
-            [CanBeNull] object artefactsSection)
+        public InstallData Parse(YamlInstallSections configSections, InstallData defaults = null, InstallData[] parentInstalls = null)
         {
-            var rawInstall = Transform(installSection);
-            var rawArtifacts = Transform(artifactsSection);
-            var rawArtefacts = Transform(artefactsSection);
-
-            return Parse(rawInstall, rawArtifacts, rawArtefacts);
-        }
-
-        [NotNull]
-        private InstallData Parse(
-            [NotNull] string[] installSection,
-            [NotNull] string[] artifactsSection,
-            [NotNull] string[] artefactsSection)
-        {
-            var externalModules = installSection
+            var externalModules = configSections.Install
                 .Where(line => line.StartsWith(ModulePrefix))
                 .Select(line => line.Substring(ModulePrefix.Length))
                 .ToList();
 
-            var nugets = installSection
+            var nugets = configSections.Install
                 .Where(line => line.StartsWith(NugetPrefix))
                 .Select(line => line.Substring(NugetPrefix.Length))
                 .ToList();
 
-            var installFiles = installSection
+            var installFiles = configSections.Install
                 .Where(IsBuildFileName)
                 .Distinct()
                 .ToList();
 
             var artifacts = installFiles
-                .Concat(artifactsSection)
-                .Concat(artefactsSection)
+                .Concat(configSections.Artifacts)
+                .Concat(configSections.Artefacts)
                 .Where(IsBuildFileName)
                 .Distinct()
                 .ToList();
 
             var currentConfigurationInstallFiles = new List<string>(artifacts);
-
-            return new InstallData
+            var currentConfigInstallData = new InstallData
             {
                 InstallFiles = installFiles,
                 CurrentConfigurationInstallFiles = currentConfigurationInstallFiles,
@@ -60,16 +45,16 @@ namespace Common.YamlParsers.V2
                 ExternalModules = externalModules,
                 NuGetPackages = nugets
             };
-        }
 
-        [NotNull]
-        private string[] Transform(object sectionContent)
-        {
-            var list = sectionContent as IEnumerable<object>;
-            if (list == null)
-                return new string[0];
+            if (defaults == null && parentInstalls == null)
+                return currentConfigInstallData;
 
-            return list.Cast<string>().ToArray();
+            var accumulate = defaults ?? new InstallData();
+            if (parentInstalls != null)
+                accumulate = parentInstalls.Aggregate(accumulate, (current, parentInstall) => current.JoinWith(parentInstall));
+
+            accumulate = accumulate.JoinWith(currentConfigInstallData);
+            return accumulate;
         }
 
         private static bool IsBuildFileName(string line)

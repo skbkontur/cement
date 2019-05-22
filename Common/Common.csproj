@@ -163,6 +163,7 @@
     <Compile Include="YamlParsers\Models\ModuleConfiguration.cs" />
     <Compile Include="YamlParsers\Models\ModuleDefaults.cs" />
     <Compile Include="YamlParsers\Models\ModuleDefinition.cs" />
+    <Compile Include="YamlParsers\Models\YamlInstallSections.cs" />
     <Compile Include="YamlParsers\ModuleYamlFile.cs" />
     <Compile Include="YamlParsers\SettingsYamlParser.cs" />
     <Compile Include="YamlParsers\V2\BuildSectionParser.cs" />
