@@ -4,7 +4,7 @@ using System.Linq;
 using Common.YamlParsers.V2;
 using NUnit.Framework;
 
-namespace Tests.ParsersTests.Yaml
+namespace Tests.ParsersTests.V2
 {
     [TestFixture]
     public class TestConfigurationHierarchy

@@ -7,10 +7,10 @@ using FluentAssertions;
 using NUnit.Framework;
 using SharpYaml.Serialization;
 
-namespace Tests.ParsersTests.Yaml
+namespace Tests.ParsersTests.V2
 {
     [TestFixture]
-    public class TestYamlModuleDefaultsParser
+    public class TestModuleYamlDefaultsParser
     {
         [TestCaseSource(nameof(Source))]
         public void TestParseDefaultSection(string input, ModuleDefaults expected)

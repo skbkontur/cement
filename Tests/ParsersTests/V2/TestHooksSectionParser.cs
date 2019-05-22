@@ -5,10 +5,10 @@ using NUnit.Framework;
 using SharpYaml.Serialization;
 using Tests.Helpers;
 
-namespace Tests.ParsersTests.Yaml
+namespace Tests.ParsersTests.V2
 {
     [TestFixture]
-    public class TestHooksParser
+    public class TestHooksSectionParser
     {
         [TestCaseSource(nameof(Source))]
         public void TestParse(string input, string[] expectedResult)

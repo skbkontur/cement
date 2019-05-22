@@ -3,7 +3,7 @@ using Common.YamlParsers.V2;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Tests.ParsersTests.Yaml
+namespace Tests.ParsersTests.V2
 {
     [TestFixture]
     public class TestInstallSectionParser

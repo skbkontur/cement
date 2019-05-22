@@ -94,14 +94,14 @@
     <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParser_ExternalModules.cs" />
     <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParser_CurrentConfigurationInstallFiles.cs" />
     <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParser_NuGetPackages.cs" />
-    <Compile Include="ParsersTests\Yaml\TestBuildSectionParser.cs" />
-    <Compile Include="ParsersTests\Yaml\TestConfigurationHierarchy.cs" />
-    <Compile Include="ParsersTests\Yaml\TestDepLineParser.cs" />
-    <Compile Include="ParsersTests\Yaml\TestDepsSectionParser.cs" />
-    <Compile Include="ParsersTests\Yaml\TestHooksParser.cs" />
-    <Compile Include="ParsersTests\Yaml\TestInstallSectionParser.cs" />
-    <Compile Include="ParsersTests\Yaml\TestSettingsSectionParser.cs" />
-    <Compile Include="ParsersTests\Yaml\TestYamlModuleDefaultsParser.cs" />
+    <Compile Include="ParsersTests\V2\TestBuildSectionParser.cs" />
+    <Compile Include="ParsersTests\V2\TestConfigurationHierarchy.cs" />
+    <Compile Include="ParsersTests\V2\TestDepLineParser.cs" />
+    <Compile Include="ParsersTests\V2\TestDepsSectionParser.cs" />
+    <Compile Include="ParsersTests\V2\TestHooksSectionParser.cs" />
+    <Compile Include="ParsersTests\V2\TestInstallSectionParser.cs" />
+    <Compile Include="ParsersTests\V2\TestSettingsSectionParser.cs" />
+    <Compile Include="ParsersTests\V2\TestModuleYamlDefaultsParser.cs" />
     <Compile Include="Properties\ParsersTestData.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

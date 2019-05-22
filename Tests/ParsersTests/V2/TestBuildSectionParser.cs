@@ -5,7 +5,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using SharpYaml.Serialization;
 
-namespace Tests.ParsersTests.Yaml
+namespace Tests.ParsersTests.V2
 {
     [TestFixture]
     public class TestBuildSectionParser
@@ -212,13 +212,6 @@ build:
 
         private static TestCaseData[] BadCasesSource =
         {
-            /*
-            new TestCaseData(@"build:
-  target: Solution.sln")
-                .Throws(typeof(BadYamlException))
-                .SetName("Sln-target require 'configuration'"),
-                */
-
             new TestCaseData(@"build:
   - target: Solution.sln
     configuration: debug
