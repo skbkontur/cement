@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Common;
 using Common.YamlParsers;
 using Common.YamlParsers.Models;
+using Common.YamlParsers.V2;
 using FluentAssertions;
 using NUnit.Framework;
 using SharpYaml.Serialization;
@@ -61,10 +62,7 @@ namespace Tests.ParsersTests.Yaml
                         new Dep("module1", null, null),
                         new Dep("module2", null, null),
                     }),
-                    BuildSection = new[]
-                    {
-                        new BuildData("solution.sln", null, new Tool("sometool"), new List<string>(), string.Empty)
-                    },
+                    BuildSection = new BuildData("solution.sln", null, new Tool("sometool"), new List<string>(), string.Empty),
                     InstallSection = new InstallData()
                     {
                         InstallFiles =  { "file1.dll" },
@@ -84,7 +82,7 @@ namespace Tests.ParsersTests.Yaml
             return  (Dictionary<object, object>) yaml["default"];
         }
 
-        private YamlModuleDefaultsParser GetParser()
+        private ModuleYamlDefaultsParser GetParser()
         {
             var hooksSectionParser = new HooksSectionParser();
             var settingsSectionParser = new SettingsSectionParser();
@@ -94,7 +92,7 @@ namespace Tests.ParsersTests.Yaml
             var depLineParser = new DepLineParser();
             var depsSectionParser = new DepsSectionParser(depLineParser);
 
-            return new YamlModuleDefaultsParser(
+            return new ModuleYamlDefaultsParser(
                 hooksSectionParser,
                 depsSectionParser,
                 settingsSectionParser,

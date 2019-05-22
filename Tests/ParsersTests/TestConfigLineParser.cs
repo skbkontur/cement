@@ -1,6 +1,7 @@
 using System;
 using Common.YamlParsers;
 using Common.YamlParsers.Models;
+using Common.YamlParsers.V2;
 using NUnit.Framework;
 
 namespace Tests.ParsersTests

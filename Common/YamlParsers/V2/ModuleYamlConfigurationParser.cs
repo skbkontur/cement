@@ -4,15 +4,15 @@ using Common.Extensions;
 using Common.YamlParsers.Models;
 using JetBrains.Annotations;
 
-namespace Common.YamlParsers
+namespace Common.YamlParsers.V2
 {
-    public class YamlConfigurationParser
+    public class ModuleYamlConfigurationParser
     {
         private readonly InstallSectionParser installSectionParser;
         private readonly DepsSectionParser depsSectionParser;
         private readonly BuildSectionParser buildSectionParser;
 
-        public YamlConfigurationParser(
+        public ModuleYamlConfigurationParser(
             InstallSectionParser installSectionParser,
             DepsSectionParser depsSectionParser,
             BuildSectionParser buildSectionParser
@@ -44,28 +44,22 @@ namespace Common.YamlParsers
                 .Distinct()
                 .ToArray();
 
-            var currentDepsSection = depsSectionParser.Parse(configurationContents.FindValue("deps"));
-            result.Dependencies = Merge(defaults?.BuildSection, parentDeps, currentDepsSection);
+            var defaultForcedBranches = defaults?.DepsSection?.HasForcedBranches() == true ? defaults.DepsSection.Force : null;
+            result.Dependencies = depsSectionParser.Parse(configurationContents.FindValue("deps"), defaultForcedBranches, parentDeps);
 
-            var currentBuildSection = buildSectionParser.ParseBuildConfigurationSections(configurationContents.FindValue("build"));
-            result.BuildSection = Merge(defaults?.BuildSection, currentBuildSection);
+            var buildSectionFromYaml = configurationContents.FindValue("build");
+            result.BuildSection = buildSectionParser.ParseBuildSections(buildSectionFromYaml, defaults?.BuildSection);
+
+            EnsureIsValid(result);
 
             return result;
         }
 
-        private BuildData[] Merge(
-            [CanBeNull] BuildData[] defaultsBuildSection,
-            [CanBeNull] BuildData[] currentBuildSectionSection)
+        private void EnsureIsValid(ModuleConfiguration result)
         {
-            throw new System.NotImplementedException();
-        }
-
-        private DepsContent Merge(
-            [CanBeNull] BuildData[] defaultsInstallSection,
-            [CanBeNull] Dep[] currentInstallSection,
-            [CanBeNull] DepsContent currentDepsSection)
-        {
-            throw new System.NotImplementedException();
+            var invalidTarget = result.BuildSection?.FirstOrDefault(s => s.Target.EndsWith(".sln") && string.IsNullOrEmpty(s.Configuration));
+            if (invalidTarget != null)
+                throw new BadYamlException("build", "Build configuration not found. You have to explicitly specify 'configuration' for *.sln targets.");
         }
 
         private InstallData Merge(
@@ -73,7 +67,15 @@ namespace Common.YamlParsers
             [CanBeNull] InstallData currentInstallSection,
             [CanBeNull] InstallData[] parentInstalls)
         {
-            throw new System.NotImplementedException();
+            var accumulate = defaultsInstallSection ?? new InstallData();
+
+            if (currentInstallSection != null)
+                accumulate = accumulate.JoinWith(currentInstallSection);
+
+            if (parentInstalls != null)
+                accumulate = parentInstalls.Aggregate(accumulate, (current, parentInstall) => current.JoinWith(parentInstall));
+
+            return accumulate;
         }
     }
 }

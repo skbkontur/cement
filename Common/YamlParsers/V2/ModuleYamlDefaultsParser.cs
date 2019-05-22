@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using Common.Extensions;
 using Common.YamlParsers.Models;
 using JetBrains.Annotations;
 
-namespace Common.YamlParsers
+namespace Common.YamlParsers.V2
 {
-    public class YamlModuleDefaultsParser
+    public class ModuleYamlDefaultsParser
     {
         private readonly HooksSectionParser hooksSectionParser;
         private readonly DepsSectionParser depsSectionParser;
@@ -13,7 +14,7 @@ namespace Common.YamlParsers
         private readonly BuildSectionParser buildSectionParser;
         private readonly InstallSectionParser installSectionParser;
 
-        public YamlModuleDefaultsParser(
+        public ModuleYamlDefaultsParser(
             HooksSectionParser hooksSectionParser,
             DepsSectionParser depsSectionParser,
             SettingsSectionParser settingsSectionParser,
@@ -40,12 +41,15 @@ namespace Common.YamlParsers
             var installData = installSectionParser.Parse(installSection, artifactsSection, artefactsSection);
             var hooksData = hooksSectionParser.Parse(defaultsContents.FindValue("hooks"));
             var settingsData = settingsSectionParser.Parse(defaultsContents.FindValue("settings"));
-            var buildData = buildSectionParser.ParseBuildDefaultsSections(defaultsContents.FindValue("build"));
+            var buildData = buildSectionParser.ParseBuildSections(defaultsContents.FindValue("build"));
             var depsData = depsSectionParser.Parse(defaultsContents.FindValue("deps"));
+
+            if (buildData != null && buildData.Length > 1)
+                throw new CementException("Default configuration can't contains multiple build sections.");
 
             return new ModuleDefaults
             {
-                BuildSection = buildData,
+                BuildSection = buildData?.FirstOrDefault(),
                 DepsSection = depsData,
                 InstallSection = installData,
                 SettingsSection = settingsData,

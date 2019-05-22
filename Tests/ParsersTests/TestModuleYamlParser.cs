@@ -1,4 +1,5 @@
 using Common.YamlParsers;
+using Common.YamlParsers.V2;
 using NUnit.Framework;
 
 namespace Tests.ParsersTests
@@ -15,12 +16,15 @@ namespace Tests.ParsersTests
 
             var hooksSectionParser = new HooksSectionParser();
             var settingsSectionParser = new SettingsSectionParser();
-            var yamlModuleDefaultsParser = new YamlModuleDefaultsParser(hooksSectionParser, depSectionParser, settingsSectionParser, buildSectionParser, installSectionParser);
+            var yamlModuleDefaultsParser = new ModuleYamlDefaultsParser(hooksSectionParser, depSectionParser, settingsSectionParser, buildSectionParser, installSectionParser);
 
-            var parser = new ModuleYamlParser(configLineParser, depSectionParser, buildSectionParser, installSectionParser, yamlModuleDefaultsParser);
+            var yamlConfigurationParser = new ModuleYamlConfigurationParser(installSectionParser, depSectionParser, buildSectionParser);
+
+            var parser = new ModuleYamlParser(configLineParser, yamlModuleDefaultsParser, yamlConfigurationParser);
             var text = Properties.ParsersTestData.ResourceManager.GetString("module.yaml.full");
 
             var result = parser.Parse(text);
+
             Assert.NotNull(result);
         }
     }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Common;
-using Common.YamlParsers;
+using Common.YamlParsers.V2;
 using FluentAssertions;
 using NUnit.Framework;
 using SharpYaml.Serialization;
@@ -16,7 +16,7 @@ namespace Tests.ParsersTests.Yaml
         {
             var parser = new BuildSectionParser();
             var buildSections = GetBuildSections(input);
-            var actual = parser.ParseBuildDefaultsSections(buildSections);
+            var actual = parser.ParseBuildSections(buildSections);
 
             actual.Should().BeEquivalentTo(expected);
         }
@@ -26,7 +26,7 @@ namespace Tests.ParsersTests.Yaml
         {
             var parser = new BuildSectionParser();
             var buildSections = GetBuildSections(input);
-            var actual = parser.ParseBuildConfigurationSections(buildSections);
+            var actual = parser.ParseBuildSections(buildSections);
 
             actual.Should().BeEquivalentTo(expected);
         }
@@ -36,7 +36,7 @@ namespace Tests.ParsersTests.Yaml
         {
             var parser = new BuildSectionParser();
             var buildSections = GetBuildSections(input);
-            parser.ParseBuildConfigurationSections(buildSections);
+            parser.ParseBuildSections(buildSections);
         }
 
         private static TestCaseData[] GoodConfigurationCasesSource =
@@ -212,10 +212,12 @@ build:
 
         private static TestCaseData[] BadCasesSource =
         {
+            /*
             new TestCaseData(@"build:
   target: Solution.sln")
                 .Throws(typeof(BadYamlException))
                 .SetName("Sln-target require 'configuration'"),
+                */
 
             new TestCaseData(@"build:
   - target: Solution.sln

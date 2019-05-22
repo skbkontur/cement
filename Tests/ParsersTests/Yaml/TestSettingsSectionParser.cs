@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Common.YamlParsers;
+using Common.YamlParsers.V2;
 using FluentAssertions;
 using NUnit.Framework;
 using SharpYaml.Serialization;

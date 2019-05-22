@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Common.YamlParsers.Models;
 
-namespace Common.YamlParsers
+namespace Common.YamlParsers.V2
 {
     public class ConfigLineParser
     {

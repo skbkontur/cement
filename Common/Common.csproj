@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Common</RootNamespace>
     <AssemblyName>Common</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -90,8 +90,10 @@
     <Compile Include="CementExceptions.cs" />
     <Compile Include="CementFromServerUpdater.cs" />
     <Compile Include="CementSettings.cs" />
+    <Compile Include="Extensions\DepsContentExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\InstallDataExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Graph\GraphHelper.cs" />
     <Compile Include="Graph\ParallelBuilder.cs" />
@@ -123,7 +125,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="XmlDocumentHelper.cs" />
-    <Compile Include="YamlParsers\BuildSectionParser.cs" />
     <Compile Include="YamlParsers\BuildYamlParser.cs" />
     <Compile Include="ConsoleWriter.cs" />
     <Compile Include="ConfigurationParser.cs" />
@@ -132,10 +133,6 @@
     <Compile Include="Dep.cs" />
     <Compile Include="DepsIniParser.cs" />
     <Compile Include="DepsParser.cs" />
-    <Compile Include="YamlParsers\ConfigLineParser.cs" />
-    <Compile Include="YamlParsers\ConfigurationHierarchy.cs" />
-    <Compile Include="YamlParsers\DepLineParser.cs" />
-    <Compile Include="YamlParsers\DepsSectionParser.cs" />
     <Compile Include="YamlParsers\DepsYamlParser.cs" />
     <Compile Include="DirectoryJumper.cs" />
     <Compile Include="GitRepository.cs" />
@@ -145,9 +142,7 @@
     <Compile Include="IniParser.cs" />
     <Compile Include="InstallCollector.cs" />
     <Compile Include="InstallData.cs" />
-    <Compile Include="YamlParsers\HooksSectionParser.cs" />
     <Compile Include="YamlParsers\HooksYamlParser.cs" />
-    <Compile Include="YamlParsers\InstallSectionParser.cs" />
     <Compile Include="YamlParsers\InstallYamlParser.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="ModuleBuilder.cs" />
@@ -169,12 +164,19 @@
     <Compile Include="YamlParsers\Models\ModuleDefaults.cs" />
     <Compile Include="YamlParsers\Models\ModuleDefinition.cs" />
     <Compile Include="YamlParsers\ModuleYamlFile.cs" />
-    <Compile Include="YamlParsers\ModuleYamlParser.cs" />
-    <Compile Include="YamlParsers\SettingsSectionParser.cs" />
     <Compile Include="YamlParsers\SettingsYamlParser.cs" />
+    <Compile Include="YamlParsers\V2\BuildSectionParser.cs" />
+    <Compile Include="YamlParsers\V2\ConfigLineParser.cs" />
+    <Compile Include="YamlParsers\V2\ConfigurationHierarchy.cs" />
+    <Compile Include="YamlParsers\V2\DepLineParser.cs" />
+    <Compile Include="YamlParsers\V2\DepsSectionParser.cs" />
+    <Compile Include="YamlParsers\V2\HooksSectionParser.cs" />
+    <Compile Include="YamlParsers\V2\InstallSectionParser.cs" />
+    <Compile Include="YamlParsers\V2\ModuleYamlConfigurationParser.cs" />
+    <Compile Include="YamlParsers\V2\ModuleYamlDefaultsParser.cs" />
+    <Compile Include="YamlParsers\V2\ModuleYamlParser.cs" />
+    <Compile Include="YamlParsers\V2\SettingsSectionParser.cs" />
     <Compile Include="YamlParsers\Yaml.cs" />
-    <Compile Include="YamlParsers\YamlConfigurationParser.cs" />
-    <Compile Include="YamlParsers\YamlModuleDefaultsParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

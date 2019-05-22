@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Common.YamlParsers
+namespace Common.YamlParsers.V2
 {
     public class BuildSectionParser
     {
         private readonly CementSettings settings;
-        private static readonly Tool defaultTool = new Tool("msbuild");
+        private const string DefaultToolName = "msbuild";
 
         public BuildSectionParser() : this(CementSettings.Get())
         {
@@ -19,17 +19,8 @@ namespace Common.YamlParsers
             this.settings = settings;
         }
 
-        public BuildData[] ParseBuildDefaultsSections([CanBeNull] object contents)
-        {
-            return ParseBuildSections(contents, strict: false);
-        }
-
-        public BuildData[] ParseBuildConfigurationSections([CanBeNull] object contents)
-        {
-            return ParseBuildSections(contents, strict: true);
-        }
-
-        private BuildData[] ParseBuildSections([CanBeNull] object contents, bool strict)
+        [CanBeNull]
+        public BuildData[] ParseBuildSections([CanBeNull] object contents, BuildData defaults = null)
         {
             var buildSections = CastContent(contents);
             if (buildSections == null)
@@ -40,16 +31,19 @@ namespace Common.YamlParsers
                 return new BuildData[0];
 
             var result = new List<BuildData>();
+
+            var defaultTarget = string.IsNullOrEmpty(defaults?.Target) ? string.Empty : defaults.Target;
+            var defaultConfiguration = string.IsNullOrEmpty(defaults?.Configuration) ? null : defaults.Configuration;
+            var defaultToolName = string.IsNullOrEmpty(defaults?.Tool.Name) ? DefaultToolName : defaults?.Tool.Name;
+            var defaultToolVersion = string.IsNullOrEmpty(defaults?.Tool.Version) ? null : defaults?.Tool.Version;
+
             foreach (var section in buildSections)
             {
-                var target = Helper.FixPath(FindValue(section, "target", string.Empty));
-                var configuration = FindValue(section, "configuration");
-                var tool = GetTools(section);
+                var target = Helper.FixPath(FindValue(section, "target", defaultTarget));
+                var configuration = FindValue(section, "configuration", defaultConfiguration);
+                var tool = GetTools(section, defaultToolName, defaultToolVersion);
                 var parameters = GetBuildParams(section);
                 var name = FindValue(section, "name", string.Empty);
-
-                if (strict && target.EndsWith(".sln") && string.IsNullOrEmpty(configuration))
-                    throw new BadYamlException("build", "Build configuration not found");
 
                 if (count > 1 && string.IsNullOrEmpty(name))
                     throw new CementException("Multiple parts of build-section require names");
@@ -60,10 +54,10 @@ namespace Common.YamlParsers
             return result.ToArray();
         }
 
-        private Tool GetTools(IDictionary<object, object> section)
+        private Tool GetTools(IDictionary<object, object> section, string defaultName, string defaultVersion)
         {
             if (!section.TryGetValue("tool", out var tool))
-                return defaultTool;
+                return new Tool(defaultName, defaultVersion);
 
             switch (tool)
             {
@@ -74,9 +68,15 @@ namespace Common.YamlParsers
                     return new Tool(toolString);
 
                 case IDictionary<object, object> toolDict:
-                    var name = FindValue(toolDict, "name", "msbuild");
-                    var defaultVersion = name == "msbuild" ? settings.DefaultMsBuildVersion : null;
-                    var version = FindValue(toolDict, "version", defaultVersion);
+                    var name = FindValue(toolDict, "name", defaultName);
+
+                    if (toolDict.TryGetValue("version", out var versionFromYaml))
+                        return new Tool(name, (string) versionFromYaml);
+
+                    var version = name == "msbuild" && string.IsNullOrEmpty(defaultVersion)
+                        ? settings.DefaultMsBuildVersion
+                        : defaultVersion;
+
                     return new Tool(name,version);
 
                 default:

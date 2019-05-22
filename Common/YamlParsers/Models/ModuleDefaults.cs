@@ -14,7 +14,7 @@ namespace Common.YamlParsers.Models
         public ModuleSettings SettingsSection { get; set;}
 
         [CanBeNull]
-        public BuildData[] BuildSection { get; set; }
+        public BuildData BuildSection { get; set; }
 
         [CanBeNull]
         public InstallData InstallSection { get; set; }

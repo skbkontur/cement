@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Common.YamlParsers
+namespace Common.YamlParsers.V2
 {
     public class HooksSectionParser
     {

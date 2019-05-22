@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Common.YamlParsers
+namespace Common.YamlParsers.V2
 {
     public class DepsSectionParser
     {
@@ -14,16 +14,17 @@ namespace Common.YamlParsers
             this.depLineParser = depLineParser;
         }
 
-        public DepsContent Parse(object contents, [CanBeNull] Dep[] parentDeps = null)
+        public DepsContent Parse(object contents, [CanBeNull] string[] defaultForcedBranches = null, [CanBeNull] Dep[] parentDeps = null)
         {
             var castedContent = CastContent(contents);
 
-            var section = ParseSection(castedContent);
+            var section = ParseSection(castedContent, defaultForcedBranches);
             var resultingDeps = BuildResultingDepsMap(parentDeps);
 
             foreach (var dep in section.Deps)
             {
-                var (isRemoved, name) = ParseName(dep);
+                var isRemoved = dep.Name[0] == '-';
+                var name = isRemoved ? dep.Name.Substring(1) : dep.Name;
                 if (isRemoved)
                 {
                     if (!resultingDeps.ContainsKey(name))
@@ -54,10 +55,10 @@ namespace Common.YamlParsers
             return parentDeps.ToDictionary(d => d.Name);
         }
 
-        private DepsContent ParseSection(IEnumerable<object> contents)
+        private DepsContent ParseSection(IEnumerable<object> contents, [CanBeNull] string[] defaultForcedBranches = null)
         {
             var deps = new List<Dep>();
-            string[] force = null;
+            var force = defaultForcedBranches;
 
             foreach(var node in contents)
             {
@@ -124,14 +125,6 @@ namespace Common.YamlParsers
                 default:
                     throw new Exception("Internal error: unexpected dep-section contents");
             }
-        }
-
-        private (bool isRemoved, string name) ParseName(Dep dep)
-        {
-            var isRemoved = dep.Name[0] == '-';
-            var name = isRemoved ? dep.Name.Substring(1) : dep.Name;
-
-            return (isRemoved, name);
         }
 
         private string FindValue(IReadOnlyDictionary<string, string> dict, string key)

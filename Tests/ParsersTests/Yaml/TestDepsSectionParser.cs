@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Common;
 using Common.YamlParsers;
+using Common.YamlParsers.V2;
 using FluentAssertions;
 using NUnit.Framework;
 using SharpYaml.Serialization;
@@ -17,7 +18,7 @@ namespace Tests.ParsersTests.Yaml
             var yaml = GetDepsSections(input);
             var parser = new DepsSectionParser(new DepLineParser());
 
-            var actual = parser.Parse(yaml, parentDeps);
+            var actual = parser.Parse(yaml, null, parentDeps);
 
             actual.Should().BeEquivalentTo(expectedResult);
         }
@@ -27,7 +28,7 @@ namespace Tests.ParsersTests.Yaml
         {
             var yaml = GetDepsSections(input);
             var parser = new DepsSectionParser(new DepLineParser());
-            parser.Parse(yaml, parentDeps);
+            parser.Parse(yaml, null, parentDeps);
         }
 
         private static TestCaseData[] NoParentDeps =

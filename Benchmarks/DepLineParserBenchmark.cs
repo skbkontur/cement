@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Common.YamlParsers;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using Common;
+using Common.YamlParsers.V2;
 
 namespace Benchmarks
 {

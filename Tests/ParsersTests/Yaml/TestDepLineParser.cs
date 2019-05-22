@@ -1,5 +1,5 @@
 using Common;
-using Common.YamlParsers;
+using Common.YamlParsers.V2;
 using NUnit.Framework;
 
 namespace Tests.ParsersTests.Yaml
