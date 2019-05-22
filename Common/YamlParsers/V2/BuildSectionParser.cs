@@ -20,7 +20,26 @@ namespace Common.YamlParsers.V2
         }
 
         [CanBeNull]
-        public BuildData[] ParseBuildSections([CanBeNull] object contents, BuildData defaults = null)
+        public BuildData ParseDefaults([CanBeNull] object contents)
+        {
+            var result = ParseInner(contents);
+            if (result != null && result.Length > 1)
+                throw new CementException("Default configuration can't contains multiple build sections.");
+
+            return result?.FirstOrDefault();
+        }
+
+        [CanBeNull]
+        public BuildData[] ParseConfiguration([CanBeNull] object contents, BuildData defaults = null)
+        {
+            var result = ParseInner(contents, defaults);
+            if (result != null && result.Any(s => s.Target.EndsWith(".sln") && string.IsNullOrEmpty(s.Configuration)))
+                throw new BadYamlException("build", "Build configuration not found. You have to explicitly specify 'configuration' for *.sln targets.");
+            return result;
+        }
+
+        [CanBeNull]
+        public BuildData[] ParseInner([CanBeNull] object contents, BuildData defaults = null)
         {
             var buildSections = CastContent(contents);
             if (buildSections == null)
