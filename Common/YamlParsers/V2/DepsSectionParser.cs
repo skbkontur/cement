@@ -14,12 +14,14 @@ namespace Common.YamlParsers.V2
             this.depLineParser = depLineParser;
         }
 
-        public DepsContent Parse(object contents, [CanBeNull] string[] defaultForcedBranches = null, [CanBeNull] Dep[] parentDeps = null)
+        public DepsContent Parse(object contents, DepsContent defaults = null, [CanBeNull] Dep[] parentDeps = null)
         {
             var castedContent = CastContent(contents);
 
-            var section = ParseSection(castedContent, defaultForcedBranches);
-            var resultingDeps = BuildResultingDepsMap(parentDeps);
+            var section = ParseSection(castedContent, defaults?.Force);
+            var inheritedDeps = (defaults?.Deps ?? new List<Dep>()).Concat(parentDeps ?? new Dep[0]).ToArray();
+            EnsureNoDuplicates(inheritedDeps);
+            var resultingDeps = inheritedDeps.ToDictionary(d => d.Name);
 
             foreach (var dep in section.Deps)
             {
@@ -44,15 +46,6 @@ namespace Common.YamlParsers.V2
             }
 
             return new DepsContent(section.Force, resultingDeps.Values.ToList());
-        }
-
-        private Dictionary<string, Dep> BuildResultingDepsMap(Dep[] parentDeps)
-        {
-            if (parentDeps == null)
-                return new Dictionary<string, Dep>();
-
-            EnsureNoDuplicates(parentDeps);
-            return parentDeps.ToDictionary(d => d.Name);
         }
 
         private DepsContent ParseSection(IEnumerable<object> contents, [CanBeNull] string[] defaultForcedBranches = null)

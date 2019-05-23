@@ -10,5 +10,6 @@ namespace Common.YamlParsers.Models
         public InstallData InstallSection { get;set; }
 
         public BuildData[] BuildSection { get;set; }
+        public string[] ParentConfigs { get; set; }
     }
 }

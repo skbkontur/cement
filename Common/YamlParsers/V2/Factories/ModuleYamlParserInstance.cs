@@ -14,10 +14,20 @@ namespace Common.YamlParsers.V2.Factories
         private static ModuleYamlParser Create()
         {
             var configLineParser = new ConfigLineParser();
-            var defaultsParser = ModuleYamlDefaultsParserInstance.Get();
-            var configParser = ModuleYamlConfigurationParserInstance.Get();
+            var depSectionParser = new DepsSectionParser(new DepLineParser());
+            var buildSectionParser = new BuildSectionParser();
+            var installSectionParser = new InstallSectionParser();
 
-            return new ModuleYamlParser(configLineParser, defaultsParser, configParser);
+            var hooksSectionParser = new HooksSectionParser();
+            var settingsSectionParser = new SettingsSectionParser();
+            var defaultsParser = new ModuleYamlDefaultsParser(hooksSectionParser, depSectionParser, settingsSectionParser, buildSectionParser, installSectionParser);
+
+            return new ModuleYamlParser(
+                configLineParser,
+                defaultsParser,
+                installSectionParser,
+                depSectionParser,
+                buildSectionParser);
         }
     }
 }

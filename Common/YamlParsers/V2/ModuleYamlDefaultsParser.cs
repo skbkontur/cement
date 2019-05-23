@@ -38,18 +38,17 @@ namespace Common.YamlParsers.V2
             var installSection = defaultsContents.FindValue("install");
             var artifactsSection = defaultsContents.FindValue("artifacts");
             var artefactsSection = defaultsContents.FindValue("artefacts");
-            var installData = installSectionParser.Parse(installSection, artifactsSection, artefactsSection);
+            var sections = new YamlInstallSections(installSection, artifactsSection, artefactsSection);
+            var installData = installSectionParser.Parse(sections);
+
             var hooksData = hooksSectionParser.Parse(defaultsContents.FindValue("hooks"));
             var settingsData = settingsSectionParser.Parse(defaultsContents.FindValue("settings"));
-            var buildData = buildSectionParser.ParseBuildSections(defaultsContents.FindValue("build"));
+            var buildData = buildSectionParser.ParseDefaults(defaultsContents.FindValue("build"));
             var depsData = depsSectionParser.Parse(defaultsContents.FindValue("deps"));
-
-            if (buildData != null && buildData.Length > 1)
-                throw new CementException("Default configuration can't contains multiple build sections.");
 
             return new ModuleDefaults
             {
-                BuildSection = buildData?.FirstOrDefault(),
+                BuildSection = buildData,
                 DepsSection = depsData,
                 InstallSection = installData,
                 SettingsSection = settingsData,
