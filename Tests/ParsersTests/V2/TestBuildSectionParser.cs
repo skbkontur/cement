@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Common;
 using Common.YamlParsers.V2;
 using FluentAssertions;
@@ -29,6 +28,43 @@ namespace Tests.ParsersTests.V2
             var actual = parser.ParseConfiguration(buildSections);
 
             actual.Should().BeEquivalentTo(expected);
+        }
+
+        [TestCaseSource(nameof(GoodConfigurationCasesWithDefaultsSource))]
+        public void ParseBuildConfigurationSections(string input, BuildData defaults, BuildData[] expected)
+        {
+            var parser = new BuildSectionParser();
+            var buildSections = GetBuildSections(input);
+            var actual = parser.ParseConfiguration(buildSections, defaults);
+
+            actual.Should().BeEquivalentTo(expected);
+        }
+
+        [TestCase("msbuild", null, null, ExpectedResult = null)]
+        [TestCase("msbuild", null, "default_version", ExpectedResult = "default_version")]
+        [TestCase("msbuild", "version_from_settings", "default_version", ExpectedResult = "default_version")]
+        [TestCase("msbuild", "version_from_settings", null, ExpectedResult = "version_from_settings")]
+        [TestCase("msbuild", "version_from_settings", "", ExpectedResult = "version_from_settings")]
+        [TestCase("not_msbuild", null, null, ExpectedResult = null)]
+        [TestCase("not_msbuild", null, "default_version", ExpectedResult = "default_version")]
+        [TestCase("not_msbuild", "version_from_settings", "default_version", ExpectedResult = "default_version")]
+        [TestCase("not_msbuild", "version_from_settings", null, ExpectedResult = null)]
+        [TestCase("not_msbuild", "version_from_settings", "", ExpectedResult = null)]
+        public string DefineCorrectDefaultToolVersion(string toolName, string settingVersion, string defaultVersion)
+        {
+            var settings = new CementSettings { DefaultMsBuildVersion = settingVersion };
+            var input = $@"build:
+  target: Solution.sln
+  configuration: Release
+  tool:
+    name: {toolName}
+";
+            var defaults = new BuildData(null, null, new Tool(null, defaultVersion), new List<string>(), string.Empty);
+
+            var parser = new BuildSectionParser(settings);
+            var buildSections = GetBuildSections(input);
+            var actual = parser.ParseConfiguration(buildSections, defaults);
+            return actual?[0].Tool.Version;
         }
 
         [TestCaseSource(nameof(BadCasesSource))]
@@ -235,6 +271,153 @@ namespace Tests.ParsersTests.V2
                             "Restore deps for PSMoiraWorks"),
                     })
                 .SetName("Multi sln-powershell-target with configuration, single-line params, with multi- and signle-line tool"),
+        };
+
+        private static TestCaseData[] GoodConfigurationCasesWithDefaultsSource =
+        {
+            new TestCaseData(
+                    @"build:
+    configuration: Release",
+                    new BuildData("Solution.sln", null, null, new List<string>(), string.Empty),
+                    new[]
+                    {
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty),
+                    })
+                .SetName("Single build section. Sln-target from defaults"),
+
+            new TestCaseData(
+                    @"build:
+    target: Solution.sln",
+                    new BuildData(null, "Release", null, new List<string>(), string.Empty),
+                    new[]
+                    {
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty),
+                    })
+                .SetName("Single build section. Configuration from defaults"),
+
+            new TestCaseData(
+                    @"build:
+    target: Solution.sln
+    configuration: Release",
+                    new BuildData(null, null, new Tool(null, "42"), new List<string>(), string.Empty),
+                    new[]
+                    {
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild", "42"), new List<string>(), string.Empty),
+                    })
+                .SetName("Single build section. Build tool version from defaults"),
+
+            new TestCaseData(
+                    @"build:
+    target: Solution.sln
+    configuration: Release",
+                    new BuildData(null, null, new Tool("sometool"), new List<string>(), string.Empty),
+                    new[]
+                    {
+                        new BuildData("Solution.sln", "Release", new Tool("sometool"), new List<string>(), string.Empty),
+                    })
+                .SetName("Single build section. Build tool name from defaults"),
+
+
+            new TestCaseData(
+                    @"build:
+    target: Solution.sln
+    configuration: Release",
+                    new BuildData(null, null, null, new List<string>() {"param1", "param2"}, string.Empty),
+                    new[]
+                    {
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>() {"param1", "param2"}, string.Empty),
+                    })
+                .SetName("Single build section. Build parameters from defaults"),
+
+            new TestCaseData(
+                    @"build:
+    target: Solution.sln
+    configuration: Release",
+                    new BuildData(null, null, null, new List<string>(), "buildname"),
+                    new[]
+                    {
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), "buildname"),
+                    })
+                .SetName("Single build section. Build parameters from defaults"),
+
+            new TestCaseData(
+                    @"build:
+  target: Solution.sln
+  configuration: Release
+  parameters: ""/p:WarningLevel=0""",
+                    new BuildData(null, null, null, new List<string>() {"param1", "param2"}, string.Empty),
+                    new[]
+                    {
+                        new BuildData(
+                            "Solution.sln",
+                            "Release",
+                            new Tool("msbuild"),
+                            new List<string> { "param1", "param2", "/p:WarningLevel=0" },
+                            string.Empty),
+                    })
+                .SetName("Single build section. Build params from default are added, not overriden."),
+
+            new TestCaseData(
+                    @"build:
+  - name: debug
+    configuration: Debug
+
+  - name: release
+    configuration: Release
+",
+                    new BuildData("Solution.sln", null, new Tool("sometool", "42"), new List<string>(), string.Empty),
+                    new[]
+                    {
+                        new BuildData("Solution.sln", "Debug", new Tool("sometool", "42"), new List<string> (), "debug"),
+                        new BuildData("Solution.sln", "Release", new Tool("sometool", "42"), new List<string> (), "release"),
+                    })
+                .SetName("Multiple build section. Default values added to every section"),
+
+            new TestCaseData(
+                    @"build:
+  - name: Utilities
+    target: utilities.sln
+    configuration: Debug
+    parameters: ""/t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0;DeployOnBuild=true;PublishProfile=WebApp""
+    tool:
+      name: sometool
+      version: ""14.0""
+
+  - name: ""Restore deps for PSMoiraWorks""
+    parameters: -NonInteractive -NoProfile -ExecutionPolicy Bypass
+    target: PSModules\PSMoiraWorks\deps.ps1
+    configuration: Release
+    tool:
+      name: sometool
+      version: ""14.0"""
+                    ,
+                    new BuildData("Default.sln", "Default", new Tool("default_name", "default_version"), new List<string>() {"default"}, "default"),
+                    new[]
+                    {
+                        new BuildData(
+                            "utilities.sln",
+                            "Debug",
+                            new Tool("sometool", "14.0"),
+                            new List<string>
+                            {
+                                "default",
+                                "/t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0;DeployOnBuild=true;PublishProfile=WebApp",
+                            },
+                            "Utilities"),
+
+                        new BuildData(
+                            @"PSModules\PSMoiraWorks\deps.ps1",
+                            "Release",
+                            new Tool("sometool", "14.0"),
+                            new List<string>()
+                            {
+                                "default",
+                                "-NonInteractive -NoProfile -ExecutionPolicy Bypass"
+                            },
+                            "Restore deps for PSMoiraWorks"),
+                    })
+                .SetName("Multiple build section. Explicit values from config override default values."),
+
         };
 
         private static TestCaseData[] GoodDefaultsCasesSource =

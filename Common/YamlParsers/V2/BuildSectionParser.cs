@@ -53,16 +53,18 @@ namespace Common.YamlParsers.V2
 
             var defaultTarget = string.IsNullOrEmpty(defaults?.Target) ? string.Empty : defaults.Target;
             var defaultConfiguration = string.IsNullOrEmpty(defaults?.Configuration) ? null : defaults.Configuration;
-            var defaultToolName = string.IsNullOrEmpty(defaults?.Tool.Name) ? DefaultToolName : defaults?.Tool.Name;
-            var defaultToolVersion = string.IsNullOrEmpty(defaults?.Tool.Version) ? null : defaults?.Tool.Version;
+            var defaultToolName = string.IsNullOrEmpty(defaults?.Tool?.Name) ? DefaultToolName : defaults?.Tool.Name;
+            var defaultToolVersion = string.IsNullOrEmpty(defaults?.Tool?.Version) ? null : defaults?.Tool.Version;
+            var defaultParams = defaults?.Parameters ?? new List<string>();
+            var defaultName = defaults?.Name ?? string.Empty;
 
             foreach (var section in buildSections)
             {
                 var target = Helper.FixPath(FindValue(section, "target", defaultTarget));
                 var configuration = FindValue(section, "configuration", defaultConfiguration);
                 var tool = GetTools(section, defaultToolName, defaultToolVersion);
-                var parameters = GetBuildParams(section);
-                var name = FindValue(section, "name", string.Empty);
+                var parameters = defaultParams.Concat(GetBuildParams(section)).ToList();
+                var name = FindValue(section, "name", defaultName);
 
                 if (count > 1 && string.IsNullOrEmpty(name))
                     throw new CementException("Multiple parts of build-section require names");
