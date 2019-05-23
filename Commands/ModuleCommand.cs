@@ -88,7 +88,10 @@ namespace Commands
                 repo.Push("master");
             }
 
-            ConsoleWriter.WriteOk("Success added " + moduleName + " to " + package.Name);
+            ConsoleWriter.WriteOk($"Successfully added {moduleName} to {package.Name} package.");
+
+            PackageUpdater.UpdatePackages();
+
             return 0;
         }
 
