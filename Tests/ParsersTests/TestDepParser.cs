@@ -349,7 +349,7 @@ config3 > config2,config1:
         }
 
         [Test]
-        public void Test1()
+        public void TestNoErrorIfAddedModulesHaveTheSameBranchAndConfiguration()
         {
             var text = @"
 config0:
@@ -359,7 +359,7 @@ config0:
 config1 > config0:
   deps:
     - module
-    - module1/sdk
+    - module1
 
 config2:
   deps:
@@ -369,8 +369,9 @@ config3 > config2,config1:
 ";
             var dc = YamlFromText.DepsParser(text).Get("config3");
             Assert.NotNull(dc);
-            // Assert.AreEqual(1, dc.Deps.Count);
-            // Assert.AreEqual(new Dep("module", null, null), dc.Deps[0]);
+            Assert.AreEqual(2, dc.Deps.Count);
+            Assert.AreEqual(new Dep("module1", null, null), dc.Deps[0]);
+            Assert.AreEqual(new Dep("module", null, null), dc.Deps[1]);
         }
 
         [Test]
