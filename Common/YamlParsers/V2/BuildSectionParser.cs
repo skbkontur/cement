@@ -43,7 +43,7 @@ namespace Common.YamlParsers.V2
         {
             var buildSections = CastContent(contents);
             if (buildSections == null)
-                return null;
+                return defaults == null ? null : new [] { defaults };
 
             var count = buildSections.Length;
             if (count == 0)
@@ -63,7 +63,7 @@ namespace Common.YamlParsers.V2
                 var target = Helper.FixPath(FindValue(section, "target", defaultTarget));
                 var configuration = FindValue(section, "configuration", defaultConfiguration);
                 var tool = GetTools(section, defaultToolName, defaultToolVersion);
-                var parameters = defaultParams.Concat(GetBuildParams(section)).ToList();
+                var parameters = FindBuildParams(section) ?? defaultParams;
                 var name = FindValue(section, "name", defaultName);
 
                 if (count > 1 && string.IsNullOrEmpty(name))
@@ -105,7 +105,8 @@ namespace Common.YamlParsers.V2
             }
         }
 
-        private List<string> GetBuildParams(IDictionary<object, object> section)
+        [CanBeNull]
+        private List<string> FindBuildParams(IDictionary<object, object> section)
         {
             var buildParams = FindValue<object>(section, "parameters");
             switch (buildParams)
@@ -113,9 +114,9 @@ namespace Common.YamlParsers.V2
                 case List<object> list:
                     return list.Cast<string>().ToList();
                 case string str:
-                    return new List<string>() { str };
+                    return new List<string> { str };
                 default:
-                    return new List<string>();
+                    return null;
             }
         }
 
@@ -124,6 +125,8 @@ namespace Common.YamlParsers.V2
             switch (contents)
             {
                 case null:
+                    return null;
+                case string s when string.IsNullOrEmpty(s):
                     return null;
                 case List<object> t1:
                     return t1.Cast<IDictionary<object, object>>().ToArray();

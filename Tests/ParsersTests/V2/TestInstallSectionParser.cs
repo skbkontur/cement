@@ -181,7 +181,7 @@ namespace Tests.ParsersTests.V2
                     {
                         InstallFiles = {"default_file", "file1"},
                         Artifacts = {"default_artifact", "file1", "file2", "file3"},
-                        CurrentConfigurationInstallFiles = {"default_file", "default_artifact", "file1", "file2", "file3"},
+                        CurrentConfigurationInstallFiles = {"file1", "file2", "file3"},
                         ExternalModules = {"default_module", "Module1"},
                         NuGetPackages = {"default_nuget", "Nuget1"}
                     })
@@ -232,7 +232,7 @@ namespace Tests.ParsersTests.V2
                     {
                         InstallFiles = {"parent1_file", "parent2_file", "file1"},
                         Artifacts = {"parent1_artifact", "parent2_artifact", "file1", "file2", "file3"},
-                        CurrentConfigurationInstallFiles = {"parent1_file", "parent1_artifact", "parent2_file", "parent2_artifact", "file1", "file2", "file3"},
+                        CurrentConfigurationInstallFiles = {"file1", "file2", "file3"},
                         ExternalModules = {"parent1_module", "parent2_module", "Module1"},
                         NuGetPackages = {"parent1_nuget", "parent2_nuget", "Nuget1"}
                     })
@@ -290,7 +290,7 @@ namespace Tests.ParsersTests.V2
                     {
                         InstallFiles = {"default_file", "parent1_file", "parent2_file", "file1"},
                         Artifacts = {"default_artifact", "parent1_artifact", "parent2_artifact", "file1", "file2", "file3"},
-                        CurrentConfigurationInstallFiles = {"default_file", "default_artifact", "parent1_file", "parent1_artifact", "parent2_file", "parent2_artifact", "file1", "file2", "file3"},
+                        CurrentConfigurationInstallFiles = {"file1", "file2", "file3"},
                         ExternalModules = {"default_module", "parent1_module", "parent2_module", "Module1"},
                         NuGetPackages = {"default_nuget", "parent1_nuget", "parent2_nuget", "Nuget1"}
                     })

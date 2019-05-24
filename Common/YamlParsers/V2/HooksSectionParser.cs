@@ -6,11 +6,11 @@ namespace Common.YamlParsers.V2
 {
     public class HooksSectionParser
     {
-        [CanBeNull]
+        [NotNull]
         public string[] Parse([CanBeNull] object hooksSection)
         {
             if (hooksSection == null)
-                return null;
+                return new string[0];
 
             var hooks = hooksSection as List<object>;
             if (hooks == null)

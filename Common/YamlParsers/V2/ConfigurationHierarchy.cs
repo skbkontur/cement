@@ -19,7 +19,13 @@ namespace Common.YamlParsers.V2
         public ConfigurationHierarchy(ConfigurationLine[] configs)
         {
             defaultConfig = DetermineDefaultConfig(configs);
-            configNameToParentsMap = configs.ToDictionary(config => config.ConfigName, config => config.ParentConfigs);
+
+            // workaround for inheriting non-existent configs
+            var existingConfigNames = new HashSet<string>(configs.Select(c => c.ConfigName));
+            configNameToParentsMap = configs.ToDictionary(
+                config => config.ConfigName,
+                config => config.ParentConfigs?.Where(pc => existingConfigNames.Contains(pc)).ToArray()
+            );
         }
 
         /// <summary>
@@ -86,7 +92,7 @@ namespace Common.YamlParsers.V2
         private string[] GetAllInner()
         {
             var roots = configNameToParentsMap
-                .Where(kvp => kvp.Value == null)
+                .Where(kvp => kvp.Value == null || !kvp.Value.Any())
                 .Select(kvp => kvp.Key)
                 .ToArray();
 

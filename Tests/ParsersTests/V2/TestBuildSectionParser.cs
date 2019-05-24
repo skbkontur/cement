@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Common;
 using Common.YamlParsers.V2;
@@ -68,11 +69,11 @@ namespace Tests.ParsersTests.V2
         }
 
         [TestCaseSource(nameof(BadCasesSource))]
-        public void ThrowOnInvalidBuildSection(string input)
+        public void ThrowOnInvalidBuildSection(string input, Type expectedException)
         {
             var parser = new BuildSectionParser();
             var buildSections = GetBuildSections(input);
-            parser.ParseConfiguration(buildSections);
+            Assert.Throws(expectedException, () => parser.ParseConfiguration(buildSections));
         }
 
         private static TestCaseData[] GoodConfigurationCasesSource =
@@ -352,10 +353,10 @@ namespace Tests.ParsersTests.V2
                             "Solution.sln",
                             "Release",
                             new Tool("msbuild"),
-                            new List<string> { "param1", "param2", "/p:WarningLevel=0" },
+                            new List<string> { "/p:WarningLevel=0" },
                             string.Empty),
                     })
-                .SetName("Single build section. Build params from default are added, not overriden."),
+                .SetName("Single build section. Build params from default are overriden, not added."),
 
             new TestCaseData(
                     @"build:
@@ -400,7 +401,6 @@ namespace Tests.ParsersTests.V2
                             new Tool("sometool", "14.0"),
                             new List<string>
                             {
-                                "default",
                                 "/t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0;DeployOnBuild=true;PublishProfile=WebApp",
                             },
                             "Utilities"),
@@ -411,7 +411,6 @@ namespace Tests.ParsersTests.V2
                             new Tool("sometool", "14.0"),
                             new List<string>()
                             {
-                                "default",
                                 "-NonInteractive -NoProfile -ExecutionPolicy Bypass"
                             },
                             "Restore deps for PSMoiraWorks"),
@@ -438,16 +437,14 @@ build:
   - target: Solution.sln
     configuration: debug
   - target: Pollution.sln
-    configuration: release")
-                .Throws(typeof(CementException))
+    configuration: release", typeof(CementException))
                 .SetName("Multiple parts of build-section require names"),
 
             new TestCaseData(
                     @"build:
   target: Solution.sln
   configuration: debug
-  tool:  ")
-                .Throws(typeof(BadYamlException))
+  tool:  ", typeof(BadYamlException))
                 .SetName("Tool can't be an empty string"),
         };
 

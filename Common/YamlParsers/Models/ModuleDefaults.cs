@@ -4,14 +4,20 @@ namespace Common.YamlParsers.Models
 {
     public class ModuleDefaults
     {
-        [CanBeNull]
+        public ModuleDefaults()
+        {
+            HooksSection = new string[0];
+            SettingsSection = new ModuleSettings();
+        }
+
+        [NotNull]
         public string[] HooksSection { get; set; }
+
+        [NotNull]
+        public ModuleSettings SettingsSection { get; set;}
 
         [CanBeNull]
         public ParsedDepsSection DepsSection { get; set; }
-
-        [CanBeNull]
-        public ModuleSettings SettingsSection { get; set;}
 
         [CanBeNull]
         public BuildData BuildSection { get; set; }

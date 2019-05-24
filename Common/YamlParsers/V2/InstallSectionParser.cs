@@ -36,7 +36,11 @@ namespace Common.YamlParsers.V2
                 .Distinct()
                 .ToList();
 
-            var currentConfigurationInstallFiles = new List<string>(artifacts);
+            // currentConfigurationInstallFiles are inherited from 'default' section ¯\_(ツ)_/¯
+            var currentConfigurationInstallFiles = (defaults?.CurrentConfigurationInstallFiles ?? Enumerable.Empty<string>())
+                .Concat(artifacts)
+                .ToList();
+
             var currentConfigInstallData = new InstallData
             {
                 InstallFiles = installFiles,
@@ -51,9 +55,9 @@ namespace Common.YamlParsers.V2
 
             var accumulate = defaults ?? new InstallData();
             if (parentInstalls != null)
-                accumulate = parentInstalls.Aggregate(accumulate, (current, parentInstall) => current.JoinWith(parentInstall));
+                accumulate = parentInstalls.Aggregate(accumulate, (current, parentInstall) => current.JoinWith(parentInstall, currentConfigurationInstallFiles));
 
-            accumulate = accumulate.JoinWith(currentConfigInstallData);
+            accumulate = accumulate.JoinWith(currentConfigInstallData, currentConfigurationInstallFiles);
             return accumulate;
         }
 

@@ -252,6 +252,13 @@ namespace Tests.ParsersTests.V2
 
             new TestCaseData(new[]
                 {
+                    "client *default",
+                    "full-build > non-existent-config"
+                }, new[] { "client", "full-build" })
+                .SetName("Two roots and non-existent config"),
+
+            new TestCaseData(new[]
+                {
                     "A",
                     "B *default",
                     "C > A"

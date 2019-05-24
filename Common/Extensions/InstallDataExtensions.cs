@@ -10,7 +10,7 @@ namespace Common.Extensions
         /// <summary>
         /// Returns new instance of InstallData with properties copied from first and second InstallData
         /// </summary>
-        public static InstallData JoinWith(this InstallData first, [NotNull] InstallData second)
+        public static InstallData JoinWith(this InstallData first, [NotNull] InstallData second, IEnumerable<string> currentConfigurationInstallFiles)
         {
             var result = new InstallData
             {
@@ -18,7 +18,7 @@ namespace Common.Extensions
                 ExternalModules = new List<string>(ConcatDistinct(first, second, item => item.ExternalModules)),
                 InstallFiles = new List<string>(ConcatDistinct(first, second, item => item.InstallFiles)),
                 NuGetPackages = new List<string>(ConcatDistinct(first, second, item => item.NuGetPackages)),
-                CurrentConfigurationInstallFiles = new List<string>(ConcatDistinct(first, second, item => item.CurrentConfigurationInstallFiles)),
+                CurrentConfigurationInstallFiles = new List<string>(currentConfigurationInstallFiles),
             };
 
             return result;

@@ -53,7 +53,7 @@ namespace Common.YamlParsers.V2
 
             var defaultSection = yaml.FindValue("default") as Dictionary<object, object>;
             var defaults = moduleYamlDefaultsParser.Parse(defaultSection);
-            var defaultConfigName = hierarchy.GetDefault();
+            var defaultConfigName = hierarchy.FindDefault();
 
             var cache = new Dictionary<string, ParsedDepsSection>();
 
@@ -62,19 +62,19 @@ namespace Common.YamlParsers.V2
                 var closestParents = hierarchy.FindClosestParents(configName);
                 var allParents = hierarchy.FindAllParents(configName);
                 var configKey = parsedConfigToRawLine[configName];
-                var configurationContents = (Dictionary<object, object>) yaml[configKey];
+
+                var configurationContents = yaml[configKey] as Dictionary<object, object>;
 
                 var parentInstalls = closestParents?.Select(c => configurations[c].InstallSection).ToArray();
                 var parentDeps = allParents?
-                    .Reverse()
                     .Select(c => cache[c])
                     .ToArray();
 
-                var installSection = configurationContents.FindValue("install");
-                var artifactsSection = configurationContents.FindValue("artifacts");
-                var artefactsSection = configurationContents.FindValue("artefacts");
-                var depsSection = configurationContents.FindValue("deps");
-                var buildSection = configurationContents.FindValue("build");
+                var installSection = configurationContents?.FindValue("install");
+                var artifactsSection = configurationContents?.FindValue("artifacts");
+                var artefactsSection = configurationContents?.FindValue("artefacts");
+                var depsSection = configurationContents?.FindValue("deps");
+                var buildSection = configurationContents?.FindValue("build");
                 var sections = new YamlInstallSections(installSection, artifactsSection, artefactsSection);
 
                 try
@@ -99,7 +99,7 @@ namespace Common.YamlParsers.V2
                 }
             }
 
-            return new ModuleDefinition(configurations);
+            return new ModuleDefinition(configurations, defaults ?? new ModuleDefaults());
         }
 
         private string PatchTabs(string input, string moduleInfo = null)
