@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.Extensions;
@@ -28,8 +29,9 @@ namespace Common.YamlParsers.V2
             this.buildSectionParser = buildSectionParser;
         }
 
-        public ModuleDefinition Parse(string content)
+        public ModuleDefinition Parse(string content, string moduleInfo = "")
         {
+            content = PatchTabs(content, moduleInfo);
             var serializer = new Serializer();
 
             var yaml = (Dictionary<object, object>) serializer.Deserialize(content);
@@ -98,6 +100,30 @@ namespace Common.YamlParsers.V2
             }
 
             return new ModuleDefinition(configurations);
+        }
+
+        private string PatchTabs(string input, string moduleInfo = null)
+        {
+            if (!input.Contains('\t'))
+                return input;
+
+            var msg = "These should not be any tab characters in yaml file. Replace tab characters with spaces.";
+            if (!string.IsNullOrEmpty(moduleInfo))
+                msg += " " + moduleInfo;
+
+            ConsoleWriter.WriteWarning(msg);
+
+            var lines = input.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
+            for (var i = 1; i < lines.Length; i++)
+            {
+                if (!lines[i].Contains('\t'))
+                    continue;
+
+                var properWhitespaceCount = lines[i - 1].TakeWhile(char.IsWhiteSpace).Count();
+                lines[i] = new string(' ', properWhitespaceCount) + lines[i].TrimStart();
+            }
+
+            return string.Join(Environment.NewLine, lines);
         }
     }
 }
