@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using SharpYaml.Serialization;
@@ -146,12 +145,6 @@ namespace Common.YamlParsers
         }
     }
 
-    public class ParseDepsSectionResult
-    {
-        public DepsContent ResultingDeps { get; set; }
-        public ParsedDepsSection RawSection { get; set; }
-    }
-
     public class DepsContent
     {
         public string[] Force { get; set; }
@@ -162,40 +155,5 @@ namespace Common.YamlParsers
             Force = force;
             Deps = deps;
         }
-    }
-
-    public class ParsedDepsSection
-    {
-        public ParsedDepsSection(string[] force = null) : this(force, new DepLine[0])
-        {
-        }
-
-        public ParsedDepsSection(string[] force, DepLine[] lines)
-        {
-            Force = force;
-            Lines = lines;
-        }
-
-        public string[] Force { get; set; }
-        public DepLine[] Lines { get; set; }
-    }
-
-    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class DepLine
-    {
-        public DepLine(Dep dependency): this(false, dependency)
-        {
-        }
-
-        public DepLine(bool isRemoved, Dep dependency)
-        {
-            IsRemoved = isRemoved;
-            Dependency = dependency;
-        }
-
-        private string DebuggerDisplay => IsRemoved ? "-" + Dependency : Dependency.ToString();
-
-        public bool IsRemoved { get; set; }
-        public Dep Dependency { get; set; }
     }
 }

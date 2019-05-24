@@ -1,3 +1,4 @@
+using Common.YamlParsers.Models;
 using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2

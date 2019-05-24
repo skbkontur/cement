@@ -4,6 +4,7 @@ using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using Common;
 using Common.YamlParsers;
+using Common.YamlParsers.Models;
 using Common.YamlParsers.V2;
 
 namespace Benchmarks
