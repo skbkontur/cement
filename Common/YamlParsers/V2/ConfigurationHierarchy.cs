@@ -9,7 +9,8 @@ namespace Common.YamlParsers.V2
     public class ConfigurationHierarchy
     {
         private const string defaultConfigName = "full-build";
-        private readonly ConfigurationLine[] configs;
+
+        [CanBeNull]
         private readonly ConfigurationLine defaultConfig;
         private readonly IReadOnlyDictionary<string, string[]> configNameToParentsMap;
 
@@ -17,7 +18,6 @@ namespace Common.YamlParsers.V2
 
         public ConfigurationHierarchy(ConfigurationLine[] configs)
         {
-            this.configs = configs;
             defaultConfig = DetermineDefaultConfig(configs);
             configNameToParentsMap = configs.ToDictionary(config => config.ConfigName, config => config.ParentConfigs);
         }
@@ -49,7 +49,9 @@ namespace Common.YamlParsers.V2
                         parents.Add(parent);
                 }
             }
-            return parents.ToArray();
+
+            var all = GetAll();
+            return parents.OrderBy(parent => Array.IndexOf(all, parent)).ToArray();
         }
 
         /// <summary>
@@ -64,10 +66,10 @@ namespace Common.YamlParsers.V2
         /// <summary>
         /// Return default configuration name
         /// </summary>
-        [NotNull]
-        public string GetDefault()
+        [CanBeNull]
+        public string FindDefault()
         {
-            return defaultConfig.ConfigName;
+            return defaultConfig?.ConfigName;
         }
 
         /// <summary>
@@ -115,7 +117,7 @@ namespace Common.YamlParsers.V2
             return yieldedNodes.ToArray();
         }
 
-        [NotNull]
+        [CanBeNull]
         private static ConfigurationLine DetermineDefaultConfig(ConfigurationLine[] lines)
         {
             var config = lines.FirstOrDefault(l => l.IsDefault) ??
@@ -127,7 +129,7 @@ namespace Common.YamlParsers.V2
             if (lines.Length == 1)
                 return lines[0];
 
-            throw new ArgumentException("Cannot determine default module configuration. Specify it via '*default' keyword.", nameof(configs));
+            return null;
         }
     }
 }

@@ -11,6 +11,10 @@ namespace Common.YamlParsers
         {
         }
 
+        public BuildYamlParser(string moduleName, string content) : base(moduleName, content)
+        {
+        }
+
         public List<BuildData> Get(string configName = null)
         {
             try

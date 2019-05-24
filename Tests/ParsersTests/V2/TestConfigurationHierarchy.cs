@@ -36,7 +36,7 @@ namespace Tests.ParsersTests.V2
         public string FindDefault(List<string> configLines)
         {
             var hierarchy = GetHierarchy(configLines);
-            return hierarchy.GetDefault();
+            return hierarchy.FindDefault();
         }
 
         [TestCaseSource(nameof(GetAllSource))]
@@ -86,7 +86,7 @@ namespace Tests.ParsersTests.V2
                 "C > A",
                 "D > A *default",
                 "E > B"
-            }, new[] { "B", "A" })
+            }, new[] { "A", "B" })
                 .SetName("Two roots"),
 
 /*
@@ -109,7 +109,7 @@ namespace Tests.ParsersTests.V2
                 "G > F",
                 "H > E, G"
 
-            }, new[] { "E", "G", "B", "F", "A" })
+            }, new[] { "A", "F", "B", "G", "E" })
                 .SetName("Complex tree"),
         };
 
@@ -211,6 +211,14 @@ namespace Tests.ParsersTests.V2
                 .SetName("Two non-full-build configs and a full-build, no default mark"),
 
             new TestCaseData(new List<string>
+                {
+                    "A",
+                    "B",
+                })
+                .Returns(null)
+                .SetName("Two non-full-build configs, no default mark. Null default config"),
+
+            new TestCaseData(new List<string>
             {
                 "A *default",
                 "B",
@@ -228,9 +236,6 @@ namespace Tests.ParsersTests.V2
                 .Returns("A")
                 .SetName("Two inhereted non-full-build configs and a full-build, first marked as default"),
 
-            new TestCaseData(new List<string> { "A", "B" })
-                .Throws(typeof(ArgumentException))
-                .SetName("Throw ArgumentException on several non-full-build configs without default mark"),
         };
 
         private TestCaseData[] GetAllSource =
