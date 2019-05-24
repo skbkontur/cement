@@ -60,7 +60,7 @@
     <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="SharpYaml, Version=1.4.0.32969, Culture=neutral, PublicKeyToken=1ced8108e942bc02">
+    <Reference Include="SharpYaml">
       <HintPath>..\externals\SharpYaml.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -163,7 +163,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

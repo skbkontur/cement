@@ -59,14 +59,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\externals\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="mscorlib" />
     <Reference Include="NDesk.Options">
       <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
     </Reference>
     <Reference Include="NuGet">
       <HintPath>..\packages\NuGet.CommandLine.4.1.0\tools\NuGet.exe</HintPath>
     </Reference>
-    <Reference Include="SharpYaml, Version=1.4.0.35462, Culture=neutral, PublicKeyToken=1ced8108e942bc02, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="SharpYaml, Version=1.6.5.0, Culture=neutral, PublicKeyToken=1ced8108e942bc02">
       <HintPath>..\externals\SharpYaml.dll</HintPath>
     </Reference>
     <Reference Include="System" />
