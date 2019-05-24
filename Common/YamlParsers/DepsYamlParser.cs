@@ -11,6 +11,10 @@ namespace Common.YamlParsers
         {
         }
 
+        public DepsYamlParser(string moduleName, string contents) : base(moduleName, contents)
+        {
+        }
+
         public DepsContent Get(string configuration = null)
         {
             configuration = configuration ?? GetDefaultConfigurationName();

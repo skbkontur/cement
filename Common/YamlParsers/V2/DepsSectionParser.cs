@@ -14,51 +14,66 @@ namespace Common.YamlParsers.V2
             this.depLineParser = depLineParser;
         }
 
-        public DepsContent Parse(object contents, DepsContent defaults = null, [CanBeNull] Dep[] parentDeps = null)
+        public ParseDepsSectionResult Parse(object contents, ParsedDepsSection defaults = null, [CanBeNull] ParsedDepsSection[] parentDeps = null)
         {
             var castedContent = CastContent(contents);
+            var currentSection = ParseSection(castedContent, defaults?.Force);
+            defaults = defaults ?? new ParsedDepsSection();
+            parentDeps = parentDeps ?? new ParsedDepsSection[0];
 
-            var section = ParseSection(castedContent, defaults?.Force);
-            var inheritedDeps = (defaults?.Deps ?? new List<Dep>()).Concat(parentDeps ?? new Dep[0]).ToArray();
-            EnsureNoDuplicates(inheritedDeps);
-            var resultingDeps = inheritedDeps.ToDictionary(d => d.Name);
+            var sections = new List<ParsedDepsSection> {defaults}
+                .Concat(parentDeps)
+                .Concat(new [] {currentSection})
+                .ToArray();
 
-            foreach (var dep in section.Deps)
+            var resultingDeps = new List<Dep>();
+
+            foreach (var section in sections)
             {
-                var isRemoved = dep.Name[0] == '-';
-                var name = isRemoved ? dep.Name.Substring(1) : dep.Name;
-                if (isRemoved)
+                foreach (var line in section.Lines)
                 {
-                    if (!resultingDeps.ContainsKey(name))
-                        throw new BadYamlException("deps", $"You cannot delete dependecy '{name}'. You have to add it first.");
-
-                    resultingDeps.Remove(name);
-                }
-                else
-                {
-                    if (resultingDeps.ContainsKey(name))
+                    if (line.IsRemoved)
                     {
-                        ConsoleWriter.WriteError(ModuleDuplicationError(name));
-                        throw new BadYamlException("deps", "duplicate dep " + name);
+                        var removedCount = resultingDeps.RemoveAll(testedDep => DepMatch(line.Dependency, testedDep));
+                        if (removedCount == 0)
+                            throw new BadYamlException("deps", $"You cannot delete dependecy '{line.Dependency}'. You have to add it first.");
                     }
-                    resultingDeps.Add(name, dep);
+                    else
+                    {
+                        // Two duplicate deps is normal
+                        // Two deps with same name and different configuration/branch - is not
+                        if (!resultingDeps.Contains(line.Dependency))
+                            resultingDeps.Add(line.Dependency);
+                    }
                 }
             }
 
-            return new DepsContent(section.Force, resultingDeps.Values.ToList());
+            EnsureNoDuplicates(resultingDeps);
+
+            var resultingDepsContent = new DepsContent(currentSection.Force, resultingDeps.ToList());
+            return new ParseDepsSectionResult()
+            {
+                RawSection = currentSection,
+                ResultingDeps = resultingDepsContent
+            };
         }
 
-        private DepsContent ParseSection(IEnumerable<object> contents, [CanBeNull] string[] defaultForcedBranches = null)
+        [NotNull]
+        private ParsedDepsSection ParseSection([CanBeNull] IEnumerable<object> contents, [CanBeNull] string[] defaultForcedBranches = null)
         {
-            var deps = new List<Dep>();
+            var deps = new List<DepLine>();
             var force = defaultForcedBranches;
+
+            if (contents == null)
+                return new ParsedDepsSection(force);
 
             foreach(var node in contents)
             {
                 switch (node)
                 {
                     case string scalar:
-                        deps.Add(depLineParser.Parse(scalar));
+                        var parsed = depLineParser.Parse(scalar);
+                        deps.Add(parsed);
                         break;
 
                     case Dictionary<object, object> mappingNode:
@@ -78,16 +93,34 @@ namespace Common.YamlParsers.V2
                             var type = FindValue(mapping, "type");
                             var configuration = FindValue(mapping, "configuration");
 
-                            deps.Add(new Dep(name, treeish, configuration)
+                            var isRemoved = name[0] == '-';
+                            name = isRemoved ? name.Substring(1) : name;
+                            var dep = new Dep(name, treeish, configuration)
                             {
                                 NeedSrc = type == "src"
-                            });
+                            };
+                            deps.Add(new DepLine(isRemoved, dep));
                         }
                         break;
                     }
                 }
             }
-            return new DepsContent(force, deps);
+            return new ParsedDepsSection(force, deps.ToArray());
+        }
+
+        private bool DepMatch(Dep depToRemove, Dep testedDep)
+        {
+            if (depToRemove.Name != testedDep.Name)
+                return false;
+
+            var treeishMatch = false;
+            var configMatch = false;
+
+            if (depToRemove.Treeish == null || depToRemove.Treeish.Equals("*") || depToRemove.Treeish.Equals(testedDep.Treeish))
+                treeishMatch = true;
+            if (depToRemove.Configuration == null || depToRemove.Configuration.Equals("*") || depToRemove.Configuration.Equals(testedDep.Configuration))
+                configMatch = true;
+            return treeishMatch && configMatch;
         }
 
         private void EnsureNoDuplicates(IEnumerable<Dep> parentDeps)
@@ -105,6 +138,7 @@ namespace Common.YamlParsers.V2
             throw new BadYamlException("deps", "duplicate dep " + string.Join(",", duplicatedDeps));
         }
 
+        [CanBeNull]
         private IEnumerable<object> CastContent(object contents)
         {
             switch (contents)

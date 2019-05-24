@@ -57,10 +57,10 @@ namespace Tests.ParsersTests.V2
                         "hooks/pre-commit",
                         "pre-commit.cement",
                     },
-                    DepsSection = new DepsContent(new [] {"some_branch"}, new List<Dep>()
+                    DepsSection = new ParsedDepsSection(new [] {"some_branch"}, new DepLine[]
                     {
-                        new Dep("module1", null, null),
-                        new Dep("module2", null, null),
+                        new DepLine(new Dep("module1", null, null)),
+                        new DepLine(new Dep("module2", null, null)),
                     }),
                     BuildSection = new BuildData("solution.sln", null, new Tool("sometool"), new List<string>(), string.Empty),
                     InstallSection = new InstallData()

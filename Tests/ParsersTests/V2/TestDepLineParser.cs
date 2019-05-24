@@ -1,4 +1,5 @@
 using Common;
+using Common.YamlParsers;
 using Common.YamlParsers.V2;
 using NUnit.Framework;
 
@@ -8,7 +9,7 @@ namespace Tests.ParsersTests.V2
     public class TestDepLineParser
     {
         [TestCaseSource(nameof(Source))]
-        public Dep Parse(string input)
+        public DepLine Parse(string input)
         {
             var parser = new DepLineParser();
             return parser.Parse(input);
@@ -16,7 +17,7 @@ namespace Tests.ParsersTests.V2
 
         private static TestCaseData[] Source =
         {
-            new TestCaseData("module").Returns(new Dep("module")),
+            new TestCaseData("module").Returns(new DepLine(new Dep("module"))),
             new TestCaseData("module@branch").Returns(new Dep("module", "branch")),
             new TestCaseData(@"module@feature\/branch").Returns(new Dep("module", "feature/branch")),
             new TestCaseData(@"module@feature\branch").Returns(new Dep("module", @"feature\branch")),

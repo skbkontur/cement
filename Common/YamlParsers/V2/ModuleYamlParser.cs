@@ -31,6 +31,7 @@ namespace Common.YamlParsers.V2
         public ModuleDefinition Parse(string content)
         {
             var serializer = new Serializer();
+
             var yaml = (Dictionary<object, object>) serializer.Deserialize(content);
             var configurations = new Dictionary<string, ModuleConfiguration>();
 
@@ -52,16 +53,19 @@ namespace Common.YamlParsers.V2
             var defaults = moduleYamlDefaultsParser.Parse(defaultSection);
             var defaultConfigName = hierarchy.GetDefault();
 
+            var cache = new Dictionary<string, ParsedDepsSection>();
+
             foreach (var configName in configs)
             {
-                var parentConfigs = hierarchy.FindClosestParents(configName);
+                var closestParents = hierarchy.FindClosestParents(configName);
+                var allParents = hierarchy.FindAllParents(configName);
                 var configKey = parsedConfigToRawLine[configName];
                 var configurationContents = (Dictionary<object, object>) yaml[configKey];
 
-                var parentInstalls = parentConfigs?.Select(c => configurations[c].InstallSection).ToArray();
-                var parentDeps = parentConfigs?
-                    .SelectMany(c => configurations[c].Dependencies.Deps)
-                    .Distinct()
+                var parentInstalls = closestParents?.Select(c => configurations[c].InstallSection).ToArray();
+                var parentDeps = allParents?
+                    .Reverse()
+                    .Select(c => cache[c])
                     .ToArray();
 
                 var installSection = configurationContents.FindValue("install");
@@ -69,19 +73,28 @@ namespace Common.YamlParsers.V2
                 var artefactsSection = configurationContents.FindValue("artefacts");
                 var depsSection = configurationContents.FindValue("deps");
                 var buildSection = configurationContents.FindValue("build");
-
                 var sections = new YamlInstallSections(installSection, artifactsSection, artefactsSection);
 
-                var result = new ModuleConfiguration
+                try
                 {
-                    InstallSection = installSectionParser.Parse(sections, defaults?.InstallSection, parentInstalls),
-                    Dependencies = depsSectionParser.Parse(depsSection, defaults?.DepsSection, parentDeps),
-                    BuildSection = buildSectionParser.ParseConfiguration(buildSection, defaults?.BuildSection),
-                    Name = configName,
-                    IsDefault = configName == defaultConfigName,
-                    ParentConfigs = parentConfigs
-                };
-                configurations[configName] = result;
+                    var depsParseResult = depsSectionParser.Parse(depsSection, defaults?.DepsSection, parentDeps);
+                    cache[configName] = depsParseResult.RawSection;
+
+                    var result = new ModuleConfiguration
+                    {
+                        InstallSection = installSectionParser.Parse(sections, defaults?.InstallSection, parentInstalls),
+                        Dependencies = depsParseResult.ResultingDeps,
+                        BuildSection = buildSectionParser.ParseConfiguration(buildSection, defaults?.BuildSection),
+                        Name = configName,
+                        IsDefault = configName == defaultConfigName,
+                        ParentConfigs = closestParents
+                    };
+                    configurations[configName] = result;
+                }
+                catch (BadYamlException ex)
+                {
+                    throw new BadYamlException(configName + "." + ex.SectionName, ex.Message);
+                }
             }
 
             return new ModuleDefinition(configurations);

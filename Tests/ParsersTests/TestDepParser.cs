@@ -327,6 +327,53 @@ client:
         }
 
         [Test]
+        public void TestRemovalOfTheDepInOneOfParentConfigurations()
+        {
+            var text = @"
+core:
+  deps:
+    - module/client
+
+config1 > core:
+  deps:
+    - -module/client
+    - module
+
+config2 > core:
+
+config3 > config2,config1:
+";
+            var dc = YamlFromText.DepsParser(text).Get("config3");
+            Assert.AreEqual(1, dc.Deps.Count);
+            Assert.AreEqual(new Dep("module", null, null), dc.Deps[0]);
+        }
+
+        [Test]
+        public void Test1()
+        {
+            var text = @"
+config0:
+  deps:
+    - module1
+
+config1 > config0:
+  deps:
+    - module
+    - module1/sdk
+
+config2:
+  deps:
+    - module
+
+config3 > config2,config1:
+";
+            var dc = YamlFromText.DepsParser(text).Get("config3");
+            Assert.NotNull(dc);
+            // Assert.AreEqual(1, dc.Deps.Count);
+            // Assert.AreEqual(new Dep("module", null, null), dc.Deps[0]);
+        }
+
+        [Test]
         public void TestNoDepsFile()
         {
             using (var tmp = new TempDirectory())

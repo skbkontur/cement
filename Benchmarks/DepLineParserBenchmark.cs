@@ -3,6 +3,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using Common;
+using Common.YamlParsers;
 using Common.YamlParsers.V2;
 
 namespace Benchmarks
@@ -34,7 +35,7 @@ namespace Benchmarks
         }
 
         [Benchmark]
-        public Dep Parse1() => parser.Parse(DepLine);
+        public DepLine Parse1() => parser.Parse(DepLine);
 
         [Benchmark]
         public Dep Parse2() => new Dep(DepLine);

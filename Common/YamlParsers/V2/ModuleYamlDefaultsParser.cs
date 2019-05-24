@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.Extensions;
@@ -39,21 +40,28 @@ namespace Common.YamlParsers.V2
             var artifactsSection = defaultsContents.FindValue("artifacts");
             var artefactsSection = defaultsContents.FindValue("artefacts");
             var sections = new YamlInstallSections(installSection, artifactsSection, artefactsSection);
-            var installData = installSectionParser.Parse(sections);
 
-            var hooksData = hooksSectionParser.Parse(defaultsContents.FindValue("hooks"));
-            var settingsData = settingsSectionParser.Parse(defaultsContents.FindValue("settings"));
-            var buildData = buildSectionParser.ParseDefaults(defaultsContents.FindValue("build"));
-            var depsData = depsSectionParser.Parse(defaultsContents.FindValue("deps"));
-
-            return new ModuleDefaults
+            try
             {
-                BuildSection = buildData,
-                DepsSection = depsData,
-                InstallSection = installData,
-                SettingsSection = settingsData,
-                HooksSection = hooksData
-            };
+                var installData = installSectionParser.Parse(sections);
+                var hooksData = hooksSectionParser.Parse(defaultsContents.FindValue("hooks"));
+                var settingsData = settingsSectionParser.Parse(defaultsContents.FindValue("settings"));
+                var buildData = buildSectionParser.ParseDefaults(defaultsContents.FindValue("build"));
+                var depsData = depsSectionParser.Parse(defaultsContents.FindValue("deps"), (ParsedDepsSection)null);
+
+                return new ModuleDefaults
+                {
+                    BuildSection = buildData,
+                    DepsSection = depsData.RawSection,
+                    InstallSection = installData,
+                    SettingsSection = settingsData,
+                    HooksSection = hooksData
+                };
+            }
+            catch (BadYamlException ex)
+            {
+                throw new BadYamlException("default." + ex.SectionName, ex.Message);
+            }
         }
     }
 }
