@@ -12,6 +12,7 @@ namespace Common.YamlParsers.V2
         private readonly ConfigurationLine[] configs;
         private readonly ConfigurationLine defaultConfig;
         private readonly IReadOnlyDictionary<string, string[]> configNameToParentsMap;
+
         private string[] getAllCached;
 
         public ConfigurationHierarchy(ConfigurationLine[] configs)
@@ -33,7 +34,7 @@ namespace Common.YamlParsers.V2
             var queue = new Queue<string>();
             queue.Enqueue(configName);
 
-            var parents = new List<string>();
+            var parents = new HashSet<string>();
 
             while (queue.Any())
             {
@@ -44,7 +45,8 @@ namespace Common.YamlParsers.V2
                 foreach (var parent in configNameToParentsMap[current])
                 {
                     queue.Enqueue(parent);
-                    parents.Add(parent);
+                    if (!parents.Contains(parent))
+                        parents.Add(parent);
                 }
             }
             return parents.ToArray();
@@ -79,13 +81,14 @@ namespace Common.YamlParsers.V2
         }
 
         [NotNull]
-        private IEnumerable<string> GetAllInner()
+        private string[] GetAllInner()
         {
             var roots = configNameToParentsMap
                 .Where(kvp => kvp.Value == null)
                 .Select(kvp => kvp.Key)
                 .ToArray();
 
+            var yieldedNodes = new HashSet<string>();
             var queue = new Queue<string>();
             foreach(var root in roots)
                 queue.Enqueue(root);
@@ -93,18 +96,23 @@ namespace Common.YamlParsers.V2
             while (queue.Any())
             {
                 var node = queue.Dequeue();
+                yieldedNodes.Add(node);
+
                 var children = configNameToParentsMap
                     .Where(kvp => kvp.Value != null && kvp.Value.Contains(node))
                     .Select(kvp => kvp.Key);
 
                 foreach (var child in children)
                 {
-                    if (!queue.Contains(child))
+                    if (queue.Contains(child))
+                        continue;
+                    var parents = configNameToParentsMap[child];
+                    if (parents.Length == 0 || parents.All(p => yieldedNodes.Contains(p)))
                         queue.Enqueue(child);
                 }
-
-                yield return node;
             }
+
+            return yieldedNodes.ToArray();
         }
 
         [NotNull]

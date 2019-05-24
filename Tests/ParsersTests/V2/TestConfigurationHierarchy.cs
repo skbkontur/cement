@@ -270,6 +270,61 @@ namespace Tests.ParsersTests.V2
                 }, new[] { "A", "D", "B", "C" })
                 .SetName("A; D; B>A; C>A,D"),
 
+/*
+              A'
+             /|
+            B |
+             \|
+              C
+ */
+            new TestCaseData(new[]
+                {
+                    "A *default",
+                    "B > A",
+                    "C > B,A",
+                }, new[] { "A", "B", "C" })
+                .SetName("A; B>A; C>B,A"),
+
+/*
+              A'
+             / \
+            B   C
+            \   |
+             \  D
+              \/
+               E
+ */
+            new TestCaseData(new[]
+                {
+                    "A *default",
+                    "B > A",
+                    "C > A",
+                    "D > C",
+                    "E > B,D",
+                }, new[] { "A", "B", "C", "D", "E" })
+                .SetName("Uneven paths' lengths to root"),
+
+/*
+              A'
+             ／＼
+            B   C
+            |＼／|
+            |／＼|
+            D   E
+             ＼／
+              F
+ */
+            new TestCaseData(new[]
+                {
+                    "A *default",
+                    "B > A",
+                    "C > A",
+                    "D > B,C",
+                    "E > B,C",
+                    "F > D,E",
+                }, new[] { "A", "B", "C", "D", "E", "F" })
+                .SetName("Cross-references"),
+
             /*
                 A    F
                /|\   |
@@ -291,7 +346,38 @@ namespace Tests.ParsersTests.V2
                     "H > E, G"
 
                 }, new[] { "A", "F", "B", "C", "D", "G", "E", "H" })
-                .SetName("Complex tree"),
+                .SetName("Complex tree without cross-inheritance"),
+
+/*
+
+                      A'
+                    ／  ＼
+                  B       C
+                 /\＼    / \
+                / |\ ＼／  /
+               /  | \／＼ /
+              H   G  D   E
+              |   |  |   |
+               \  I  F  /
+                \ \ / ／
+                 ＼|／
+                   J
+*/
+            new TestCaseData(new[]
+                {
+                    "A *default",
+                    "B > A",
+                    "C > A",
+                    "D > B,C",
+                    "E > B,C",
+                    "F > D",
+                    "G > B",
+                    "H > B",
+                    "I > G",
+                    "J > I,F,H,E",
+
+                }, new[] { "A", "B", "C", "G", "H", "D", "E", "I", "F", "J" })
+                .SetName("Complex tree with cross-inheritance"),
         };
 
         private ConfigurationHierarchy GetHierarchy(IEnumerable<string> configLines)
