@@ -85,22 +85,25 @@ namespace Common.YamlParsers.V2
 
                         if (isForceKeyword && !string.IsNullOrWhiteSpace(firstKvp.Value))
                         {
-                            force = firstKvp.Value.Split(new[] {',' , ' '}, StringSplitOptions.RemoveEmptyEntries);
+                            force = firstKvp.Value
+                                .Split(',')
+                                .Select(branch => branch.TrimStart())
+                                .ToArray();
                         }
                         else
                         {
-                            var name = mapping.First(c => string.IsNullOrWhiteSpace(c.Value)).Key;
-                            var treeish = FindValue(mapping, "treeish");
-                            var type = FindValue(mapping, "type");
-                            var configuration = FindValue(mapping, "configuration");
 
-                            var isRemoved = name[0] == '-';
-                            name = isRemoved ? name.Substring(1) : name;
-                            var dep = new Dep(name, treeish, configuration)
+                            var rawName = mapping.First(c => string.IsNullOrWhiteSpace(c.Value)).Key;
+                            var parsedName = depLineParser.Parse(rawName);
+                            var treeish = FindValue(mapping, "treeish", parsedName.Dependency.Treeish);
+                            var type = FindValue(mapping, "type", null);
+                            var configuration = FindValue(mapping, "configuration", parsedName.Dependency.Configuration);
+
+                            var dep = new Dep(parsedName.Dependency.Name, treeish, configuration)
                             {
                                 NeedSrc = type == "src"
                             };
-                            deps.Add(new DepLine(isRemoved, dep));
+                            deps.Add(new DepLine(parsedName.IsRemoved, dep));
                         }
                         break;
                     }
@@ -155,9 +158,9 @@ namespace Common.YamlParsers.V2
             }
         }
 
-        private string FindValue(IReadOnlyDictionary<string, string> dict, string key)
+        private string FindValue(IReadOnlyDictionary<string, string> dict, string key, string defaultValue)
         {
-            return dict.ContainsKey(key) ? dict[key] : default(string);
+            return dict.ContainsKey(key) ? dict[key] : defaultValue;
         }
 
         private Dictionary<string, string> Transform(Dictionary<object, object> dict)
