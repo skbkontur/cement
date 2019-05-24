@@ -6,7 +6,7 @@ namespace Benchmarks
     {
         public static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run<DepLineParserBenchmark>();
+            var summary = BenchmarkRunner.Run<ModuleYamlParserBenchmark>();
         }
     }
 }

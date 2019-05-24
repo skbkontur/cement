@@ -170,6 +170,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="DepLineParserBenchmark.cs" />
+        <Compile Include="ModuleYamlParserBenchmark.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
