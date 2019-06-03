@@ -9,8 +9,7 @@ using NUnit.Framework;
 
 namespace Tests.ParsersTests
 {
-    [TestFixture]
-    [Parallelizable(ParallelScope.All)]
+    [Explicit, TestFixture, Parallelizable(ParallelScope.All)]
     public class TestModuleYamlParser
     {
         private const string LocalCementDirectory = @"D:\Projects\";
