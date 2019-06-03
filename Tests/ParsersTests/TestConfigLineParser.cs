@@ -28,7 +28,7 @@ namespace Tests.ParsersTests
             Assert.Throws<ArgumentException>(() => parser.Parse(input));
         }
 
-        private TestCaseData[] Source =
+        private static TestCaseData[] Source =
         {
             new TestCaseData("full-build").Returns(new ConfigurationLine()
             {

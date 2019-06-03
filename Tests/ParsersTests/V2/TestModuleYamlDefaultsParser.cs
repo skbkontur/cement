@@ -21,7 +21,7 @@ namespace Tests.ParsersTests.V2
             actual.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
         }
 
-        private TestCaseData[] Source =
+        private static TestCaseData[] Source =
         {
             new TestCaseData(@"default:
   settings:

@@ -117,9 +117,9 @@ namespace Tests.ParsersTests
                 var newInstall = md[config].InstallSection;
                 var oldInstall = installYamlParser.Get(config);
 
-                // todo - disputable
-                oldInstall.ExternalModules = oldInstall.ExternalModules.Distinct().ToList();
-                oldInstall.NuGetPackages = oldInstall.NuGetPackages.Distinct().ToList();
+                // todo - disputable - is it equivalent enough is the lists are the same only after Distinct()?
+                oldInstall.ExternalModules = oldInstall.ExternalModules?.Distinct().ToList();
+                oldInstall.NuGetPackages = oldInstall.NuGetPackages?.Distinct().ToList();
                 newInstall.Should().BeEquivalentTo(oldInstall);
             }
         }
@@ -145,7 +145,7 @@ namespace Tests.ParsersTests
                                               && oldBuild[0].Target == string.Empty
                                               && oldBuild[0].Parameters.Count == 0;
 
-                if (newBuild != null || !oldBuildIsActuallyEmpty)
+                if (newBuild != null && !oldBuildIsActuallyEmpty)
                     newBuild.Should().BeEquivalentTo(oldBuild);
             }
         }

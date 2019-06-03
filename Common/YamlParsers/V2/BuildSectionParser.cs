@@ -29,32 +29,28 @@ namespace Common.YamlParsers.V2
             return result?.FirstOrDefault();
         }
 
-        [CanBeNull]
+        [NotNull]
         public BuildData[] ParseConfiguration([CanBeNull] object contents, BuildData defaults = null)
         {
             var result = ParseInner(contents, defaults);
-            if (result != null && result.Any(s => s.Target.EndsWith(".sln") && string.IsNullOrEmpty(s.Configuration)))
+            if (result.Any(s => s.Target.EndsWith(".sln") && string.IsNullOrEmpty(s.Configuration)))
                 throw new BadYamlException("build", "Build configuration not found. You have to explicitly specify 'configuration' for *.sln targets.");
             return result;
         }
 
-        [CanBeNull]
+        [NotNull]
         public BuildData[] ParseInner([CanBeNull] object contents, BuildData defaults = null)
         {
             var buildSections = CastContent(contents);
-            if (buildSections == null)
-                return defaults == null ? null : new [] { defaults };
-
-            var count = buildSections.Length;
-            if (count == 0)
-                return new BuildData[0];
+            if (buildSections == null || buildSections.Length == 0)
+                return defaults == null ? new BuildData[0] : new [] { defaults };
 
             var result = new List<BuildData>();
 
             var defaultTarget = string.IsNullOrEmpty(defaults?.Target) ? string.Empty : defaults.Target;
             var defaultConfiguration = string.IsNullOrEmpty(defaults?.Configuration) ? null : defaults.Configuration;
-            var defaultToolName = string.IsNullOrEmpty(defaults?.Tool?.Name) ? DefaultToolName : defaults?.Tool.Name;
-            var defaultToolVersion = string.IsNullOrEmpty(defaults?.Tool?.Version) ? null : defaults?.Tool.Version;
+            var defaultToolName = string.IsNullOrEmpty(defaults?.Tool?.Name) ? DefaultToolName : defaults.Tool.Name;
+            var defaultToolVersion = string.IsNullOrEmpty(defaults?.Tool?.Version) ? null : defaults.Tool.Version;
             var defaultParams = defaults?.Parameters ?? new List<string>();
             var defaultName = defaults?.Name ?? string.Empty;
 
@@ -66,7 +62,7 @@ namespace Common.YamlParsers.V2
                 var parameters = FindBuildParams(section) ?? defaultParams;
                 var name = FindValue(section, "name", defaultName);
 
-                if (count > 1 && string.IsNullOrEmpty(name))
+                if (buildSections.Length > 1 && string.IsNullOrEmpty(name))
                     throw new CementException("Multiple parts of build-section require names");
 
                 result.Add(new BuildData(target, configuration, tool, parameters, name));
@@ -75,10 +71,10 @@ namespace Common.YamlParsers.V2
             return result.ToArray();
         }
 
-        private Tool GetTools(IDictionary<object, object> section, string defaultName, string defaultVersion)
+        private Tool GetTools(IDictionary<object, object> section, string defaultName, string versionFromDefault)
         {
             if (!section.TryGetValue("tool", out var tool))
-                return new Tool(defaultName, defaultVersion);
+                return new Tool(defaultName, versionFromDefault);
 
             switch (tool)
             {
@@ -90,14 +86,11 @@ namespace Common.YamlParsers.V2
 
                 case IDictionary<object, object> toolDict:
                     var name = FindValue(toolDict, "name", defaultName);
-
-                    if (toolDict.TryGetValue("version", out var versionFromYaml))
-                        return new Tool(name, (string) versionFromYaml);
-
-                    var version = name == "msbuild" && string.IsNullOrEmpty(defaultVersion)
+                    var defaultVersion = name == "msbuild" && string.IsNullOrEmpty(versionFromDefault)
                         ? settings.DefaultMsBuildVersion
-                        : defaultVersion;
+                        : versionFromDefault;
 
+                    var version = FindValue(toolDict, "version", defaultVersion);
                     return new Tool(name,version);
 
                 default:
