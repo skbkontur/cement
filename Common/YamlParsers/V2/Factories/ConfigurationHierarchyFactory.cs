@@ -21,21 +21,9 @@ namespace Common.YamlParsers.V2.Factories
             EnsureHasNoCycles(adjacencyMap);
 
             var all = GetAllBreadthFirst(adjacencyMap);
-
-            var configNameToAllParentsMap = all.ToDictionary(node => node, node => new string[0]);
-            foreach (var configName in all)
-            {
-                var closestParents = adjacencyMap[configName];
-                var allParents = new HashSet<string>(closestParents);
-
-                foreach (var parent in closestParents)
-                foreach (var grandparent in configNameToAllParentsMap[parent])
-                    allParents.Add(grandparent);
-
-                configNameToAllParentsMap[configName] = allParents.OrderBy(i => Array.IndexOf(all, i)).Distinct().ToArray();
-            }
-
+            var configNameToAllParentsMap = BuildConfigNameToParentsMap(all, adjacencyMap);
             var defaultConfig = DetermineDefaultConfig(configs);
+
             return new ConfigurationHierarchy(all, configNameToAllParentsMap, defaultConfig?.ConfigName);
         }
 
@@ -133,6 +121,24 @@ namespace Common.YamlParsers.V2.Factories
             }
 
             state.Yield(node);
+        }
+
+        private static Dictionary<string, string[]> BuildConfigNameToParentsMap(string[] all, IReadOnlyDictionary<string, string[]> adjacencyMap)
+        {
+            var configNameToAllParentsMap = all.ToDictionary(node => node, node => new string[0]);
+            foreach (var configName in all)
+            {
+                var closestParents = adjacencyMap[configName];
+                var allParents = new HashSet<string>(closestParents);
+
+                foreach (var parent in closestParents)
+                foreach (var grandparent in configNameToAllParentsMap[parent])
+                    allParents.Add(grandparent);
+
+                configNameToAllParentsMap[configName] = allParents.OrderBy(i => Array.IndexOf(all, i)).ToArray();
+            }
+
+            return configNameToAllParentsMap;
         }
 
         private class TraversalState
