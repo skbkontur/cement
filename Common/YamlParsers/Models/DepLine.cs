@@ -1,9 +1,7 @@
 using System;
-using System.Diagnostics;
 
 namespace Common.YamlParsers.Models
 {
-    // [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DepLine: IEquatable<DepLine>
     {
         public DepLine(Dep dependency): this(false, dependency)

@@ -23,7 +23,7 @@ namespace Common.YamlParsers.V2
         }
 
         /// <summary>
-        /// Return all ancestors of a given configuration in topological order:
+        /// Return all ancestors of a given configuration in order:
         /// From smallest config with no deps to complex configs with multiple ancestors.
         /// </summary>
         public string[] GetAllParents(string configName) => configNameToAllParentsMap[configName];
@@ -36,7 +36,7 @@ namespace Common.YamlParsers.V2
 
 
         /// <summary>
-        /// Return all configurations in topological order:
+        /// Return all configurations in order:
         /// From smallest config with no deps to complex configs with multiple ancestors.
         /// </summary>
         public string[] GetAll() => allConfigsSorted;
