@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common;
 using Common.YamlParsers.V2;
 using Common.YamlParsers.V2.Factories;
 using NUnit.Framework;
@@ -22,7 +23,10 @@ namespace Tests.ParsersTests.V2
         {
             var hierarchy = GetHierarchy(configLines);
             var actualParents = hierarchy.GetAllParents(childConfig);
-            Assert.AreEqual(expectedParents, actualParents);
+            var msg = "Actual: " + string.Join(", ", actualParents)
+                                 + Environment.NewLine
+                                 + "Expected: " + string.Join(", ", expectedParents);
+            Assert.AreEqual(expectedParents, actualParents, msg);
         }
 
         [TestCaseSource(nameof(FindDefaultSource))]
@@ -42,6 +46,20 @@ namespace Tests.ParsersTests.V2
                                  + "Expected: " + string.Join(", ", expectedAll);
 
             Assert.AreEqual(expectedAll, actualAll, msg);
+        }
+
+        [Test, Timeout(1000)]
+        public void ThrowOnCyclicDependencies()
+        {
+            var configLines = new[]
+            {
+                "A > C *default",
+                "B > A",
+                "C > B",
+            };
+
+            var lines = configLines.Select(line => parser.Parse(line)).ToArray();
+            Assert.Throws<BadYamlException>(() => ConfigurationHierarchyFactory.Get(lines));
         }
 
         private static TestCaseData[] FindAllParentSource =
@@ -80,7 +98,19 @@ namespace Tests.ParsersTests.V2
                 "D > A *default",
                 "E > B"
             }, new[] { "A", "B" })
-                .SetName("Two roots"),
+                .SetName("One root, 3 children, one grandchild"),
+
+            new TestCaseData("E", new[]
+                {
+                    "A",
+                    "B > A",
+                    "C > A",
+                    "D > A *default",
+                    "E > B",
+                    "F",
+                    "G > F"
+                }, new[] { "A", "B" })
+                .SetName("Two independent roots, 3 children, one grandchild"),
 
 /*
                 A    F
@@ -104,6 +134,52 @@ namespace Tests.ParsersTests.V2
 
             }, new[] { "A", "F", "B", "G", "E" })
                 .SetName("Complex tree"),
+
+            /*
+                      A'
+                    ／  ＼
+                  B       C
+                 /\＼    / \
+                / |\ ＼／  /
+               /  | \／＼ /
+              H   G  D   E
+              |   |  |   |
+               \  I  F  /
+                \ \ / ／
+                 ＼|／
+                   J
+*/
+            new TestCaseData("F", new[]
+            {
+                "A *default",
+                "B > A",
+                "C > A",
+                "D > B,C",
+                "E > B,C",
+                "F > D",
+                "G > B",
+                "H > B",
+                "I > G",
+                "J > I,F,H,E",
+
+            }, new[] { "A", "B", "C", "D" })
+                .SetName("Complex tree with cross-inheritence, finding parents of a node in the middle"),
+
+            new TestCaseData("J", new[]
+            {
+                "A *default",
+                "B > A",
+                "C > A",
+                "D > B,C",
+                "E > B,C",
+                "F > D",
+                "G > B",
+                "H > B",
+                "I > G",
+                "J > I,F,H,E",
+
+            }, new[] { "A", "B", "C", "G", "H", "D", "E", "I", "F" })
+            .SetName("Complex tree with cross-inheritence, finding parents of the biggest node")
         };
 
         private static TestCaseData[] FindDefaultSource =

@@ -14,35 +14,71 @@ namespace Common.YamlParsers.V2.Factories
         {
             // workaround for inheriting non-existent configs
             var existingConfigNames = new HashSet<string>(configs.Select(c => c.ConfigName));
-
             var adjacencyMap = configs.ToDictionary(
                 config => config.ConfigName,
-                config => config.ParentConfigs?.Where(pc => existingConfigNames.Contains(pc)).ToArray());
+                config => config.ParentConfigs?.Where(pc => existingConfigNames.Contains(pc)).ToArray() ?? new string[0]);
 
-            var allConfigsSorted = GetAllInner(adjacencyMap);
-            var configNameToAllParentsMap = new Dictionary<string, string[]>(allConfigsSorted.Length);
+            EnsureHasNoCycles(adjacencyMap);
 
-            foreach (var configName in allConfigsSorted)
+            var all = GetAllBreadthFirst(adjacencyMap);
+
+            var configNameToAllParentsMap = all.ToDictionary(node => node, node => new string[0]);
+            foreach (var configName in all)
             {
-                var closestParents = adjacencyMap[configName] ?? new string[0];
+                var closestParents = adjacencyMap[configName];
                 var allParents = new HashSet<string>(closestParents);
-                foreach (var parent in closestParents)
-                {
-                    foreach (var grandParent in configNameToAllParentsMap[parent])
-                    {
-                        allParents.Add(grandParent);
-                    }
-                }
 
-                configNameToAllParentsMap[configName] = allParents.OrderBy(c => Array.IndexOf(allConfigsSorted, c)).ToArray();
+                foreach (var parent in closestParents)
+                foreach (var grandparent in configNameToAllParentsMap[parent])
+                    allParents.Add(grandparent);
+
+                configNameToAllParentsMap[configName] = allParents.OrderBy(i => Array.IndexOf(all, i)).Distinct().ToArray();
             }
 
             var defaultConfig = DetermineDefaultConfig(configs);
-            return new ConfigurationHierarchy(allConfigsSorted, configNameToAllParentsMap, defaultConfig?.ConfigName);
+            return new ConfigurationHierarchy(all, configNameToAllParentsMap, defaultConfig?.ConfigName);
+        }
+
+        [CanBeNull]
+        private static ConfigurationLine DetermineDefaultConfig(IReadOnlyList<ConfigurationLine> lines)
+        {
+            var config = lines.FirstOrDefault(l => l.IsDefault) ??
+                         lines.FirstOrDefault(l => string.Equals(l.ConfigName, defaultConfigName));
+
+            if (config != null)
+                return config;
+
+            return lines.Count == 1 ? lines[0] : null;
+        }
+
+        private static void EnsureHasNoCycles(IReadOnlyDictionary<string, string[]> adjacencyMap)
+        {
+            var state = new TraversalState(adjacencyMap);
+            var roots = adjacencyMap
+                .Where(kvp => kvp.Value.Length == 0)
+                .Select(kvp => kvp.Key)
+                .ToArray();
+
+            if (roots.Length == 0)
+            {
+                var startingNode = adjacencyMap.OrderBy(kvp => kvp.Value.Length).Select(kvp => kvp.Key).FirstOrDefault();
+                // no nodes = no cycles
+                if (startingNode == null)
+                    return;
+
+                EnsureHasNoCycles(startingNode, state);
+            }
+            else
+            {
+                foreach (var node in roots)
+                {
+                    EnsureHasNoCycles(node, state);
+                }
+            }
         }
 
         [NotNull]
-        private static string[] GetAllInner(IReadOnlyDictionary<string, string[]> adjacencyMap)
+        private static string[] GetAllBreadthFirst(IReadOnlyDictionary<string, string[]> adjacencyMap)
         {
             var roots = adjacencyMap
                 .Where(kvp => kvp.Value == null || !kvp.Value.Any())
@@ -74,16 +110,56 @@ namespace Common.YamlParsers.V2.Factories
             return yieldedNodes.ToArray();
         }
 
-        [CanBeNull]
-        private static ConfigurationLine DetermineDefaultConfig(ConfigurationLine[] lines)
+        private static void EnsureHasNoCycles(string node, TraversalState state)
         {
-            var config = lines.FirstOrDefault(l => l.IsDefault) ??
-                         lines.FirstOrDefault(l => string.Equals(l.ConfigName, defaultConfigName));
+            state.Visit(node);
+            var nextNodes = state.GetNext(node);
 
-            if (config != null)
-                return config;
+            if (!nextNodes.Any())
+            {
+                state.Yield(node);
+                return;
+            }
 
-            return lines.Length == 1 ? lines[0] : null;
+            foreach (var adjacentNode in nextNodes)
+            {
+                if (state.IsVisited(adjacentNode) && !state.IsYielded(adjacentNode))
+                {
+                    var msg = $"Cyclic config dependency detected, visited undeleted node twice: '{adjacentNode}'";
+                    throw new BadYamlException("configurations", msg);
+                }
+
+                EnsureHasNoCycles(adjacentNode, state);
+            }
+
+            state.Yield(node);
         }
+
+        private class TraversalState
+        {
+            private readonly IReadOnlyDictionary<string, string[]> adjacencyMap;
+            private readonly HashSet<string> yieldedNodesSet = new HashSet<string>();
+            private readonly HashSet<string> visitedNodes = new HashSet<string>();
+
+            public TraversalState(IReadOnlyDictionary<string,string[]> adjacencyMap)
+            {
+                this.adjacencyMap = adjacencyMap;
+            }
+
+            public bool IsVisited(string node) => visitedNodes.Contains(node);
+            public void Visit(string node) => visitedNodes.Add(node);
+
+            public bool IsYielded(string node) => yieldedNodesSet.Contains(node);
+            public void Yield(string node) => yieldedNodesSet.Add(node);
+
+            public string[] GetNext(string node)
+            {
+                return adjacencyMap
+                    .Where(kvp => kvp.Value.Contains(node))
+                    .Select(kvp => kvp.Key)
+                    .ToArray();
+            }
+        }
+
     }
 }
