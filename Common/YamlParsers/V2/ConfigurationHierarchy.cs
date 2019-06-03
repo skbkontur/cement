@@ -1,141 +1,44 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using Common.YamlParsers.Models;
 using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
     public class ConfigurationHierarchy
     {
-        private const string defaultConfigName = "full-build";
-
         [CanBeNull]
-        private readonly ConfigurationLine defaultConfig;
-        private readonly IReadOnlyDictionary<string, string[]> configNameToParentsMap;
+        private readonly string defaultConfig;
+        [NotNull]
+        private readonly string[] allConfigsSorted;
+        [NotNull]
+        private readonly IReadOnlyDictionary<string, string[]> configNameToAllParentsMap;
 
-        private string[] getAllCached;
-
-        public ConfigurationHierarchy(ConfigurationLine[] configs)
+        public ConfigurationHierarchy(
+            [NotNull] string[] allConfigsSorted,
+            [NotNull] IReadOnlyDictionary<string, string[]> configNameToAllParentsMap,
+            [CanBeNull] string defaultConfig = null)
         {
-            defaultConfig = DetermineDefaultConfig(configs);
-
-            // workaround for inheriting non-existent configs
-            var existingConfigNames = new HashSet<string>(configs.Select(c => c.ConfigName));
-            configNameToParentsMap = configs.ToDictionary(
-                config => config.ConfigName,
-                config => config.ParentConfigs?.Where(pc => existingConfigNames.Contains(pc)).ToArray()
-            );
+            this.defaultConfig = defaultConfig;
+            this.allConfigsSorted = allConfigsSorted;
+            this.configNameToAllParentsMap = configNameToAllParentsMap;
         }
 
         /// <summary>
-        /// Return all ancestors of a given configuration
+        /// Return all ancestors of a given configuration in topological order:
+        /// From smallest config with no deps to complex configs with multiple ancestors.
         /// </summary>
-        [CanBeNull]
-        public string[] FindAllParents(string configName)
-        {
-            if (configNameToParentsMap[configName] == null)
-                return null;
+        public string[] GetAllParents(string configName) => configNameToAllParentsMap[configName];
 
-            var queue = new Queue<string>();
-            queue.Enqueue(configName);
-
-            var parents = new HashSet<string>();
-
-            while (queue.Any())
-            {
-                var current = queue.Dequeue();
-                if (configNameToParentsMap[current] == null)
-                    continue;
-
-                foreach (var parent in configNameToParentsMap[current])
-                {
-                    queue.Enqueue(parent);
-                    if (!parents.Contains(parent))
-                        parents.Add(parent);
-                }
-            }
-
-            var all = GetAll();
-            return parents.OrderBy(parent => Array.IndexOf(all, parent)).ToArray();
-        }
-
-        /// <summary>
-        /// Return closest ancestors of a given configuration
-        /// </summary>
-        [CanBeNull]
-        public string[] FindClosestParents(string configName)
-        {
-            return configNameToParentsMap[configName];
-        }
 
         /// <summary>
         /// Return default configuration name
         /// </summary>
-        [CanBeNull]
-        public string FindDefault()
-        {
-            return defaultConfig?.ConfigName;
-        }
+        public string FindDefault() => defaultConfig;
+
 
         /// <summary>
-        /// Return all configurations in order:
+        /// Return all configurations in topological order:
         /// From smallest config with no deps to complex configs with multiple ancestors.
         /// </summary>
-        [NotNull]
-        public string[] GetAll()
-        {
-            return getAllCached ?? (getAllCached = GetAllInner().ToArray());
-        }
-
-        [NotNull]
-        private string[] GetAllInner()
-        {
-            var roots = configNameToParentsMap
-                .Where(kvp => kvp.Value == null || !kvp.Value.Any())
-                .Select(kvp => kvp.Key)
-                .ToArray();
-
-            var yieldedNodes = new HashSet<string>();
-            var queue = new Queue<string>();
-            foreach(var root in roots)
-                queue.Enqueue(root);
-
-            while (queue.Any())
-            {
-                var node = queue.Dequeue();
-                yieldedNodes.Add(node);
-
-                var children = configNameToParentsMap
-                    .Where(kvp => kvp.Value != null && kvp.Value.Contains(node))
-                    .Select(kvp => kvp.Key);
-
-                foreach (var child in children)
-                {
-                    if (queue.Contains(child))
-                        continue;
-                    var parents = configNameToParentsMap[child];
-                    if (parents.Length == 0 || parents.All(p => yieldedNodes.Contains(p)))
-                        queue.Enqueue(child);
-                }
-            }
-
-            return yieldedNodes.ToArray();
-        }
-
-        [CanBeNull]
-        private static ConfigurationLine DetermineDefaultConfig(ConfigurationLine[] lines)
-        {
-            var config = lines.FirstOrDefault(l => l.IsDefault) ??
-                         lines.FirstOrDefault(l => string.Equals(l.ConfigName, defaultConfigName));
-
-            if (config != null)
-                return config;
-
-            if (lines.Length == 1)
-                return lines[0];
-
-            return null;
-        }
+        public string[] GetAll() => allConfigsSorted;
     }
 }

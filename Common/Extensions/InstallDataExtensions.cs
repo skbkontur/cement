@@ -26,9 +26,10 @@ namespace Common.Extensions
 
         private static IEnumerable<string> ConcatDistinct(InstallData a, InstallData b, Func<InstallData, IEnumerable<string>> getCollectionFunc)
         {
-            var firstCollection = getCollectionFunc(a);
-            var secondCollection = getCollectionFunc(b);
-            return firstCollection.Concat(secondCollection).Distinct();
+            var firstCollection = getCollectionFunc(a) ?? Enumerable.Empty<string>();
+            var secondCollection = getCollectionFunc(b) ?? Enumerable.Empty<string>();
+
+            return firstCollection.Union(secondCollection);
         }
     }
 }

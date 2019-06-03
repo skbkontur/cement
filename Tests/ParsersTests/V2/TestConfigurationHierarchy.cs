@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.YamlParsers.V2;
+using Common.YamlParsers.V2.Factories;
 using NUnit.Framework;
 
 namespace Tests.ParsersTests.V2
 {
     [TestFixture]
-    public class TestConfigurationHierarchy
+    public class TestConfigurationHierarchyFactory
     {
         private readonly ConfigLineParser parser;
 
-        public TestConfigurationHierarchy()
+        public TestConfigurationHierarchyFactory()
         {
             this.parser = new ConfigLineParser();
         }
@@ -20,15 +21,7 @@ namespace Tests.ParsersTests.V2
         public void FindAllParents(string childConfig, string[] configLines, string[] expectedParents)
         {
             var hierarchy = GetHierarchy(configLines);
-            var actualParents = hierarchy.FindAllParents(childConfig);
-            Assert.AreEqual(expectedParents, actualParents);
-        }
-
-        [TestCaseSource(nameof(FindClosestParentsSource))]
-        public void FindClosestParents(string childConfig, string[] configLines, string[] expectedParents)
-        {
-            var hierarchy = GetHierarchy(configLines);
-            var actualParents = hierarchy.FindClosestParents(childConfig);
+            var actualParents = hierarchy.GetAllParents(childConfig);
             Assert.AreEqual(expectedParents, actualParents);
         }
 
@@ -51,9 +44,9 @@ namespace Tests.ParsersTests.V2
             Assert.AreEqual(expectedAll, actualAll, msg);
         }
 
-        private TestCaseData[] FindAllParentSource =
+        private static TestCaseData[] FindAllParentSource =
         {
-            new TestCaseData("A", new[] { "A" }, null)
+            new TestCaseData("A", new[] { "A" }, new string[0])
                 .SetName("Single A without parent"),
             new TestCaseData("B", new[]
             {
@@ -113,69 +106,7 @@ namespace Tests.ParsersTests.V2
                 .SetName("Complex tree"),
         };
 
-        private TestCaseData[] FindClosestParentsSource =
-        {
-            new TestCaseData("A", new[] { "A" }, null)
-                .SetName("Single A without parent"),
-            new TestCaseData("B", new[]
-                {
-                    "A *default",
-                    "B > A",
-                }, new[] { "A" })
-                .SetName("One root, one child"),
-
-            new TestCaseData("C", new[]
-                {
-                    "A *default",
-                    "B > A",
-                    "C > A"
-                }, new[] { "A" })
-                .SetName("One root, 2 children"),
-
-            new TestCaseData("D", new[]
-                {
-                    "A",
-                    "B > A",
-                    "C > A",
-                    "D > A *default",
-                }, new[] { "A" })
-                .SetName("One root, 2 usual children and one marked as default"),
-
-            new TestCaseData("E", new[]
-                {
-                    "A",
-                    "B > A",
-                    "C > A",
-                    "D > A *default",
-                    "E > B"
-                }, new[] { "B" })
-                .SetName("Two roots"),
-
-/*
-                A    F
-               /|\   |
-              B C D' G
-              \     /
-               E   /
-                \ /
-                 H
-*/
-            new TestCaseData("H", new[]
-                {
-                    "A",
-                    "B > A",
-                    "C > A",
-                    "D > A *default",
-                    "E > B",
-                    "F",
-                    "G > F",
-                    "H > E, G"
-
-                }, new[] { "E", "G" })
-                .SetName("Complex tree"),
-        };
-
-        private TestCaseData[] FindDefaultSource =
+        private static TestCaseData[] FindDefaultSource =
         {
             new TestCaseData(new List<string> { "A" })
                 .Returns("A")
@@ -238,7 +169,7 @@ namespace Tests.ParsersTests.V2
 
         };
 
-        private TestCaseData[] GetAllSource =
+        private static TestCaseData[] GetAllSource =
         {
             new TestCaseData(new[] { "A" }, new[] { "A" })
                 .SetName("A"),
@@ -395,7 +326,7 @@ namespace Tests.ParsersTests.V2
         private ConfigurationHierarchy GetHierarchy(IEnumerable<string> configLines)
         {
             var lines = configLines.Select(line => parser.Parse(line)).ToArray();
-            return new ConfigurationHierarchy(lines);
+            return ConfigurationHierarchyFactory.Get(lines);
         }
     }
 }

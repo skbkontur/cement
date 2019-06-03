@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using log4net;
 
 namespace Common
@@ -276,7 +277,7 @@ namespace Common
             }
         }
 
-        public static string FixPath(string path)
+        public static string FixPath([NotNull] string path)
         {
             return path.Replace('\\', Path.DirectorySeparatorChar);
         }

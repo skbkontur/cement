@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Extensions;
 using Common.YamlParsers.Models;
+using Common.YamlParsers.V2.Factories;
 using SharpYaml.Serialization;
 
 namespace Common.YamlParsers.V2
@@ -48,7 +49,7 @@ namespace Common.YamlParsers.V2
                 configLines.Add(parsed);
             }
 
-            var hierarchy = new ConfigurationHierarchy(configLines.ToArray());
+            var hierarchy = ConfigurationHierarchyFactory.Get(configLines.ToArray());
             var configs = hierarchy.GetAll();
 
             var defaultSection = yaml.FindValue("default") as Dictionary<object, object>;
@@ -59,13 +60,12 @@ namespace Common.YamlParsers.V2
 
             foreach (var configName in configs)
             {
-                var closestParents = hierarchy.FindClosestParents(configName);
-                var allParents = hierarchy.FindAllParents(configName);
+                var allParents = hierarchy.GetAllParents(configName);
                 var configKey = parsedConfigToRawLine[configName];
 
                 var configurationContents = yaml[configKey] as Dictionary<object, object>;
 
-                var parentInstalls = closestParents?.Select(c => configurations[c].InstallSection).ToArray();
+                var parentInstalls = allParents?.Select(c => configurations[c].InstallSection).ToArray();
                 var parentDeps = allParents?
                     .Select(c => cache[c])
                     .ToArray();
@@ -89,7 +89,6 @@ namespace Common.YamlParsers.V2
                         BuildSection = buildSectionParser.ParseConfiguration(buildSection, defaults?.BuildSection),
                         Name = configName,
                         IsDefault = configName == defaultConfigName,
-                        ParentConfigs = closestParents
                     };
                     configurations[configName] = result;
                 }

@@ -37,8 +37,7 @@ namespace Common
             result.CurrentConfigurationInstallFiles = result.CurrentConfigurationInstallFiles.Select(r => Path.Combine(moduleName, r)).ToList();
 
             proceededModules.Add(Path.GetFileName(path));
-            var queue = new Queue<string>();
-            EnqueueRange(queue, result.ExternalModules);
+            var queue = new Queue<string>(result.ExternalModules);
             while (queue.Count > 0)
             {
                 var externalModule = queue.Dequeue();
