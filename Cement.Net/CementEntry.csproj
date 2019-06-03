@@ -94,7 +94,7 @@
   <Target Name="BeforeBuild">
     <GitCommit2AssemblyTitle />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
@@ -111,6 +111,7 @@
       <MergeAssemblies Include="$(OutputPath)\SharpYaml.dll" />
       <MergeAssemblies Include="$(SolutionDir)\externals\log4stash.dll" />
       <MergeAssemblies Include="$(OutputPath)\NuGet.exe" />
+      <MergeAssemblies Include="$(OutputPath)\JetBrains.Annotations.dll" />
     </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputPath)\cm.exe</OutputAssembly>
