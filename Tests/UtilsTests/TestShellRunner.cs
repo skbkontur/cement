@@ -71,7 +71,7 @@ namespace Tests.UtilsTests
         }
 
         [Test]
-        public async void TimeMultiThreads()
+        public async Task TimeMultiThreads()
         {
             var sw = Stopwatch.StartNew();
 
