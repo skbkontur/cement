@@ -395,14 +395,14 @@ config3 > config2,config1:
             Assert.AreEqual(new Dep("module", null), dc.Deps[1]);
         }
 
-        private DepsContent GetDepsContent(string text, string config = null, bool strictOrdering = true)
+        private DepsData GetDepsContent(string text, string config = null, bool strictOrdering = true)
         {
             var a = YamlFromText.DepsParser(text).Get(config);
 
             var md = ModuleYamlParserInstance.Get().Parse(text);
             var configName = string.IsNullOrEmpty(config) ? md.GetDefaultConfiguration().Name : config;
 
-            var b = md.AllConfigurations[configName].Dependencies;
+            var b = md.AllConfigurations[configName].Deps;
 
             if (strictOrdering)
             {

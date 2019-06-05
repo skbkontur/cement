@@ -3,9 +3,9 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class DepLineParser
+    public class DepSectionItemParser
     {
-        public DepLine Parse(string line)
+        public DepSectionItem Parse(string line)
         {
             var treeishStartIndex = -1;
             var configStartIndex = -1;
@@ -58,7 +58,7 @@ namespace Common.YamlParsers.V2
             name = isRemoved ? name.Substring(1) : name;
 
             var dep = new Dep(name, treeish, config);
-            return new DepLine(isRemoved, dep);
+            return new DepSectionItem(isRemoved, dep);
         }
 
         private bool IsUnescapedChar(string str, int index, char c)

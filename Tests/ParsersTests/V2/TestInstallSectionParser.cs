@@ -11,25 +11,28 @@ namespace Tests.ParsersTests.V2
     {
         [TestCaseSource(nameof(ArtifactsSource))]
         [TestCaseSource(nameof(BuildFilesSource))]
-        public void Parse(YamlInstallSections yamlInstallSection, InstallData expected)
+        public void Parse(InstallSection installSection, InstallData expected)
         {
             var parser = new InstallSectionParser();
-            var actual = parser.Parse(yamlInstallSection);
+            var actual = parser.Parse(installSection);
             actual.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
         }
 
         [TestCaseSource(nameof(MergeCases))]
-        public void Merge(YamlInstallSections yamlInstallSection, InstallData defaults, InstallData[] parentInstalls, InstallData expected)
+        public void Merge(InstallSection installSection, InstallData defaults, InstallData[] parentInstalls, InstallData expected)
         {
             var parser = new InstallSectionParser();
-            var actual = parser.Parse(yamlInstallSection, defaults, parentInstalls);
+            var merger = new InstallSectionMerger();
+
+            var currentConfigInstallData = parser.Parse(installSection, defaults?.CurrentConfigurationInstallFiles);
+            var actual = merger.Merge(currentConfigInstallData, defaults, parentInstalls);
             actual.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
         }
 
         private static TestCaseData[] ArtifactsSource =
         {
             new TestCaseData(
-                    new YamlInstallSections(new string[0], new[] {"a1", "a2"}, new[] {"a3", "a4"}),
+                    new InstallSection(new string[0], new[] {"a1", "a2"}, new[] {"a3", "a4"}),
                     new InstallData
                     {
                         Artifacts = {"a1", "a2", "a3", "a4"},
@@ -38,7 +41,7 @@ namespace Tests.ParsersTests.V2
                 .SetName("Install section: artifacts. Multiple artifacts"),
 
             new TestCaseData(
-                    new YamlInstallSections(new string[0], new[] {"a1"}, new[] {"a1"}),
+                    new InstallSection(new string[0], new[] {"a1"}, new[] {"a1"}),
                     new InstallData
                     {
                         Artifacts = {"a1"},
@@ -47,7 +50,7 @@ namespace Tests.ParsersTests.V2
                 .SetName("Install section: artifacts. Artifacts are not duplicated."),
 
             new TestCaseData(
-                    new YamlInstallSections(new[] {"a1"}, new[] {"a2"}, new[] {"a3"}),
+                    new InstallSection(new[] {"a1"}, new[] {"a2"}, new[] {"a3"}),
                     new InstallData
                     {
                         InstallFiles = {"a1"},
@@ -57,7 +60,7 @@ namespace Tests.ParsersTests.V2
                 .SetName("Install section: artifacts. Install files from install section are added to artifacts"),
 
             new TestCaseData(
-                    new YamlInstallSections(
+                    new InstallSection(
                         new[]
                         {
                             "a1",
@@ -84,7 +87,7 @@ namespace Tests.ParsersTests.V2
                 .SetName("Install section: artifacts. Nugets are not added to artifacts."),
 
             new TestCaseData(
-                    new YamlInstallSections(
+                    new InstallSection(
                         new[]
                         {
                             "a1",
@@ -114,7 +117,7 @@ namespace Tests.ParsersTests.V2
         private static TestCaseData[] BuildFilesSource =
         {
             new TestCaseData(
-                    new YamlInstallSections(
+                    new InstallSection(
                         new[]
                         {
                             "file1",
@@ -148,7 +151,7 @@ namespace Tests.ParsersTests.V2
         private static TestCaseData[] MergeCases =
         {
             new TestCaseData(
-                    new YamlInstallSections(
+                    new InstallSection(
                         new[]
                         {
                             "file1",
@@ -188,7 +191,7 @@ namespace Tests.ParsersTests.V2
                 .SetName("Install section: install files. Current config inherits Install section from 'default' section."),
 
             new TestCaseData(
-                    new YamlInstallSections(
+                    new InstallSection(
                         new[]
                         {
                             "file1",
@@ -239,7 +242,7 @@ namespace Tests.ParsersTests.V2
                 .SetName("Install section: install files. Current config inherits Install section from several parent configurations."),
 
             new TestCaseData(
-                    new YamlInstallSections(
+                    new InstallSection(
                         new[]
                         {
                             "file1",

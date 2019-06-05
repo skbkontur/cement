@@ -4,16 +4,16 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.Models
 {
-    public class YamlInstallSections
+    public class InstallSection
     {
-        public YamlInstallSections(object install, object artifacts, object artefacts)
+        public InstallSection(object install, object artifacts, object artefacts)
         {
             Install = Transform(install);
             Artifacts = Transform(artifacts);
             Artefacts = Transform(artefacts);
         }
 
-        public YamlInstallSections([NotNull] string[] install, [NotNull] string[] artifacts, [NotNull] string[] artefacts)
+        public InstallSection([NotNull] string[] install, [NotNull] string[] artifacts, [NotNull] string[] artefacts)
         {
             Install = install;
             Artifacts = artifacts;

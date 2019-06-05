@@ -2,13 +2,13 @@ using System;
 
 namespace Common.YamlParsers.Models
 {
-    public class DepLine: IEquatable<DepLine>
+    public class DepSectionItem: IEquatable<DepSectionItem>
     {
-        public DepLine(Dep dependency): this(false, dependency)
+        public DepSectionItem(Dep dependency): this(false, dependency)
         {
         }
 
-        public DepLine(bool isRemoved, Dep dependency)
+        public DepSectionItem(bool isRemoved, Dep dependency)
         {
             IsRemoved = isRemoved;
             Dependency = dependency;
@@ -19,7 +19,7 @@ namespace Common.YamlParsers.Models
         public bool IsRemoved { get; set; }
         public Dep Dependency { get; set; }
 
-        public bool Equals(DepLine other)
+        public bool Equals(DepSectionItem other)
         {
             if (ReferenceEquals(null, other))
                 return false;

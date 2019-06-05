@@ -10,24 +10,21 @@ namespace Common.YamlParsers.V2
 {
     public class ModuleYamlParser
     {
-        private readonly ConfigLineParser configLineParser;
-        private readonly ModuleYamlDefaultsParser moduleYamlDefaultsParser;
-        private readonly InstallSectionParser installSectionParser;
-        private readonly DepsSectionParser depsSectionParser;
-        private readonly BuildSectionParser buildSectionParser;
+        private readonly ModuleDefaultsParser moduleDefaultsParser;
+        private readonly ConfigSectionParser configSectionParser;
+        private readonly DepsSectionMerger depsSectionMerger;
+        private readonly InstallSectionMerger installSectionMerger;
 
         public ModuleYamlParser(
-            ConfigLineParser configLineParser,
-            ModuleYamlDefaultsParser moduleYamlDefaultsParser,
-            InstallSectionParser installSectionParser,
-            DepsSectionParser depsSectionParser,
-            BuildSectionParser buildSectionParser)
+            ModuleDefaultsParser moduleDefaultsParser,
+            ConfigSectionParser configSectionParser,
+            InstallSectionMerger installSectionMerger,
+            DepsSectionMerger depsSectionMerger)
         {
-            this.configLineParser = configLineParser;
-            this.moduleYamlDefaultsParser = moduleYamlDefaultsParser;
-            this.installSectionParser = installSectionParser;
-            this.depsSectionParser = depsSectionParser;
-            this.buildSectionParser = buildSectionParser;
+            this.moduleDefaultsParser = moduleDefaultsParser;
+            this.configSectionParser = configSectionParser;
+            this.depsSectionMerger = depsSectionMerger;
+            this.installSectionMerger = installSectionMerger;
         }
 
         public ModuleDefinition Parse(string content, string moduleInfo = "")
@@ -36,59 +33,44 @@ namespace Common.YamlParsers.V2
             var serializer = new Serializer();
 
             var yaml = (Dictionary<object, object>) serializer.Deserialize(content);
-            var configurations = new Dictionary<string, ModuleConfiguration>();
-
-            var rawConfigLines = yaml.Keys.Select(k => (string) k).Where(line => line != "default").ToArray();
-            var configLines = new List<ConfigurationLine>(rawConfigLines.Length);
-            var parsedConfigToRawLine = new Dictionary<string, string>();
-
-            foreach (var line in rawConfigLines)
-            {
-                var parsed = configLineParser.Parse(line);
-                parsedConfigToRawLine[parsed.ConfigName] = line;
-                configLines.Add(parsed);
-            }
-
-            var hierarchy = ConfigurationHierarchyFactory.Get(configLines.ToArray());
-            var configs = hierarchy.GetAll();
 
             var defaultSection = yaml.FindValue("default") as Dictionary<object, object>;
-            var defaults = moduleYamlDefaultsParser.Parse(defaultSection);
+            var moduleDefaults = moduleDefaultsParser.Parse(defaultSection) ?? new ModuleDefaults();
+
+            var configSectionMap = yaml
+                .Where(section => (string)section.Key != "default")
+                .Select(section => configSectionParser.Parse(section, moduleDefaults))
+                .ToDictionary(configSection => configSection.Title.Name);
+
+            var configSectionTitles = configSectionMap.Values
+                .Select(section => section.Title)
+                .ToArray();
+
+            var hierarchy = ConfigurationHierarchyFactory.Get(configSectionTitles);
+            var orderedConfigNames = hierarchy.GetAll();
             var defaultConfigName = hierarchy.FindDefault();
 
-            var cache = new Dictionary<string, ParsedDepsSection>();
-
-            foreach (var configName in configs)
+            var configurations = new Dictionary<string, ModuleConfig>();
+            foreach (var configName in orderedConfigNames)
             {
-                var allParents = hierarchy.GetAllParents(configName);
-                var configKey = parsedConfigToRawLine[configName];
+                var configSection = configSectionMap[configName];
 
-                var configurationContents = yaml[configKey] as Dictionary<object, object>;
-
-                var parentInstalls = allParents?.Select(c => configurations[c].InstallSection).ToArray();
-                var parentDeps = allParents?
-                    .Select(c => cache[c])
-                    .ToArray();
-
-                var installSection = configurationContents?.FindValue("install");
-                var artifactsSection = configurationContents?.FindValue("artifacts");
-                var artefactsSection = configurationContents?.FindValue("artefacts");
-                var depsSection = configurationContents?.FindValue("deps");
-                var buildSection = configurationContents?.FindValue("build");
-                var sections = new YamlInstallSections(installSection, artifactsSection, artefactsSection);
+                var allParentNames = hierarchy.GetAllParents(configName);
+                var parentInstalls = allParentNames?.Select(name => configurations[name].Installs).ToArray();
+                var parentDeps = allParentNames?.Select(name => configSectionMap[name].DepsSection).ToArray();
 
                 try
                 {
-                    var depsParseResult = depsSectionParser.Parse(depsSection, defaults?.DepsSection, parentDeps);
-                    cache[configName] = depsParseResult.RawSection;
+                    var installContent = installSectionMerger.Merge(configSection.InstallSection, moduleDefaults?.InstallSection, parentInstalls);
+                    var depsContent = depsSectionMerger.Merge(configSection.DepsSection, moduleDefaults?.DepsSection, parentDeps);
 
-                    var result = new ModuleConfiguration
+                    var result = new ModuleConfig
                     {
-                        InstallSection = installSectionParser.Parse(sections, defaults?.InstallSection, parentInstalls),
-                        Dependencies = depsParseResult.ResultingDeps,
-                        BuildSection = buildSectionParser.ParseConfiguration(buildSection, defaults?.BuildSection),
                         Name = configName,
                         IsDefault = configName == defaultConfigName,
+                        Installs = installContent,
+                        Deps = depsContent,
+                        Builds = configSection.BuildSection
                     };
                     configurations[configName] = result;
                 }
@@ -98,7 +80,7 @@ namespace Common.YamlParsers.V2
                 }
             }
 
-            return new ModuleDefinition(configurations, defaults ?? new ModuleDefaults());
+            return new ModuleDefinition(configurations, moduleDefaults);
         }
 
         private string PatchTabs(string input, string moduleInfo = null)

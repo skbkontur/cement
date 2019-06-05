@@ -15,7 +15,7 @@ namespace Common.YamlParsers
         {
         }
 
-        public DepsContent Get(string configuration = null)
+        public DepsData Get(string configuration = null)
         {
             configuration = configuration ?? GetDefaultConfigurationName();
             if (!ConfigurationExists(configuration))
@@ -29,13 +29,13 @@ namespace Common.YamlParsers
 
             var defaultDepsContent = ConfigurationExists("default")
                 ? GetDepsContent("default")
-                : new DepsContent(null, new List<Dep>());
+                : new DepsData(null, new List<Dep>());
             var configDepsContent = GetDepsContent(configuration);
             var force = configDepsContent.Force ?? defaultDepsContent.Force;
             var deps = defaultDepsContent.Deps;
             deps.AddRange(configDepsContent.Deps);
             deps = RelaxDeps(deps);
-            return new DepsContent(force, deps);
+            return new DepsData(force, deps);
         }
 
         private List<Dep> RelaxDeps(List<Dep> deps)
@@ -103,7 +103,7 @@ sdk:
             return treeishMatch && configMatch;
         }
 
-        private DepsContent GetDepsContent(string configuration)
+        private DepsData GetDepsContent(string configuration)
         {
             var force = GetDepsFromConfig(configuration).Force;
             var configQueue = new List<string>();
@@ -130,10 +130,10 @@ sdk:
                 configQueue.AddRange(parentConfigurations);
                 idx++;
             }
-            return new DepsContent(force, deps);
+            return new DepsData(force, deps);
         }
 
-        public DepsContent GetDepsFromConfig(string configName)
+        public DepsData GetDepsFromConfig(string configName)
         {
             try
             {
@@ -150,13 +150,13 @@ sdk:
             }
         }
 
-        private static DepsContent GetDepsFromSection(Dictionary<string, object> configSection)
+        private static DepsData GetDepsFromSection(Dictionary<string, object> configSection)
         {
             if (!configSection.ContainsKey("deps"))
-                return new DepsContent(null, new List<Dep>());
+                return new DepsData(null, new List<Dep>());
 
             if (configSection["deps"] == null || configSection["deps"] is string)
-                return new DepsContent(null, new List<Dep>());
+                return new DepsData(null, new List<Dep>());
 
             var deps = new List<Dep>();
             string[] force = null;
@@ -173,7 +173,7 @@ sdk:
                 else
                     deps.Add(new Dep(depSection.ToString()));
             }
-            return new DepsContent(force, deps);
+            return new DepsData(force, deps);
         }
 
         private static Dep GetDepFromDictFormat(Dictionary<object, object> dict)

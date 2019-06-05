@@ -13,7 +13,7 @@ namespace Common
             this.modulePath = modulePath;
         }
 
-        public DepsContent Get(string config = null)
+        public DepsData Get(string config = null)
         {
             if (File.Exists(Path.Combine(modulePath, Helper.YamlSpecFile)))
                 return new DepsYamlParser(new FileInfo(modulePath)).Get(config);
@@ -28,7 +28,7 @@ namespace Common
                 ConsoleWriter.WriteWarning("Configuration '" + config + "' was not found in " + modulePath + ". Will take full-build config");
                 return new DepsIniParser(Path.Combine(modulePath, "deps")).Get();
             }
-            return new DepsContent(null, new List<Dep>());
+            return new DepsData(null, new List<Dep>());
         }
     }
 }

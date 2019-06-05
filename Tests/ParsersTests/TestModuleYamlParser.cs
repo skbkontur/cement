@@ -94,7 +94,7 @@ namespace Tests.ParsersTests
 
             foreach (var config in configs)
             {
-                var newDeps = md[config].Dependencies;
+                var newDeps = md[config].Deps;
                 var oldDeps = depsSectionParser.Get(config);
 
                 newDeps.Should().BeEquivalentTo(oldDeps);
@@ -113,7 +113,7 @@ namespace Tests.ParsersTests
 
             foreach (var config in configs)
             {
-                var newInstall = md[config].InstallSection;
+                var newInstall = md[config].Installs;
                 var oldInstall = installYamlParser.Get(config);
 
                 // todo - disputable - is it equivalent enough is the lists are the same only after Distinct()?
@@ -135,7 +135,7 @@ namespace Tests.ParsersTests
 
             foreach (var config in configs)
             {
-                var newBuild = md[config].BuildSection;
+                var newBuild = md[config].Builds;
                 var oldBuild = buildYamlParser.Get(config);
 
                 var oldBuildIsActuallyEmpty = oldBuild.Count == 1

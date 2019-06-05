@@ -20,7 +20,7 @@ namespace Benchmarks
         }
 
         [Benchmark]
-        public Dictionary<string, DepsContent> OldDepsParser()
+        public Dictionary<string, DepsData> OldDepsParser()
         {
             var parser = new DepsYamlParser("fakename", Content);
             var configs = parser.GetConfigurations();
