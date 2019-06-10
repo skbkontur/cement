@@ -3,21 +3,21 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.Models
 {
-    public class ConfigurationLine: IEquatable<ConfigurationLine>
+    public class ConfigSectionTitle: IEquatable<ConfigSectionTitle>
     {
-        public string ConfigName { get; set; }
+        public string Name { get; set; }
 
         [CanBeNull]
-        public string[] ParentConfigs { get; set; }
+        public string[] Parents { get; set; }
 
         public bool IsDefault { get; set; }
 
         public override string ToString()
         {
-            var result = ConfigName;
+            var result = Name;
 
-            if (ParentConfigs != null)
-                result += " > " + string.Join(", ", ParentConfigs);
+            if (Parents != null)
+                result += " > " + string.Join(", ", Parents);
 
             if (IsDefault)
                 result += " *default";
@@ -25,7 +25,7 @@ namespace Common.YamlParsers.Models
             return result;
         }
 
-        public bool Equals(ConfigurationLine other)
+        public bool Equals(ConfigSectionTitle other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;

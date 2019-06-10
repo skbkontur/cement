@@ -57,10 +57,10 @@ namespace Tests.ParsersTests.V2
                         "hooks/pre-commit",
                         "pre-commit.cement",
                     },
-                    DepsSection = new ParsedDepsSection(new [] {"some_branch"}, new DepLine[]
+                    DepsSection = new DepsSection(new [] {"some_branch"}, new DepSectionItem[]
                     {
-                        new DepLine(new Dep("module1", null, null)),
-                        new DepLine(new Dep("module2", null, null)),
+                        new DepSectionItem(new Dep("module1", null, null)),
+                        new DepSectionItem(new Dep("module2", null, null)),
                     }),
                     BuildSection = new BuildData("solution.sln", null, new Tool("sometool"), new List<string>(), string.Empty),
                     InstallSection = new InstallData()
@@ -82,23 +82,17 @@ namespace Tests.ParsersTests.V2
             return  (Dictionary<object, object>) yaml["default"];
         }
 
-        private ModuleYamlDefaultsParser GetParser()
+        private ModuleDefaultsParser GetParser()
         {
+            var depSectionItemParser = new DepSectionItemParser();
+            var depsSectionParser = new DepsSectionParser(depSectionItemParser);
+            var installSectionParser = new InstallSectionParser();
+            var buildSectionParser = new BuildSectionParser();
             var hooksSectionParser = new HooksSectionParser();
             var settingsSectionParser = new SettingsSectionParser();
-            var buildSectionParser = new BuildSectionParser();
-            var installSectionParser = new InstallSectionParser();
 
-            var depLineParser = new DepLineParser();
-            var depsSectionParser = new DepsSectionParser(depLineParser);
-
-            return new ModuleYamlDefaultsParser(
-                hooksSectionParser,
-                depsSectionParser,
-                settingsSectionParser,
-                buildSectionParser,
-                installSectionParser
-            );
+            var moduleDefaultsParser = new ModuleDefaultsParser(hooksSectionParser, depsSectionParser, settingsSectionParser, buildSectionParser, installSectionParser);
+            return moduleDefaultsParser;
         }
     }
 }

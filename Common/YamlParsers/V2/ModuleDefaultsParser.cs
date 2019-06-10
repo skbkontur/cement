@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class ModuleYamlDefaultsParser
+    public class ModuleDefaultsParser
     {
         private readonly HooksSectionParser hooksSectionParser;
         private readonly DepsSectionParser depsSectionParser;
@@ -15,7 +15,7 @@ namespace Common.YamlParsers.V2
         private readonly BuildSectionParser buildSectionParser;
         private readonly InstallSectionParser installSectionParser;
 
-        public ModuleYamlDefaultsParser(
+        public ModuleDefaultsParser(
             HooksSectionParser hooksSectionParser,
             DepsSectionParser depsSectionParser,
             SettingsSectionParser settingsSectionParser,
@@ -39,20 +39,19 @@ namespace Common.YamlParsers.V2
             var installSection = defaultsContents.FindValue("install");
             var artifactsSection = defaultsContents.FindValue("artifacts");
             var artefactsSection = defaultsContents.FindValue("artefacts");
-            var sections = new YamlInstallSections(installSection, artifactsSection, artefactsSection);
 
             try
             {
-                var installData = installSectionParser.Parse(sections);
+                var installData = installSectionParser.Parse(installSection, artifactsSection, artefactsSection);
                 var hooksData = hooksSectionParser.Parse(defaultsContents.FindValue("hooks"));
                 var settingsData = settingsSectionParser.Parse(defaultsContents.FindValue("settings"));
                 var buildData = buildSectionParser.ParseDefaults(defaultsContents.FindValue("build"));
-                var depsData = depsSectionParser.Parse(defaultsContents.FindValue("deps"), (ParsedDepsSection)null);
+                var depsSection = depsSectionParser.Parse(defaultsContents.FindValue("deps"));
 
                 return new ModuleDefaults
                 {
                     BuildSection = buildData,
-                    DepsSection = depsData.RawSection,
+                    DepsSection = depsSection,
                     InstallSection = installData,
                     SettingsSection = settingsData,
                     HooksSection = hooksData

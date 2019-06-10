@@ -22,14 +22,14 @@ namespace Common
             content = File.ReadAllText(filePath.ToString());
         }
 
-        public DepsContent Get()
+        public DepsData Get()
         {
             var parsed = parser.ParseString(content);
 
             var force = GetForceFromIni(parsed);
             var deps = GetDepsFromIni(parsed);
 
-            return new DepsContent(force, deps);
+            return new DepsData(force, deps);
         }
 
         private List<Dep> GetDepsFromIni(IniData parsed)

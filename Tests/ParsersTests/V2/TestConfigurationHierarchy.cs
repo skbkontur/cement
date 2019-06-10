@@ -11,11 +11,11 @@ namespace Tests.ParsersTests.V2
     [TestFixture]
     public class TestConfigurationHierarchyFactory
     {
-        private readonly ConfigLineParser parser;
+        private readonly ConfigSectionTitleParser parser;
 
         public TestConfigurationHierarchyFactory()
         {
-            this.parser = new ConfigLineParser();
+            this.parser = new ConfigSectionTitleParser();
         }
 
         [TestCaseSource(nameof(FindAllParentSource))]

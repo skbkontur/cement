@@ -12,7 +12,7 @@ namespace Benchmarks
     [Config(typeof(Config))]
     public class DepLineParserBenchmark
     {
-        private DepLineParser parser;
+        private DepSectionItemParser parser;
 
         private class Config : ManualConfig
         {
@@ -32,11 +32,11 @@ namespace Benchmarks
         [GlobalSetup]
         public void Setup()
         {
-            parser = new DepLineParser();
+            parser = new DepSectionItemParser();
         }
 
         [Benchmark]
-        public DepLine Parse1() => parser.Parse(DepLine);
+        public DepSectionItem Parse1() => parser.Parse(DepLine);
 
         [Benchmark]
         public Dep Parse2() => new Dep(DepLine);

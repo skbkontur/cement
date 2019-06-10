@@ -13,21 +13,26 @@ namespace Common.YamlParsers.V2.Factories
 
         private static ModuleYamlParser Create()
         {
-            var configLineParser = new ConfigLineParser();
-            var depSectionParser = new DepsSectionParser(new DepLineParser());
-            var buildSectionParser = new BuildSectionParser();
+            var configSectionTitleParser = new ConfigSectionTitleParser();
+            var depLineParser = new DepSectionItemParser();
+            var depsSectionParser = new DepsSectionParser(depLineParser);
             var installSectionParser = new InstallSectionParser();
-
+            var buildSectionParser = new BuildSectionParser();
+            var configSectionParser = new ConfigSectionParser(configSectionTitleParser, installSectionParser, depsSectionParser, buildSectionParser);
+            
             var hooksSectionParser = new HooksSectionParser();
             var settingsSectionParser = new SettingsSectionParser();
-            var defaultsParser = new ModuleYamlDefaultsParser(hooksSectionParser, depSectionParser, settingsSectionParser, buildSectionParser, installSectionParser);
+            var moduleDefaultsParser = new ModuleDefaultsParser(hooksSectionParser, depsSectionParser, settingsSectionParser, buildSectionParser, installSectionParser);
+
+            var depsSectionMerger = new DepsSectionMerger();
+            var installSectionMerger = new InstallSectionMerger();
 
             return new ModuleYamlParser(
-                configLineParser,
-                defaultsParser,
-                installSectionParser,
-                depSectionParser,
-                buildSectionParser);
+                moduleDefaultsParser,
+                configSectionParser,
+                installSectionMerger,
+                depsSectionMerger
+                );
         }
     }
 }

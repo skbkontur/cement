@@ -12,25 +12,28 @@ namespace Tests.ParsersTests.V2
     public class TestDepsSectionParser
     {
         [TestCaseSource(nameof(NoParentDeps))]
-        public void ParseDepsSection(string input, DepsContent expectedResult)
+        public void ParseDepsSection(string input, DepsData expected)
         {
             var yaml = GetDepsSections(input);
-            var parser = new DepsSectionParser(new DepLineParser());
 
-            var actual = parser.Parse(yaml).ResultingDeps;
+            var parser = new DepsSectionParser(new DepSectionItemParser());
+            var merger = new DepsSectionMerger();
 
-            actual.Should().BeEquivalentTo(expectedResult);
+            var parsed = parser.Parse(yaml);
+            var merged = merger.Merge(parsed);
+
+            merged.Should().BeEquivalentTo(expected);
         }
 
         private static TestCaseData[] NoParentDeps =
         {
             new TestCaseData(@"deps:",
-                    new DepsContent(null, new List<Dep>()))
+                    new DepsData(null, new List<Dep>()))
                 .SetName("No deps, no force"),
 
             new TestCaseData(@"deps:
   - module.a",
-                    new DepsContent(null, new List<Dep>()
+                    new DepsData(null, new List<Dep>()
                     {
                         new Dep("module.a", null, null)
                     }))
@@ -42,7 +45,7 @@ namespace Tests.ParsersTests.V2
   - module.b
   - module.c
 ",
-                    new DepsContent(null, new List<Dep>()
+                    new DepsData(null, new List<Dep>()
                     {
                         new Dep("module.a", null, null),
                         new Dep("module.b", null, null),
@@ -58,7 +61,7 @@ namespace Tests.ParsersTests.V2
   - module.b
   - module.c
 ",
-                    new DepsContent(null, new List<Dep>()
+                    new DepsData(null, new List<Dep>()
                     {
                         new Dep("module.a", "somebranch", "client") { NeedSrc = true },
                         new Dep("module.b", null, null),
@@ -72,7 +75,7 @@ namespace Tests.ParsersTests.V2
   - module.b
   - module.c
 ",
-                    new DepsContent(new [] {"$CURRENT_BRANCH"}, new List<Dep>()
+                    new DepsData(new [] {"$CURRENT_BRANCH"}, new List<Dep>()
                     {
                         new Dep("module.a", null, null),
                         new Dep("module.b", null, null),
@@ -86,7 +89,7 @@ namespace Tests.ParsersTests.V2
   - module.b
   - module.c
 ",
-                    new DepsContent(new [] {"$CURRENT_BRANCH", "branch_a", "branch_b"}, new List<Dep>()
+                    new DepsData(new [] {"$CURRENT_BRANCH", "branch_a", "branch_b"}, new List<Dep>()
                     {
                         new Dep("module.a", null, null),
                         new Dep("module.b", null, null),
@@ -100,7 +103,7 @@ namespace Tests.ParsersTests.V2
   - module.c
   - force: $CURRENT_BRANCH,branch_a, branch_b
 ",
-                    new DepsContent(new [] {"$CURRENT_BRANCH", "branch_a", "branch_b"}, new List<Dep>()
+                    new DepsData(new [] {"$CURRENT_BRANCH", "branch_a", "branch_b"}, new List<Dep>()
                     {
                         new Dep("module.a", null, null),
                         new Dep("module.b", null, null),
@@ -113,7 +116,7 @@ namespace Tests.ParsersTests.V2
   - -module.a
   - module.c
 ",
-                    new DepsContent(null, new List<Dep>()
+                    new DepsData(null, new List<Dep>()
                     {
                         new Dep("module.c", null, null)
                     }))
@@ -126,7 +129,7 @@ namespace Tests.ParsersTests.V2
   - -module.a
   - module.c
 ",
-                    new DepsContent(null, new List<Dep>()
+                    new DepsData(null, new List<Dep>()
                     {
                         new Dep("module.c", null, null)
                     }))

@@ -8,34 +8,34 @@ namespace Common.YamlParsers.Models
     public class ModuleDefinition
     {
         public ModuleDefinition(
-            [NotNull] IReadOnlyDictionary<string, ModuleConfiguration> allConfigurations,
+            [NotNull] IReadOnlyDictionary<string, ModuleConfig> allConfigurations,
             [NotNull] ModuleDefaults defaults)
         {
             Defaults = defaults;
             AllConfigurations = allConfigurations;
-            defaultConfiguration = allConfigurations.FirstOrDefault(kvp => kvp.Value.IsDefault).Value;
+            defaultConfig = allConfigurations.FirstOrDefault(kvp => kvp.Value.IsDefault).Value;
         }
 
         [NotNull]
-        public IReadOnlyDictionary<string, ModuleConfiguration> AllConfigurations { get; }
+        public IReadOnlyDictionary<string, ModuleConfig> AllConfigurations { get; }
 
         [CanBeNull]
-        public ModuleConfiguration FindDefaultConfiguration() => defaultConfiguration;
+        public ModuleConfig FindDefaultConfiguration() => defaultConfig;
 
         [NotNull]
-        public ModuleConfiguration GetDefaultConfiguration()
+        public ModuleConfig GetDefaultConfiguration()
         {
-            if (defaultConfiguration == null)
+            if (defaultConfig == null)
                 throw new ArgumentException("Cannot determine default module configuration. Specify it via '*default' keyword.");
 
-            return defaultConfiguration;
+            return defaultConfig;
         }
 
         [NotNull]
         public ModuleDefaults Defaults { get; }
 
-        public ModuleConfiguration this[string configName] => AllConfigurations[configName];
+        public ModuleConfig this[string configName] => AllConfigurations[configName];
 
-        private readonly ModuleConfiguration defaultConfiguration;
+        private readonly ModuleConfig defaultConfig;
     }
 }

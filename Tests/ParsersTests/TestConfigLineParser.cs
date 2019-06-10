@@ -10,9 +10,9 @@ namespace Tests.ParsersTests
     public class TestConfigLineParser
     {
         [TestCaseSource(nameof(Source))]
-        public ConfigurationLine Parse(string input)
+        public ConfigSectionTitle Parse(string input)
         {
-            var parser = new ConfigLineParser();
+            var parser = new ConfigSectionTitleParser();
             return parser.Parse(input);
         }
 
@@ -24,83 +24,83 @@ namespace Tests.ParsersTests
         [TestCase("\t*default")]
         public void ThrowOnInvalidInput(string input)
         {
-            var parser = new ConfigLineParser();
+            var parser = new ConfigSectionTitleParser();
             Assert.Throws<ArgumentException>(() => parser.Parse(input));
         }
 
         private static TestCaseData[] Source =
         {
-            new TestCaseData("full-build").Returns(new ConfigurationLine()
+            new TestCaseData("full-build").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build"
+                Name = "full-build"
             }),
 
-            new TestCaseData("full-build*default").Returns(new ConfigurationLine()
+            new TestCaseData("full-build*default").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
+                Name = "full-build",
                 IsDefault = true
             }),
 
-            new TestCaseData("full-build *default").Returns(new ConfigurationLine()
+            new TestCaseData("full-build *default").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
+                Name = "full-build",
                 IsDefault = true
             }),
 
-            new TestCaseData("full-build         *default").Returns(new ConfigurationLine()
+            new TestCaseData("full-build         *default").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
+                Name = "full-build",
                 IsDefault = true
             }),
 
-            new TestCaseData("full-build>client").Returns(new ConfigurationLine()
+            new TestCaseData("full-build>client").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
-                ParentConfigs = new[] { "client" }
+                Name = "full-build",
+                Parents = new[] { "client" }
             }),
 
-            new TestCaseData("full-build > client").Returns(new ConfigurationLine()
+            new TestCaseData("full-build > client").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
-                ParentConfigs = new[] { "client" }
+                Name = "full-build",
+                Parents = new[] { "client" }
             }),
 
-            new TestCaseData("full-build     >    client").Returns(new ConfigurationLine()
+            new TestCaseData("full-build     >    client").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
-                ParentConfigs = new[] { "client" }
+                Name = "full-build",
+                Parents = new[] { "client" }
             }),
 
-            new TestCaseData("full-build > client *default").Returns(new ConfigurationLine()
+            new TestCaseData("full-build > client *default").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
+                Name = "full-build",
                 IsDefault = true,
-                ParentConfigs = new[] { "client" }
+                Parents = new[] { "client" }
             }),
 
-            new TestCaseData("full-build   >   client   *default   ").Returns(new ConfigurationLine()
+            new TestCaseData("full-build   >   client   *default   ").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
+                Name = "full-build",
                 IsDefault = true,
-                ParentConfigs = new[] { "client" }
+                Parents = new[] { "client" }
             }),
 
-            new TestCaseData("full-build > client, client, client").Returns(new ConfigurationLine()
+            new TestCaseData("full-build > client, client, client").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
-                ParentConfigs = new[] { "client" }
+                Name = "full-build",
+                Parents = new[] { "client" }
             }),
 
-            new TestCaseData("full-build > a, b, c").Returns(new ConfigurationLine()
+            new TestCaseData("full-build > a, b, c").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
-                ParentConfigs = new[] { "a", "b", "c" }
+                Name = "full-build",
+                Parents = new[] { "a", "b", "c" }
             }),
 
-            new TestCaseData("full-build > a, b, c *default").Returns(new ConfigurationLine()
+            new TestCaseData("full-build > a, b, c *default").Returns(new ConfigSectionTitle()
             {
-                ConfigName = "full-build",
-                ParentConfigs = new[] { "a", "b", "c" },
+                Name = "full-build",
+                Parents = new[] { "a", "b", "c" },
                 IsDefault = true
             }),
         };

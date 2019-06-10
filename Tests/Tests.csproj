@@ -99,7 +99,7 @@
     <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParser_NuGetPackages.cs" />
     <Compile Include="ParsersTests\V2\TestBuildSectionParser.cs" />
     <Compile Include="ParsersTests\V2\TestConfigurationHierarchy.cs" />
-    <Compile Include="ParsersTests\V2\TestDepLineParser.cs" />
+    <Compile Include="ParsersTests\V2\TestDepSectionItemParser.cs" />
     <Compile Include="ParsersTests\V2\TestDepsSectionParser.cs" />
     <Compile Include="ParsersTests\V2\TestHooksSectionParser.cs" />
     <Compile Include="ParsersTests\V2\TestInstallSectionParser.cs" />

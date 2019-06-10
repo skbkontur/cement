@@ -10,13 +10,13 @@ namespace Common.YamlParsers.V2.Factories
     {
         private const string defaultConfigName = "full-build";
 
-        public static ConfigurationHierarchy Get(ConfigurationLine[] configs)
+        public static ConfigurationHierarchy Get(ConfigSectionTitle[] configs)
         {
             // workaround for inheriting non-existent configs
-            var existingConfigNames = new HashSet<string>(configs.Select(c => c.ConfigName));
+            var existingConfigNames = new HashSet<string>(configs.Select(c => c.Name));
             var adjacencyMap = configs.ToDictionary(
-                config => config.ConfigName,
-                config => config.ParentConfigs?.Where(pc => existingConfigNames.Contains(pc)).ToArray() ?? new string[0]);
+                config => config.Name,
+                config => config.Parents?.Where(pc => existingConfigNames.Contains(pc)).ToArray() ?? new string[0]);
 
             EnsureHasNoCycles(adjacencyMap);
 
@@ -24,14 +24,14 @@ namespace Common.YamlParsers.V2.Factories
             var configNameToAllParentsMap = BuildConfigNameToParentsMap(all, adjacencyMap);
             var defaultConfig = DetermineDefaultConfig(configs);
 
-            return new ConfigurationHierarchy(all, configNameToAllParentsMap, defaultConfig?.ConfigName);
+            return new ConfigurationHierarchy(all, configNameToAllParentsMap, defaultConfig?.Name);
         }
 
         [CanBeNull]
-        private static ConfigurationLine DetermineDefaultConfig(IReadOnlyList<ConfigurationLine> lines)
+        private static ConfigSectionTitle DetermineDefaultConfig(IReadOnlyList<ConfigSectionTitle> lines)
         {
             var config = lines.FirstOrDefault(l => l.IsDefault) ??
-                         lines.FirstOrDefault(l => string.Equals(l.ConfigName, defaultConfigName));
+                         lines.FirstOrDefault(l => string.Equals(l.Name, defaultConfigName));
 
             if (config != null)
                 return config;

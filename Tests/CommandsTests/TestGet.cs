@@ -47,9 +47,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B");
                 env.Get("A");
@@ -65,9 +65,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", "new")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B", "new")})}
                 });
                 env.CreateRepo("B", null, new[] {"new"});
                 env.Get("A");
@@ -82,9 +82,9 @@ namespace Tests.CommandsTests
             using (var env = new TestEnvironment())
             {
                 var dir = env.WorkingDirectory.Path;
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new"});
                 env.Get("A");
@@ -94,9 +94,9 @@ namespace Tests.CommandsTests
                 env.CommitIntoRemote("B", "newFile", "content");
                 env.Get("A");
 
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", sha1)})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B", sha1)})}
                 });
 
                 env.Get("C");
@@ -111,9 +111,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(new[] {"new"}, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(new[] {"new"}, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new"});
                 env.Get("A");
@@ -129,9 +129,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(new[] {"priority", "new"}, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(new[] {"priority", "new"}, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new", "priority"});
                 env.Get("A");
@@ -147,9 +147,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(new[] {"missing", "priority", "new"}, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(new[] {"missing", "priority", "new"}, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new", "priority"});
                 env.Get("A");
@@ -163,9 +163,9 @@ namespace Tests.CommandsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(new[] {"new"}, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(new[] {"new"}, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new"});
                 env.Get("A");
@@ -181,9 +181,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(new[] {"new"}, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(new[] {"new"}, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new"});
                 env.Get("A");
@@ -204,9 +204,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(new[] {"new"}, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(new[] {"new"}, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B", null, new[] {"new"});
                 env.Get("A");
@@ -231,9 +231,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B");
                 env.Get("A");
@@ -258,9 +258,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B");
                 env.Get("A");
@@ -282,9 +282,9 @@ namespace Tests.CommandsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
                 });
                 env.CreateRepo("B");
                 env.Get("A");
@@ -302,9 +302,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(new[] {"%CURRENT_BRANCH%"}, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(new[] {"%CURRENT_BRANCH%"}, new List<Dep> {new Dep("B")})}
                 }, new[] {"new"}, DepsFormatStyle.Ini);
                 env.Checkout("A", "new");
 
@@ -323,9 +323,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(new[]  {"%CURRENT_BRANCH%"}, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(new[]  {"%CURRENT_BRANCH%"}, new List<Dep> {new Dep("B")})}
                 }, new[] {"new"}, DepsFormatStyle.Ini);
                 env.Checkout("A", "new");
 
@@ -347,14 +347,14 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(new[] {"new"}, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(new[] {"new"}, new List<Dep> {new Dep("B")})}
                 }, new[] {"new"}, DepsFormatStyle.Ini);
 
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C", "new1")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C", "new1")})}
                 });
 
                 env.CreateRepo("C", null, new[] {"new", "new1"});
@@ -373,9 +373,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(new[] {"$CURRENT_BRANCH"}, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(new[] {"$CURRENT_BRANCH"}, new List<Dep> {new Dep("B")})}
                 }, new[] {"new"});
                 env.Checkout("A", "new");
 
@@ -394,21 +394,21 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("D")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
                 });
-                env.CreateRepo("D", new Dictionary<string, DepsContent>
+                env.CreateRepo("D", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("A")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("A")})}
                 });
                 env.Get("A");
                 Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
@@ -425,22 +425,22 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B/client"), new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B/client"), new Dep("C")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("D")})},
-                    {"client", new DepsContent(null, new List<Dep>())}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("D")})},
+                    {"client", new DepsData(null, new List<Dep>())}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B/full-build")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B/full-build")})}
                 });
-                env.CreateRepo("D", new Dictionary<string, DepsContent>
+                env.CreateRepo("D", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep>())}
+                    {"full-build", new DepsData(null, new List<Dep>())}
                 });
                 env.Get("A");
                 Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
@@ -457,21 +457,21 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", "1"), new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B", "1"), new Dep("C")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
                 }, new[] {"1"});
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("D")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
                 });
-                env.CreateRepo("D", new Dictionary<string, DepsContent>
+                env.CreateRepo("D", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("A")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("A")})}
                 });
                 env.Get("A");
                 Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
@@ -489,21 +489,21 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
                 }, null, DepsFormatStyle.Ini);
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("D")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
                 }, null, DepsFormatStyle.Ini);
-                env.CreateRepo("D", new Dictionary<string, DepsContent>
+                env.CreateRepo("D", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("A")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("A")})}
                 });
                 env.Get("A");
                 Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
@@ -520,19 +520,19 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C", null, "client")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C", null, "client")})}
                 }, null, DepsFormatStyle.Ini);
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C")})},
-                    {"client *default", new DepsContent(null, new List<Dep> {new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})},
+                    {"client *default", new DepsData(null, new List<Dep> {new Dep("C")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"*full-build", new DepsContent(null, new List<Dep> {new Dep("D")})},
-                    {"client", new DepsContent(null, new List<Dep>())}
+                    {"*full-build", new DepsData(null, new List<Dep> {new Dep("D")})},
+                    {"client", new DepsData(null, new List<Dep>())}
                 }, null, DepsFormatStyle.Ini);
                 env.Get("A");
                 Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
@@ -548,19 +548,19 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C", null, "client")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C", null, "client")})}
                 }, null, DepsFormatStyle.Ini);
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C")})},
-                    {"client *default", new DepsContent(null, new List<Dep> {new Dep("C", "notmaster")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})},
+                    {"client *default", new DepsData(null, new List<Dep> {new Dep("C", "notmaster")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"*full-build", new DepsContent(null, new List<Dep> {new Dep("D")})},
-                    {"client", new DepsContent(null, new List<Dep>())}
+                    {"*full-build", new DepsData(null, new List<Dep> {new Dep("D")})},
+                    {"client", new DepsData(null, new List<Dep>())}
                 }, new[] {"notmaster"}, DepsFormatStyle.Ini);
                 env.Get("A");
                 Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
@@ -575,15 +575,15 @@ namespace Tests.CommandsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C", "t1")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C", "t1")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C", "t2")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C", "t2")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>(), new[] {"t1", "t2"});
+                env.CreateRepo("C", new Dictionary<string, DepsData>(), new[] {"t1", "t2"});
                 Assert.Throws<TreeishConflictException>(() => env.Get("A"));
             }
         }
@@ -593,15 +593,15 @@ namespace Tests.CommandsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C", "master")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C", "master")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C", "t2")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C", "t2")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>(), new[] {"t1", "t2"});
+                env.CreateRepo("C", new Dictionary<string, DepsData>(), new[] {"t1", "t2"});
                 Assert.Throws<TreeishConflictException>(() => env.Get("A"));
             }
         }
@@ -612,15 +612,15 @@ namespace Tests.CommandsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C", "t1")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C", "t1")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>(), new[] {"t1"});
+                env.CreateRepo("C", new Dictionary<string, DepsData>(), new[] {"t1"});
                 Assert.DoesNotThrow(() => env.Get("A"));
             }
         }
@@ -631,20 +631,20 @@ namespace Tests.CommandsTests
             using (var env = new TestEnvironment())
             {
                 var dir = env.WorkingDirectory.Path;
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", null, "nodomex"), new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B", null, "nodomex"), new Dep("C")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("D")})},
-                    {"nodomex", new DepsContent(null, new List<Dep>())}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("D")})},
+                    {"nodomex", new DepsData(null, new List<Dep>())}
                 });
-                env.CreateRepo("D", new Dictionary<string, DepsContent>());
+                env.CreateRepo("D", new Dictionary<string, DepsData>());
                 env.Get("A");
                 Assert.IsTrue(Directory.Exists(Path.Combine(dir, "D")));
             }
@@ -656,15 +656,15 @@ namespace Tests.CommandsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C", "t1")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C", "t1")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>(), new[] {"t1"});
+                env.CreateRepo("C", new Dictionary<string, DepsData>(), new[] {"t1"});
                 Assert.DoesNotThrow(() => env.Get("A"));
             }
         }
@@ -676,18 +676,18 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B@master")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B@master")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("C@branch1")})},
-                    {"client", new DepsContent(null, new List<Dep> {new Dep("C@branch2")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("C@branch1")})},
+                    {"client", new DepsData(null, new List<Dep> {new Dep("C@branch2")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep>())}
+                    {"full-build", new DepsData(null, new List<Dep>())}
                 }, new[] {"master", "branch1", "branch2"});
 
                 env.Get("A");
@@ -703,18 +703,18 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B@master")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B@master")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C@branch1")})},
-                    {"client *default", new DepsContent(null, new List<Dep> {new Dep("C@branch2")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C@branch1")})},
+                    {"client *default", new DepsData(null, new List<Dep> {new Dep("C@branch2")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep>())}
+                    {"full-build", new DepsData(null, new List<Dep>())}
                 }, new[] { "master", "branch1", "branch2" });
 
                 env.Get("A");
@@ -730,34 +730,34 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B/full-build"), new Dep("Y")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B/full-build"), new Dep("Y")})}
                 });
-                env.CreateRepo("Y", new Dictionary<string, DepsContent>
+                env.CreateRepo("Y", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("B@branch/client")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("B@branch/client")})}
                 });
 
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build > client *default", new DepsContent(null, new List<Dep> {new Dep("B1")})},
-                    {"client", new DepsContent(null, new List<Dep>())}
+                    {"full-build > client *default", new DepsData(null, new List<Dep> {new Dep("B1")})},
+                    {"client", new DepsData(null, new List<Dep>())}
                 }, new[] {"master", "branch"});
 
                 env.Checkout("B", "branch");
                 using (new DirectoryJumper(Path.Combine(env.RemoteWorkspace, "B")))
                 {
-                    env.CreateDepsAndCommitThem(Path.Combine(env.RemoteWorkspace, "B"), new Dictionary<string, DepsContent>
+                    env.CreateDepsAndCommitThem(Path.Combine(env.RemoteWorkspace, "B"), new Dictionary<string, DepsData>
                     {
-                        {"full-build > client *default", new DepsContent(null, new List<Dep> {new Dep("B2")})},
-                        {"client", new DepsContent(null, new List<Dep> {new Dep("B3")})}
+                        {"full-build > client *default", new DepsData(null, new List<Dep> {new Dep("B2")})},
+                        {"client", new DepsData(null, new List<Dep> {new Dep("B3")})}
                     });
                 }
 
-                env.CreateRepo("B1", new Dictionary<string, DepsContent> {{"full-build *default", new DepsContent(null, new List<Dep>())}});
-                env.CreateRepo("B2", new Dictionary<string, DepsContent> {{"full-build *default", new DepsContent(null, new List<Dep>())}});
-                env.CreateRepo("B3", new Dictionary<string, DepsContent> {{"full-build *default", new DepsContent(null, new List<Dep>())}});
+                env.CreateRepo("B1", new Dictionary<string, DepsData> {{"full-build *default", new DepsData(null, new List<Dep>())}});
+                env.CreateRepo("B2", new Dictionary<string, DepsData> {{"full-build *default", new DepsData(null, new List<Dep>())}});
+                env.CreateRepo("B3", new Dictionary<string, DepsData> {{"full-build *default", new DepsData(null, new List<Dep>())}});
 
                 env.Get("A");
 
@@ -775,34 +775,34 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B@branch/client"), new Dep("Y")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B@branch/client"), new Dep("Y")})}
                 });
-                env.CreateRepo("Y", new Dictionary<string, DepsContent>
+                env.CreateRepo("Y", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("B/full-build")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("B/full-build")})}
                 });
 
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build > client *default", new DepsContent(null, new List<Dep>())},
-                    {"client", new DepsContent(null, new List<Dep> {new Dep("B1")})}
+                    {"full-build > client *default", new DepsData(null, new List<Dep>())},
+                    {"client", new DepsData(null, new List<Dep> {new Dep("B1")})}
                 }, new[] {"master", "branch"});
 
                 env.Checkout("B", "branch");
                 using (new DirectoryJumper(Path.Combine(env.RemoteWorkspace, "B")))
                 {
-                    env.CreateDepsAndCommitThem(Path.Combine(env.RemoteWorkspace, "B"), new Dictionary<string, DepsContent>
+                    env.CreateDepsAndCommitThem(Path.Combine(env.RemoteWorkspace, "B"), new Dictionary<string, DepsData>
                     {
-                        {"full-build > client *default", new DepsContent(null, new List<Dep> {new Dep("B2")})},
-                        {"client", new DepsContent(null, new List<Dep> {new Dep("B3")})}
+                        {"full-build > client *default", new DepsData(null, new List<Dep> {new Dep("B2")})},
+                        {"client", new DepsData(null, new List<Dep> {new Dep("B3")})}
                     });
                 }
 
-                env.CreateRepo("B1", new Dictionary<string, DepsContent> {{"full-build *default", new DepsContent(null, new List<Dep>())}});
-                env.CreateRepo("B2", new Dictionary<string, DepsContent> {{"full-build *default", new DepsContent(null, new List<Dep>())}});
-                env.CreateRepo("B3", new Dictionary<string, DepsContent> {{"full-build *default", new DepsContent(null, new List<Dep>())}});
+                env.CreateRepo("B1", new Dictionary<string, DepsData> {{"full-build *default", new DepsData(null, new List<Dep>())}});
+                env.CreateRepo("B2", new Dictionary<string, DepsData> {{"full-build *default", new DepsData(null, new List<Dep>())}});
+                env.CreateRepo("B3", new Dictionary<string, DepsData> {{"full-build *default", new DepsData(null, new List<Dep>())}});
 
                 env.Get("A");
 
@@ -825,9 +825,9 @@ namespace Tests.CommandsTests
                 var bRemote = new GitRepository("B", env.RemoteWorkspace, Log);
                 var bHash = bRemote.CurrentLocalCommitHash();
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", bHash)})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B", bHash)})}
                 });
                 env.Get("A");
 
@@ -848,9 +848,9 @@ namespace Tests.CommandsTests
                 var bRemote = new GitRepository("B", env.RemoteWorkspace, Log);
                 var bHash1 = bRemote.CurrentLocalCommitHash();
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", bHash1)})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B", bHash1)})}
                 });
 
                 env.Get("A");
@@ -862,9 +862,9 @@ namespace Tests.CommandsTests
                 var bHash2 = bRemote.CurrentLocalCommitHash();
                 Assert.That(bHash1, Is.Not.EqualTo(bHash2));
 
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", bHash2)})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B", bHash2)})}
                 });
 
                 env.Get("C");
@@ -880,9 +880,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep>())}
+                    {"full-build", new DepsData(null, new List<Dep>())}
                 });
 
                 env.CommitIntoRemote("A", "test.txt", "hello");
@@ -904,9 +904,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep>())}
+                    {"full-build", new DepsData(null, new List<Dep>())}
                 });
 
                 var localA = Path.Combine(dir, "A");
@@ -925,9 +925,9 @@ namespace Tests.CommandsTests
             {
                 var dir = env.WorkingDirectory.Path;
 
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep>())}
+                    {"full-build", new DepsData(null, new List<Dep>())}
                 });
 
                 env.CommitIntoRemote("A", "test.txt", "hello");
