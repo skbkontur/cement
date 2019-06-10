@@ -17,7 +17,7 @@ namespace Tests.ParsersTests.YamlInstallSection
             actual.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
-        private TestCaseData[] testCases =
+        private static TestCaseData[] testCases =
         {
             new TestCaseData(@"
 full-build:
