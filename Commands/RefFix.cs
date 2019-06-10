@@ -46,8 +46,13 @@ namespace Commands
             fixReferenceResult.Print();
 
             if (!Yaml.ReadAllText(rootModuleName).Equals(oldYamlContent))
-                ConsoleWriter.WriteInfo("Check and commit modified module.yaml.");
-            ConsoleWriter.WriteInfo(hasFixedReferences ? "Check and commit new references." : "No fixed references.");
+                ConsoleWriter.WriteOk("Check and commit modified module.yaml.");
+
+            if (!hasFixedReferences)
+                ConsoleWriter.WriteInfo("No fixed references.");
+            else
+                ConsoleWriter.WriteOk("Check and commit new references.");
+
             ConsoleWriter.WriteInfo("See also 'check-deps' command.");
 
             return 0;
@@ -185,7 +190,7 @@ namespace Commands
             var configs = Yaml.ConfigurationParser(moduleDep).GetConfigurations();
             var configsWithArtifact =
                 configs.Where(c =>
-                    Yaml.InstallParser(moduleDep).GetAllInstallFilesFromConfig(c)
+                    Yaml.InstallParser(moduleDep).Get(c).Artifacts
                         .Select(file => Path.Combine(moduleDep, file)).Any(file => Path.GetFullPath(file) == Path.GetFullPath(reference))).ToList();
 
             var toAdd = DepsPatcherProject.GetSmallerCementConfigs(Path.Combine(Helper.CurrentWorkspace, moduleDep), configsWithArtifact);
