@@ -49,6 +49,7 @@ namespace Tests.BuildTests
         }
 
         [Test]
+        [Retry(3)]
         public void TestGitClean()
         {
             using (var env = new TestEnvironment())
