@@ -92,6 +92,7 @@
     <Compile Include="ParsersTests\TestRulesetFile.cs" />
     <Compile Include="CommandsTests\TestInit.cs" />
     <Compile Include="ParsersTests\TestInstallXmlParser.cs" />
+    <Compile Include="ParsersTests\V2\TestInstallSectionMerger.cs" />
     <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParser_Artifacts.cs" />
     <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParser_InstallFiles.cs" />
     <Compile Include="ParsersTests\YamlInstallSection\TestInstallYamlParser_ExternalModules.cs" />

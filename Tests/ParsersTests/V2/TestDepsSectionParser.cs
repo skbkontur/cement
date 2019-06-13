@@ -133,7 +133,7 @@ namespace Tests.ParsersTests.V2
                     {
                         new Dep("module.c", null, null)
                     }))
-                .SetName("No parent deps, no force, removing module trwing within current deps section"),
+                .SetName("No parent deps, no force, removing module within current deps section"),
 
 
         };
