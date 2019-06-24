@@ -35,12 +35,6 @@ namespace Tests.ParsersTests.V2
                             "file2",
                             "nuget Nuget2",
                             "module Module2",
-                        },
-                        new[]
-                        {
-                            "file3",
-                            "nuget Nuget3",
-                            "module Module3",
                         }
                     ),
                     new InstallData
@@ -55,8 +49,8 @@ namespace Tests.ParsersTests.V2
                     new InstallData
                     {
                         InstallFiles = {"default_file", "file1"},
-                        Artifacts = {"default_artifact", "file1", "file2", "file3"},
-                        CurrentConfigurationInstallFiles = {"default_file", "default_artifact", "file1", "file2", "file3"},
+                        Artifacts = {"default_artifact", "file1", "file2"},
+                        CurrentConfigurationInstallFiles = {"default_file", "default_artifact", "file1", "file2"},
                         ExternalModules = {"default_module", "Module1"},
                         NuGetPackages = {"default_nuget", "Nuget1"}
                     })
@@ -75,12 +69,6 @@ namespace Tests.ParsersTests.V2
                             "file2",
                             "nuget Nuget2",
                             "module Module2",
-                        },
-                        new[]
-                        {
-                            "file3",
-                            "nuget Nuget3",
-                            "module Module3",
                         }
                     ),
                     null,
@@ -106,8 +94,8 @@ namespace Tests.ParsersTests.V2
                     new InstallData
                     {
                         InstallFiles = {"parent1_file", "parent2_file", "file1"},
-                        Artifacts = {"parent1_artifact", "parent2_artifact", "file1", "file2", "file3"},
-                        CurrentConfigurationInstallFiles = {"file1", "file2", "file3"},
+                        Artifacts = {"parent1_artifact", "parent2_artifact", "file1", "file2"},
+                        CurrentConfigurationInstallFiles = {"file1", "file2"},
                         ExternalModules = {"parent1_module", "parent2_module", "Module1"},
                         NuGetPackages = {"parent1_nuget", "parent2_nuget", "Nuget1"}
                     })
@@ -126,12 +114,6 @@ namespace Tests.ParsersTests.V2
                             "file2",
                             "nuget Nuget2",
                             "module Module2",
-                        },
-                        new[]
-                        {
-                            "file3",
-                            "nuget Nuget3",
-                            "module Module3",
                         }
                     ),
                     new InstallData
@@ -164,8 +146,8 @@ namespace Tests.ParsersTests.V2
                     new InstallData
                     {
                         InstallFiles = {"default_file", "parent1_file", "parent2_file", "file1"},
-                        Artifacts = {"default_artifact", "parent1_artifact", "parent2_artifact", "file1", "file2", "file3"},
-                        CurrentConfigurationInstallFiles = {"default_file", "default_artifact", "file1", "file2", "file3"},
+                        Artifacts = {"default_artifact", "parent1_artifact", "parent2_artifact", "file1", "file2"},
+                        CurrentConfigurationInstallFiles = {"default_file", "default_artifact", "file1", "file2"},
                         ExternalModules = {"default_module", "parent1_module", "parent2_module", "Module1"},
                         NuGetPackages = {"default_nuget", "parent1_nuget", "parent2_nuget", "Nuget1"}
                     })

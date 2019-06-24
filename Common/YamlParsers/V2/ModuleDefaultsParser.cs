@@ -38,11 +38,10 @@ namespace Common.YamlParsers.V2
 
             var installSection = defaultsContents.FindValue("install");
             var artifactsSection = defaultsContents.FindValue("artifacts");
-            var artefactsSection = defaultsContents.FindValue("artefacts");
 
             try
             {
-                var installData = installSectionParser.Parse(installSection, artifactsSection, artefactsSection);
+                var installData = installSectionParser.Parse(installSection, artifactsSection);
                 var hooksData = hooksSectionParser.Parse(defaultsContents.FindValue("hooks"));
                 var settingsData = settingsSectionParser.Parse(defaultsContents.FindValue("settings"));
                 var buildData = buildSectionParser.ParseDefaults(defaultsContents.FindValue("build"));

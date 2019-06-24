@@ -43,7 +43,6 @@ namespace Tests.ParsersTests.V2
     - module externalModule
   artifacts:
     - file2.dll
-  artefacts:
     - file3.dll
 ",
                 new ModuleDefaults()

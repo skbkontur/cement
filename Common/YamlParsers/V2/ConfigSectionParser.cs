@@ -41,8 +41,7 @@ namespace Common.YamlParsers.V2
 
             var installSection = data?.FindValue("install");
             var artifactsSection = data?.FindValue("artifacts");
-            var artefactsSection = data?.FindValue("artefacts");
-            var installData = installSectionParser.Parse(installSection, artifactsSection, artefactsSection, yamlDefaults?.InstallSection?.CurrentConfigurationInstallFiles);
+            var installData = installSectionParser.Parse(installSection, artifactsSection, yamlDefaults?.InstallSection?.CurrentConfigurationInstallFiles);
 
             var depsData = data?.FindValue("deps");
             var depsSection = depsSectionParser.Parse(depsData, yamlDefaults);

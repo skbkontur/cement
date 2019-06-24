@@ -6,18 +6,16 @@ namespace Common.YamlParsers.Models
 {
     public class InstallSection
     {
-        public InstallSection(object install, object artifacts, object artefacts)
+        public InstallSection(object install, object artifacts)
         {
             Install = Transform(install);
             Artifacts = Transform(artifacts);
-            Artefacts = Transform(artefacts);
         }
 
-        public InstallSection([NotNull] string[] install, [NotNull] string[] artifacts, [NotNull] string[] artefacts)
+        public InstallSection([NotNull] string[] install, [NotNull] string[] artifacts)
         {
             Install = install;
             Artifacts = artifacts;
-            Artefacts = artefacts;
         }
 
         [NotNull]
@@ -25,9 +23,6 @@ namespace Common.YamlParsers.Models
 
         [NotNull]
         public string[] Artifacts { get; }
-
-        [NotNull]
-        public string[] Artefacts { get; }
 
         [NotNull]
         private static string[] Transform(object sectionContent)

@@ -9,9 +9,9 @@ namespace Common.YamlParsers.V2
         private const string NugetPrefix = "nuget ";
         private const string ModulePrefix = "module ";
 
-        public InstallData Parse(object installSection, object artifactsSection, object artefactsSection, List<string> currentConfigurationInstallFilesFromDefault = null)
+        public InstallData Parse(object installSection, object artifactsSection, List<string> currentConfigurationInstallFilesFromDefault = null)
         {
-            var sections = new InstallSection(installSection, artifactsSection, artefactsSection);
+            var sections = new InstallSection(installSection, artifactsSection);
             return Parse(sections, currentConfigurationInstallFilesFromDefault);
         }
 
@@ -34,7 +34,6 @@ namespace Common.YamlParsers.V2
 
             var artifacts = installFiles
                 .Concat(configSection.Artifacts)
-                .Concat(configSection.Artefacts)
                 .Where(IsBuildFileName)
                 .Distinct()
                 .ToList();

@@ -34,11 +34,9 @@ full-build:
 full-build:
   artifacts:
     - module Module1
-  artefacts:
-    - module Module2
 ",
                     new string[0])
-                .SetName("Install section. External modules cannot be placed in 'artifacts' or 'artefacts' section."),
+                .SetName("Install section. External modules cannot be placed in 'artifacts' section."),
 
             new TestCaseData(@"
 full-build:

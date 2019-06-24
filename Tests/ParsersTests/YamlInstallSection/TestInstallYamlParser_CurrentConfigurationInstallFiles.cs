@@ -158,25 +158,19 @@ full-build > config1:
 full-build:
   artifacts:
     - file1
-  artefacts:
-    - file2
 ",
-                    new [] { "file1", "file2" })
+                    new [] { "file1" })
                 .SetName("Install section. CurrentConfigurationInstallFiles contain files from current configuration's artifacts."),
 
             new TestCaseData(@"
 client:
   artifacts:
-    - file3
-  artefacts:
-    - file4
+    - file2
 
 full-build > client:
   artifacts:
-    - file1
-  artefacts:
-    - file2",
-                    new [] { "file1", "file2" })
+    - file1",
+                    new [] { "file1" })
                 .SetName("Install section. CurrentConfigurationInstallFiles should not contain files from parent configuration's artifacts."),
         };
     }

@@ -21,16 +21,16 @@ namespace Tests.ParsersTests.V2
         private static TestCaseData[] ArtifactsSource =
         {
             new TestCaseData(
-                    new InstallSection(new string[0], new[] {"a1", "a2"}, new[] {"a3", "a4"}),
+                    new InstallSection(new string[0], new[] {"a1", "a2"}),
                     new InstallData
                     {
-                        Artifacts = {"a1", "a2", "a3", "a4"},
-                        CurrentConfigurationInstallFiles = {"a1", "a2", "a3", "a4"}
+                        Artifacts = {"a1", "a2"},
+                        CurrentConfigurationInstallFiles = {"a1", "a2"}
                     })
                 .SetName("Install section: artifacts. Multiple artifacts"),
 
             new TestCaseData(
-                    new InstallSection(new string[0], new[] {"a1"}, new[] {"a1"}),
+                    new InstallSection(new string[0], new[] {"a1"}),
                     new InstallData
                     {
                         Artifacts = {"a1"},
@@ -39,12 +39,12 @@ namespace Tests.ParsersTests.V2
                 .SetName("Install section: artifacts. Artifacts are not duplicated."),
 
             new TestCaseData(
-                    new InstallSection(new[] {"a1"}, new[] {"a2"}, new[] {"a3"}),
+                    new InstallSection(new[] {"a1"}, new[] {"a2"}),
                     new InstallData
                     {
                         InstallFiles = {"a1"},
-                        Artifacts = {"a1", "a2", "a3"},
-                        CurrentConfigurationInstallFiles = {"a1", "a2", "a3"}
+                        Artifacts = {"a1", "a2"},
+                        CurrentConfigurationInstallFiles = {"a1", "a2"}
                     })
                 .SetName("Install section: artifacts. Install files from install section are added to artifacts"),
 
@@ -59,18 +59,13 @@ namespace Tests.ParsersTests.V2
                         {
                             "a2",
                             "nuget Nuget2"
-                        },
-                        new[]
-                        {
-                            "a3",
-                            "nuget Nuget3"
                         }
                     ),
                     new InstallData
                     {
                         InstallFiles = {"a1"},
-                        Artifacts = {"a1", "a2", "a3"},
-                        CurrentConfigurationInstallFiles = {"a1", "a2", "a3"},
+                        Artifacts = {"a1", "a2"},
+                        CurrentConfigurationInstallFiles = {"a1", "a2"},
                         NuGetPackages = {"Nuget1"}
                     })
                 .SetName("Install section: artifacts. Nugets are not added to artifacts."),
@@ -86,18 +81,13 @@ namespace Tests.ParsersTests.V2
                         {
                             "a2",
                             "module Module2"
-                        },
-                        new[]
-                        {
-                            "a3",
-                            "module Module3"
                         }
                     ),
                     new InstallData
                     {
                         InstallFiles = {"a1"},
-                        Artifacts = {"a1", "a2", "a3"},
-                        CurrentConfigurationInstallFiles = {"a1", "a2", "a3"},
+                        Artifacts = {"a1", "a2"},
+                        CurrentConfigurationInstallFiles = {"a1", "a2"},
                         ExternalModules = {"Module1"}
                     })
                 .SetName("Install section: artifacts. External modules are not added to artifacts."),
@@ -118,19 +108,13 @@ namespace Tests.ParsersTests.V2
                             "file2",
                             "nuget Nuget2",
                             "module Module2",
-                        },
-                        new[]
-                        {
-                            "file3",
-                            "nuget Nuget3",
-                            "module Module3",
                         }
                     ),
                     new InstallData
                     {
                         InstallFiles = {"file1"},
-                        Artifacts = {"file1", "file2", "file3"},
-                        CurrentConfigurationInstallFiles = {"file1", "file2", "file3"},
+                        Artifacts = {"file1", "file2"},
+                        CurrentConfigurationInstallFiles = {"file1", "file2"},
                         ExternalModules = {"Module1"},
                         NuGetPackages = {"Nuget1"}
                     })

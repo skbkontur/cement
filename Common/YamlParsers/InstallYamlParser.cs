@@ -50,7 +50,6 @@ namespace Common.YamlParsers
                 result.InstallFiles.AddRange(currentDeps.Where(IsBuildFileName));
                 result.Artifacts.AddRange(result.InstallFiles.Where(r => !result.Artifacts.Contains(r)));
                 result.Artifacts.AddRange(GetInstallSectionFromConfig(currentConfig, "artifacts").Where(IsBuildFileName));
-                result.Artifacts.AddRange(GetInstallSectionFromConfig(currentConfig, "artefacts").Where(IsBuildFileName));
                 result.ExternalModules.AddRange(currentDeps.Where(r => r.StartsWith("module ")));
                 result.NuGetPackages.AddRange(currentDeps.Where(r => r.StartsWith("nuget ")));
                 if (!IsInherited(currentConfig))
@@ -70,7 +69,6 @@ namespace Common.YamlParsers
         {
             return GetInstallSectionFromConfig(configName, "install")
                 .Concat(GetInstallSectionFromConfig(configName, "artifacts"))
-                .Concat(GetInstallSectionFromConfig(configName, "artefacts"))
                 .ToList();
         }
 
