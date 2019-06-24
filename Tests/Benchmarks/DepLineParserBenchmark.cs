@@ -2,13 +2,22 @@ using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Running;
 using Common;
-using Common.YamlParsers;
 using Common.YamlParsers.Models;
 using Common.YamlParsers.V2;
+using NUnit.Framework;
 
-namespace Benchmarks
+namespace Tests.Benchmarks
 {
+    [TestFixture]
+    [Explicit]
+    public class DepLineParserBenchmarkTest
+    {
+        [Test]
+        public void Test() => BenchmarkRunner.Run<DepLineParserBenchmark>();
+    }
+
     [Config(typeof(Config))]
     public class DepLineParserBenchmark
     {
@@ -24,7 +33,6 @@ namespace Benchmarks
                     StatisticColumn.P100);
             }
         }
-
 
         [ParamsSource(nameof(DepLines))]
         public string DepLine;

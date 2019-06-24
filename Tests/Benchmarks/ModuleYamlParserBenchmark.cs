@@ -1,12 +1,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
 using Common.YamlParsers;
 using Common.YamlParsers.Models;
 using Common.YamlParsers.V2.Factories;
+using NUnit.Framework;
 
-namespace Benchmarks
+namespace Tests.Benchmarks
 {
+    [TestFixture]
+    [Explicit]
+    public class ModuleYamlParserBenchmarkTest
+    {
+        [Test]
+        public void Test() => BenchmarkRunner.Run<ModuleYamlParserBenchmark>();
+    }
+
     public class ModuleYamlParserBenchmark
     {
         [ParamsSource(nameof(Yamls))]
