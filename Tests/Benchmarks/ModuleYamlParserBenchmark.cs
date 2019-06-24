@@ -25,7 +25,7 @@ namespace Tests.Benchmarks
         [Benchmark]
         public ModuleDefinition NewModuleYamlParser()
         {
-            var parser = ModuleYamlParserInstance.Get();
+            var parser = ModuleYamlParserFactory.Get();
             return parser.Parse(Content);
         }
 

@@ -177,7 +177,7 @@
     <Compile Include="YamlParsers\V2\DepsSectionMerger.cs" />
     <Compile Include="YamlParsers\V2\DepsSectionParser.cs" />
     <Compile Include="YamlParsers\V2\Factories\ConfigurationHierarchyFactory.cs" />
-    <Compile Include="YamlParsers\V2\Factories\ModuleYamlParserInstance.cs" />
+    <Compile Include="YamlParsers\V2\Factories\ModuleYamlParserFactory.cs" />
     <Compile Include="YamlParsers\V2\HooksSectionParser.cs" />
     <Compile Include="YamlParsers\V2\InstallSectionMerger.cs" />
     <Compile Include="YamlParsers\V2\InstallSectionParser.cs" />

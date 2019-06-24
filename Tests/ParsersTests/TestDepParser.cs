@@ -200,7 +200,7 @@ client:
         - -C
         - C
         - A";
-            Assert.Throws<BadYamlException>(() => ModuleYamlParserInstance.Get().Parse(text));
+            Assert.Throws<BadYamlException>(() => ModuleYamlParserFactory.Get().Parse(text));
         }
 
         [Test]
@@ -399,7 +399,7 @@ config3 > config2,config1:
         {
             var a = YamlFromText.DepsParser(text).Get(config);
 
-            var md = ModuleYamlParserInstance.Get().Parse(text);
+            var md = ModuleYamlParserFactory.Get().Parse(text);
             var configName = string.IsNullOrEmpty(config) ? md.GetDefaultConfiguration().Name : config;
 
             var b = md.AllConfigurations[configName].Deps;

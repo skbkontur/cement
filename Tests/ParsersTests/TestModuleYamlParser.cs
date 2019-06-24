@@ -35,7 +35,7 @@ namespace Tests.ParsersTests
         [TestCaseSource(nameof(Source))]
         public void ModuleYamlParserDoesNotThrow(string path)
         {
-            var parser = ModuleYamlParserInstance.Get();
+            var parser = ModuleYamlParserFactory.Get();
             var text = pathToContentMap[path];
 
             Assert.DoesNotThrow(() => parser.Parse(text));
@@ -67,7 +67,7 @@ namespace Tests.ParsersTests
         public void EnsureEquivalentConfigurations(string path)
         {
             var text = pathToContentMap[path];
-            var parser = ModuleYamlParserInstance.Get();
+            var parser = ModuleYamlParserFactory.Get();
             var depsSectionParser = new DepsYamlParser("fake", text);
 
             var md = parser.Parse(text);
@@ -86,7 +86,7 @@ namespace Tests.ParsersTests
         public void EnsureEquivalentDeps(string path)
         {
             var text = pathToContentMap[path];
-            var parser = ModuleYamlParserInstance.Get();
+            var parser = ModuleYamlParserFactory.Get();
             var depsSectionParser = new DepsYamlParser("fake", text);
 
             var md = parser.Parse(text);
@@ -105,7 +105,7 @@ namespace Tests.ParsersTests
         public void EnsureEquivalentInstallSections(string path)
         {
             var text = pathToContentMap[path];
-            var parser = ModuleYamlParserInstance.Get();
+            var parser = ModuleYamlParserFactory.Get();
             var installYamlParser = new InstallYamlParser("fake", text);
 
             var md = parser.Parse(text);
@@ -127,7 +127,7 @@ namespace Tests.ParsersTests
         public void EnsureEquivalentBuildSections(string path)
         {
             var text = pathToContentMap[path];
-            var parser = ModuleYamlParserInstance.Get();
+            var parser = ModuleYamlParserFactory.Get();
             var buildYamlParser = new BuildYamlParser("fake", text);
 
             var md = parser.Parse(text);
@@ -153,7 +153,7 @@ namespace Tests.ParsersTests
         public void EnsureEquivalentHooks(string path)
         {
             var text = pathToContentMap[path];
-            var parser = ModuleYamlParserInstance.Get();
+            var parser = ModuleYamlParserFactory.Get();
             var hooksYamlParser = new HooksYamlParser("fake", text);
             var md = parser.Parse(text);
 
@@ -167,7 +167,7 @@ namespace Tests.ParsersTests
         public void EnsureEquivalentSettings(string path)
         {
             var text = pathToContentMap[path];
-            var parser = ModuleYamlParserInstance.Get();
+            var parser = ModuleYamlParserFactory.Get();
             var settingsYamlParser = new SettingsYamlParser("fake", text);
             var md = parser.Parse(text);
 
