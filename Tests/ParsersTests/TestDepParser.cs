@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Common;
+using Common.YamlParsers;
+using Common.YamlParsers.V2.Factories;
+using FluentAssertions;
 using NUnit.Framework;
 using Tests.Helpers;
 
@@ -19,7 +22,7 @@ default:
         - A
         - B
 client:";
-            var depsContent = YamlFromText.DepsParser(text).Get("client");
+            var depsContent = GetDepsContent(text, "client");
             Assert.AreEqual("master", depsContent.Force.Single());
             Assert.AreEqual(2, depsContent.Deps.Count);
             Assert.AreEqual("A", depsContent.Deps[0].Name);
@@ -36,7 +39,7 @@ default:
         - A
         - B
 client:";
-            var depsContent = YamlFromText.DepsParser(text).Get("client");
+            var depsContent = GetDepsContent(text, "client");
             CollectionAssert.AreEqual(new[] {"priority", "master"}, depsContent.Force.ToArray());
             Assert.AreEqual(2, depsContent.Deps.Count);
             Assert.AreEqual("A", depsContent.Deps[0].Name);
@@ -53,7 +56,7 @@ default:
         - force: master
         - B
 client:";
-            var depsContent = YamlFromText.DepsParser(text).Get("client");
+            var depsContent = GetDepsContent(text, "client");
             Assert.AreEqual("master", depsContent.Force.Single());
             Assert.AreEqual(2, depsContent.Deps.Count);
             Assert.AreEqual("A", depsContent.Deps[0].Name);
@@ -72,7 +75,7 @@ default:
 client:
     deps:
         - C";
-            var depsContent = YamlFromText.DepsParser(text).Get("client");
+            var depsContent = GetDepsContent(text, "client");
             Assert.AreEqual("master", depsContent.Force.Single());
             Assert.AreEqual(3, depsContent.Deps.Count);
             Assert.AreEqual("A", depsContent.Deps[0].Name);
@@ -92,7 +95,7 @@ sdk > client:
 client:
     deps:
         - C";
-            var depsContent = YamlFromText.DepsParser(text).Get("sdk");
+            var depsContent = GetDepsContent(text, "sdk");
             Assert.AreEqual("master", depsContent.Force.Single());
             Assert.AreEqual(3, depsContent.Deps.Count);
             Assert.AreEqual("C", depsContent.Deps[0].Name);
@@ -114,7 +117,7 @@ client:
 sdk > client:
     deps:
         - D";
-            var depsContent = YamlFromText.DepsParser(text).Get("sdk");
+            var depsContent = GetDepsContent(text, "sdk");
             Assert.IsNull(depsContent.Force);
             Assert.AreEqual("A", depsContent.Deps[0].Name);
             Assert.AreEqual("B", depsContent.Deps[1].Name);
@@ -136,7 +139,7 @@ client:
         - -A
         - A
         - C";
-            var depsContent = YamlFromText.DepsParser(text).Get("client");
+            var depsContent = GetDepsContent(text, "client");
             Assert.AreEqual(2, depsContent.Deps.Count);
             Assert.AreEqual("C", depsContent.Deps[1].Name);
         }
@@ -186,6 +189,21 @@ client:
         }
 
         [Test]
+        public void TestgetDepsRemoveDepRaisesExceptionNoSuchModuleToDelete2()
+        {
+            var text = @"
+default:
+    deps:
+        - A
+client:
+    deps:
+        - -C
+        - C
+        - A";
+            Assert.Throws<BadYamlException>(() => ModuleYamlParserFactory.Get().Parse(text));
+        }
+
+        [Test]
         public void TestGetDepsRemoveDepLongNesting()
         {
             var text = @"
@@ -200,7 +218,7 @@ sdk > client:
     deps:
         - -A/*@*
         - A/full-build@develop";
-            var dc = YamlFromText.DepsParser(text).Get("sdk");
+            var dc = GetDepsContent(text, "sdk");
             Assert.AreEqual(1, dc.Deps.Count);
             Assert.AreEqual("A", dc.Deps[0].Name);
             Assert.AreEqual("full-build", dc.Deps[0].Configuration);
@@ -218,7 +236,7 @@ client:
     deps:
         - -A@develop/client
         - A/sdk";
-            var dc = YamlFromText.DepsParser(text).Get("client");
+            var dc = GetDepsContent(text, "client");
             Assert.AreEqual(1, dc.Deps.Count);
             Assert.AreEqual("A", dc.Deps[0].Name);
             Assert.AreEqual("sdk", dc.Deps[0].Configuration);
@@ -237,7 +255,7 @@ default:
             $CURRENT_BRANCH
 full-build:
     deps:";
-            var dc = YamlFromText.DepsParser(text).Get();
+            var dc = GetDepsContent(text);
             Assert.AreEqual("a -> b\nc -> b\n$CURRENT_BRANCH\n", dc.Force.Single());
         }
 
@@ -260,7 +278,10 @@ sdk > client, client2:
     deps:
         - F
 ";
-            var dc = YamlFromText.DepsParser(text).Get("sdk");
+            // strict ordering = false - don't know how to fix this
+            // old version returns A D E B C F
+            // new version returns A B C D E F
+            var dc = GetDepsContent(text, "sdk", false);
             Assert.AreEqual(6, dc.Deps.Count);
         }
 
@@ -270,14 +291,14 @@ sdk > client, client2:
             var text = @"
 client:
   deps:
-	- force: master
+    - force: master
     - A:
       configuration: sdk
       treeish: branch
       type: src
     - B/full-build
 ";
-            var dc = YamlFromText.DepsParser(text).Get("client");
+            var dc = GetDepsContent(text, "client");
             Assert.AreEqual("master", dc.Force.Single());
             Assert.AreEqual(2, dc.Deps.Count);
             Assert.AreEqual(new Dep("A", "branch", "sdk"), dc.Deps[0]);
@@ -291,13 +312,13 @@ client:
             var text = @"
 client:
   deps:
-	- force: master
+    - force: master
     - A/sdk:
       treeish: branch
       type: bin
     - B/full-build
 ";
-            var dc = YamlFromText.DepsParser(text).Get("client");
+            var dc = GetDepsContent(text, "client");
             Assert.AreEqual("master", dc.Force.Single());
             Assert.AreEqual(2, dc.Deps.Count);
             Assert.AreEqual(new Dep("A", "branch", "sdk"), dc.Deps[0]);
@@ -312,7 +333,7 @@ client:
 client:
   deps:
 ";
-            var dc = YamlFromText.DepsParser(text).Get("client");
+            var dc = GetDepsContent(text, "client");
             Assert.That(dc.Deps.Count == 0);
         }
 
@@ -322,8 +343,77 @@ client:
             var text = @"
 client:
 ";
-            var dc = YamlFromText.DepsParser(text).Get("client");
+            var dc = GetDepsContent(text, "client");
             CollectionAssert.AreEqual(new List<Dep>(), dc.Deps);
+        }
+
+        [Test]
+        public void TestRemovalOfTheDepInOneOfParentConfigurations()
+        {
+            var text = @"
+core:
+  deps:
+    - module/client
+
+config1 > core:
+  deps:
+    - -module/client
+    - module
+
+config2 > core:
+
+config3 > config2,config1:
+";
+            var dc = GetDepsContent(text, "config3");
+            Assert.AreEqual(1, dc.Deps.Count);
+            Assert.AreEqual(new Dep("module", null), dc.Deps[0]);
+        }
+
+        [Test]
+        public void TestNoErrorIfAddedModulesHaveTheSameBranchAndConfiguration()
+        {
+            var text = @"
+config0:
+  deps:
+    - module1
+
+config1 > config0:
+  deps:
+    - module
+    - module1
+
+config2:
+  deps:
+    - module
+
+config3 > config2,config1:
+";
+            var dc = GetDepsContent(text, "config3");
+            Assert.NotNull(dc);
+            Assert.AreEqual(2, dc.Deps.Count);
+            Assert.AreEqual(new Dep("module1", null), dc.Deps[0]);
+            Assert.AreEqual(new Dep("module", null), dc.Deps[1]);
+        }
+
+        private DepsData GetDepsContent(string text, string config = null, bool strictOrdering = true)
+        {
+            var a = YamlFromText.DepsParser(text).Get(config);
+
+            var md = ModuleYamlParserFactory.Get().Parse(text);
+            var configName = string.IsNullOrEmpty(config) ? md.GetDefaultConfiguration().Name : config;
+
+            var b = md.AllConfigurations[configName].Deps;
+
+            if (strictOrdering)
+            {
+                a.Should().BeEquivalentTo(b, o => o.WithStrictOrdering());
+            }
+            else
+            {
+                a.Should().BeEquivalentTo(b);
+            }
+
+            return a;
         }
 
         [Test]

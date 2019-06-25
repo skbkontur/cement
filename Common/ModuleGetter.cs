@@ -146,7 +146,7 @@ namespace Common
             }
         }
 
-        private static DepsContent GetCurrentModuleDeps(Dep dep)
+        private static DepsData GetCurrentModuleDeps(Dep dep)
         {
             Log.Info($"{"[" + dep.Name + "]",-30}Getting deps for configuration {dep.Configuration ?? "full-build"}");
             var deps = new DepsParser(Path.Combine(Helper.CurrentWorkspace, dep.Name)).Get(dep.Configuration);

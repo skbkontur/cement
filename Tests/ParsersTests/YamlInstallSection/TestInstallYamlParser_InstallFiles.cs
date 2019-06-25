@@ -23,14 +23,14 @@ namespace Tests.ParsersTests.YamlInstallSection
 full-build:
 ",
                     new string[0])
-                .SetName("Install section: build files. Single configuration, no install section"),
+                .SetName("Install section: install files. Single configuration, no install section"),
 
             new TestCaseData(@"
 full-build:
   install:
 ",
                     new string[0])
-                .SetName("Install section: build files. Single configuration, empty install section"),
+                .SetName("Install section: install files. Single configuration, empty install section"),
 
             new TestCaseData(@"
 full-build:
@@ -41,7 +41,7 @@ full-build:
                     {
                         "file1"
                     })
-                .SetName("Install section: build files. Single configuration, single build file"),
+                .SetName("Install section: install files. Single configuration, single build file"),
 
             new TestCaseData(@"
 full-build:
@@ -56,7 +56,7 @@ full-build:
                         "file2",
                         "file3",
                     })
-                .SetName("Install section: build files. Single configuration, multiple build files"),
+                .SetName("Install section: install files. Single configuration, multiple install files"),
 
             new TestCaseData(@"
 config1:
@@ -78,7 +78,7 @@ full-build > config1:
                         "file4",
                         "file5",
                     })
-                .SetName("Install section: build files. Two-leveled configuration configuration, multiple build files"),
+                .SetName("Install section: install files. Two-leveled configuration configuration, multiple install files"),
 
             new TestCaseData(@"
 config1:
@@ -107,7 +107,7 @@ full-build > config1,config2:
                         "file6",
                         "file7",
                     })
-                .SetName("Install section: build files. Two-leveled multiple-ancestors configuration configuration, multiple build files"),
+                .SetName("Install section: install files. Two-leveled multiple-ancestors configuration configuration, multiple install files"),
 
 
             new TestCaseData(@"
@@ -144,7 +144,7 @@ full-build > config1,config2:
                         "file8",
                         "file9",
                     })
-                .SetName("Install section: build files. Three-leveled multiple-ancestors configuration configuration, multiple build files"),
+                .SetName("Install section: install files. Three-leveled multiple-ancestors configuration configuration, multiple install files"),
 
             new TestCaseData(@"
 default:
@@ -185,7 +185,7 @@ full-build > config1,config2:
                         "file9",
                         "file10",
                     })
-                .SetName("Install section: build files. Three-leveled multiple-ancestors configuration configuration with 'default' section, multiple build files"),
+                .SetName("Install section: install files. Three-leveled multiple-ancestors configuration configuration with 'default' section, multiple install files"),
 
             new TestCaseData(@"
 default:
@@ -209,7 +209,7 @@ full-build > config1,config2:
     - DuplicatedFile
 ",
                     new[] { "DuplicatedFile" })
-                .SetName("Install section: build files. Three-leveled multiple-ancestors configuration configuration with 'default' section, multiple build files. InstallFiles are not duplicated."),
+                .SetName("Install section: install files. Three-leveled multiple-ancestors configuration configuration with 'default' section, multiple install files. InstallFiles are not duplicated."),
 
 
             new TestCaseData(@"
@@ -219,7 +219,7 @@ full-build:
     - module SomeModule
 ",
                     new string[0] )
-                .SetName("Install section: build files. Nuget and external modules are not considered build files."),
+                .SetName("Install section: install files. Nuget and external modules are not considered install files."),
 
             new TestCaseData(@"
 full-build:
@@ -230,7 +230,7 @@ full-build:
     - file1
 ",
                     new[] { "file1" })
-                .SetName("Install section: build files. InstallFiles collection are not affected by duplicate artifacts (single configuration)."),
+                .SetName("Install section: install files. InstallFiles collection are not affected by duplicate artifacts (single configuration)."),
 
             new TestCaseData(@"
 full-build:
@@ -241,7 +241,7 @@ full-build:
     - file2
 ",
                     new[] { "file1" })
-                .SetName("Install section: build files. InstallFiles does not contain artifacts from current configuration."),
+                .SetName("Install section: install files. InstallFiles does not contain artifacts from current configuration."),
 
             new TestCaseData(@"
 client:
@@ -253,7 +253,7 @@ full-build > client:
     - file1
 ",
                     new[] { "file1" })
-                .SetName("Install section: build files. InstallFiles does not contain artifacts from parent configuration."),
+                .SetName("Install section: install files. InstallFiles does not contain artifacts from parent configuration."),
         };
     }
 }

@@ -28,7 +28,15 @@ full-build:
                 {
                     "Module1"
                 })
-                .SetName("Install section: external modules. Single configuration, single module"),
+                .SetName("Install section: external modules. Single configuration, single module."),
+
+            new TestCaseData(@"
+full-build:
+  artifacts:
+    - module Module1
+",
+                    new string[0])
+                .SetName("Install section. External modules cannot be placed in 'artifacts' section."),
 
             new TestCaseData(@"
 full-build:

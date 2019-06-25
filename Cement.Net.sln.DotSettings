@@ -1,4 +1,4 @@
-<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 
 <s:Boolean x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=FCE5EA7BD6744F80AFDB111FAC1EF81E/@KeyIndexDefined">True</s:Boolean>
 <s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=FCE5EA7BD6744F80AFDB111FAC1EF81E/RelativePath/@EntryValue">..\CSharpCodeStyle.SpaceIndent.DotSettings</s:String>
@@ -14,5 +14,7 @@
 <s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=5C9E196B5B8940B8818661C9228D80BC/RelativePath/@EntryValue">..\CSharpCodeStyle.DotSettings</s:String>
 <s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File5C9E196B5B8940B8818661C9228D80BC/@KeyIndexDefined">True</s:Boolean>
 <s:Double x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File5C9E196B5B8940B8818661C9228D80BC/RelativePriority/@EntryValue">1</s:Double>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=artefacts/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=nugets/@EntryIndexedValue">True</s:Boolean>
 
 </wpf:ResourceDictionary>

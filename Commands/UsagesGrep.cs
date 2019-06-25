@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Common;
+using Common.Extensions;
 
 namespace Commands
 {
@@ -171,7 +172,7 @@ namespace Commands
 
             getter.GetModule();
         }
-        
+
         public override string HelpMessage => @"";
     }
 }

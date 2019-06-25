@@ -51,18 +51,22 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JetBrains.Annotations, Version=2019.1.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325">
+      <HintPath>..\packages\JetBrains.Annotations.2019.1.1\lib\net20\JetBrains.Annotations.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\externals\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="mscorlib" />
     <Reference Include="NDesk.Options">
       <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
     </Reference>
     <Reference Include="NuGet">
       <HintPath>..\packages\NuGet.CommandLine.4.1.0\tools\NuGet.exe</HintPath>
     </Reference>
-    <Reference Include="SharpYaml, Version=1.4.0.35462, Culture=neutral, PublicKeyToken=1ced8108e942bc02, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="SharpYaml, Version=1.6.5.0, Culture=neutral, PublicKeyToken=1ced8108e942bc02">
       <HintPath>..\externals\SharpYaml.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -86,12 +90,16 @@
     <Compile Include="CementExceptions.cs" />
     <Compile Include="CementFromServerUpdater.cs" />
     <Compile Include="CementSettings.cs" />
+    <Compile Include="Extensions\DepsContentExtensions.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\InstallDataExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Graph\GraphHelper.cs" />
     <Compile Include="Graph\ParallelBuilder.cs" />
     <Compile Include="InstallHelper.cs" />
     <Compile Include="Logging\AsyncRollingFileAppender.cs" />
     <Compile Include="Logging\BoundedBuffer.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="ICementUpdater.cs" />
     <Compile Include="CompleteCommandAutomata.cs" />
     <Compile Include="DictionaryFriendlyContractResolver.cs" />
@@ -151,8 +159,31 @@
     <Compile Include="ShellRunner.cs" />
     <Compile Include="TempDirectory.cs" />
     <Compile Include="VisualStudioProjectParser.cs" />
+    <Compile Include="YamlParsers\Models\ConfigSectionTitle.cs" />
+    <Compile Include="YamlParsers\Models\DepSectionItem.cs" />
+    <Compile Include="YamlParsers\Models\ModuleConfig.cs" />
+    <Compile Include="YamlParsers\Models\ModuleDefaults.cs" />
+    <Compile Include="YamlParsers\Models\ModuleDefinition.cs" />
+    <Compile Include="YamlParsers\Models\DepsSection.cs" />
+    <Compile Include="YamlParsers\Models\InstallSection.cs" />
     <Compile Include="YamlParsers\ModuleYamlFile.cs" />
     <Compile Include="YamlParsers\SettingsYamlParser.cs" />
+    <Compile Include="YamlParsers\V2\BuildSectionParser.cs" />
+    <Compile Include="YamlParsers\Models\ConfigSection.cs" />
+    <Compile Include="YamlParsers\V2\ConfigSectionParser.cs" />
+    <Compile Include="YamlParsers\V2\ConfigSectionTitleParser.cs" />
+    <Compile Include="YamlParsers\V2\ConfigurationHierarchy.cs" />
+    <Compile Include="YamlParsers\V2\DepSectionItemParser.cs" />
+    <Compile Include="YamlParsers\V2\DepsSectionMerger.cs" />
+    <Compile Include="YamlParsers\V2\DepsSectionParser.cs" />
+    <Compile Include="YamlParsers\V2\Factories\ConfigurationHierarchyFactory.cs" />
+    <Compile Include="YamlParsers\V2\Factories\ModuleYamlParserFactory.cs" />
+    <Compile Include="YamlParsers\V2\HooksSectionParser.cs" />
+    <Compile Include="YamlParsers\V2\InstallSectionMerger.cs" />
+    <Compile Include="YamlParsers\V2\InstallSectionParser.cs" />
+    <Compile Include="YamlParsers\V2\ModuleDefaultsParser.cs" />
+    <Compile Include="YamlParsers\V2\ModuleYamlParser.cs" />
+    <Compile Include="YamlParsers\V2\SettingsSectionParser.cs" />
     <Compile Include="YamlParsers\Yaml.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -160,7 +191,6 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

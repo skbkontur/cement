@@ -35,7 +35,7 @@ namespace Tests.Helpers
             Helper.SetWorkspace(WorkingDirectory.Path);
         }
 
-        public void CreateRepo(string moduleName, Dictionary<string, DepsContent> depsByConfig = null, IList<string> branches = null, DepsFormatStyle depsStyle = DepsFormatStyle.Yaml, string pushUrl = null)
+        public void CreateRepo(string moduleName, Dictionary<string, DepsData> depsByConfig = null, IList<string> branches = null, DepsFormatStyle depsStyle = DepsFormatStyle.Yaml, string pushUrl = null)
         {
             var modulePath = Path.Combine(RemoteWorkspace, moduleName);
             using (new DirectoryJumper(modulePath))
@@ -88,7 +88,7 @@ namespace Tests.Helpers
             }
         }
 
-        public void CreateDepsAndCommitThem(string path, Dictionary<string, DepsContent> depsByConfig, DepsFormatStyle depsStyle = DepsFormatStyle.Yaml)
+        public void CreateDepsAndCommitThem(string path, Dictionary<string, DepsData> depsByConfig, DepsFormatStyle depsStyle = DepsFormatStyle.Yaml)
         {
             if (depsStyle == DepsFormatStyle.Yaml)
                 CreateDepsYamlStyle(path, depsByConfig);
@@ -96,7 +96,7 @@ namespace Tests.Helpers
                 CreateDepsIniStyle(path, depsByConfig);
         }
 
-        private void CreateDepsYamlStyle(string path, Dictionary<string, DepsContent> depsByConfig)
+        private void CreateDepsYamlStyle(string path, Dictionary<string, DepsData> depsByConfig)
         {
             if (depsByConfig == null)
                 return;
@@ -136,7 +136,7 @@ full-build:
             runner.Run("git commit -am \"added deps\"");
         }
 
-        private void CreateDepsIniStyle(string path, Dictionary<string, DepsContent> depsByConfig)
+        private void CreateDepsIniStyle(string path, Dictionary<string, DepsData> depsByConfig)
         {
             if (depsByConfig == null)
                 return;
@@ -274,9 +274,9 @@ force = " + string.Join(",", depsByConfig[config].Force) + "\r\n"
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
                 });
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")));
                 Assert.AreEqual(@"default:
@@ -295,10 +295,10 @@ full-build:
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})},
-                    {"client", new DepsContent(null, new List<Dep> {new Dep("C")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
+                    {"client", new DepsData(null, new List<Dep> {new Dep("C")})}
                 });
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")));
                 Assert.AreEqual(@"default:
@@ -324,9 +324,9 @@ full-build:
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
                 }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps")));
                 Assert.AreEqual(@"[module B]
@@ -339,9 +339,9 @@ full-build:
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})}
                 }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps")));
                 Assert.AreEqual(@"[module B]
@@ -360,10 +360,10 @@ configuration = sdk
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
                     {"full-build", null},
-                    {"client", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                    {"client", new DepsData(null, new List<Dep> {new Dep("B")})}
                 }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")));
@@ -376,10 +376,10 @@ configuration = sdk
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
                     {"full-build", null},
-                    {"*client", new DepsContent(null, new List<Dep> {new Dep("B")})}
+                    {"*client", new DepsData(null, new List<Dep> {new Dep("B")})}
                 }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")));
@@ -393,10 +393,10 @@ configuration = sdk
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})},
-                    {"client", new DepsContent(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})},
+                    {"client", new DepsData(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})}
                 }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
                 Assert.AreEqual(@"[module B]

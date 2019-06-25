@@ -10,6 +10,10 @@ namespace Common.YamlParsers
         {
         }
 
+        public SettingsYamlParser(string moduleName, string text): base(moduleName, text)
+        {
+        }
+
         public ModuleSettings Get()
         {
             try

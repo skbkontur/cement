@@ -57,23 +57,23 @@ namespace Tests.BuildTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C", null, "client")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C", null, "client")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("D")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("D")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("D")})},
-                    {"client", new DepsContent(null, new List<Dep> {new Dep("D", null, "client")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("D")})},
+                    {"client", new DepsData(null, new List<Dep> {new Dep("D", null, "client")})}
                 });
-                env.CreateRepo("D", new Dictionary<string, DepsContent>
+                env.CreateRepo("D", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep>())},
-                    {"client", new DepsContent(null, new List<Dep>())}
+                    {"full-build *default", new DepsData(null, new List<Dep>())},
+                    {"client", new DepsData(null, new List<Dep>())}
                 });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var result = BuildPreparer.BuildConfigsGraph("A", null);
@@ -91,18 +91,18 @@ namespace Tests.BuildTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C", null, "client")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C", null, "client")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("C")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("C")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build > client *default", new DepsContent(null, new List<Dep>())},
-                    {"client", new DepsContent(null, new List<Dep>())}
+                    {"full-build > client *default", new DepsData(null, new List<Dep>())},
+                    {"client", new DepsData(null, new List<Dep>())}
                 });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
@@ -122,22 +122,22 @@ namespace Tests.BuildTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
                 });
-                env.CreateRepo("B", new Dictionary<string, DepsContent>
+                env.CreateRepo("B", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("X", null, "client")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("X", null, "client")})}
                 });
-                env.CreateRepo("C", new Dictionary<string, DepsContent>
+                env.CreateRepo("C", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("X"), new Dep("B")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("X"), new Dep("B")})}
                 });
-                env.CreateRepo("X", new Dictionary<string, DepsContent>
+                env.CreateRepo("X", new Dictionary<string, DepsData>
                 {
-                    {"full-build > client *default", new DepsContent(null, new List<Dep>())},
-                    {"client", new DepsContent(null, new List<Dep>())}
+                    {"full-build > client *default", new DepsData(null, new List<Dep>())},
+                    {"client", new DepsData(null, new List<Dep>())}
                 });
 
                 Helper.SetWorkspace(env.RemoteWorkspace);
@@ -165,14 +165,14 @@ namespace Tests.BuildTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build *default", new DepsContent(null, new List<Dep> {new Dep("X", null, "client")})}
+                    {"full-build *default", new DepsData(null, new List<Dep> {new Dep("X", null, "client")})}
                 });
-                env.CreateRepo("X", new Dictionary<string, DepsContent>
+                env.CreateRepo("X", new Dictionary<string, DepsData>
                 {
-                    {"full-build > client *default", new DepsContent(null, new List<Dep>())},
-                    {"client", new DepsContent(null, new List<Dep>())}
+                    {"full-build > client *default", new DepsData(null, new List<Dep>())},
+                    {"client", new DepsData(null, new List<Dep>())}
                 });
 
                 Helper.SetWorkspace(env.RemoteWorkspace);
@@ -192,14 +192,14 @@ namespace Tests.BuildTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"client", new DepsContent(null, new List<Dep>())},
-                    {"full-build > client *default", new DepsContent(null, new List<Dep> {new Dep("X")})}
+                    {"client", new DepsData(null, new List<Dep>())},
+                    {"full-build > client *default", new DepsData(null, new List<Dep> {new Dep("X")})}
                 });
-                env.CreateRepo("X", new Dictionary<string, DepsContent>
+                env.CreateRepo("X", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("A", null, "client")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "client")})}
                 });
 
                 Helper.SetWorkspace(env.RemoteWorkspace);
@@ -222,25 +222,25 @@ namespace Tests.BuildTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsContent>
+                env.CreateRepo("A", new Dictionary<string, DepsData>
                 {
-                    {"full-build", new DepsContent(null, new List<Dep> {new Dep("C1"), new Dep("C2"), new Dep("C3"), new Dep("P1")})}
+                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C1"), new Dep("C2"), new Dep("C3"), new Dep("P1")})}
                 });
-                env.CreateRepo("C1", new Dictionary<string, DepsContent>
-                    {{"full-build", new DepsContent(null, new List<Dep> {new Dep("X/child1")})}});
-                env.CreateRepo("C2", new Dictionary<string, DepsContent>
-                    {{"full-build", new DepsContent(null, new List<Dep> {new Dep("X/child2")})}});
-                env.CreateRepo("C3", new Dictionary<string, DepsContent>
-                    {{"full-build", new DepsContent(null, new List<Dep> {new Dep("X/child3")})}});
-                env.CreateRepo("P1", new Dictionary<string, DepsContent>
-                    {{"full-build", new DepsContent(null, new List<Dep> {new Dep("X/parent1")})}});
-                env.CreateRepo("X", new Dictionary<string, DepsContent>
+                env.CreateRepo("C1", new Dictionary<string, DepsData>
+                    {{"full-build", new DepsData(null, new List<Dep> {new Dep("X/child1")})}});
+                env.CreateRepo("C2", new Dictionary<string, DepsData>
+                    {{"full-build", new DepsData(null, new List<Dep> {new Dep("X/child2")})}});
+                env.CreateRepo("C3", new Dictionary<string, DepsData>
+                    {{"full-build", new DepsData(null, new List<Dep> {new Dep("X/child3")})}});
+                env.CreateRepo("P1", new Dictionary<string, DepsData>
+                    {{"full-build", new DepsData(null, new List<Dep> {new Dep("X/parent1")})}});
+                env.CreateRepo("X", new Dictionary<string, DepsData>
                 {
-                    {"child1", new DepsContent(null, new List<Dep>())},
-                    {"child2 > child1", new DepsContent(null, new List<Dep>())},
-                    {"child3 > child1", new DepsContent(null, new List<Dep>())},
-                    {"parent1 > child1, child2", new DepsContent(null, new List<Dep>())},
-                    {"parent2 > parent1, child3", new DepsContent(null, new List<Dep>())}
+                    {"child1", new DepsData(null, new List<Dep>())},
+                    {"child2 > child1", new DepsData(null, new List<Dep>())},
+                    {"child3 > child1", new DepsData(null, new List<Dep>())},
+                    {"parent1 > child1, child2", new DepsData(null, new List<Dep>())},
+                    {"parent2 > parent1, child3", new DepsData(null, new List<Dep>())}
                 });
 
                 Helper.SetWorkspace(env.RemoteWorkspace);
