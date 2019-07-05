@@ -144,7 +144,7 @@ namespace Common
 
         public static void KillMsBuild(ILog log)
         {
-            if (!CementSettings.Get().KillMsBuild)
+            if (!CementSettings.Get().KillMsBuild || Rider.IsRunning)
                 return;
 
             try
