@@ -88,7 +88,7 @@ namespace Common.Graph
 
                 foreach (var module in waiting)
                 {
-                    if (building.Any(m => graph[m].Any(d => d.Name == module.Name)))
+                    if (building.Any(m => m.Name == module.Name || graph[m].Any(d => d.Name == module.Name)))
                         continue;
 
                     var deps = graph[module];
