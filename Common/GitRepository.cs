@@ -3,27 +3,33 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
+using JetBrains.Annotations;
 using log4net;
 
 namespace Common
 {
-    public class GitRepository
+    public enum TreeishType
     {
-        public string RepoPath { get; }
-        public string Workspace { get; }
-        public string ModuleName { get; }
+        Branch,
+        Tag,
+        CommitHash
+    }
+
+    [PublicAPI]
+    public sealed class GitRepository
+    {
         private readonly ShellRunner runner;
-        public bool IsGitRepo { get; private set; }
-        private static ILog log;
-        private IList<Branch> RemoteBranches { get; set; }
+        private readonly ILog log;
 
         public GitRepository(string moduleName, string workspace, ILog log)
         {
             ModuleName = moduleName;
             Workspace = workspace;
             RepoPath = Path.Combine(workspace, moduleName);
-            GitRepository.log = log;
-            runner = new ShellRunner(GitRepository.log);
+
+            this.log = log;
+            runner = new ShellRunner(log);
             IsGitRepo = Directory.Exists(Path.Combine(workspace, moduleName, ".git"));
         }
 
@@ -41,20 +47,48 @@ namespace Common
             return runner.Output.Contains("refs/heads");
         }
 
-        public void Clone(string url, string treeish = null)
+        public string RepoPath { get; }
+        public string Workspace { get; }
+        public string ModuleName { get; }
+        public bool IsGitRepo { get; private set; }
+
+        public GitSubmodule Submodule => new GitSubmodule(log, this, runner);
+
+        public void Clone(string url, string branch = null, int depth = -1, bool recursive = true)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Cloning treeish {treeish ?? "master"} into {RepoPath}");
-            var treeishSuffix = "-b " + (treeish ?? "master");
-            var cmd = $"git clone {url} {treeishSuffix} \"{RepoPath}\" 2>&1";
-            var exitCode = runner.Run(cmd, TimeSpan.FromMinutes(60), RetryStrategy.IfTimeoutOrFailed);
+            log.Info($"{"[" + ModuleName + "]",-30}Cloning branch {branch} into {RepoPath}");
+
+            var commandBuilder = new StringBuilder("git clone");
+
+            if (recursive)
+                commandBuilder.Append(" --recursive");
+
+            if (!string.IsNullOrWhiteSpace(branch))
+                commandBuilder.AppendFormat(" --branch {0}", branch);
+
+            if (depth > 0)
+                commandBuilder.AppendFormat(" --depth {0}", depth);
+
+            commandBuilder.Append(" --");
+            commandBuilder.AppendFormat(" {0}", url);
+            commandBuilder.AppendFormat(" \"{0}\"", RepoPath);
+            commandBuilder.Append(" 2>&1");
+
+            var command = commandBuilder.ToString();
+
+            log.Debug($"{"[" + ModuleName + "]",-30}command: '{command}'");
+
+            var exitCode = runner.Run(command, TimeSpan.FromMinutes(60), RetryStrategy.IfTimeoutOrFailed);
             if (exitCode != 0)
             {
-                throw new GitCloneException($"Failed to clone {url}:{treeish}. Error message:{runner.Output}");
+                throw new GitCloneException($"Failed to clone {url}:{branch}. Error message:{runner.Output}");
             }
+
             if (!Directory.Exists(Path.Combine(RepoPath, ".git")))
             {
-                throw new GitCloneException($"Failed to clone {url}:{treeish}. Probably you don't have access to remote repository.");
+                throw new GitCloneException($"Failed to clone {url}:{branch}. Probably you don't have access to remote repository.");
             }
+
             IsGitRepo = true;
             RemoteBranches = GetRemoteBranches();
         }
@@ -68,10 +102,12 @@ namespace Common
             {
                 throw new GitInitException("Failed to init. Error message:\n" + runner.Errors);
             }
+
             if (!Directory.Exists(Path.Combine(RepoPath, ".git")))
             {
                 throw new GitInitException("Failed to init repository. Probably you don't have access to remote repository.");
             }
+
             IsGitRepo = true;
         }
 
@@ -170,18 +206,7 @@ namespace Common
         {
             Fetch("");
             Merge("origin/" + treeish);
-        }
-
-        private void Merge(string treeish)
-        {
-            log.Info($"{"[" + ModuleName + "]",-30}Merge --ff-only '{treeish}'");
-            var exitCode = runner.RunInDirectory(RepoPath, "git merge --ff-only " + treeish, TimeSpan.FromMinutes(60));
-
-            if (exitCode != 0)
-            {
-                throw new GitPullException(
-                    $"Failed to fast-forward pull in {RepoPath} for branch {treeish}. Error message:\n{runner.Errors}");
-            }
+            Submodule.Update();
         }
 
         public bool HasRemoteBranch(string branch)
@@ -215,7 +240,8 @@ namespace Common
             log.Info($"{"[" + ModuleName + "]",-30}Rewrite file from remote {branch}:{shortPath}");
 
             shortPath = shortPath.Replace(Path.DirectorySeparatorChar.ToString(), "/");
-            var exitCode = runner.RunInDirectory(RepoPath,
+            var exitCode = runner.RunInDirectory(
+                RepoPath,
                 $"git show origin/{branch}:{shortPath} > {destination}");
 
             if (exitCode != 0)
@@ -255,17 +281,6 @@ namespace Common
 
             var lines = runner.Output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
             return lines.Select(l => l.Replace("*", "").Trim()).ToArray();
-        }
-
-        private void RemoveOrigin()
-        {
-            log.Info($"{"[" + ModuleName + "]",-30}Remove origin");
-            var exitCode = runner.RunInDirectory(RepoPath, "git remote rm origin ");
-
-            if (exitCode != 0)
-            {
-                throw new GitCheckoutException($"Failed to remove in {ModuleName}. Error message:\n{runner.Errors}");
-            }
         }
 
         public void AddOrigin(string url)
@@ -343,10 +358,8 @@ namespace Common
             return branches.Select(s => new Branch(s)).Where(b => b.Name != null).ToList();
         }
 
-        public bool HasLocalBranch(string branch)
-        {
-            return LocalBranches().Contains(branch);
-        }
+        public bool HasLocalBranch(string branch) =>
+            LocalBranches().Contains(branch);
 
         public bool IsKnownRemoteBranch(string branch)
         {
@@ -375,7 +388,8 @@ namespace Common
         {
             log.Info($"{"[" + ModuleName + "]",-30}Fast forward pull allowed for {treeish}");
             Fetch(treeish);
-            var exitCode = runner.RunInDirectory(RepoPath,
+            var exitCode = runner.RunInDirectory(
+                RepoPath,
                 $"git merge-base {treeish} {"origin/" + treeish}");
 
             if (exitCode != 0)
@@ -414,7 +428,8 @@ namespace Common
 
             var lines = runner.Output
                 .Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
-                .Select(line => line.Trim()).ToList();
+                .Select(line => line.Trim())
+                .ToList();
 
             var linesWithFetch = lines.Where(l => l.StartsWith("origin") && l.EndsWith("(fetch)")).ToList();
             fetchUrl = linesWithFetch.Any() ? linesWithFetch.First().Split().ElementAt(1) : "";
@@ -481,7 +496,8 @@ namespace Common
         {
             log.Info($"{"[" + ModuleName + "]",-30}git commit {args.Aggregate("", (x, y) => x + " \"" + y + "\"")}");
 
-            var exitCode = runner.RunInDirectory(RepoPath,
+            var exitCode = runner.RunInDirectory(
+                RepoPath,
                 "git commit" + args.Aggregate("", (x, y) => x + " \"" + y + "\""));
 
             if (exitCode != 0)
@@ -494,7 +510,8 @@ namespace Common
         {
             log.Info($"{"[" + ModuleName + "]",-30}Show unpushed commits");
 
-            var exitCode = runner.RunInDirectory(RepoPath,
+            var exitCode = runner.RunInDirectory(
+                RepoPath,
                 "git log --branches --not --remotes=origin --simplify-by-decoration --decorate --oneline");
 
             if (exitCode != 0)
@@ -516,6 +533,31 @@ namespace Common
                 throw new GitPushException($"Failed to push {RepoPath}:{branch}. Error:\n{runner.Output + runner.Errors}");
             }
         }
+
+        private IList<Branch> RemoteBranches { get; set; }
+
+        private void Merge(string treeish)
+        {
+            log.Info($"{"[" + ModuleName + "]",-30}Merge --ff-only '{treeish}'");
+            var exitCode = runner.RunInDirectory(RepoPath, "git merge --ff-only " + treeish, TimeSpan.FromMinutes(60));
+
+            if (exitCode != 0)
+            {
+                throw new GitPullException(
+                    $"Failed to fast-forward pull in {RepoPath} for branch {treeish}. Error message:\n{runner.Errors}");
+            }
+        }
+
+        private void RemoveOrigin()
+        {
+            log.Info($"{"[" + ModuleName + "]",-30}Remove origin");
+            var exitCode = runner.RunInDirectory(RepoPath, "git remote rm origin ");
+
+            if (exitCode != 0)
+            {
+                throw new GitCheckoutException($"Failed to remove in {ModuleName}. Error message:\n{runner.Errors}");
+            }
+        }
     }
 
     public class CurrentTreeish
@@ -530,16 +572,10 @@ namespace Common
         }
     }
 
-    public enum TreeishType
-    {
-        Branch,
-        Tag,
-        CommitHash
-    }
-
     public class GitCommitException : CementException
     {
-        public GitCommitException(string s) : base(s)
+        public GitCommitException(string s)
+            : base(s)
         {
         }
     }
@@ -554,28 +590,32 @@ namespace Common
 
     public class GitRemoteException : CementException
     {
-        public GitRemoteException(string message) : base(message)
+        public GitRemoteException(string message)
+            : base(message)
         {
         }
     }
 
     public class GitBranchException : CementException
     {
-        public GitBranchException(string message) : base(message)
+        public GitBranchException(string message)
+            : base(message)
         {
         }
     }
 
     public class GitInitException : CementException
     {
-        public GitInitException(string format) : base(format)
+        public GitInitException(string format)
+            : base(format)
         {
         }
     }
 
     public class GitCloneException : CementException
     {
-        public GitCloneException(string message) : base(message)
+        public GitCloneException(string message)
+            : base(message)
         {
         }
     }

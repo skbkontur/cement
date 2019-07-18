@@ -90,11 +90,16 @@
     <Compile Include="CementExceptions.cs" />
     <Compile Include="CementFromServerUpdater.cs" />
     <Compile Include="CementSettings.cs" />
+    <Compile Include="Exceptions\GitSubmoduleAddException.cs" />
+    <Compile Include="Exceptions\GitSubmoduleException.cs" />
+    <Compile Include="Exceptions\GitSubmoduleInitException.cs" />
+    <Compile Include="Exceptions\GitSubmoduleUpdateException.cs" />
     <Compile Include="Extensions\DepsContentExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\InstallDataExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="GitSubmodule.cs" />
     <Compile Include="Graph\GraphHelper.cs" />
     <Compile Include="Graph\ParallelBuilder.cs" />
     <Compile Include="InstallHelper.cs" />
