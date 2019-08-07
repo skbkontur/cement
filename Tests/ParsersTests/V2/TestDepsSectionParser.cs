@@ -63,7 +63,7 @@ namespace Tests.ParsersTests.V2
 ",
                     new DepsData(null, new List<Dep>()
                     {
-                        new Dep("module.a", "somebranch", "client") { NeedSrc = true },
+                        new Dep("module.a", "somebranch", "client"),
                         new Dep("module.b", null, null),
                         new Dep("module.c", null, null)
                     }))

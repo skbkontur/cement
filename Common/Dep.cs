@@ -13,7 +13,6 @@ namespace Common
         public string Name { get; }
         public string Treeish { get; set; }
         public string Configuration { get; set; }
-        public bool NeedSrc { get; set; }
         private static readonly ConcurrentDictionary<string, string> DepDefaultConfigurationCache = new ConcurrentDictionary<string, string>();
 
         public Dep(string name, string treeish = null, string configuration = null)

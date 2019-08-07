@@ -119,11 +119,6 @@ namespace Common
                     continue;
 
                 queue.AddRange(currentModuleDeps.Deps.Where(d => !processed.IsProcessed(d))
-                    .Select(d =>
-                    {
-                        d.NeedSrc = processed.IsNeedSrc(d.Name);
-                        return d;
-                    })
                     .Select(d => new DepWithParent(d, dep.Dep.Name)).ToList());
             }
         }
@@ -140,8 +135,6 @@ namespace Common
                     queue.AddRange(processed.GetConfigsByName(dep.Dep.Name).Select(c =>
                         new DepWithParent(new Dep(dep.Dep.Name, null, c), dep.ParentModule)).ToList());
                 }
-                if (dep.Dep.NeedSrc)
-                    processed.SetNeedSrc(dep.Dep.Name);
                 processed.Add(dep);
             }
         }

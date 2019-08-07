@@ -57,13 +57,9 @@ namespace Common.YamlParsers.V2
                             var rawName = mapping.First(c => string.IsNullOrWhiteSpace(c.Value)).Key;
                             var parsedName = depSectionItemParser.Parse(rawName);
                             var treeish = FindValue(mapping, "treeish", parsedName.Dependency.Treeish);
-                            var type = FindValue(mapping, "type", null);
                             var configuration = FindValue(mapping, "configuration", parsedName.Dependency.Configuration);
 
-                            var dep = new Dep(parsedName.Dependency.Name, treeish, configuration)
-                            {
-                                NeedSrc = type == "src"
-                            };
+                            var dep = new Dep(parsedName.Dependency.Name, treeish, configuration);
                             deps.Add(new DepSectionItem(parsedName.IsRemoved, dep));
                         }
 

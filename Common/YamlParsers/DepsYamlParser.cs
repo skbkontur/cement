@@ -179,19 +179,16 @@ sdk:
         private static Dep GetDepFromDictFormat(Dictionary<object, object> dict)
         {
             string name = null, treeish = null, configuration = null;
-            var src = false;
             foreach (var kvp in dict)
             {
                 if ((string) kvp.Key == "treeish")
                     treeish = (string) kvp.Value;
                 if ((string) kvp.Key == "configuration")
                     configuration = (string) kvp.Value;
-                if ((string) kvp.Key == "type" && (string) kvp.Value == "src")
-                    src = true;
                 if ((string) kvp.Value == "")
                     name = (string) kvp.Key;
             }
-            var dep = new Dep(name) {NeedSrc = src};
+            var dep = new Dep(name);
             if (configuration != null)
                 dep.Configuration = configuration;
             if (treeish != null)

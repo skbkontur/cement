@@ -61,14 +61,12 @@ namespace Common
         private readonly Dictionary<string, IList<DepWithParent>> container;
         private readonly Dictionary<string, IList<string>> proceedConfigs;
         private readonly Dictionary<string, string> currentTreeish;
-        private readonly HashSet<string> needSrc;
-
+        
         public ModulesContainer()
         {
             container = new Dictionary<string, IList<DepWithParent>>();
             proceedConfigs = new Dictionary<string, IList<string>>();
             currentTreeish = new Dictionary<string, string>();
-            needSrc = new HashSet<string>();
         }
 
         public void AddConfig(string moduleName, string config)
@@ -122,16 +120,6 @@ namespace Common
         {
             if (container.ContainsKey(depWithParent.Dep.Name))
                 TreeishManager.ThrowOnTreeishConflict(depWithParent, container[depWithParent.Dep.Name]);
-        }
-
-        public void SetNeedSrc(string moduleName)
-        {
-            needSrc.Add(moduleName);
-        }
-
-        public bool IsNeedSrc(string moduleName)
-        {
-            return needSrc.Contains(moduleName);
         }
     }
 

@@ -295,14 +295,12 @@ client:
     - A:
       configuration: sdk
       treeish: branch
-      type: src
     - B/full-build
 ";
             var dc = GetDepsContent(text, "client");
             Assert.AreEqual("master", dc.Force.Single());
             Assert.AreEqual(2, dc.Deps.Count);
             Assert.AreEqual(new Dep("A", "branch", "sdk"), dc.Deps[0]);
-            Assert.IsTrue(dc.Deps[0].NeedSrc);
             Assert.AreEqual(new Dep("B", null, "full-build"), dc.Deps[1]);
         }
 
@@ -315,14 +313,12 @@ client:
     - force: master
     - A/sdk:
       treeish: branch
-      type: bin
     - B/full-build
 ";
             var dc = GetDepsContent(text, "client");
             Assert.AreEqual("master", dc.Force.Single());
             Assert.AreEqual(2, dc.Deps.Count);
             Assert.AreEqual(new Dep("A", "branch", "sdk"), dc.Deps[0]);
-            Assert.IsFalse(dc.Deps[0].NeedSrc);
             Assert.AreEqual(new Dep("B", null, "full-build"), dc.Deps[1]);
         }
 
