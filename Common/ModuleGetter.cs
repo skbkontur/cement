@@ -15,6 +15,7 @@ namespace Common
         private readonly LocalChangesPolicy userLocalChangesPolicy;
         private bool errorOnMerge;
         private readonly bool localBranchForce;
+        private readonly int? gitDepth;
         private readonly bool verbose;
         private static readonly ILog Log = new PrefixAppender("MODULE-GETTER", LogManager.GetLogger(typeof(ModuleGetter)));
         private readonly string mergedBranch;
@@ -23,12 +24,13 @@ namespace Common
 
         public ModuleGetter(List<Module> modules, Dep rootModule,
             LocalChangesPolicy userLocalChangesPolicy,
-            string mergedBranch, bool verbose = false, bool localBranchForce = false)
+            string mergedBranch, bool verbose = false, bool localBranchForce = false, int? gitDepth = null)
         {
             this.modules = modules;
             this.rootModule = rootModule;
             this.userLocalChangesPolicy = userLocalChangesPolicy;
             this.localBranchForce = localBranchForce;
+            this.gitDepth = gitDepth;
             this.verbose = verbose;
             this.mergedBranch = mergedBranch;
         }
@@ -191,26 +193,26 @@ namespace Common
             WarnIfNotMerged(repo);
         }
 
-        private static void CloneInNotEmptyFolder(Module module, GitRepository repo)
+        private void CloneInNotEmptyFolder(Module module, GitRepository repo)
         {
             repo.Init();
             repo.AddOrigin(module.Url);
             if (module.Pushurl != null)
                 repo.SetPushUrl(module.Pushurl);
-            repo.Fetch("");
+            repo.Fetch("", gitDepth);
             repo.ResetHard("master");
             repo.DeleteUntrackedFiles();
         }
 
-        private static void CloneInEmptyFolder(Dep dep, Module module, GitRepository repo)
+        private void CloneInEmptyFolder(Dep dep, Module module, GitRepository repo)
         {
             if (GitRepository.HasRemoteBranch(module.Url, dep.Treeish))
             {
-                repo.Clone(module.Url, dep.Treeish);
+                repo.Clone(module.Url, dep.Treeish, gitDepth);
             }
             else
             {
-                repo.Clone(module.Url);
+                repo.Clone(module.Url, depth:gitDepth);
             }
 
             if (module.Pushurl != null)
@@ -345,10 +347,7 @@ namespace Common
             {
                 Log.Info($"{"[" + dep.Name + "]",-30}doesn't have local branch '{treeish}'");
                 ConsoleWriter.WriteProgress(dep.Name + " fetch " + treeish);
-                if (repo.HasRemoteBranch(treeish))
-                    repo.Fetch(treeish);
-                else
-                    repo.Fetch("");
+                repo.Fetch(repo.HasRemoteBranch(treeish) ? treeish : "", gitDepth);
                 ConsoleWriter.WriteProgress(dep.Name + " checkout " + treeish);
                 repo.Checkout(treeish);
             }

@@ -11,6 +11,7 @@ namespace Commands
         private LocalChangesPolicy policy;
         private bool localBranchForce;
         private bool verbose;
+        private int? gitDepth;
 
         public UpdateDeps()
             : base(new CommandSettings
@@ -33,6 +34,7 @@ namespace Commands
             localBranchForce = (bool) parsedArgs["localBranchForce"];
             verbose = (bool) parsedArgs["verbose"];
             policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+            gitDepth = (int?)parsedArgs["gitDepth"];
         }
 
         protected override int Execute()
@@ -58,7 +60,8 @@ namespace Commands
                 policy,
                 mergedBranch,
                 verbose,
-                localBranchForce);
+                localBranchForce,
+                gitDepth: gitDepth);
 
             getter.GetDeps();
 
@@ -85,6 +88,8 @@ namespace Commands
         --allow-local-branch-force  allows forcing local-only branches
 
         -v/--verbose                show commit info for deps
+
+        --git-depth <depth>         adds '--depth <depth>' flag to git commands
 
     Example:
         cm update-deps -r --progress

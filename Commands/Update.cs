@@ -8,6 +8,7 @@ namespace Commands
         private string treeish = "master";
         private bool verbose;
         private LocalChangesPolicy policy;
+        private int? gitDepth;
 
         public Update()
             : base(new CommandSettings
@@ -35,7 +36,8 @@ namespace Commands
                 new Dep(module, treeish),
                 policy,
                 null,
-                verbose);
+                verbose,
+                gitDepth: gitDepth);
 
             getter.GetModule();
 
@@ -48,6 +50,7 @@ namespace Commands
             treeish = (string) parsedArgs["treeish"];
             verbose = (bool) parsedArgs["verbose"];
             policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+            gitDepth = (int?)parsedArgs["gitDepth"];
         }
 
         public override string HelpMessage => @"
@@ -61,6 +64,8 @@ namespace Commands
         -p/--pull-anyway            try to fast-forward pull if local changes are found
 
         -v/--verbose                show commit info for deps
+
+        --git-depth <depth>         adds '--depth <depth>' flag to git commands
 
     This command runs 'update' ('git pull origin treeish') command for module
     If treeish isn't specified, cement uses current

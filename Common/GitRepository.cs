@@ -41,11 +41,12 @@ namespace Common
             return runner.Output.Contains("refs/heads");
         }
 
-        public void Clone(string url, string treeish = null)
+        public void Clone(string url, string treeish = null, int? depth = null)
         {
             log.Info($"{"[" + ModuleName + "]",-30}Cloning treeish {treeish ?? "master"} into {RepoPath}");
             var treeishSuffix = "-b " + (treeish ?? "master");
-            var cmd = $"git clone {url} {treeishSuffix} \"{RepoPath}\" 2>&1";
+            var depthSuffix = depth.HasValue ? $" --depth {depth.Value} --no-single-branch" : "";
+            var cmd = $"git clone {url} {treeishSuffix}{depthSuffix} \"{RepoPath}\" 2>&1";
             var exitCode = runner.Run(cmd, TimeSpan.FromMinutes(60), RetryStrategy.IfTimeoutOrFailed);
             if (exitCode != 0)
             {
@@ -154,11 +155,14 @@ namespace Common
             }
         }
 
-        public void Fetch(string branch)
+        public void Fetch(string branch, int? depth = null)
         {
             log.Info($"{"[" + ModuleName + "]",-30}Fetching {branch}");
 
-            var exitCode = runner.RunInDirectory(RepoPath, "git fetch origin " + branch, TimeSpan.FromMinutes(60), RetryStrategy.IfTimeoutOrFailed);
+            var depthSuffix = depth.HasValue ? $" --depth {depth.Value}" : "";
+            var command = "git fetch origin " + branch + depthSuffix;
+
+            var exitCode = runner.RunInDirectory(RepoPath, command, TimeSpan.FromMinutes(60), RetryStrategy.IfTimeoutOrFailed);
 
             if (exitCode != 0)
             {
@@ -166,9 +170,9 @@ namespace Common
             }
         }
 
-        public void Pull(string treeish)
+        public void Pull(string treeish, int? depth = null)
         {
-            Fetch("");
+            Fetch("", depth);
             Merge("origin/" + treeish);
         }
 
