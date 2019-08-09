@@ -10,7 +10,6 @@ namespace Common
     {
         // ReSharper disable UnassignedField.Global
         public string UserName;
-
         public string Domain;
         public string Password;
         public string EncryptedPassword;
@@ -19,6 +18,7 @@ namespace Common
         public bool KillMsBuild = true;
         public string SelfUpdateTreeish;
         public List<Package> Packages;
+        public int? MaxDegreeOfParallelism;
 
         public Dictionary<string, string> UserCommands;
         // ReSharper restore UnassignedField.Global
