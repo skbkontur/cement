@@ -87,14 +87,16 @@
 
         -c/--configuration          gets deps for corresponding configuration
 
-        -f/--force                  forcing local changes(not pulling from remote)
-        -r/--reset                  resetting all local changes
-        -p/--pull-anyway            try to fast-forward pull if local changes are found
+        -f/--force                  forces local changes(not pulling from remote)
+        -r/--reset                  resets all local changes
+        -p/--pull-anyway            tries to fast-forward pull if local changes are found
 
         -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state. 
-                                    Checks for 'master' by default
+                                    checks for 'master' by default
 
         -v/--verbose                show commit info for deps
+
+        --git-depth <depth>         adds '--depth <depth>' flag to git commands
 
     Example:
         cm get kanso/client@release -rv
@@ -120,6 +122,8 @@
 
         -v/--verbose                show commit info for deps
 
+        --git-depth <depth>         adds '--depth <depth>' flag to git commands
+
     Example:
         cm update-deps -r --progress
 
@@ -135,6 +139,8 @@
         -p/--pull-anyway            try to fast-forward pull if local changes are found
 
         -v/--verbose                show commit info for deps
+
+        --git-depth <depth>         adds '--depth <depth>' flag to git commands
 
     This command runs 'update' ('git pull origin treeish') command for module
     If treeish isn't specified, cement uses current

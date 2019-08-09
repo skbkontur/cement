@@ -11,6 +11,7 @@ namespace Commands
         private string treeish;
         private string mergedBranch;
         private bool verbose;
+        private int? gitDepth;
 
         public Get()
             : base(new CommandSettings
@@ -36,12 +37,13 @@ namespace Commands
             configuration = (string) parsedArgs["configuration"];
             mergedBranch = (string) parsedArgs["merged"];
             verbose = (bool) parsedArgs["verbose"];
+            gitDepth = (int?) parsedArgs["gitDepth"];
             policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
         }
 
         protected override int Execute()
         {
-            string workspace = Directory.GetCurrentDirectory();
+            var workspace = Directory.GetCurrentDirectory();
             if (!Helper.IsCurrentDirectoryModule(Path.Combine(workspace, module)))
                 throw new CementTrackException($"{workspace} is not cement workspace directory.");
 
@@ -64,7 +66,8 @@ namespace Commands
                 new Dep(module, treeish, configuration),
                 policy,
                 mergedBranch,
-                verbose);
+                verbose,
+                gitDepth: gitDepth);
 
             getter.GetModule();
 
@@ -83,14 +86,16 @@ namespace Commands
 
         -c/--configuration          gets deps for corresponding configuration
 
-        -f/--force                  forcing local changes(not pulling from remote)
-        -r/--reset                  resetting all local changes
-        -p/--pull-anyway            try to fast-forward pull if local changes are found
+        -f/--force                  forces local changes(not pulling from remote)
+        -r/--reset                  resets all local changes
+        -p/--pull-anyway            tries to fast-forward pull if local changes are found
 
         -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state. 
-                                    Checks for 'master' by default
+                                    checks for 'master' by default
 
         -v/--verbose                show commit info for deps
+
+        --git-depth <depth>         adds '--depth <depth>' flag to git commands
 
     Example:
         cm get kanso/client@release -rv

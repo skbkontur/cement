@@ -42,6 +42,7 @@ namespace Common
                 {"merged", null},
                 {"localBranchForce", false},
                 {"verbose", false},
+                {"gitDepth", null }
             };
             var parser = new OptionSet
             {
@@ -52,6 +53,7 @@ namespace Common
                 {"m|merged:", m => parsedArguments["merged"] = m ?? "master"},
                 {"allow-local-branch-force", f => parsedArguments["localBranchForce"] = true},
                 {"v|verbose", v => parsedArguments["verbose"] = true},
+                {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)},
             };
             var extraArgs = parser.Parse(args.Skip(1));
             ThrowIfHasExtraArgs(extraArgs);
@@ -156,6 +158,7 @@ namespace Common
                 {"configuration", null},
                 {"merged", null},
                 {"verbose", false},
+                {"gitDepth", null }
             };
             var parser = new OptionSet
             {
@@ -165,6 +168,7 @@ namespace Common
                 {"f|force", f => parsedArguments["force"] = 1},
                 {"m|merged:", m => parsedArguments["merged"] = m ?? "master"},
                 {"v|verbose", v => parsedArguments["verbose"] = true},
+                {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)},
             };
             var extraArgs = parser.Parse(args.Skip(1));
             if (extraArgs.Count > 0)
@@ -414,14 +418,16 @@ namespace Common
                 {"reset", 0},
                 {"force", 0},
                 {"pullAnyway", 0},
-                {"verbose", false}
+                {"verbose", false},
+                {"gitDepth", null }
             };
             var parser = new OptionSet
             {
                 {"r|reset", r => parsedArguments["reset"] = 1},
                 {"p|pull-anyway", p => parsedArguments["pullAnyway"] = 1},
                 {"f|force", f => parsedArguments["force"] = 1},
-                {"v|verbose", v => parsedArguments["verbose"] = true}
+                {"v|verbose", v => parsedArguments["verbose"] = true},
+                {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)},
             };
             var extraArgs = parser.Parse(args.Skip(1));
             if (extraArgs.Count > 0)
