@@ -30,7 +30,7 @@ namespace Common
             var refsList = new List<ReferenceWithCsproj>();
             foreach (var bulid in buildData)
             {
-                if (bulid.Target.IsFakeTarget() || bulid.Tool.Name != "msbuild")
+                if (bulid.Target.IsFakeTarget() || (bulid.Tool.Name != "msbuild" && bulid.Tool.Name != "dotnet"))
                     continue;
                 var vsParser = new VisualStudioProjectParser(Path.Combine(moduleDirectory, bulid.Target), modules);
                 var files = vsParser.GetCsprojList(bulid);
