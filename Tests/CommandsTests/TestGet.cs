@@ -6,7 +6,6 @@ using Common.YamlParsers;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Tests.Helpers;
-using Vostok.Logging.Abstractions;
 
 namespace Tests.CommandsTests
 {

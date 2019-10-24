@@ -16,7 +16,7 @@ namespace Common.Logging
             LogManager.InitializeFileLogger(logFileName);
         }
 
-        public static void InitializeElkOnlyLogging()
+        public static void InitializeGlobalFileAndElkLogging()
         {
             LogManager.InitializeHerculesLogger();
             LogManager.InitializeFileLogger(null);

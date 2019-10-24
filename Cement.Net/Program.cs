@@ -11,7 +11,7 @@ namespace cm
     {
         private static int Main(string[] args)
         {
-            LogManager.EnableLogging();
+            LogManager.SetDebugLoggingLevel();
             ThreadPoolSetUp(Helper.MaxDegreeOfParallelism);
             args = FixArgs(args);
             var exitCode = TryRun(args);

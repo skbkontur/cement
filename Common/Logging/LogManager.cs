@@ -1,19 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Common.ClusterConfigProviders;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Vostok.Hercules.Client;
 using Vostok.Logging.Abstractions;
-using Vostok.Logging.Hercules;
-using Vostok.Logging.Microsoft;
 using Vostok.Logging.File;
 using Vostok.Logging.File.Configuration;
+using Vostok.Logging.Hercules;
 using Vostok.Logging.Hercules.Configuration;
-using System.Collections.Generic;
+using Vostok.Logging.Microsoft;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Common.Logging
 {
-
     public static class LogManager
     {
         private static ILoggerFactory loggerFactory;
@@ -33,7 +34,7 @@ namespace Common.Logging
             return loggerFactory.CreateLogger(type);
         }
 
-        public static ILogger GetLogger<T>()
+        public static ILogger<T> GetLogger<T>()
         {
             return loggerFactory.CreateLogger<T>();
         }
@@ -43,7 +44,12 @@ namespace Common.Logging
             return loggerFactory.CreateLogger(categoryName);
         }
 
-        public static void EnableLogging(LogLevel minLevel = LogLevel.Debug)
+        public static void SetDebugLoggingLevel()
+        {
+            SetMinimumLoggingLevel(LogLevel.Debug);
+        }
+
+        public static void SetMinimumLoggingLevel(LogLevel minLevel)
         {
             loggerFactory = LoggerFactory.Create(
                 builder => builder
@@ -71,7 +77,7 @@ namespace Common.Logging
                 return;
             }
 
-            var configuration = Newtonsoft.Json.JsonConvert
+            var configuration = JsonConvert
                 .DeserializeObject<HerculesLogConfiguration>(File.ReadAllText(configLogFilePath));
 
             var settings = new HerculesSinkSettings(new FixedUrlClusterProvider(configuration.ServerUrl), () => configuration.ApiKey)
@@ -82,11 +88,12 @@ namespace Common.Logging
             var herculesSink = new HerculesSink(settings, new SilentLog());
 
             herculesLog = new HerculesLog(new HerculesLogSettings(herculesSink, configuration.Stream))
-                .WithProperties(new Dictionary<string, object>
-                {
-                    ["project"] = configuration.Project,
-                    ["environment"] = configuration.Environment
-                });
+                .WithProperties(
+                    new Dictionary<string, object>
+                    {
+                        ["project"] = configuration.Project,
+                        ["environment"] = configuration.Environment
+                    });
 
             loggerFactory.AddVostok(herculesLog);
         }
@@ -103,8 +110,7 @@ namespace Common.Logging
                 {
                     RollingStrategy = new RollingStrategyOptions
                     {
-                        Type = RollingStrategyType.None,
-                        
+                        Type = RollingStrategyType.None
                     },
                     FilePath = logFileName
                 });

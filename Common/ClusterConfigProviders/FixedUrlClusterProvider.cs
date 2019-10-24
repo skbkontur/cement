@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Vostok.Clusterclient.Core.Topology;
 
-namespace Common.Logging
+namespace Common.ClusterConfigProviders
 {
     internal sealed class FixedUrlClusterProvider : IClusterProvider
     {
@@ -10,14 +10,13 @@ namespace Common.Logging
 
         public FixedUrlClusterProvider(string url)
         {
-            urls = new List<Uri> { new Uri(url) }.AsReadOnly();
+            urls = new List<Uri> {new Uri(url)}.AsReadOnly();
         }
 
         public FixedUrlClusterProvider(Uri url)
         {
-            urls = new List<Uri> { url }.AsReadOnly();
+            urls = new List<Uri> {url}.AsReadOnly();
         }
-
 
         public IList<Uri> GetCluster()
         {
