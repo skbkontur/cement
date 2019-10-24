@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
+using Common.Logging;
 using Common.YamlParsers;
-using log4net;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Tests.Helpers;
 
@@ -13,7 +14,7 @@ namespace Tests.BuildTests
     [TestFixture]
     public class TestBuildDepsOrder
     {
-        private static readonly ILog Log = LogManager.GetLogger("TestBuildDepsOrder");
+        private static readonly ILogger Log = LogManager.GetLogger<TestBuildDepsOrder>();
 
         [Test]
         public void TestBuildOrderCycle()

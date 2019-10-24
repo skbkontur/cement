@@ -1,5 +1,6 @@
 ﻿using System.Net;
-using log4net;
+using Common.Extensions;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Common
@@ -8,9 +9,9 @@ namespace Common
     {
         private readonly string server;
         private readonly string branch;
-        private readonly ILog log;
+        private readonly ILogger log;
 
-        public CementFromServerUpdater(string server, string branch, ILog log)
+        public CementFromServerUpdater(string server, string branch, ILogger log)
         {
             this.server = server;
             this.branch = branch;
@@ -27,7 +28,7 @@ namespace Common
             }
             catch (WebException ex)
             {
-                log.Error("Fail self-update ", ex);
+                log.LogError("Fail self-update ", ex);
                 if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
                 {
                     var resp = (HttpWebResponse) ex.Response;

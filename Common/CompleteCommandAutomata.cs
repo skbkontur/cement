@@ -1,15 +1,15 @@
 using Common.YamlParsers;
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
     public class CompleteCommandAutomata
     {
-        private readonly ILog log;
+        private readonly ILogger log;
         private TokensList root;
 
         private readonly List<string> modules =
@@ -17,7 +17,7 @@ namespace Common
 
         private string lastToken;
 
-        public CompleteCommandAutomata(ILog log)
+        public CompleteCommandAutomata(ILogger log)
         {
             this.log = log;
         }

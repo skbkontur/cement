@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
 using Common;
-using log4net;
+using Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
     public class Status : ICommand
     {
-        private static readonly ILog Log = LogManager.GetLogger("status");
+        private static readonly ILogger Log = LogManager.GetLogger<Status>();
 
         public int Run(string[] args)
         {

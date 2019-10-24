@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Commands;
 using Common;
+using Common.Logging;
 
 namespace cm
 {
@@ -10,6 +11,7 @@ namespace cm
     {
         private static int Main(string[] args)
         {
+            LogManager.EnableLogging();
             ThreadPoolSetUp(Helper.MaxDegreeOfParallelism);
             args = FixArgs(args);
             var exitCode = TryRun(args);

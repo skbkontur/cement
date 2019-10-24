@@ -3,13 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using Common;
 using Common.Logging;
-using log4net;
+using Microsoft.Extensions.Logging;
+using NuGet.ProjectManagement;
 
 namespace Commands
 {
     public abstract class Command : ICommand
     {
-        protected static ILog Log = LogManager.GetLogger(typeof(Command));
+        protected static ILogger Log;
         protected readonly CommandSettings CommandSettings;
 
         protected Command(CommandSettings settings)
@@ -36,25 +37,25 @@ namespace Commands
                 if (CommandSettings.MeasureElapsedTime)
                 {
                     ConsoleWriter.WriteInfo("Total time: " + sw.Elapsed);
-                    Log.Debug("Total time: " + sw.Elapsed);
+                    Log.LogDebug("Total time: " + sw.Elapsed);
                 }
                 return exitCode;
             }
             catch (GitLocalChangesException e)
             {
-                Log?.Warn("Failed to " + GetType().Name.ToLower(), e);
+                Log?.LogWarning("Failed to " + GetType().Name.ToLower(), e);
                 ConsoleWriter.WriteError(e.Message);
                 return -1;
             }
             catch (CementException e)
             {
-                Log?.Error("Failed to " + GetType().Name.ToLower(), e);
+                Log?.LogError("Failed to " + GetType().Name.ToLower(), e);
                 ConsoleWriter.WriteError(e.Message);
                 return -1;
             }
             catch (Exception e)
             {
-                Log?.Error("Failed to " + GetType().Name.ToLower(), e);
+                Log?.LogError("Failed to " + GetType().Name.ToLower(), e);
                 ConsoleWriter.WriteError(e.Message);
                 ConsoleWriter.WriteError(e.StackTrace);
                 return -1;
@@ -95,15 +96,16 @@ namespace Commands
 
         private void InitLogging()
         {
-            Log = new PrefixAppender(CommandSettings.LogPerfix, LogManager.GetLogger(GetType().Name));
             if (CommandSettings.LogFileName != null)
                 LogHelper.InitializeFileAndElkLogging(CommandSettings.LogFileName);
             else if (!CommandSettings.NoElkLog)
                 LogHelper.InitializeElkOnlyLogging();
 
+            Log = LogManager.GetLogger(GetType());
+
             try
             {
-                Log.Info("Cement version: " + Helper.GetAssemblyTitle());
+                Log.LogInformation("Cement version: " + Helper.GetAssemblyTitle());
             }
             catch (Exception)
             {
@@ -113,9 +115,9 @@ namespace Commands
 
         private void LogAndParseArgs(string[] args)
         {
-            Log.Debug($"Parsing args: [{string.Join(" ", args)}] in {Directory.GetCurrentDirectory()}");
+            Log.LogDebug($"Parsing args: [{string.Join(" ", args)}] in {Directory.GetCurrentDirectory()}");
             ParseArgs(args);
-            Log.Debug("OK parsing args");
+            Log.LogDebug("OK parsing args");
         }
 
         protected abstract int Execute();

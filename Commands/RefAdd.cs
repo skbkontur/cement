@@ -3,7 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using Common;
+using Common.Extensions;
 using Common.YamlParsers;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -62,12 +64,12 @@ namespace Commands
             if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, moduleToInsert)))
                 GetAndBuild(dep);
 
-            Log.Debug(
+            Log.LogDebug(
                 $"{moduleToInsert + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration)} -> {project}");
 
             CheckBranch();
 
-            Log.Info("Getting install data for " + moduleToInsert + Helper.ConfigurationDelimiter + configuration);
+            Log.LogInformation("Getting install data for " + moduleToInsert + Helper.ConfigurationDelimiter + configuration);
             var installData = InstallParser.Get(moduleToInsert, configuration);
             if (!installData.InstallFiles.Any())
             {
@@ -126,7 +128,7 @@ namespace Commands
             }
             catch (Exception e)
             {
-                Log.Error($"FAILED-TO-CHECK-BRANCH {dep}", e);
+                Log.LogError($"FAILED-TO-CHECK-BRANCH {dep}", e);
             }
         }
 
@@ -142,7 +144,7 @@ namespace Commands
             catch (Exception e)
             {
                 ConsoleWriter.WriteWarning($"Installation of NuGet packages failed: {e.InnerException?.Message ?? e.Message}");
-                Log.Error("Installation of NuGet packages failed:", e);
+                Log.LogError("Installation of NuGet packages failed:", e);
             }
 
             foreach (var buildItem in installData.InstallFiles)
@@ -187,14 +189,14 @@ namespace Commands
                 if (UserChoseReplace(csproj, refXml, refName, hintPath))
                 {
                     csproj.ReplaceRef(refName, hintPath);
-                    Log.Debug($"'{refName}' ref replaced");
+                    Log.LogDebug($"'{refName}' ref replaced");
                     ConsoleWriter.WriteOk("Successfully replaced " + refName);
                 }
             }
             else
             {
                 SafeAddRef(csproj, refName, hintPath);
-                Log.Debug($"'{refName}' ref added");
+                Log.LogDebug($"'{refName}' ref added");
                 ConsoleWriter.WriteOk("Successfully installed " + refName);
             }
         }
@@ -208,7 +210,7 @@ namespace Commands
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                Log.Error("Fail to add reference", e);
+                Log.LogError("Fail to add reference", e);
             }
         }
 

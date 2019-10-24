@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Common;
+using Common.Logging;
 using Common.YamlParsers;
-using log4net;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace Tests.Helpers
@@ -22,7 +23,7 @@ namespace Tests.Helpers
         private ShellRunner runner;
         public readonly string PackageFile;
         public readonly string RemoteWorkspace;
-        private static ILog Log = LogManager.GetLogger("TestEnvironment");
+        private static ILogger Log = LogManager.GetLogger<TestEnvironment>();
 
         public TestEnvironment()
         {
@@ -417,7 +418,7 @@ configuration = sdk
             {
                 var branches = new[] {"b1", "b2", "b3"};
                 env.CreateRepo("A", null, branches);
-                var repo = new GitRepository("A", env.RemoteWorkspace, LogManager.GetLogger("Test"));
+                var repo = new GitRepository("A", env.RemoteWorkspace, LogManager.GetLogger<TestEnvironment>());
                 Assert.IsTrue(repo.HasLocalBranch("b1"));
                 Assert.IsTrue(repo.HasLocalBranch("b2"));
                 Assert.IsTrue(repo.HasLocalBranch("b3"));

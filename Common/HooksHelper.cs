@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.Extensions;
+using Common.Logging;
 using Common.YamlParsers;
-using log4net;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
     public static class HooksHelper
     {
-        private static readonly ILog Log = new PrefixAppender("HOOKS", LogManager.GetLogger("HooksHelper"));
+        private static readonly ILogger Log = LogManager.GetLogger(typeof(HooksHelper));
         private const string CementPreCommitHookName = "pre-commit.cement";
 
         public static bool InstallHooks(string moduleName)
@@ -48,14 +50,14 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 ");
-                Log.Error("Cement hook with pre-commit found in " + moduleName);
+                Log.LogError("Cement hook with pre-commit found in " + moduleName);
                 return false;
             }
 
             if (hooks.Distinct().Count() == hooks.Count)
                 return true;
 
-            Log.Error("Duplicate hook in " + moduleName);
+            Log.LogError("Duplicate hook in " + moduleName);
             ConsoleWriter.WriteError("Duplicate git hook found in " + moduleName + " module");
             return false;
         }
@@ -71,7 +73,7 @@ fi
 
         private static bool InstallHook(string moduleName, string hook, string gitHooksFolder)
         {
-            Log.Debug("installing hook " + hook + " into " + moduleName);
+            Log.LogDebug("installing hook " + hook + " into " + moduleName);
 
             string hookName, hookSrc;
             if (hook == CementPreCommitHookName)

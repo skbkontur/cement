@@ -1,12 +1,14 @@
-using log4net;
 using System;
 using System.IO;
+using Common.Extensions;
+using Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
     public static class NuGetHelper
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(NuGetHelper));
+        private static readonly ILogger Log = LogManager.GetLogger(typeof(NuGetHelper));
 
         public static string GetNugetPackageVersion(string packageName, string nugetRunCommand, bool preRelease)
         {
@@ -20,14 +22,14 @@ namespace Common
                 if (lineTokens.Length == 2 && lineTokens[0].Equals(packageName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var msg = $"Got package version: {lineTokens[1]} for {packageName}";
-                    Log.Info(msg);
+                    Log.LogInformation(msg);
                     ConsoleWriter.WriteInfo(msg);
                     return lineTokens[1];
                 }
             }
 
             var message = $"not found package version for package {packageName}. nuget output: " + shellRunner.Output + shellRunner.Errors;
-            Log.Debug(message);
+            Log.LogDebug(message);
             ConsoleWriter.WriteWarning(message);
             return null;
         }
@@ -48,11 +50,11 @@ namespace Common
             var nuget = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "NuGet.exe");
             if (!File.Exists(nuget))
             {
-                Log.Error($"NuGet.exe not found in {nuget}");
+                Log.LogError($"NuGet.exe not found in {nuget}");
                 return null;
             }
 
-            Log.Debug($"NuGet.exe found in {nuget}");
+            Log.LogDebug($"NuGet.exe found in {nuget}");
             return nuget;
         }
     }

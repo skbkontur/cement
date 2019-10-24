@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using log4net;
-using log4net.Config;
+using Microsoft.Extensions.Logging;
+using Vostok.Logging.Microsoft;
 
 namespace Common.Logging
 {
@@ -12,34 +12,16 @@ namespace Common.Logging
 
         public static void InitializeFileAndElkLogging(string logFileName)
         {
-            InitializeLogging(logFileName);
+            LogManager.InitializeHerculesLogger();
+            LogManager.InitializeFileLogger(logFileName);
         }
 
         public static void InitializeElkOnlyLogging()
         {
-            InitializeLogging(null);
+            LogManager.InitializeHerculesLogger();
+            LogManager.InitializeFileLogger(null);
         }
 
-        private static void InitializeLogging(string logFileName)
-        {
-            if (HasInitializedLogging)
-                return;
-            HasInitializedLogging = true;
-
-            logFileName = logFileName == null
-                ? Path.Combine(Helper.GetGlobalCementDirectory(), "log", "log")
-                : Path.Combine(Helper.CurrentWorkspace, Helper.CementDirectory, "log", logFileName);
-            Environment.SetEnvironmentVariable("logfilename", logFileName);
-
-            var logConfig = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "log.config.xml");
-            if (!File.Exists(logConfig))
-            {
-                ConsoleWriter.WriteError($"{logConfig} not found.");
-                return;
-            }
-
-            XmlConfigurator.ConfigureAndWatch(new FileInfo(logConfig));
-        }
 
         public static void SaveLog(string log)
         {
@@ -66,12 +48,11 @@ namespace Common.Logging
                 var lines = File.ReadAllLines(file).Where(l => l.Length > 0).ToList();
                 File.WriteAllText(file, "");
 
-                var log = LogManager.GetLogger(typeof(LogHelper));
-                log = new PrefixAppender("SAVED-LOG", log);
+                var log = LogManager.GetLogger("SAVED-LOG");
 
                 foreach (var line in lines)
                 {
-                    log.Debug(line);
+                    log.LogDebug(line);
                 }
             }
             catch (Exception)

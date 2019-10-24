@@ -1,9 +1,11 @@
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Common.Extensions;
+using Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
@@ -14,7 +16,7 @@ namespace Common
         public readonly string FilePath;
         public readonly XmlDocument Document;
         private readonly bool newFormat;
-        private ILog log;
+        private ILogger log;
 
         public ProjectFile(string csprojFilePath)
         {
@@ -262,7 +264,7 @@ namespace Common
                     var splitted = package.Split('/');
                     if (splitted.Length != 2)
                     {
-                        log.Error("package version is not defined: " + package);
+                        log.LogError("package version is not defined: " + package);
                     }
                     else
                     {

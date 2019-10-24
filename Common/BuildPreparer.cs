@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common.YamlParsers;
-using log4net;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
     public class BuildPreparer
     {
-        private readonly ILog log;
+        private readonly ILogger log;
 
-        public BuildPreparer(ILog log)
+        public BuildPreparer(ILogger log)
         {
             this.log = log;
         }
@@ -19,13 +19,13 @@ namespace Common
         public ModulesOrder GetModulesOrder(string moduleName, string configuration)
         {
             var modulesOrder = new ModulesOrder();
-            log.Debug("Building configurations graph");
+            log.LogDebug("Building configurations graph");
             ConsoleWriter.WriteProgress("Building configurations graph");
             modulesOrder.ConfigsGraph = BuildConfigsGraph(moduleName, configuration);
             modulesOrder.ConfigsGraph = EraseExtraChildren(modulesOrder.ConfigsGraph);
             modulesOrder.BuildOrder = GetTopologicallySortedGraph(modulesOrder.ConfigsGraph, moduleName, configuration);
 
-            log.Debug("Getting current commit hashes");
+            log.LogDebug("Getting current commit hashes");
             ConsoleWriter.WriteProgress("Getting current commit hashes");
             modulesOrder.CurrentCommitHashes = GetCurrentCommitHashes(modulesOrder.ConfigsGraph);
             modulesOrder.UpdatedModules = BuiltInfoStorage.Deserialize().GetUpdatedModules(modulesOrder.BuildOrder, modulesOrder.CurrentCommitHashes);

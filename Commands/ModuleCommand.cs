@@ -1,14 +1,15 @@
 using Common;
-using log4net;
 using System;
 using System.IO;
 using System.Linq;
+using Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
     public class ModuleCommand : ICommand
     {
-        private static readonly ILog Log = LogManager.GetLogger("moduleCommand");
+        private static readonly ILogger Log = LogManager.GetLogger<ModuleCommand>();
         private string command;
         private string moduleName;
         private string pushUrl, fetchUrl;

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
+using Common.Extensions;
 using Common.YamlParsers;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -56,11 +58,11 @@ namespace Commands
             if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, analyzerModuleName)) || !Helper.HasModule(analyzerModuleName))
                 throw new CementException($"Can't find module '{analyzerModuleName}'");
 
-            Log.Debug($"{analyzerModuleName + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration)} -> {moduleSolutionName}");
+            Log.LogDebug($"{analyzerModuleName + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration)} -> {moduleSolutionName}");
 
             CheckBranch();
 
-            Log.Info("Getting install data for " + analyzerModuleName + Helper.ConfigurationDelimiter + configuration);
+            Log.LogInformation("Getting install data for " + analyzerModuleName + Helper.ConfigurationDelimiter + configuration);
             var installData = InstallParser.Get(analyzerModuleName, configuration);
             if (!installData.InstallFiles.Any())
             {
@@ -128,7 +130,7 @@ namespace Commands
             }
             catch (Exception e)
             {
-                Log.Error($"FAILED-TO-CHECK-BRANCH {analyzerModule}", e);
+                Log.LogError($"FAILED-TO-CHECK-BRANCH {analyzerModule}", e);
             }
         }
 

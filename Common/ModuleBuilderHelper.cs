@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using log4net;
+using Common.Extensions;
+using Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
     public static class ModuleBuilderHelper
     {
-        private static readonly ILog Log = LogManager.GetLogger("moduleBuilderHelper");
+        private static readonly ILogger Log = LogManager.GetLogger(typeof(ModuleBuilderHelper));
 
         public static MsBuildLikeTool FindMsBuild(string version, string moduleName)
         {
@@ -57,7 +59,7 @@ namespace Common
             result.AddRange(ms1);
             result.AddRange(ms2);
 
-            Log.Debug("MSBUILDS:\n" + string.Join("\n", result.Select(r => $"{r.Key} {r.Value}")));
+            Log.LogDebug("MSBUILDS:\n" + string.Join("\n", result.Select(r => $"{r.Key} {r.Value}")));
 
             return msBuildsCache = result;
         }
@@ -142,7 +144,7 @@ namespace Common
                 .Where(File.Exists).Select(f => new FileInfo(f)).ToList();
         }
 
-        public static void KillMsBuild(ILog log)
+        public static void KillMsBuild(ILogger log)
         {
             if (!CementSettings.Get().KillMsBuild || Rider.IsRunning)
                 return;
@@ -161,7 +163,7 @@ namespace Common
             }
             catch (Exception e)
             {
-                log.Error(e);
+                log.LogError(e, e.Message);
             }
         }
 

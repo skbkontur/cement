@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using Common;
+using Common.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -22,7 +24,7 @@ namespace Commands
 
         protected override int Execute()
         {
-            Log.Info("Updating packages");
+            Log.LogInformation("Updating packages");
             PackageUpdater.UpdatePackages();
             var cwd = Directory.GetCurrentDirectory();
             var module = Path.GetFileName(cwd);

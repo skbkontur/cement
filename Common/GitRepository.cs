@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using log4net;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
@@ -14,10 +14,10 @@ namespace Common
         public string ModuleName { get; }
         private readonly ShellRunner runner;
         public bool IsGitRepo { get; private set; }
-        private static ILog log;
+        private static ILogger log;
         private IList<Branch> RemoteBranches { get; set; }
 
-        public GitRepository(string moduleName, string workspace, ILog log)
+        public GitRepository(string moduleName, string workspace, ILogger log)
         {
             ModuleName = moduleName;
             Workspace = workspace;
@@ -27,7 +27,7 @@ namespace Common
             IsGitRepo = Directory.Exists(Path.Combine(workspace, moduleName, ".git"));
         }
 
-        public GitRepository(string fullPath, ILog log)
+        public GitRepository(string fullPath, ILogger log)
             : this(Path.GetFileName(fullPath), Directory.GetParent(fullPath).FullName, log)
         {
         }
@@ -43,7 +43,7 @@ namespace Common
 
         public void Clone(string url, string treeish = null, int? depth = null)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Cloning treeish {treeish ?? "master"} into {RepoPath}");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Cloning treeish {treeish ?? "master"} into {RepoPath}");
             var treeishSuffix = "-b " + (treeish ?? "master");
             var depthSuffix = depth.HasValue ? $" --depth {depth.Value} --no-single-branch" : "";
             var cmd = $"git clone {url} {treeishSuffix}{depthSuffix} \"{RepoPath}\" 2>&1";
@@ -62,7 +62,7 @@ namespace Common
 
         public void Init()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Init in {RepoPath}");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Init in {RepoPath}");
             var cmd = $"git init \"{RepoPath}\"";
             var exitCode = runner.Run(cmd);
             if (exitCode != 0)
@@ -78,7 +78,7 @@ namespace Common
 
         public CurrentTreeish CurrentLocalTreeish()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Getting current treeish");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Getting current treeish");
             var exitCode = runner.RunInDirectory(RepoPath, "git rev-parse --abbrev-ref HEAD");
 
             var output = runner.Output.Trim();
@@ -103,12 +103,12 @@ namespace Common
 
         public string SafeGetCurrentLocalCommitHash(string treeish = null)
         {
-            log.Info($"{"[" + ModuleName + "]",-30} Safe local commit hash at branch '{treeish ?? "HEAD"}'");
+            log.LogInformation($"{"[" + ModuleName + "]",-30} Safe local commit hash at branch '{treeish ?? "HEAD"}'");
             var exitCode = runner.RunInDirectory(RepoPath, "git rev-parse " + (treeish ?? "HEAD"));
 
             if (exitCode != 0)
             {
-                log.Warn($"Failed to get local commit hash in {ModuleName}");
+                log.LogWarning($"Failed to get local commit hash in {ModuleName}");
                 return "";
             }
 
@@ -117,7 +117,7 @@ namespace Common
 
         public string CurrentLocalCommitHash(string treeish = null)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Local commit hash at branch '{treeish ?? "HEAD"}'");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Local commit hash at branch '{treeish ?? "HEAD"}'");
             var exitCode = runner.RunInDirectory(RepoPath, "git rev-parse " + (treeish ?? "HEAD"));
 
             if (exitCode != 0)
@@ -131,7 +131,7 @@ namespace Common
 
         public void Checkout(string treeish, bool track = false)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Checkout {treeish}");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Checkout {treeish}");
 
             var command = HasLocalBranch(treeish) || !track
                 ? "git checkout " + treeish
@@ -141,9 +141,9 @@ namespace Common
 
             if (checkoutTask != 0)
             {
-                log.Debug($"pull {ModuleName}");
+                log.LogInformation($"pull {ModuleName}");
                 runner.RunInDirectory(RepoPath, "git pull", TimeSpan.FromMinutes(60));
-                log.Debug($"pull result {ModuleName} {runner.Output}");
+                log.LogDebug($"pull result {ModuleName} {runner.Output}");
 
                 checkoutTask = runner.RunInDirectory(RepoPath, command, TimeSpan.FromMinutes(60));
             }
@@ -157,7 +157,7 @@ namespace Common
 
         public void Fetch(string branch, int? depth = null)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Fetching {branch}");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Fetching {branch}");
 
             var depthSuffix = depth.HasValue ? $" --depth {depth.Value}" : "";
             var command = "git fetch origin " + branch + depthSuffix;
@@ -178,7 +178,7 @@ namespace Common
 
         private void Merge(string treeish)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Merge --ff-only '{treeish}'");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Merge --ff-only '{treeish}'");
             var exitCode = runner.RunInDirectory(RepoPath, "git merge --ff-only " + treeish, TimeSpan.FromMinutes(60));
 
             if (exitCode != 0)
@@ -204,7 +204,7 @@ namespace Common
 
         public string RemoteCommitHashAtTreeish(string treeish)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Getting treeish remote hash");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Getting treeish remote hash");
             var exitCode = runner.RunInDirectory(RepoPath, "git ls-remote origin " + treeish);
 
             if (exitCode != 0)
@@ -216,7 +216,7 @@ namespace Common
         // ReSharper disable once UnusedMember.Global
         public void RewriteFileFromRemote(string branch, string shortPath, string destination)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Rewrite file from remote {branch}:{shortPath}");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Rewrite file from remote {branch}:{shortPath}");
 
             shortPath = shortPath.Replace(Path.DirectorySeparatorChar.ToString(), "/");
             var exitCode = runner.RunInDirectory(RepoPath,
@@ -231,7 +231,7 @@ namespace Common
 
         public string ShowLocalChanges()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Show local changes");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Show local changes");
             var exitCode = runner.RunInDirectory(RepoPath, "git status -s");
 
             if (exitCode != 0)
@@ -249,7 +249,7 @@ namespace Common
 
         public IList<string> LocalBranches()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Get local branches");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Get local branches");
             var exitCode = runner.RunInDirectory(RepoPath, "git branch");
 
             if (exitCode != 0)
@@ -263,7 +263,7 @@ namespace Common
 
         private void RemoveOrigin()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Remove origin");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Remove origin");
             var exitCode = runner.RunInDirectory(RepoPath, "git remote rm origin ");
 
             if (exitCode != 0)
@@ -274,7 +274,7 @@ namespace Common
 
         public void AddOrigin(string url)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Add origin");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Add origin");
             var exitCode = runner.RunInDirectory(RepoPath, "git remote add origin " + url);
 
             if (exitCode != 0)
@@ -285,7 +285,7 @@ namespace Common
 
         public void SetPushUrl(string url)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Set push url");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Set push url");
             var exitCode = runner.RunInDirectory(RepoPath, "git remote set-url origin --push " + url);
 
             if (exitCode != 0)
@@ -296,7 +296,7 @@ namespace Common
 
         public void DeleteUntrackedFiles()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Deliting untaracked files");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Deliting untaracked files");
             var exitCode = runner.RunInDirectory(RepoPath, "git clean -f -q");
 
             if (exitCode != 0)
@@ -307,11 +307,11 @@ namespace Common
 
         public void Clean()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Clean and reset hard");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Clean and reset hard");
             var gitIgnore = Path.Combine(RepoPath, ".gitignore");
             if (File.Exists(gitIgnore))
                 File.Delete(gitIgnore);
-            log.Info($"{"[" + ModuleName + "]",-30}Remove from built cache");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Remove from built cache");
             BuiltHelper.RemoveModuleFromBuiltInfo(ModuleName);
 
             var exitCode = runner.RunInDirectory(RepoPath, "git clean -f -d -q");
@@ -329,13 +329,13 @@ namespace Common
 
         public IList<Branch> GetRemoteBranches()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Get remote branches");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Get remote branches");
             var sw = Stopwatch.StartNew();
             var exitCode = runner.RunInDirectory(RepoPath, "git ls-remote --heads", TimeoutHelper.GetStartTimeout(), RetryStrategy.IfTimeoutOrFailed);
 
             sw.Stop();
             if (sw.Elapsed > TimeSpan.FromSeconds(10))
-                log.DebugFormat("{0, -30}Elapsed git ls-remote --heads: [{1}]", "[" + ModuleName + "]", sw.Elapsed);
+                log.LogDebug("{0, -30}Elapsed git ls-remote --heads: [{1}]", "[" + ModuleName + "]", sw.Elapsed);
 
             if (exitCode != 0)
             {
@@ -354,7 +354,7 @@ namespace Common
 
         public bool IsKnownRemoteBranch(string branch)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Is known remote branch '{branch}'");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Is known remote branch '{branch}'");
             var exitCode = runner.RunInDirectory(RepoPath, "git branch -r");
             if (exitCode != 0)
             {
@@ -370,14 +370,14 @@ namespace Common
 
         public void ResetHard(string treeish = null)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Reset hard {treeish}");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Reset hard {treeish}");
             BuiltHelper.RemoveModuleFromBuiltInfo(ModuleName);
             runner.RunInDirectory(RepoPath, "git reset --hard " + (treeish == null ? "" : "origin/" + treeish));
         }
 
         public bool FastForwardPullAllowed(string treeish)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Fast forward pull allowed for {treeish}");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Fast forward pull allowed for {treeish}");
             Fetch(treeish);
             var exitCode = runner.RunInDirectory(RepoPath,
                 $"git merge-base {treeish} {"origin/" + treeish}");
@@ -408,7 +408,7 @@ namespace Common
 
         public void RemoteOriginUrls(out string fetchUrl, out string pushUrl)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Remote origin URL");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Remote origin URL");
             var exitCode = runner.RunInDirectory(RepoPath, "git remote -v");
 
             if (exitCode != 0)
@@ -438,14 +438,14 @@ namespace Common
             if (fetchUrl.Equals(module.Url) && pushUrl.Equals(targetPushUrl))
                 return;
 
-            log.Info($"{"[" + ModuleName + "]",-30}Updating URL");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Updating URL");
             ConsoleWriter.WriteInfo($"Update url for {RepoPath}: {fetchUrl} => {module.Url}");
             RemoveOrigin();
             AddOrigin(module.Url);
 
             if (module.Pushurl != null)
             {
-                log.Info($"{"[" + ModuleName + "]",-30}Updating push URL");
+                log.LogInformation($"{"[" + ModuleName + "]",-30}Updating push URL");
                 ConsoleWriter.WriteInfo($"Update push url for {RepoPath}: {pushUrl} => {module.Pushurl}");
                 SetPushUrl(module.Pushurl);
             }
@@ -453,7 +453,7 @@ namespace Common
 
         public List<string> GetFilesForCommit()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Get files for commit");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Get files for commit");
             var exitCode = runner.RunInDirectory(RepoPath, "git diff --cached --name-only");
 
             if (exitCode != 0)
@@ -467,7 +467,7 @@ namespace Common
 
         public string GetCommitInfo()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Get commit info");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Get commit info");
             var exitCode = runner.RunInDirectory(RepoPath, "git log HEAD -n 1 --date=relative --format=\"%ad\t\"%an\"\t<%ae>\"");
 
             if (exitCode != 0)
@@ -483,7 +483,7 @@ namespace Common
 
         public void Commit(string[] args)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}git commit {args.Aggregate("", (x, y) => x + " \"" + y + "\"")}");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}git commit {args.Aggregate("", (x, y) => x + " \"" + y + "\"")}");
 
             var exitCode = runner.RunInDirectory(RepoPath,
                 "git commit" + args.Aggregate("", (x, y) => x + " \"" + y + "\""));
@@ -496,7 +496,7 @@ namespace Common
 
         public string ShowUnpushedCommits()
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Show unpushed commits");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Show unpushed commits");
 
             var exitCode = runner.RunInDirectory(RepoPath,
                 "git log --branches --not --remotes=origin --simplify-by-decoration --decorate --oneline");
@@ -511,7 +511,7 @@ namespace Common
 
         public void Push(string branch)
         {
-            log.Info($"{"[" + ModuleName + "]",-30}Push origin {branch}");
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Push origin {branch}");
 
             var exitCode = runner.RunInDirectory(RepoPath, "git push origin " + branch, TimeSpan.FromMinutes(60));
 

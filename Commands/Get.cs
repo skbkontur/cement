@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using Common;
+using Common.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -49,13 +51,13 @@ namespace Commands
 
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
 
-            Log.Info("Updating packages");
+            Log.LogInformation("Updating packages");
             PackageUpdater.UpdatePackages();
 
             GetModule();
             CycleDetector.WarnIfCycle(module, configuration, Log);
 
-            Log.Info("SUCCESS get " + module);
+            Log.LogInformation("SUCCESS get " + module);
             return 0;
         }
 
@@ -72,7 +74,7 @@ namespace Commands
             getter.GetModule();
 
             ConsoleWriter.WriteInfo("Getting deps for " + module);
-            Log.Info("Getting deps list for " + module);
+            Log.LogInformation("Getting deps list for " + module);
 
             getter.GetDeps();
         }

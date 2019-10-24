@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Linq;
 using Common;
+using Common.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -43,7 +45,7 @@ namespace Commands
 
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
 
-            Log.Info("Updating packages");
+            Log.LogInformation("Updating packages");
             PackageUpdater.UpdatePackages();
             var modules = Helper.GetModules();
 
@@ -66,7 +68,7 @@ namespace Commands
             getter.GetDeps();
 
 
-            Log.Info("SUCCESS UPDATE DEPS");
+            Log.LogInformation("SUCCESS UPDATE DEPS");
             return 0;
         }
 

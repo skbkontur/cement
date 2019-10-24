@@ -1,17 +1,19 @@
 using System.Collections.Generic;
 using System.IO;
 using Common;
+using Common.Logging;
 using Common.YamlParsers;
-using log4net;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Tests.Helpers;
+using Vostok.Logging.Abstractions;
 
 namespace Tests.CommandsTests
 {
     [TestFixture]
     public class TestGet
     {
-        private static ILog Log = LogManager.GetLogger("TestModuleGetter");
+        private static ILogger Log = LogManager.GetLogger<TestGet>();
 
         [Test]
         public void TestGetDepsSimple()

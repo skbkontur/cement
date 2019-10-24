@@ -7,8 +7,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Common.Logging;
 using JetBrains.Annotations;
-using log4net;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
@@ -22,7 +23,7 @@ namespace Common
         public static string CurrentWorkspace { get; private set; }
         public static readonly object LockObject = new object();
         public static readonly object PackageLockObject = new object();
-        private static readonly ILog Log = LogManager.GetLogger("commonHelper");
+        private static ILogger Log;
 
         public static void SetWorkspace(string workspace)
         {
@@ -267,12 +268,12 @@ namespace Common
                 File.Create(filePath).Close();
         }
 
-        public static void RemoveOldKey(ref string[] args, string oldKey, ILog log)
+        public static void RemoveOldKey(ref string[] args, string oldKey, ILogger log)
         {
             if (args.Contains(oldKey))
             {
                 ConsoleWriter.WriteError("Don't use old " + oldKey + " key.");
-                log.Warn("Found old key " + oldKey + " in " + string.Join(" ", args) + " in " + Directory.GetCurrentDirectory());
+                log.LogWarning("Found old key " + oldKey + " in " + string.Join(" ", args) + " in " + Directory.GetCurrentDirectory());
                 args = args.Where(a => a != oldKey).ToArray();
             }
         }
@@ -356,6 +357,8 @@ namespace Common
         {
             if (!File.Exists(fullPathToMsBuild))
                 return null;
+            if (Log == null)
+                Log = LogManager.GetLogger(typeof(Helper));
 
             try
             {
@@ -372,11 +375,11 @@ namespace Common
                     }
                 }
                 else
-                    Log.Debug("Failed to get msbuild version for " + fullPathToMsBuild);
+                    Log.LogDebug("Failed to get msbuild version for " + fullPathToMsBuild);
             }
             catch (Exception e)
             {
-                Log.Warn("Failed to get MSBuild version from " + fullPathToMsBuild, e);
+                Log.LogWarning("Failed to get MSBuild version from " + fullPathToMsBuild, e);
             }
             return null;
         }
