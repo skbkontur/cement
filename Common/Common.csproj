@@ -3,28 +3,8 @@
     <ProjectGuid>{FF01947B-2535-4EC9-B465-B9543E6B18EE}</ProjectGuid>
     <TargetFramework>net472</TargetFramework>
     <Product>Common</Product>
-    <Copyright>Copyright ©  2015</Copyright>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>full</DebugType>
+    <Copyright>Copyright © 2019</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <DebugType>full</DebugType>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <DebugType>pdbonly</DebugType>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
@@ -72,13 +52,5 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Management" />
     <Reference Include="System.Security" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="WebClientWithTimeout.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Logging\AsyncRollingFileAppender.cs" />
   </ItemGroup>
 </Project>
