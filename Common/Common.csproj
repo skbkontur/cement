@@ -1,292 +1,56 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{FF01947B-2535-4EC9-B465-B9543E6B18EE}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Common</RootNamespace>
-    <AssemblyName>Common</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <TargetFramework>net472</TargetFramework>
+    <Product>Common</Product>
+    <Copyright>Copyright © 2019</Copyright>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations, Version=2019.1.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325">
-      <HintPath>..\packages\JetBrains.Annotations.2019.1.1\lib\net20\JetBrains.Annotations.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Configuration.3.0.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=3.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Configuration.Abstractions.3.0.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Configuration.Binder, Version=3.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Configuration.Binder.3.0.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.Binder.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=3.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.3.0.0\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=3.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.3.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Logging, Version=3.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Logging.3.0.0\lib\netstandard2.0\Microsoft.Extensions.Logging.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=3.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.3.0.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Options, Version=3.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Options.3.0.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Primitives, Version=3.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Primitives.3.0.0\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
-    </Reference>
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.0.0" />
+    <PackageReference Include="NDesk.Options" Version="0.2.1" />
+    <PackageReference Include="NSubstitute" Version="1.8.1.0" />
+    <PackageReference Include="NuGet.CommandLine" Version="4.1.0"/>
+    <PackageReference Include="System.Buffers" Version="4.4.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0" />
+    <PackageReference Include="System.Memory" Version="4.5.2" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.4.0" />
+    <PackageReference Include="Vostok.ClusterClient.Core" Version="0.1.9" />
+    <PackageReference Include="Vostok.ClusterClient.Topology.CC" Version="0.1.0" />
+    <PackageReference Include="Vostok.ClusterClient.Transport" Version="0.1.7" />
+    <PackageReference Include="Vostok.ClusterConfig.Client.Abstractions" Version="0.1.0" />
+    <PackageReference Include="Vostok.Configuration.Abstractions" Version="0.1.8" />
+    <PackageReference Include="Vostok.Configuration.Sources" Version="0.1.5" />
+    <PackageReference Include="Vostok.Context" Version="0.1.2" />
+    <PackageReference Include="Vostok.Hercules.Client" Version="0.1.3" />
+    <PackageReference Include="Vostok.Hercules.Client.Abstractions" Version="0.1.4" />
+    <PackageReference Include="Vostok.Logging.Abstractions" Version="1.0.2" />
+    <PackageReference Include="Vostok.Logging.Context" Version="1.0.0" />
+    <PackageReference Include="Vostok.Logging.File" Version="1.0.3" />
+    <PackageReference Include="Vostok.Logging.Formatting" Version="1.0.3" />
+    <PackageReference Include="Vostok.Logging.Hercules" Version="0.1.0" />
+    <PackageReference Include="Vostok.Logging.Microsoft" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="mscorlib" />
-    <Reference Include="NDesk.Options">
-      <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
-    </Reference>
     <Reference Include="NuGet">
       <HintPath>..\packages\NuGet.CommandLine.4.1.0\tools\NuGet.exe</HintPath>
     </Reference>
     <Reference Include="SharpYaml, Version=1.6.5.0, Culture=neutral, PublicKeyToken=1ced8108e942bc02">
       <HintPath>..\externals\SharpYaml.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ComponentModel.Annotations.4.6.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
-    <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.5.2\lib\netstandard2.0\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.6.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
     <Reference Include="System.Security" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="Vostok.ClusterClient.Core, Version=0.1.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.ClusterClient.Core.0.1.9\lib\netstandard2.0\Vostok.ClusterClient.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.ClusterClient.Topology.CC, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.ClusterClient.Topology.CC.0.1.0\lib\netstandard2.0\Vostok.ClusterClient.Topology.CC.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.ClusterClient.Transport, Version=0.1.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.ClusterClient.Transport.0.1.7\lib\netstandard2.0\Vostok.ClusterClient.Transport.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.ClusterConfig.Client.Abstractions, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.ClusterConfig.Client.Abstractions.0.1.0\lib\netstandard2.0\Vostok.ClusterConfig.Client.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Configuration.Abstractions, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Configuration.Abstractions.0.1.8\lib\netstandard2.0\Vostok.Configuration.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Configuration.Sources, Version=0.1.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Configuration.Sources.0.1.5\lib\netstandard2.0\Vostok.Configuration.Sources.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Context, Version=0.1.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Context.0.1.2\lib\netstandard2.0\Vostok.Context.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Hercules.Client, Version=0.1.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Hercules.Client.0.1.3\lib\netstandard2.0\Vostok.Hercules.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Hercules.Client.Abstractions, Version=0.1.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Hercules.Client.Abstractions.0.1.4\lib\netstandard2.0\Vostok.Hercules.Client.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Logging.Abstractions, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Logging.Abstractions.1.0.2\lib\netstandard2.0\Vostok.Logging.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Logging.Context, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Logging.Context.1.0.0\lib\netstandard2.0\Vostok.Logging.Context.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Logging.File, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Logging.File.1.0.3\lib\netstandard2.0\Vostok.Logging.File.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Logging.Formatting, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Logging.Formatting.1.0.3\lib\netstandard2.0\Vostok.Logging.Formatting.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Logging.Hercules, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Logging.Hercules.0.1.0\lib\netstandard2.0\Vostok.Logging.Hercules.dll</HintPath>
-    </Reference>
-    <Reference Include="Vostok.Logging.Microsoft, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vostok.Logging.Microsoft.2.0.0\lib\netstandard2.0\Vostok.Logging.Microsoft.dll</HintPath>
-    </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ArborJs.cs" />
-    <Compile Include="ArgumentParser.cs" />
-    <Compile Include="Branch.cs" />
-    <Compile Include="BuildPreparer.cs" />
-    <Compile Include="BuildSettings.cs" />
-    <Compile Include="BuildYamlScriptsMaker.cs" />
-    <Compile Include="BuiltHelper.cs" />
-    <Compile Include="BuiltInfoStorage.cs" />
-    <Compile Include="CementExceptions.cs" />
-    <Compile Include="CementFromServerUpdater.cs" />
-    <Compile Include="CementSettings.cs" />
-    <Compile Include="Extensions\DepsContentExtensions.cs" />
-    <Compile Include="Extensions\DictionaryExtensions.cs" />
-    <Compile Include="Extensions\EnumerableExtensions.cs" />
-    <Compile Include="Extensions\InstallDataExtensions.cs" />
-    <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Graph\GraphHelper.cs" />
-    <Compile Include="Graph\ParallelBuilder.cs" />
-    <Compile Include="InstallHelper.cs" />
-    <Compile Include="Logging\BoundedBuffer.cs" />
-    <Compile Include="ICementUpdater.cs" />
-    <Compile Include="CompleteCommandAutomata.cs" />
-    <Compile Include="DictionaryFriendlyContractResolver.cs" />
-    <Compile Include="ConfigurationManager.cs" />
-    <Compile Include="DepsChecker.cs" />
-    <Compile Include="DepsPatcher.cs" />
-    <Compile Include="CementFromGitHubUpdater.cs" />
-    <Compile Include="HooksHelper.cs" />
-    <Compile Include="InstallParser.cs" />
-    <Compile Include="InstallXmlParser.cs" />
-    <Compile Include="ClusterConfigProviders\FixedUrlClusterProvider.cs" />
-    <Compile Include="Logging\HerculesLogConfiguration.cs" />
-    <Compile Include="Logging\LogHelper.cs" />
-    <Compile Include="Logging\LogManager.cs" />
-    <Compile Include="Models.cs" />
-    <Compile Include="BuildData.cs" />
-    <Compile Include="ModuleBuilderHelper.cs" />
-    <Compile Include="MsBuildLikeTool.cs" />
-    <Compile Include="NuGetHelper.cs" />
-    <Compile Include="NuGetPackageHepler.cs" />
-    <Compile Include="Rider.cs" />
-    <Compile Include="RulesetFile.cs" />
-    <Compile Include="ShowParentsAnswer.cs" />
-    <Compile Include="Usages.cs" />
-    <Compile Include="VsDevHelper.cs" />
-    <Compile Include="WebClientWithTimeout.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="XmlDocumentHelper.cs" />
-    <Compile Include="YamlParsers\BuildYamlParser.cs" />
-    <Compile Include="ConsoleWriter.cs" />
-    <Compile Include="ConfigurationParser.cs" />
-    <Compile Include="ConfigurationXmlParser.cs" />
-    <Compile Include="CycleDetector.cs" />
-    <Compile Include="Dep.cs" />
-    <Compile Include="DepsIniParser.cs" />
-    <Compile Include="DepsParser.cs" />
-    <Compile Include="YamlParsers\DepsYamlParser.cs" />
-    <Compile Include="DirectoryJumper.cs" />
-    <Compile Include="GitRepository.cs" />
-    <Compile Include="Helper.cs" />
-    <Compile Include="IConfigurationParser.cs" />
-    <Compile Include="IniData.cs" />
-    <Compile Include="IniParser.cs" />
-    <Compile Include="InstallCollector.cs" />
-    <Compile Include="InstallData.cs" />
-    <Compile Include="YamlParsers\HooksYamlParser.cs" />
-    <Compile Include="YamlParsers\InstallYamlParser.cs" />
-    <Compile Include="Module.cs" />
-    <Compile Include="ModuleBuilder.cs" />
-    <Compile Include="ModuleGetter.cs" />
-    <Compile Include="ModuleGetterCollections.cs" />
-    <Compile Include="ModuleIniParser.cs" />
-    <Compile Include="YamlParsers\ConfigurationYamlParser.cs" />
-    <Compile Include="Package.cs" />
-    <Compile Include="PackageUpdater.cs" />
-    <Compile Include="PolicyMapper.cs" />
-    <Compile Include="ProjectFile.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShellRunner.cs" />
-    <Compile Include="TempDirectory.cs" />
-    <Compile Include="VisualStudioProjectParser.cs" />
-    <Compile Include="YamlParsers\Models\ConfigSectionTitle.cs" />
-    <Compile Include="YamlParsers\Models\DepSectionItem.cs" />
-    <Compile Include="YamlParsers\Models\ModuleConfig.cs" />
-    <Compile Include="YamlParsers\Models\ModuleDefaults.cs" />
-    <Compile Include="YamlParsers\Models\ModuleDefinition.cs" />
-    <Compile Include="YamlParsers\Models\DepsSection.cs" />
-    <Compile Include="YamlParsers\Models\InstallSection.cs" />
-    <Compile Include="YamlParsers\ModuleYamlFile.cs" />
-    <Compile Include="YamlParsers\SettingsYamlParser.cs" />
-    <Compile Include="YamlParsers\V2\BuildSectionParser.cs" />
-    <Compile Include="YamlParsers\Models\ConfigSection.cs" />
-    <Compile Include="YamlParsers\V2\ConfigSectionParser.cs" />
-    <Compile Include="YamlParsers\V2\ConfigSectionTitleParser.cs" />
-    <Compile Include="YamlParsers\V2\ConfigurationHierarchy.cs" />
-    <Compile Include="YamlParsers\V2\DepSectionItemParser.cs" />
-    <Compile Include="YamlParsers\V2\DepsSectionMerger.cs" />
-    <Compile Include="YamlParsers\V2\DepsSectionParser.cs" />
-    <Compile Include="YamlParsers\V2\Factories\ConfigurationHierarchyFactory.cs" />
-    <Compile Include="YamlParsers\V2\Factories\ModuleYamlParserFactory.cs" />
-    <Compile Include="YamlParsers\V2\HooksSectionParser.cs" />
-    <Compile Include="YamlParsers\V2\InstallSectionMerger.cs" />
-    <Compile Include="YamlParsers\V2\InstallSectionParser.cs" />
-    <Compile Include="YamlParsers\V2\ModuleDefaultsParser.cs" />
-    <Compile Include="YamlParsers\V2\ModuleYamlParser.cs" />
-    <Compile Include="YamlParsers\V2\SettingsSectionParser.cs" />
-    <Compile Include="YamlParsers\Yaml.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
