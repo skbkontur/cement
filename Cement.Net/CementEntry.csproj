@@ -15,17 +15,37 @@
       <MergeAssemblies Include="$(OutputPath)\Cement.exe" />
       <MergeAssemblies Include="$(OutputPath)\Commands.dll" />
       <MergeAssemblies Include="$(OutputPath)\Common.dll" />
+      <MergeAssemblies Include="$(OutputPath)\NuGet.exe" />
       <MergeAssemblies Include="$(OutputPath)\NDesk.Options.dll" />
       <MergeAssemblies Include="$(OutputPath)\SharpYaml.dll" />
-      <MergeAssemblies Include="$(OutputPath)\NuGet.exe" />
       <MergeAssemblies Include="$(OutputPath)\JetBrains.Annotations.dll" />
-    </ItemGroup>
+      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Logging.Abstractions.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Logging.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.DependencyInjection.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Options.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Core.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Topology.CC.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Transport.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterConfig.Client.Abstractions.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Configuration.Abstractions.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Configuration.Sources.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Context.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Hercules.Client.Abstractions.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Hercules.Client.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Abstractions.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Context.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.File.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Formatting.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Hercules.dll" />
+      <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Microsoft.dll" />
+     </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputPath)\cm.exe</OutputAssembly>
       <Merger>"$(SolutionDir)\packages\ILRepack.1.26.0\tools\ILRepack.exe"</Merger>
     </PropertyGroup>
-    <Message Text="MERGING: @(MergeAssemblies-&gt;'%(Filename)') into $(OutputAssembly)" Importance="High" />
-    <Exec Command="$(Merger) /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies-&gt;'&quot;%(FullPath)&quot;', ' ')" />
+    <Message Text="MERGING: @(MergeAssemblies->'%(Filename)') into $(OutputAssembly)" Importance="High" />
+    <Exec Command="$(Merger) /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
   </Target>
   <Target Name="CopyExe" AfterTargets="Build" DependsOnTargets="Merge" Condition="'$(OS)' != 'Unix'">
     <Exec Command="rmdir /S /Q %25userprofile%25\bin\dotnet" />
@@ -45,7 +65,7 @@
     <Exec Condition="Exists('$(SolutionDir)/files-kontur')" Command="cp -R $(SolutionDir)/files-kontur/* ~/bin/dotnet" />
   </Target>
   <ItemGroup>
-    <PackageReference Include="ILRepack" Version="1.26.0" />
+    <PackageReference Include="ILRepack" Version="2.0.18" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
     <PackageReference Include="ManyConsole" Version="0.4.2.17" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
