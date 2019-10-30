@@ -15,7 +15,7 @@ using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Common.Logging
 {
-    public static class LogManager
+    internal static class LogManager
     {
         private static ILoggerFactory loggerFactory;
 
