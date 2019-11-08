@@ -4,7 +4,6 @@ using System.IO;
 using Common;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
-using NuGet.ProjectManagement;
 
 namespace Commands
 {
