@@ -8,8 +8,7 @@ namespace Common
 {
     public class BuiltInfoStorage
     {
-        [JsonProperty]
-        private readonly Dictionary<Dep, List<DepWithCommitHash>> modulesWithDeps;
+        [JsonProperty] private readonly Dictionary<Dep, List<DepWithCommitHash>> modulesWithDeps;
 
         private BuiltInfoStorage()
         {

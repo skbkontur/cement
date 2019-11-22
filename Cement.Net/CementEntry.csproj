@@ -9,7 +9,6 @@
     <Version>4.1.0</Version>
     <BuildDependsOn>$(BuildDependsOn);AfterBuildMigrated</BuildDependsOn>
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <Target Name="Merge" AfterTargets="Build">
      <ItemGroup>
@@ -20,45 +19,26 @@
       <MergeAssemblies Include="$(OutputPath)\NDesk.Options.dll" />
       <MergeAssemblies Include="$(OutputPath)\SharpYaml.dll" />
       <MergeAssemblies Include="$(OutputPath)\JetBrains.Annotations.dll" />
-      <MergeAssemblies Include="$(OutputPath)\System.Buffers.dll" />
-
       <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Logging.Abstractions.dll" />
       <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Logging.dll" />
-      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Configuration.dll" />
-      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Configuration.Abstractions.dll" />
-      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Configuration.Binder.dll" />
-      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.FileProviders.Abstractions.dll" />
-      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Configuration.FileExtensions.dll" />
-       
-      <MergeAssemblies Include="$(OutputPath)\System.Numerics.Vectors.dll" />
-      <MergeAssemblies Include="$(OutputPath)\System.Runtime.CompilerServices.Unsafe.dll" />
-      <MergeAssemblies Include="$(OutputPath)\System.Memory.dll" />
-      <MergeAssemblies Include="$(OutputPath)\System.Text.Json.dll" />
-
-      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.FileProviders.Physical.dll" />
-      <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Configuration.Json.dll" />
       <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
       <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.DependencyInjection.dll" />
       <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Options.dll" />
-
       <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Core.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Topology.CC.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Transport.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterConfig.Client.Abstractions.dll" />
-
       <MergeAssemblies Include="$(OutputPath)\Vostok.Configuration.Abstractions.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.Configuration.Sources.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.Context.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.Hercules.Client.Abstractions.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.Hercules.Client.dll" />
-
       <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Abstractions.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Context.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.File.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Formatting.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Hercules.dll" />
       <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Microsoft.dll" />
-
      </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputPath)\cm.exe</OutputAssembly>
@@ -87,6 +67,23 @@
   <ItemGroup>
     <PackageReference Include="ILRepack" Version="2.0.18" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
+    <PackageReference Include="ManyConsole" Version="0.4.2.17" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.0.0" />
+    <PackageReference Include="NDesk.Options" Version="0.2.1" />
+    <PackageReference Include="NSubstitute" Version="1.8.1.0" />
+    <PackageReference Include="System.Buffers" Version="4.4.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0" />
+    <PackageReference Include="System.Memory" Version="4.5.2" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.4.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />

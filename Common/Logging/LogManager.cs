@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using Common.ClusterConfigProviders;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Vostok.Hercules.Client;
 using Vostok.Logging.Abstractions;
 using Vostok.Logging.File;
@@ -15,7 +15,7 @@ using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Common.Logging
 {
-    public static class LogManager
+    internal static class LogManager
     {
         private static ILoggerFactory loggerFactory;
 
@@ -67,29 +67,32 @@ namespace Common.Logging
 
         public static void InitializeHerculesLogger()
         {
-            var configLogFilePath = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "herculeslog.config.json");
-
-            if (!(herculesLog is null) || !File.Exists(configLogFilePath))
+            if (!(herculesLog is null))
                 return;
 
-            var logConfiguration = new ConfigurationBuilder()
-                    .AddJsonFile(configLogFilePath)
-                    .Build()
-                    .Get<HerculesLogConfiguration>();
-
-            var settings = new HerculesSinkSettings(new FixedUrlClusterProvider(logConfiguration.ServerUrl), () => logConfiguration.ApiKey)
+            var configLogFilePath = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "herculeslog.config.json");
+            if (!File.Exists(configLogFilePath))
             {
-                MaximumMemoryConsumption = logConfiguration.MaximumMemoryConsumptionInBytes
+                ConsoleWriter.WriteError($"{configLogFilePath} not found.");
+                return;
+            }
+
+            var configuration = JsonConvert
+                .DeserializeObject<HerculesLogConfiguration>(File.ReadAllText(configLogFilePath));
+
+            var settings = new HerculesSinkSettings(new FixedUrlClusterProvider(configuration.ServerUrl), () => configuration.ApiKey)
+            {
+                MaximumMemoryConsumption = 256 * 1024 * 1024 // 256 MB
             };
 
             var herculesSink = new HerculesSink(settings, new SilentLog());
 
-            herculesLog = new HerculesLog(new HerculesLogSettings(herculesSink, logConfiguration.Stream))
+            herculesLog = new HerculesLog(new HerculesLogSettings(herculesSink, configuration.Stream))
                 .WithProperties(
                     new Dictionary<string, object>
                     {
-                        ["project"] = logConfiguration.Project,
-                        ["environment"] = logConfiguration.Environment
+                        ["project"] = configuration.Project,
+                        ["environment"] = configuration.Environment
                     });
 
             loggerFactory.AddVostok(herculesLog);

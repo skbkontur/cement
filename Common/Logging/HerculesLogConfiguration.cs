@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace Common.Logging
 {
-    public sealed class HerculesLogConfiguration
+    internal sealed class HerculesLogConfiguration
     {
         public string Stream { get; set; }
         public string ApiKey { get; set; }
         public string ServerUrl { get; set; }
         public string Project { get; set; }
         public string Environment { get; set; } 
-        public long MaximumMemoryConsumptionInBytes { get; set; }
     }
 }

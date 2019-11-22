@@ -6,7 +6,6 @@
     <Product>Commands</Product>
     <Copyright>Copyright © 2019</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
@@ -17,6 +16,7 @@
     <Reference Include="NuGet">
       <HintPath>..\packages\NuGet.CommandLine.4.1.0\tools\NuGet.exe</HintPath>
     </Reference>
+    <Reference Include="System.IO.Compression" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
