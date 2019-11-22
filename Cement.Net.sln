@@ -3,18 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CementEntry", "Cement.Net\CementEntry.csproj", "{F2653B6E-F201-497A-88FC-49AFAAF799DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CementEntry", "Cement.Net\CementEntry.csproj", "{F2653B6E-F201-497A-88FC-49AFAAF799DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Commands", "Commands\Commands.csproj", "{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Commands", "Commands\Commands.csproj", "{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{FF01947B-2535-4EC9-B465-B9543E6B18EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{FF01947B-2535-4EC9-B465-B9543E6B18EE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{2B8AB101-3B4F-4D2E-A599-06ADD4DD7779}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{082DF4E1-50B1-4F31-9C60-5B768896C7E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{082DF4E1-50B1-4F31-9C60-5B768896C7E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

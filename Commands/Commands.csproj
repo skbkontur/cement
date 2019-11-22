@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC}</ProjectGuid>
-    <TargetFramework>net472</TargetFramework>
+	  <TargetFramework>net472</TargetFramework>
     <AssemblyTitle>Commands</AssemblyTitle>
     <Product>Commands</Product>
     <Copyright>Copyright © 2019</Copyright>
@@ -10,11 +9,10 @@
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.0" />
-    <PackageReference Include="NuGet.CommandLine" Version="4.1.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="NuGet">
-      <HintPath>..\packages\NuGet.CommandLine.4.1.0\tools\NuGet.exe</HintPath>
+      <HintPath>..\externals\NuGet.exe</HintPath>
     </Reference>
     <Reference Include="System.IO.Compression" />
   </ItemGroup>
