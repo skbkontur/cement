@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "CementEntry": {
-      "commandName": "Project",
-      "commandLineArgs": "get log4net",
-      "workingDirectory": "C:\\Users\\a.isakov\\Desktop\\Test"
-    }
-  }
-}

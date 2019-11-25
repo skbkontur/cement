@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using Common.ClusterConfigProviders;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Vostok.Hercules.Client;
 using Vostok.Logging.Abstractions;
 using Vostok.Logging.File;
@@ -29,20 +29,14 @@ namespace Common.Logging
                     .SetMinimumLevel(LogLevel.None));
         }
 
-        public static ILogger GetLogger(Type type)
-        {
-            return loggerFactory.CreateLogger(type);
-        }
+        public static ILogger GetLogger(Type type) =>
+            loggerFactory.CreateLogger(type);
 
-        public static ILogger<T> GetLogger<T>()
-        {
-            return loggerFactory.CreateLogger<T>();
-        }
+        public static ILogger<T> GetLogger<T>() =>
+            loggerFactory.CreateLogger<T>();
 
-        public static ILogger GetLogger(string categoryName)
-        {
-            return loggerFactory.CreateLogger(categoryName);
-        }
+        public static ILogger GetLogger(string categoryName) =>
+            loggerFactory.CreateLogger(categoryName);
 
         public static void SetDebugLoggingLevel()
         {
@@ -77,12 +71,17 @@ namespace Common.Logging
                 return;
             }
 
-            var configuration = JsonConvert
-                .DeserializeObject<HerculesLogConfiguration>(File.ReadAllText(configLogFilePath));
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile(configLogFilePath)
+                .Build()
+                .Get<HerculesLogConfiguration>();
+
+            if (!configuration.UseHerculesLog)
+                return;
 
             var settings = new HerculesSinkSettings(new FixedUrlClusterProvider(configuration.ServerUrl), () => configuration.ApiKey)
             {
-                MaximumMemoryConsumption = 256 * 1024 * 1024 // 256 MB
+                MaximumMemoryConsumption = configuration.MaximumMemoryConsumptionInBytes
             };
 
             var herculesSink = new HerculesSink(settings, new SilentLog());

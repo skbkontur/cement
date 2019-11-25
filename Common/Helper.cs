@@ -357,8 +357,6 @@ namespace Common
         {
             if (!File.Exists(fullPathToMsBuild))
                 return null;
-            if (Log == null)
-                Log = LogManager.GetLogger(typeof(Helper));
 
             try
             {

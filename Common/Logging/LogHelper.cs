@@ -2,14 +2,11 @@
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using Vostok.Logging.Microsoft;
 
 namespace Common.Logging
 {
     public static class LogHelper
     {
-        public static bool HasInitializedLogging;
-
         public static void InitializeFileAndElkLogging(string logFileName)
         {
             LogManager.InitializeHerculesLogger();
@@ -21,7 +18,6 @@ namespace Common.Logging
             LogManager.InitializeHerculesLogger();
             LogManager.InitializeFileLogger(null);
         }
-
 
         public static void SaveLog(string log)
         {
