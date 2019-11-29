@@ -1,9 +1,3 @@
 {
-  "UseHerculesLog": true,
-  "Stream": "logs_cement_prod",
-  "ApiKey": "cement_telemetry_write_key_prod_d6e18d733af84cbcb90a7e8b11a3a825",
-  "ServerUrl": "https://hercules.skbkontur.ru:6306",
-  "Project": "Cement",
-  "Environment": "Production",
-  "MaximumMemoryConsumptionInBytes": 268435456
+  "UseHerculesLog": false
 }
