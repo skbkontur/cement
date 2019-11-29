@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using Common;
-using Common.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Commands

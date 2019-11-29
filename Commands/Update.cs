@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using Common;
-using Common.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Commands

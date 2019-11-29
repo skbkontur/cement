@@ -4,7 +4,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using Common;
-using Common.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Commands

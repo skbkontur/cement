@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
+	<PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>cm</RootNamespace>
     <AssemblyName>Cement</AssemblyName>
@@ -12,8 +12,11 @@
 	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <WarningLevel>2</WarningLevel>
-  </PropertyGroup>
+		<WarningLevel>2</WarningLevel>
+	</PropertyGroup>
+	<Target Name="BeforeBuild">
+		<GitCommit2AssemblyTitle />
+	</Target>
   <Target Name="Merge" AfterTargets="Build">
      <ItemGroup>
 	   <MergeAssemblies Include="$(OutputPath)\Cement.exe" />

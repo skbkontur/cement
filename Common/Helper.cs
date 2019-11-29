@@ -23,7 +23,7 @@ namespace Common
         public static string CurrentWorkspace { get; private set; }
         public static readonly object LockObject = new object();
         public static readonly object PackageLockObject = new object();
-        private static ILogger Log = LogManager.GetLogger(typeof(Helper));
+        private static readonly ILogger Log = LogManager.GetLogger(typeof(Helper));
 
         public static void SetWorkspace(string workspace)
         {
