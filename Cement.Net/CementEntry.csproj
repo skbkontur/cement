@@ -9,6 +9,10 @@
     <Version>4.1.0</Version>
     <BuildDependsOn>$(BuildDependsOn);AfterBuildMigrated</BuildDependsOn>
     <OutputPath>bin\$(Configuration)\</OutputPath>
+	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>2</WarningLevel>
   </PropertyGroup>
   <Target Name="Merge" AfterTargets="Build">
      <ItemGroup>
