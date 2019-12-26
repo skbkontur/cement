@@ -2,7 +2,7 @@
 {
     internal sealed class HerculesLogConfiguration
     {
-        public bool UseHerculesLog { get; set; }
+        public bool HerculesLogEnabled { get; set; }
         public string Stream { get; set; }
         public string ApiKey { get; set; }
         public string ServerUrl { get; set; }

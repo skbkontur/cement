@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Common.ClusterConfigProviders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Vostok.Clusterclient.Core.Topology;
 using Vostok.Hercules.Client;
 using Vostok.Logging.Abstractions;
 using Vostok.Logging.File;
@@ -76,10 +76,10 @@ namespace Common.Logging
                 .Build()
                 .Get<HerculesLogConfiguration>();
 
-            if (!configuration.UseHerculesLog)
+            if (!configuration.HerculesLogEnabled)
                 return;
 
-            var settings = new HerculesSinkSettings(new FixedUrlClusterProvider(configuration.ServerUrl), () => configuration.ApiKey)
+            var settings = new HerculesSinkSettings(new FixedClusterProvider(configuration.ServerUrl), () => configuration.ApiKey)
             {
                 MaximumMemoryConsumption = configuration.MaximumMemoryConsumptionInBytes
             };
