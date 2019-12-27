@@ -97,6 +97,22 @@ namespace Common.Logging
             loggerFactory.AddVostok(herculesLog);
         }
 
+        public static void DisposeFileLogger()
+        {
+            (fileLog as IDisposable)?.Dispose();
+        }
+
+        public static void DisposeHerculesLogger()
+        {
+            (herculesLog as IDisposable)?.Dispose();
+        }
+
+        public static void DisposeLoggers()
+        {
+            DisposeFileLogger();
+            DisposeHerculesLogger();
+        }
+
         private static ILog GetFileLogger(string logFileName)
         {
             logFileName = logFileName == null

@@ -22,6 +22,8 @@ namespace cm
             if (command != "complete" && command != "check-pre-commit"
                 && (command != "help" || !args.Contains("--gen")))
                 SelfUpdate.UpdateIfOld();
+
+            LogManager.DisposeLoggers();
             
             return exitCode == 0 ? 0 : 13;
         }
