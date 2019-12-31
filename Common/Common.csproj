@@ -14,8 +14,8 @@
     <PackageReference Include="SharpYaml" Version="1.6.5" />
     <PackageReference Include="Vostok.Hercules.Client" Version="0.1.3" />
     <PackageReference Include="Vostok.Logging.File" Version="1.0.4" />
-    <PackageReference Include="Vostok.Logging.Hercules" Version="0.1.1" />
-    <PackageReference Include="Vostok.Logging.Microsoft" Version="2.0.0" />
+    <PackageReference Include="Vostok.Logging.Hercules" Version="0.1.2" />
+    <PackageReference Include="Vostok.Logging.Microsoft" Version="2.0.3" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

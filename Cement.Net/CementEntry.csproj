@@ -48,12 +48,10 @@
 	   <MergeAssemblies Include="$(OutputPath)\System.Text.Json.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\System.Threading.Tasks.Extensions.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\System.ValueTuple.dll" />
-	   <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Core.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Transport.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Context.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Hercules.Client.Abstractions.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Hercules.Client.dll" />
-	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Abstractions.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Context.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.File.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Formatting.dll" />

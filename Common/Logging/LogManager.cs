@@ -84,7 +84,8 @@ namespace Common.Logging
                 MaximumMemoryConsumption = configuration.MaximumMemoryConsumptionInBytes
             };
 
-            var herculesSink = new HerculesSink(settings, new SilentLog());
+            var fileLogForHercules = GetFileLogger("hercules.log");
+            var herculesSink = new HerculesSink(settings, fileLogForHercules);
 
             herculesLog = new HerculesLog(new HerculesLogSettings(herculesSink, configuration.Stream))
                 .WithProperties(
