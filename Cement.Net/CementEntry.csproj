@@ -70,6 +70,9 @@
     <Exec Command="mkdir %25userprofile%25\bin\dotnet" />
     <Exec Command="copy $(OutputAssembly) %25userprofile%25\bin\dotnet\cm.exe" />
     <Exec Command="copy $(OutputAssembly).config %25userprofile%25\bin\dotnet\cm.exe.config" />
+    <Exec Command="copy $(OutputPath)\Microsoft.Extensions.Primitives.dll %25userprofile%25\bin\dotnet\Microsoft.Extensions.Primitives.dll" />
+    <Exec Command="copy $(OutputPath)\Vostok.ClusterClient.Core.dll %25userprofile%25\bin\dotnet\Vostok.ClusterClient.Core.dll" />
+    <Exec Command="copy $(OutputPath)\Vostok.Logging.Abstractions.dll %25userprofile%25\bin\dotnet\Vostok.Logging.Abstractions.dll" />
     <Exec Command="xcopy $(SolutionDir)\files-common %25userprofile%25\bin\dotnet /s /i /Y" />
     <Exec Condition="Exists('$(SolutionDir)\files-kontur')" Command="xcopy $(SolutionDir)\files-kontur %25userprofile%25\bin\dotnet /s /i /Y" />
     <Exec Command="$(OutputAssembly) help --gen $(SolutionDir)\README-commands.md" />
@@ -79,6 +82,9 @@
     <Exec Command="mkdir ~/bin/dotnet" />
     <Exec Command="cp $(OutputAssembly) ~/bin/dotnet/cm.exe" />
     <Exec Command="cp $(OutputAssembly).config ~/bin/dotnet/cm.exe.config" />
+    <Exec Command="cp $(OutputPath)/Microsoft.Extensions.Primitives.dll ~/bin/dotnet/Microsoft.Extensions.Primitives.dll" />
+    <Exec Command="cp $(OutputPath)/Vostok.ClusterClient.Core.dll ~/bin/dotnet/Vostok.ClusterClient.Core.dll" />
+    <Exec Command="cp $(OutputPath)/Vostok.Logging.Abstractions.dll ~/bin/dotnet/Vostok.Logging.Abstractions.dll" />
     <Exec Command="cp -R $(SolutionDir)/files-common/* ~/bin/dotnet" />
     <Exec Condition="Exists('$(SolutionDir)/files-kontur')" Command="cp -R $(SolutionDir)/files-kontur/* ~/bin/dotnet" />
   </Target>
