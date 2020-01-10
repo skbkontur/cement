@@ -3,8 +3,8 @@ version: '{build}-{branch}'
 image: Visual Studio 2017
 clone_script:
   - cmd: >-
-      echo "Start clone. Branch: %APPVEYOR_REPO_BRANCH%"
-      && if %APPVEYOR_PULL_REQUEST_NUMBER% == 0 (git clone --recursive -q --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%) else (git clone --recursive -q --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%)
+      if %APPVEYOR_PULL_REQUEST_NUMBER% == 0 (echo "Start clone. Branch: %APPVEYOR_REPO_BRANCH%" && git clone --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%)
+      else (echo "Start clone. Branch: %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%" && git clone --recursive --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%)
 install:
   - nuget restore
 configuration: Debug
