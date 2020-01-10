@@ -18,7 +18,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "UPDATE",
-                LogFileName = "update-deps.net.log",
+                LogFileName = "update-deps",
                 MeasureElapsedTime = true,
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
             })

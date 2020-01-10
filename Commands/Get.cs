@@ -19,7 +19,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "GET",
-                LogFileName = "get.net.log",
+                LogFileName = "get",
                 MeasureElapsedTime = true,
                 Location = CommandSettings.CommandLocation.WorkspaceDirectory
             })

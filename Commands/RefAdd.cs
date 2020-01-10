@@ -20,7 +20,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "REF-ADD",
-                LogFileName = "ref-add.net.log",
+                LogFileName = "ref-add",
                 MeasureElapsedTime = false,
                 Location = CommandSettings.CommandLocation.InsideModuleDirectory
             })

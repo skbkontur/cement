@@ -19,7 +19,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "USAGES-BUILD",
-                LogFileName = "usages-build.net.log",
+                LogFileName = "usages-build",
                 MeasureElapsedTime = true,
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
             })

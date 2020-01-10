@@ -23,7 +23,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "REF-FIX",
-                LogFileName = "fixing-refs.net.log",
+                LogFileName = "fixing-refs",
                 MeasureElapsedTime = false,
                 RequireModuleYaml = true,
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
