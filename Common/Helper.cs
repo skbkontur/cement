@@ -154,7 +154,7 @@ namespace Common
         public static string GetCurrentBuildCommitHash()
         {
             var gitInfo = GetAssemblyTitle();
-            var commitHash = gitInfo.Split('\n').First().Replace("Commit: ", String.Empty).Trim();
+            var commitHash = gitInfo.Split('\n').Skip(1).First().Replace("Commit: ", String.Empty).Trim();
             return commitHash;
         }
 

@@ -8,7 +8,7 @@ namespace Commands
         public int Run(string[] args)
         {
             var lines = Helper.GetAssemblyTitle().Split('\n');
-            var version = string.Join("\n", lines.Take(4));
+            var version = string.Join("\n", lines.Skip(1).Take(4));
             ConsoleWriter.WriteInfo(version);
             return 0;
         }
