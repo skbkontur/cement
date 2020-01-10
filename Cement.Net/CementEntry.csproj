@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\dependencies\vostok.devtools\git-commit-to-assembly-title\Vostok.Tools.GitCommit2AssemblyTitle.props" />
 	<PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>cm</RootNamespace>
@@ -14,10 +15,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<WarningLevel>2</WarningLevel>
 	</PropertyGroup>
-	<Target Name="BeforeBuild">
-		<GitCommit2AssemblyTitle />
-	</Target>
-  <Target Name="Merge" AfterTargets="Build">
+	<Target Name="Merge" AfterTargets="Build">
      <ItemGroup>
 	   <MergeAssemblies Include="$(OutputPath)\Cement.exe" />
 	   <MergeAssemblies Include="$(OutputPath)\Commands.dll" />
