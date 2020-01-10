@@ -76,7 +76,7 @@ namespace Common.Logging
                 .Build()
                 .Get<HerculesLogConfiguration>();
 
-            if (!configuration.HerculesLogEnabled)
+            if (!configuration.Enabled)
                 return;
 
             var settings = new HerculesSinkSettings(new FixedClusterProvider(configuration.ServerUrl), () => configuration.ApiKey)
