@@ -1,6 +1,12 @@
 skip_branch_with_pr: true
 version: '{build}-{branch}'
 image: Visual Studio 2017
+clone_script:
+  - cmd: >-
+      git clone -q --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
+      && cd %APPVEYOR_BUILD_FOLDER%
+      && git checkout -qf %APPVEYOR_REPO_COMMIT%
+      && git submodule update --init --recursive
 install:
   - nuget restore
   - cd %APPVEYOR_BUILD_FOLDER%
