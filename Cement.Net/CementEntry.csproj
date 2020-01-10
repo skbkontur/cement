@@ -1,19 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-	<OutputType>Exe</OutputType>
-	<RootNamespace>cm</RootNamespace>
-	<AssemblyName>Cement</AssemblyName>
-	<TargetFramework>net472</TargetFramework>
-	<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-	<GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-	<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-	<GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-	<Product>Cement.Net</Product>
-	<Copyright>Copyright © 2019</Copyright>
-	<Version>4.1.0</Version>
-	<BuildDependsOn>$(BuildDependsOn);AfterBuildMigrated</BuildDependsOn>
-	<OutputPath>bin\$(Configuration)\</OutputPath>
-	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>cm</RootNamespace>
+    <AssemblyName>Cement</AssemblyName>
+    <TargetFramework>net472</TargetFramework>
+    <Product>Cement.Net</Product>
+    <Copyright>Copyright © 2019</Copyright>
+    <Version>4.1.0</Version>
+    <BuildDependsOn>$(BuildDependsOn);AfterBuildMigrated</BuildDependsOn>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<WarningLevel>2</WarningLevel>
