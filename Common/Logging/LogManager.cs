@@ -114,7 +114,7 @@ namespace Common.Logging
 
         private static ILog GetFileLogger(string logFileName)
         {
-            logFileName = logFileName == null
+            logFileName = logFileName == null || Helper.CurrentWorkspace == null
                 ? Path.Combine(Helper.GetGlobalCementDirectory(), "log", "log")
                 : Path.Combine(Helper.CurrentWorkspace, Helper.CementDirectory, "log", logFileName);
 
