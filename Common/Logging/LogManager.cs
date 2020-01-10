@@ -20,7 +20,7 @@ namespace Common.Logging
     {
         private static ILoggerFactory loggerFactory;
 
-        private static List<IDisposable> disposables = new List<IDisposable>();
+        private static readonly List<IDisposable> disposables = new List<IDisposable>();
 
         private static ILog fileLog;
         private static ILog herculesLog;
