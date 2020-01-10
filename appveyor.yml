@@ -4,7 +4,7 @@ image: Visual Studio 2017
 clone_script:
   - cmd: >-
       git clone --recursive -q --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER% 
-      git checkout -qf %APPVEYOR_REPO_COMMIT%
+      && git checkout -qf %APPVEYOR_REPO_COMMIT%
 install:
   - nuget restore
 configuration: Debug
