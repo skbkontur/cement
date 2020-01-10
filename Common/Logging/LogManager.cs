@@ -110,8 +110,8 @@ namespace Common.Logging
 
         public static void DisposeLoggers()
         {
-            DisposeFileLogger();
             DisposeHerculesLogger();
+            DisposeFileLogger();
         }
 
         private static ILog GetFileLogger(string logFileName)
@@ -126,7 +126,8 @@ namespace Common.Logging
                 {
                     RollingStrategy = new RollingStrategyOptions
                     {
-                        Type = RollingStrategyType.None
+                        Type = RollingStrategyType.ByTime,
+                        MaxFiles = 10
                     },
                     FilePath = logFileName
                 });
