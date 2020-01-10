@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Vostok.Clusterclient.Core.Topology;
@@ -61,7 +62,7 @@ namespace Common.Logging
             loggerFactory.AddVostok(fileLog);
         }
 
-        public static void InitializeHerculesLogger()
+        public static void InitializeHerculesLogger(string command)
         {
             if (!(herculesLog is null))
                 return;
@@ -94,7 +95,9 @@ namespace Common.Logging
                     new Dictionary<string, object>
                     {
                         ["project"] = configuration.Project,
-                        ["environment"] = configuration.Environment
+                        ["environment"] = configuration.Environment,
+                        ["hostName"] = ObtainHostname(),
+                        ["command"] = command
                     });
 
             disposables.Add(herculesSink);
@@ -133,6 +136,18 @@ namespace Common.Logging
             disposables.Add(result);
 
             return result;
+        }
+
+        private static string ObtainHostname()
+        {
+            try
+            {
+                return Dns.GetHostName();
+            }
+            catch
+            {
+                return "unknown";
+            }
         }
     }
 }

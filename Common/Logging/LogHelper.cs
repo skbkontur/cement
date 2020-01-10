@@ -7,16 +7,16 @@ namespace Common.Logging
 {
     public static class LogHelper
     {
-        public static void InitializeFileAndElkLogging(string logFileName)
+        public static void InitializeFileAndElkLogging(string logFileName, string command)
         {
-            LogManager.InitializeHerculesLogger();
             LogManager.InitializeFileLogger(logFileName);
+            LogManager.InitializeHerculesLogger(command);
         }
 
-        public static void InitializeGlobalFileAndElkLogging()
+        public static void InitializeGlobalFileAndElkLogging(string command)
         {
-            LogManager.InitializeHerculesLogger();
             LogManager.InitializeFileLogger(null);
+            LogManager.InitializeHerculesLogger(command);
         }
 
         public static void SaveLog(string log)

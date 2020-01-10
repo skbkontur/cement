@@ -96,9 +96,9 @@ namespace Commands
         private void InitLogging()
         {
             if (CommandSettings.LogFileName != null)
-                LogHelper.InitializeFileAndElkLogging(CommandSettings.LogFileName);
+                LogHelper.InitializeFileAndElkLogging(CommandSettings.LogFileName, GetType().ToString());
             else if (!CommandSettings.NoElkLog)
-                LogHelper.InitializeGlobalFileAndElkLogging();
+                LogHelper.InitializeGlobalFileAndElkLogging(GetType().ToString());
 
             Log = LogManager.GetLogger(GetType());
 
