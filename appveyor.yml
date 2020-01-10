@@ -12,6 +12,7 @@ before_build:
   - git config --global user.email johndoe@example.com
 build:
   verbosity: normal
+  project: Cement.Net.sln
 after_build:
   - mkdir dotnet
   - copy Cement.Net\bin\Debug\cm.exe dotnet\cm.exe
