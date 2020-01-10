@@ -19,6 +19,8 @@ namespace Common.Logging
     {
         private static ILoggerFactory loggerFactory;
 
+        private static List<IDisposable> disposables = new List<IDisposable>();
+
         private static ILog fileLog;
         private static ILog herculesLog;
 
@@ -84,7 +86,7 @@ namespace Common.Logging
                 MaximumMemoryConsumption = configuration.MaximumMemoryConsumptionInBytes
             };
 
-            var fileLogForHercules = GetFileLogger("hercules.log");
+            var fileLogForHercules = GetFileLogger("hercules");
             var herculesSink = new HerculesSink(settings, fileLogForHercules);
 
             herculesLog = new HerculesLog(new HerculesLogSettings(herculesSink, configuration.Stream))
@@ -95,23 +97,16 @@ namespace Common.Logging
                         ["environment"] = configuration.Environment
                     });
 
+            disposables.Add(herculesSink);
+
             loggerFactory.AddVostok(herculesLog);
         }
-
-        public static void DisposeFileLogger()
-        {
-            (fileLog as IDisposable)?.Dispose();
-        }
-
-        public static void DisposeHerculesLogger()
-        {
-            (herculesLog as IDisposable)?.Dispose();
-        }
-
+        
         public static void DisposeLoggers()
         {
-            DisposeHerculesLogger();
-            DisposeFileLogger();
+            disposables.Reverse();
+            foreach (var disposable in disposables)
+                disposable?.Dispose();
         }
 
         private static ILog GetFileLogger(string logFileName)
@@ -120,8 +115,11 @@ namespace Common.Logging
                 ? Path.Combine(Helper.GetGlobalCementDirectory(), "log", "log")
                 : Path.Combine(Helper.CurrentWorkspace, Helper.CementDirectory, "log", logFileName);
 
+            if (!logFileName.EndsWith(".log"))
+                logFileName += ".log";
+
             Environment.SetEnvironmentVariable("logfilename", logFileName);
-            return new FileLog(
+            var result = new FileLog(
                 new FileLogSettings
                 {
                     RollingStrategy = new RollingStrategyOptions
@@ -131,6 +129,10 @@ namespace Common.Logging
                     },
                     FilePath = logFileName
                 });
+
+            disposables.Add(result);
+
+            return result;
         }
     }
 }

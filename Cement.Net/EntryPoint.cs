@@ -4,10 +4,11 @@ using System.Threading;
 using Commands;
 using Common;
 using Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace cm
 {
-    static class Program
+    internal static class EntryPoint
     {
         private static int Main(string[] args)
         {
@@ -22,6 +23,8 @@ namespace cm
             if (command != "complete" && command != "check-pre-commit"
                 && (command != "help" || !args.Contains("--gen")))
                 SelfUpdate.UpdateIfOld();
+
+            LogManager.GetLogger(typeof(EntryPoint)).LogInformation($"Exit code: {exitCode}");
 
             LogManager.DisposeLoggers();
             
