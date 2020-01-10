@@ -7,6 +7,7 @@ clone_script:
 install:
   - nuget restore
   - cd %APPVEYOR_BUILD_FOLDER%
+  - git submodule update --init --recursive
 configuration: Debug
 before_build:
   - git config --global user.email johndoe@example.com
