@@ -6,6 +6,7 @@ using System.Xml;
 using Common;
 using Common.Extensions;
 using Common.YamlParsers;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -22,7 +23,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "REF-FIX",
-                LogFileName = "fixing-refs.net.log",
+                LogFileName = "fixing-refs",
                 MeasureElapsedTime = false,
                 RequireModuleYaml = true,
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
@@ -174,7 +175,7 @@ namespace Commands
             if (csproj.ContainsRef(refName, out refXml))
             {
                 csproj.ReplaceRef(refName, hintPath);
-                Log.Info($"'{refName}' ref replaced to {hintPath}");
+                Log.LogInformation($"'{refName}' ref replaced to {hintPath}");
                 fixReferenceResult.Replaced[project].Add(
                     $"{refName}\n\t\t{GetHintPath(refXml)} ->\n\t\t{hintPath}");
             }

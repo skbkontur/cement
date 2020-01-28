@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common.Extensions;
+using Common.Logging;
 using Common.YamlParsers;
-using log4net;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
@@ -266,13 +267,13 @@ namespace Common
 
     public static class DepsPatcherProject
     {
-        private static readonly ILog Log = new PrefixAppender("DEPS PATCH", LogManager.GetLogger("FixReferences"));
+        private static readonly ILogger Log = LogManager.GetLogger<DepsPatcher>();
 
         public static void PatchDepsForProject(string currentModuleFullPath, Dep dep, string csprojFile)
         {
             var installData = InstallParser.Get(dep.Name, dep.Configuration);
-            Log.Info("Adding deps to module.yaml");
-            Log.Info("Getting cement configurations insert to");
+            Log.LogInformation("Adding deps to module.yaml");
+            Log.LogInformation("Getting cement configurations insert to");
             var usedConfigs = GetUsedCementConfigsForProject(currentModuleFullPath, csprojFile);
             var toPatch = GetSmallerCementConfigs(currentModuleFullPath, usedConfigs);
 
@@ -285,8 +286,8 @@ namespace Common
         public static void PatchDepsForSolution(string currentModuleFullPath, Dep dep, string solutionFile)
         {
             var installData = InstallParser.Get(dep.Name, dep.Configuration);
-            Log.Info("Adding deps to module.yaml");
-            Log.Info("Getting cement configurations insert to");
+            Log.LogInformation("Adding deps to module.yaml");
+            Log.LogInformation("Getting cement configurations insert to");
             var usedConfigs = GetUsedCementConfigsForSolution(currentModuleFullPath, solutionFile);
             var toPatch = GetSmallerCementConfigs(currentModuleFullPath, usedConfigs);
 
@@ -320,7 +321,7 @@ namespace Common
                     catch (Exception exception)
                     {
                         ConsoleWriter.WriteError($"Fail adding {dep} to {moduleName}/{config} deps:\n\t{exception.Message}");
-                        Log.Error($"Fail adding {dep} to deps: {exception.Message}");
+                        Log.LogError($"Fail adding {dep} to deps: {exception.Message}");
                     }
                 }
             }

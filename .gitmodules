@@ -1,0 +1,4 @@
+[submodule "vostok.devtools"]
+	path = dependencies/vostok.devtools
+	url = https://github.com/vostok/devtools.git
+	branch = master

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Common;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -14,7 +15,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "UPDATE",
-                LogFileName = "update.net.log",
+                LogFileName = "update",
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
             })
         {
@@ -22,7 +23,7 @@ namespace Commands
 
         protected override int Execute()
         {
-            Log.Info("Updating packages");
+            Log.LogInformation("Updating packages");
             PackageUpdater.UpdatePackages();
             var cwd = Directory.GetCurrentDirectory();
             var module = Path.GetFileName(cwd);

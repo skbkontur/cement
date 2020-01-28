@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using Common;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -17,7 +18,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "UPDATE",
-                LogFileName = "update-deps.net.log",
+                LogFileName = "update-deps",
                 MeasureElapsedTime = true,
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
             })
@@ -43,7 +44,7 @@ namespace Commands
 
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
 
-            Log.Info("Updating packages");
+            Log.LogInformation("Updating packages");
             PackageUpdater.UpdatePackages();
             var modules = Helper.GetModules();
 
@@ -66,7 +67,7 @@ namespace Commands
             getter.GetDeps();
 
 
-            Log.Info("SUCCESS UPDATE DEPS");
+            Log.LogInformation("SUCCESS UPDATE DEPS");
             return 0;
         }
 

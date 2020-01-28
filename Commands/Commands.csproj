@@ -1,127 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Commands</RootNamespace>
-    <AssemblyName>Commands</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	  <TargetFramework>net472</TargetFramework>
+    <AssemblyTitle>Commands</AssemblyTitle>
+    <Product>Commands</Product>
+    <Copyright>Copyright © 2019</Copyright>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations, Version=2019.1.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325">
-      <HintPath>..\packages\JetBrains.Annotations.2019.1.1\lib\net20\JetBrains.Annotations.dll</HintPath>
-      <Private>True</Private>
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="NuGet">
+      <HintPath>..\externals\NuGet.exe</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\externals\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="NuGet, Version=4.1.0.2450, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NuGet.CommandLine.4.1.0\tools\NuGet.exe</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalyzerAdd.cs" />
-    <Compile Include="AnalyzerCommand.cs" />
-    <Compile Include="PackCommand.cs" />
-    <Compile Include="ReadmeGenerator.cs" />
-    <Compile Include="RefAdd.cs" />
-    <Compile Include="Build.cs" />
-    <Compile Include="BuildDeps.cs" />
-    <Compile Include="CheckPreCommit.cs" />
-    <Compile Include="Command.cs" />
-    <Compile Include="CommandsList.cs" />
-    <Compile Include="CompleteCommand.cs" />
-    <Compile Include="ConvertSpec.cs" />
-    <Compile Include="RefFix.cs" />
-    <Compile Include="ICommand.cs" />
-    <Compile Include="IdCommand.cs" />
-    <Compile Include="Init.cs" />
-    <Compile Include="ReInstall.cs" />
-    <Compile Include="ModuleCommand.cs" />
-    <Compile Include="RefCommand.cs" />
-    <Compile Include="ShowConfigs.cs" />
-    <Compile Include="Status.cs" />
-    <Compile Include="Update.cs" />
-    <Compile Include="UsagesGrep.cs" />
-    <Compile Include="UsagesBuild.cs" />
-    <Compile Include="UsagesShow.cs" />
-    <Compile Include="CementVersion.cs" />
-    <Compile Include="CheckDeps.cs" />
-    <Compile Include="ShowDeps.cs" />
-    <Compile Include="Get.cs" />
-    <Compile Include="Ls.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SelfUpdate.cs" />
-    <Compile Include="UpdateDeps.cs" />
-    <Compile Include="UsagesCommand.cs" />
-    <Compile Include="Help.cs" />
-    <Compile Include="UserCommand.cs" />
+    <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj">
-      <Project>{FF01947B-2535-4EC9-B465-B9543E6B18EE}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

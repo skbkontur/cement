@@ -3,13 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using log4net;
+using Common.Extensions;
+using Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
     public static class VsDevHelper
     {
-        private static readonly ILog Log = LogManager.GetLogger("vsDevCmd");
+        private static readonly ILogger Log = LogManager.GetLogger(typeof(VsDevHelper));
 
         public static Dictionary<string, string> GetCurrentSetVariables()
         {
@@ -29,7 +31,7 @@ namespace Common
                 return;
             foreach (var variable in variables)
                 Environment.SetEnvironmentVariable(variable.Key, variable.Value);
-            Log.Debug("Successfully set new variables from VsDevCmd.bat");
+            Log.LogDebug("Successfully set new variables from VsDevCmd.bat");
         }
 
         private static Dictionary<string, string> GetVsSetVariables()
@@ -56,15 +58,15 @@ namespace Common
             var path = FindVsDevCmd();
             if (path == null)
             {
-                Log.Debug("VsDevCmd.bat not found");
+                Log.LogDebug("VsDevCmd.bat not found");
                 return null;
             }
-            Log.Info($"VsDevCmd found in {path}");
+            Log.LogInformation($"VsDevCmd found in {path}");
             var command = $"\"{path}\" && set";
             var runner = new ShellRunner();
             if (runner.Run(command) != 0)
             {
-                Log.Debug("VsDevCmd.bat not working");
+                Log.LogDebug("VsDevCmd.bat not working");
                 return null;
             }
             return runner.Output;

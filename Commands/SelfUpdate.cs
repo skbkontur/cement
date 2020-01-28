@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using Common;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -38,7 +39,7 @@ namespace Commands
             }
             catch (Exception exception)
             {
-                Log.Error("Fail to auto update", exception);
+                Log.LogError("Fail to auto update", exception);
             }
         }
 
@@ -48,12 +49,12 @@ namespace Commands
             branch = (string) parsedArgs["branch"];
             SearchAndSaveBranchInSettings(ref branch);
             if (isAutoUpdate)
-                Log.Debug("Auto updating cement");
+                Log.LogDebug("Auto updating cement");
             IsInstallingCement |= !HasInstalledCement();
             if (IsInstallingCement)
             {
                 ConsoleWriter.WriteInfo("Installing cement");
-                Log.Debug("Installing cement");
+                Log.LogDebug("Installing cement");
             }
         }
 
@@ -73,12 +74,12 @@ namespace Commands
             }
             catch (Exception exception)
             {
-                Log.Error("Fail to install cement", exception);
+                Log.LogError("Fail to install cement", exception);
                 ConsoleWriter.WriteError("Fail to install cement: " + exception);
             }
 
             var server = CementSettings.Get().CementServer;
-            Log.Info($"Cement server: {server}");
+            Log.LogInformation($"Cement server: {server}");
             var updater = server == null
                 ? (ICementUpdater) new CementFromGitHubUpdater(Log)
                 : (ICementUpdater) new CementFromServerUpdater(server, branch, Log);
@@ -128,7 +129,7 @@ exit $exit_code";
             var installDirectory = Helper.GetCementInstallDirectory();
             Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm.cmd"), cmdText);
             Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm"), Helper.OsIsUnix() ? bashTextUnix : bashText);
-            Log.Debug("Successfully created cm.cmd & cm.");
+            Log.LogDebug("Successfully created cm.cmd & cm.");
         }
 
         private int UpdateBinary(ICementUpdater updater)
@@ -150,7 +151,7 @@ exit $exit_code";
             else
             {
                 ConsoleWriter.WriteInfo($"No cement binary updates available ({updater.GetName()})");
-                Log.DebugFormat("Already has {0} version", currentCommitHash);
+                Log.LogDebug("Already has {0} version", currentCommitHash);
             }
             return 0;
         }
@@ -183,12 +184,12 @@ exit $exit_code";
 
                 var okMessage = $"Successfully updated cement binaries. {oldHash} -> {newHash} ({updater.GetName()})";
                 ConsoleWriter.WriteOk(okMessage);
-                Log.Debug(okMessage);
+                Log.LogDebug(okMessage);
                 return true;
             }
             catch (WebException ex)
             {
-                Log.Error("Fail self-update", ex);
+                Log.LogError("Fail self-update", ex);
 
                 if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
                 {
@@ -221,14 +222,14 @@ exit $exit_code";
             if (!Directory.Exists(from))
             {
                 ConsoleWriter.WriteError($"Someting bad with self-update: {from} not found.");
-                Log.Error("Someting bad with self-update.");
+                Log.LogError("Someting bad with self-update.");
                 return;
             }
 
             var dotnetInstallFolder = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet");
             if (!Directory.Exists(dotnetInstallFolder))
                 Directory.CreateDirectory(dotnetInstallFolder);
-            Log.Debug("dotnet install folder: " + dotnetInstallFolder);
+            Log.LogDebug("dotnet install folder: " + dotnetInstallFolder);
 
             var cm = Path.Combine(from, "cm.exe");
             var cmNew = Path.Combine(from, "cm_new.exe");
@@ -257,7 +258,7 @@ exit $exit_code";
 
             if (path == null)
             {
-                Log.Warn("Path is null");
+                Log.LogWarning("Path is null");
                 path = "";
             }
             if (path.ToLower().Contains(toAdd.ToLower()))
@@ -271,7 +272,7 @@ exit $exit_code";
             Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
             ConsoleWriter.WriteOk(toAdd + " added to $PATH");
             ConsoleWriter.WriteOk("To finish installation, please restart your terminal process");
-            Log.Debug(toAdd + " added to $PATH: " + path);
+            Log.LogDebug(toAdd + " added to $PATH: " + path);
         }
 
         private void InstallPowerShell()

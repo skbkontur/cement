@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using Common.Extensions;
 using Common.Graph;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -19,7 +21,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "BUILD-DEPS",
-                LogFileName = "build-deps.net.log",
+                LogFileName = "build-deps",
                 MeasureElapsedTime = true,
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
             })
@@ -107,7 +109,7 @@ namespace Commands
                 built++;
             }
             builtStorage.Save();
-            Log.Debug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
+            Log.LogDebug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
             return true;
         }
 
@@ -160,13 +162,13 @@ namespace Commands
             Task.WaitAll(tasks.ToArray());
 
             builtStorage.Save();
-            Log.Debug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
+            Log.LogDebug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
             return !parallelBuilder.IsFailed;
         }
 
         public static void TryNugetRestore(List<Dep> modulesToUpdate, ModuleBuilder builder)
         {
-            Log.Debug("Restoring NuGet packages");
+            Log.LogDebug("Restoring NuGet packages");
             ConsoleWriter.ResetProgress();
             try
             {
@@ -184,13 +186,13 @@ namespace Commands
             }
             catch (AggregateException ae)
             {
-                Log.Error(ae.Flatten().InnerExceptions.First());
+                Log.LogError(ae.Flatten().InnerExceptions.First(), ae.Flatten().InnerExceptions.First().Message);
             }
             catch (Exception e)
             {
-                Log.Error(e);
+                Log.LogError(e, e.Message);
             }
-            Log.Debug("OK NuGet packages restored");
+            Log.LogDebug("OK NuGet packages restored");
             ConsoleWriter.ResetProgress();
         }
 
@@ -198,7 +200,7 @@ namespace Commands
         {
             if (!modulesToBuild.Contains(dep))
             {
-                Log.Debug($"{dep.ToBuildString(),-40} *build skipped");
+                Log.LogDebug($"{dep.ToBuildString(),-40} *build skipped");
                 ConsoleWriter.WriteSkip($"{dep.ToBuildString(),-40}");
                 return true;
             }

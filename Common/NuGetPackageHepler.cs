@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using log4net;
+using Common.Extensions;
+using Microsoft.Extensions.Logging;
 using NuGet.CommandLine;
 using NuGet.Common;
 using NuGet.Configuration;
@@ -14,6 +15,7 @@ using NuGet.ProjectManagement;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using Console = NuGet.CommandLine.Console;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 using PackageDownloader = NuGet.PackageManagement.PackageDownloader;
 using PackageSourceProvider = NuGet.Configuration.PackageSourceProvider;
 using Settings = NuGet.Configuration.Settings;
@@ -22,9 +24,9 @@ namespace Common
 {
     public class NuGetPackageHepler
     {
-        private readonly ILog log;
+        private readonly ILogger log;
 
-        public NuGetPackageHepler(ILog log)
+        public NuGetPackageHepler(ILogger log)
         {
             this.log = log;
         }
@@ -39,9 +41,9 @@ namespace Common
             private readonly MSBuildProjectSystem projectSystem;
             private readonly List<SourceRepository> repositories;
             private readonly HashSet<PackageIdentity> installedPackages;
-            private readonly ILog log;
+            private readonly ILogger log;
 
-            public NuGetProject(List<string> packagesList, string packagesPath, ProjectFile projectFile, ILog log)
+            public NuGetProject(List<string> packagesList, string packagesPath, ProjectFile projectFile, ILogger log)
             {
                 this.log = log;
                 this.packagesList = packagesList;
@@ -92,7 +94,7 @@ namespace Common
             private void InstallPackageWithDependencies(PackageIdentity package,
                 PackageDownloadContext packageDownloadContext)
             {
-                log.Info($"Loading package {package}");
+                log.LogInformation($"Loading package {package}");
                 var downloadResourceResult = LoadPackage(package, packageDownloadContext);
                 var dependencyGroups = downloadResourceResult.PackageReader.GetPackageDependencies().ToList();
                 var mostCompatibleFramework = new FrameworkReducer().GetNearest(
@@ -106,7 +108,7 @@ namespace Common
                     {
                         var dependencyIdentity = new PackageIdentity(dependency.Id,
                             NuGetVersion.Parse(dependency.VersionRange.MinVersion.ToFullString()));
-                        log.Info($"Resolved dependency of {package}: {dependencyIdentity}");
+                        log.LogInformation($"Resolved dependency of {package}: {dependencyIdentity}");
                         if (installedPackages.Contains(dependencyIdentity)) continue;
                         InstallPackageWithDependencies(dependencyIdentity, packageDownloadContext);
                         installedPackages.Add(dependencyIdentity);
@@ -120,11 +122,11 @@ namespace Common
                     .Result;
                 if (installSuccess)
                 {
-                    log.Info($"Installed {package}");
+                    log.LogInformation($"Installed {package}");
                 }
                 else
                 {
-                    log.Info($"{package} not installed");
+                    log.LogInformation($"{package} not installed");
                     ConsoleWriter.WriteWarning($"Nuget package {package} not installed");
                 }
             }

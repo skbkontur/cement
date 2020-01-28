@@ -1,12 +1,13 @@
-using log4net;
 using System;
 using System.IO;
+using Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
     public static class PackageUpdater
     {
-        private static readonly ILog Log = LogManager.GetLogger("PackageUpdater");
+        private static readonly ILogger Log = LogManager.GetLogger(typeof(PackageUpdater));
 
         public static void UpdatePackages()
         {

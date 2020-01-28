@@ -1,16 +1,17 @@
-using log4net;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net;
+using Common.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
     public class CementFromGitHubUpdater : ICementUpdater
     {
-        private readonly ILog log;
+        private readonly ILogger log;
         private string downloadUri;
 
-        public CementFromGitHubUpdater(ILog log)
+        public CementFromGitHubUpdater(ILogger log)
         {
             this.log = log;
         }
@@ -32,7 +33,7 @@ namespace Common
             }
             catch (WebException ex)
             {
-                log.Error("Fail self-update ", ex);
+                log.LogError("Fail self-update ", ex);
                 if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
                 {
                     var resp = (HttpWebResponse) ex.Response;

@@ -1,21 +1,22 @@
 using Common.YamlParsers;
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Common.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
     public class ModuleBuilder
     {
-        private readonly ILog log;
+        private readonly ILogger log;
         public static long TotalMsbuildTime;
         private readonly BuildSettings buildSettings;
 
-        public ModuleBuilder(ILog log, BuildSettings buildSettings)
+        public ModuleBuilder(ILogger log, BuildSettings buildSettings)
         {
             this.log = log;
             this.buildSettings = buildSettings;
@@ -38,7 +39,7 @@ namespace Common
             ConsoleWriter.Write(runner.Output);
             if (exitCode == 0)
                 return true;
-            log.Warn($"Failed to build nuget package {projectFileName}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
+            log.LogWarning($"Failed to build nuget package {projectFileName}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
             return false;
         }
 
@@ -73,13 +74,13 @@ namespace Common
             var buildFolder = Directory.GetParent(buildFile).FullName;
             var target = buildFile.EndsWith(".sln") ? Path.GetFileName(buildFile) : "";
             var command = $"{nugetRunCommand} restore {target} -Verbosity {(buildSettings.ShowOutput ? "normal" : "quiet")}";
-            log.Info(command);
+            log.LogInformation(command);
 
             var runner = PrepareShellRunner();
             var exitCode = runner.RunInDirectory(buildFolder, command);
             if (exitCode != 0)
             {
-                log.Warn($"Failed to nuget restore {buildFile}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
+                log.LogWarning($"Failed to nuget restore {buildFile}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
             }
         }
 
@@ -87,15 +88,15 @@ namespace Common
         {
             try
             {
-                log.Debug($"{dep.ToBuildString()}");
+                log.LogDebug($"{dep.ToBuildString()}");
                 if (BuildSingleModule(dep))
                     return true;
-                log.Debug($"{dep.ToBuildString(),-40} *build failed");
+                log.LogDebug($"{dep.ToBuildString(),-40} *build failed");
                 return false;
             }
             catch (Exception e)
             {
-                log.Error(e);
+                log.LogError(e, e.Message);
                 ConsoleWriter.WriteError($"Failed to buid {dep}.\n{e}");
                 return false;
             }
@@ -124,7 +125,7 @@ namespace Common
                 if (!File.Exists(Path.Combine(Helper.CurrentWorkspace, dep.Name, fixedPath)))
                 {
                     ConsoleWriter.WriteError($"{artifact} not found in {dep.Name}. Check install section.");
-                    log.Warn($"{artifact} not found in {dep.Name}");
+                    log.LogWarning($"{artifact} not found in {dep.Name}");
                 }
             }
         }
@@ -159,7 +160,7 @@ namespace Common
             int exitCode = -1;
             for (int timesTry = 0; timesTry < 2 && exitCode != 0; timesTry++)
             {
-                log.DebugFormat("Build command: '{0}'", command);
+                log.LogDebug("Build command: '{0}'", command);
                 if (buildSettings.ShowOutput)
                     ConsoleWriter.WriteInfo($"BUILDING {command}");
                 exitCode = runner.RunInDirectory(Path.Combine(Helper.CurrentWorkspace, dep.Name), command, TimeSpan.FromMinutes(60));

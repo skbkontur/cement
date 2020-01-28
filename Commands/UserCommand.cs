@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using Common;
+using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
@@ -22,7 +23,7 @@ namespace Commands
         protected override int Execute()
         {
             var cmd = CementSettings.Get().UserCommands[arguments[0]];
-            Log.Debug("Run command " + arguments[0] + ": '" + cmd + "'");
+            Log.LogDebug("Run command " + arguments[0] + ": '" + cmd + "'");
             if (arguments.Length > 1)
             {
                 arguments = arguments.Skip(1).ToArray();

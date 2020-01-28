@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using log4net;
+using Common.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
@@ -10,14 +11,14 @@ namespace Common
         private static readonly ISet<string> ModulesInProcessing = new HashSet<string>();
         private static readonly ISet<string> VisitedConfigurations = new HashSet<string>();
 
-        public static void WarnIfCycle(string rootModuleName, string configuration, ILog log)
+        public static void WarnIfCycle(string rootModuleName, string configuration, ILogger log)
         {
-            log.Info("Looking for cycles");
+            log.LogInformation("Looking for cycles");
             ConsoleWriter.WriteProgress("Looking for cycles");
             var cycle = TryFindCycle(rootModuleName + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration));
             if (cycle != null)
             {
-                log.Warn("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
+                log.LogWarning("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
                 ConsoleWriter.WriteWarning("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
             }
             ConsoleWriter.ResetProgress();

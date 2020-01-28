@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using System.IO;
 using Commands;
 using Common;
+using Common.Logging;
 using Common.YamlParsers;
-using log4net;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Tests.Helpers;
 
@@ -12,7 +13,7 @@ namespace Tests.BuildTests
     [TestFixture]
     public class TestBuildDepsCache
     {
-        private static readonly ILog Log = LogManager.GetLogger("TestBuildDepsCache");
+        private static readonly ILogger Log = LogManager.GetLogger<TestBuildDepsCache>();
 
         private List<Dep> GetUpdatedModules(Dep moduleToBuild)
         {

@@ -30,7 +30,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "USAGES-GREP",
-                LogFileName = "usages-grep.net.log",
+                LogFileName = "usages-grep",
                 MeasureElapsedTime = true,
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
             })

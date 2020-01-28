@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Common.Extensions;
+using Common.Logging;
 using Common.YamlParsers;
-using log4net;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
@@ -17,7 +19,7 @@ namespace Common
         private readonly bool localBranchForce;
         private readonly int? gitDepth;
         private readonly bool verbose;
-        private static readonly ILog Log = new PrefixAppender("MODULE-GETTER", LogManager.GetLogger(typeof(ModuleGetter)));
+        private static readonly ILogger Log = LogManager.GetLogger(typeof(ModuleGetter));
         private readonly string mergedBranch;
         private GitRepository rootRepo;
         private string rootRepoTreeish;
@@ -47,7 +49,7 @@ namespace Common
 
             var depsContent = new DepsParser(rootRepo.RepoPath).Get(rootModule.Configuration);
             depsContent.Force = depsContent.Force?.Select(f => Helper.DefineForce(f, rootRepo)).ToArray();
-            Log.Info("OK");
+            Log.LogInformation("OK");
 
             var queue = new DepsQueue();
             queue.AddRange(depsContent.Deps, rootModule.Name);
@@ -100,7 +102,7 @@ namespace Common
         private void ProcessDeps(string[] force, List<DepWithParent> depsPool)
         {
             if (depsPool.Any())
-                Log.Info("Parallel update-deps iteration: " + depsPool.Select(d => d.Dep.ToString() + "(" + d.ParentModule + ")").Aggregate((a, b) => a + " " + b));
+                Log.LogInformation("Parallel update-deps iteration: " + depsPool.Select(d => d.Dep.ToString() + "(" + d.ParentModule + ")").Aggregate((a, b) => a + " " + b));
             try
             {
                 Parallel.ForEach(depsPool.Where(d => d.Dep.Name != rootModule.Name), Helper.ParallelOptions, d => GetModule(d.Dep, force));
@@ -133,7 +135,7 @@ namespace Common
                 if (dep.Dep.Treeish != null && processed.GetDepsByName(dep.Dep.Name).All(d => d.Treeish == null))
                 {
                     processed.ChangeTreeish(dep.Dep.Name, dep.Dep.Treeish);
-                    Log.Info("Need get " + dep.Dep.Name + " again");
+                    Log.LogInformation("Need get " + dep.Dep.Name + " again");
                     queue.AddRange(processed.GetConfigsByName(dep.Dep.Name).Select(c =>
                         new DepWithParent(new Dep(dep.Dep.Name, null, c), dep.ParentModule)).ToList());
                 }
@@ -143,14 +145,14 @@ namespace Common
 
         private static DepsData GetCurrentModuleDeps(Dep dep)
         {
-            Log.Info($"{"[" + dep.Name + "]",-30}Getting deps for configuration {dep.Configuration ?? "full-build"}");
+            Log.LogInformation($"{"[" + dep.Name + "]",-30}Getting deps for configuration {dep.Configuration ?? "full-build"}");
             var deps = new DepsParser(Path.Combine(Helper.CurrentWorkspace, dep.Name)).Get(dep.Configuration);
             return deps;
         }
 
         private void GetModule(Dep dep, string[] force)
         {
-            Log.Info($"{"[" + dep.Name + "]",-30}Update '{dep.Treeish ?? "master"}'");
+            Log.LogInformation($"{"[" + dep.Name + "]",-30}Update '{dep.Treeish ?? "master"}'");
             if (dep.Treeish == "$CURRENT_BRANCH")
             {
                 force = new[] {Helper.DefineForce(dep.Treeish, rootRepoTreeish)};
@@ -257,32 +259,31 @@ namespace Common
             {
                 outputTreeish += " *pulled";
                 ConsoleWriter.WriteUpdate(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
-                Log.Debug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
+                Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
                 return;
             }
             if (getInfo.ForcedLocal)
             {
                 outputTreeish += " *forced local";
                 ConsoleWriter.WriteWarning(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
-                Log.Debug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
+                Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
                 return;
             }
             if (getInfo.Reset)
             {
                 outputTreeish += " *reset";
                 ConsoleWriter.WriteWarning(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
-                Log.Debug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
+                Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
                 return;
             }
             if (getInfo.Changed || getInfo.Cloned)
             {
-                Log.Debug(
-                    $"{"[" + dep.Name + "]",-30}{outputTreeish + (getInfo.Cloned ? " *cloned" : " *changed"),-18}    {getInfo.CommitInfo}");
+                Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish + (getInfo.Cloned ? " *cloned" : " *changed"),-18}    {getInfo.CommitInfo}");
                 ConsoleWriter.WriteUpdate(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
             }
             else
             {
-                Log.Debug($"{"[" + dep.Name + "]",-30}{outputTreeish + " *skipped",-18}    {getInfo.CommitInfo}");
+                Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish + " *skipped",-18}    {getInfo.CommitInfo}");
                 ConsoleWriter.WriteSkip(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
             }
         }
@@ -290,14 +291,14 @@ namespace Common
         private void GetTreeish(GitRepository repo, Dep dep, string[] force, string treeish, GetInfo getInfo)
         {
             treeish = treeish ?? "master";
-            Log.Info($"{"[" + dep.Name + "]",-30}Getting treeish '{treeish}'");
+            Log.LogInformation($"{"[" + dep.Name + "]",-30}Getting treeish '{treeish}'");
 
             var hasRemoteBranch = repo.HasRemoteBranch(treeish);
             getInfo.ForcedBranch = HaveToForce(dep, force, repo);
             if (getInfo.Forced)
             {
                 treeish = getInfo.ForcedBranch;
-                Log.Info($"{"[" + dep.Name + "]",-30}treeish '{treeish}' was forced");
+                Log.LogInformation($"{"[" + dep.Name + "]",-30}treeish '{treeish}' was forced");
             }
 
             ConsoleWriter.WriteProgress(dep.Name + "/" + dep.Configuration + "\t" + treeish);
@@ -328,7 +329,7 @@ namespace Common
             if (repo.HasLocalBranch(treeish))
             {
                 ConsoleWriter.WriteProgress(dep.Name + " has local branch " + treeish);
-                Log.Info($"{"[" + dep.Name + "]",-30}has local branch '{treeish}'");
+                Log.LogInformation($"{"[" + dep.Name + "]",-30}has local branch '{treeish}'");
 
                 ConsoleWriter.WriteProgress(dep.Name + " checkout " + treeish);
                 repo.Checkout(treeish);
@@ -345,7 +346,7 @@ namespace Common
             }
             else
             {
-                Log.Info($"{"[" + dep.Name + "]",-30}doesn't have local branch '{treeish}'");
+                Log.LogInformation($"{"[" + dep.Name + "]",-30}doesn't have local branch '{treeish}'");
                 ConsoleWriter.WriteProgress(dep.Name + " fetch " + treeish);
                 repo.Fetch(repo.HasRemoteBranch(treeish) ? treeish : "", gitDepth);
                 ConsoleWriter.WriteProgress(dep.Name + " checkout " + treeish);
@@ -376,7 +377,7 @@ namespace Common
                     repo.Clean();
                     ConsoleWriter.WriteProgress(dep.Name + " resetting");
                     repo.ResetHard();
-                    Log.Info($"{"[" + dep.Name + "]",-30}Reseted in {i + 1} times");
+                    Log.LogInformation($"{"[" + dep.Name + "]",-30}Reseted in {i + 1} times");
                     return;
                 }
                 catch (Exception)

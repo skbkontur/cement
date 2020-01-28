@@ -1,16 +1,20 @@
 skip_branch_with_pr: true
 version: '{build}-{branch}'
 image: Visual Studio 2017
+clone_script:
+  - cmd: >-
+      if %APPVEYOR_PULL_REQUEST_NUMBER% == 0 (echo "Start clone. Branch: %APPVEYOR_REPO_BRANCH%" && git clone --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER% && git checkout -f %APPVEYOR_REPO_COMMIT%)
+      else (echo "Start clone. Branch: %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%" && git clone --recursive --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER% && git checkout -f %APPVEYOR_PULL_REQUEST_HEAD_COMMIT%)
 install:
   - nuget restore
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init --recursive
 configuration: Debug
 before_build:
-  - git config --global user.name "John Doe"
   - git config --global user.email johndoe@example.com
 build:
   verbosity: normal
+  project: Cement.Net.sln
 after_build:
   - mkdir dotnet
   - copy Cement.Net\bin\Debug\cm.exe dotnet\cm.exe

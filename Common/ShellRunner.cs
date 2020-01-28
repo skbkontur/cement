@@ -6,7 +6,8 @@ using System.Management;
 using System.Security;
 using System.Text;
 using System.Threading;
-using log4net;
+using Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Common
 {
@@ -19,9 +20,9 @@ namespace Common
         public bool HasTimeout;
 
         private readonly ProcessStartInfo startInfo;
-        private readonly ILog log;
+        private readonly ILogger log;
 
-        public ShellRunner(ILog log = null)
+        public ShellRunner(ILogger log = null)
         {
             if (log == null)
                 log = LogManager.GetLogger(typeof(ModuleGetter));
@@ -100,7 +101,7 @@ namespace Common
                 if (HasTimeout)
                     timeout = TimeoutHelper.IncreaseTimeout(timeout);
                 exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
-                log.Debug($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} with exitCode {exitCode} and retryStrategy {retryStrategy}");
+                log.LogDebug($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} with exitCode {exitCode} and retryStrategy {retryStrategy}");
             }
             return exitCode;
         }
@@ -144,7 +145,7 @@ namespace Common
 
                     LastOutput = Output;
                     int exitCode = process.ExitCode;
-                    log.Info($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} in {sw.ElapsedMilliseconds}ms with exitCode {exitCode}");
+                    log.LogInformation($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} in {sw.ElapsedMilliseconds}ms with exitCode {exitCode}");
                     return exitCode;
                 }
                 catch (CementException e)
@@ -153,12 +154,12 @@ namespace Common
                     {
                         if (!commandWithArguments.Equals("git ls-remote --heads"))
                             ConsoleWriter.WriteWarning(e.Message);
-                        log?.Warn(e.Message);
+                        log?.LogWarning(e.Message);
                     }
                     else
                     {
                         ConsoleWriter.WriteError(e.Message);
-                        log?.Error(e.Message);
+                        log?.LogError(e.Message);
                     }
                     return -1;
                 }
@@ -185,12 +186,12 @@ namespace Common
                 if (!IsCementProcess(proc.ProcessName))
                     return;
 
-                log?.Debug("kill " + proc.ProcessName + "#" + proc.Id);
+                log?.LogDebug("kill " + proc.ProcessName + "#" + proc.Id);
                 proc.Kill();
             }
             catch (Exception exception)
             {
-                log?.Debug("killing already exited process #" + pid, exception);
+                log?.LogDebug("killing already exited process #" + pid, exception);
             }
         }
 

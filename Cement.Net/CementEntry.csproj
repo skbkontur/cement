@@ -1,140 +1,93 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build; CopyExe; CopyExeUnix;" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <UsingTask TaskName="Kontur.MsBuild.GitCommit2AssemblyTitle" AssemblyFile="..\externals\Kontur.MsBuild.dll" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F2653B6E-F201-497A-88FC-49AFAAF799DC}</ProjectGuid>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\dependencies\vostok.devtools\git-commit-to-assembly-title\Vostok.Tools.GitCommit2AssemblyTitle.props" />
+	<PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>cm</RootNamespace>
     <AssemblyName>Cement</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFramework>net472</TargetFramework>
+    <Product>Cement.Net</Product>
+    <Copyright>Copyright © 2019</Copyright>
+    <Version>4.1.0</Version>
+    <BuildDependsOn>$(BuildDependsOn);AfterBuildMigrated</BuildDependsOn>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <Optimize>false</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="JetBrains.Annotations, Version=2019.1.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325">
-      <HintPath>..\packages\JetBrains.Annotations.2019.1.1\lib\net20\JetBrains.Annotations.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyTitle.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Commands\Commands.csproj">
-      <Project>{5e5ee8f9-9c42-4f44-87af-63d4f24863ec}</Project>
-      <Name>Commands</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Common\Common.csproj">
-      <Project>{ff01947b-2535-4ec9-b465-b9543e6b18ee}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
-  <Target Name="BeforeBuild">
-    <GitCommit2AssemblyTitle />
-  </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <Target Name="AfterBuild">
-    <ItemGroup>
-      <MergeAssemblies Include="$(OutputPath)\Cement.exe" />
-      <MergeAssemblies Include="$(OutputPath)\Commands.dll" />
-      <MergeAssemblies Include="$(OutputPath)\Common.dll" />
-      <MergeAssemblies Include="$(OutputPath)\log4net.dll" />
-      <MergeAssemblies Include="$(OutputPath)\NDesk.Options.dll" />
-      <MergeAssemblies Include="$(OutputPath)\SharpYaml.dll" />
-      <MergeAssemblies Include="$(SolutionDir)\externals\log4stash.dll" />
-      <MergeAssemblies Include="$(OutputPath)\NuGet.exe" />
-      <MergeAssemblies Include="$(OutputPath)\JetBrains.Annotations.dll" />
-    </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<WarningLevel>2</WarningLevel>
+	</PropertyGroup>
+	<Target Name="Merge" AfterTargets="Build">
+     <ItemGroup>
+	   <MergeAssemblies Include="$(OutputPath)\Cement.exe" />
+	   <MergeAssemblies Include="$(OutputPath)\Commands.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Common.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\JetBrains.Annotations.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Bcl.AsyncInterfaces.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Configuration.Abstractions.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Configuration.Binder.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Configuration.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Configuration.FileExtensions.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Configuration.Json.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.DependencyInjection.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.FileProviders.Abstractions.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.FileProviders.Physical.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Logging.Abstractions.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Logging.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Options.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\NDesk.Options.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\NuGet.exe" />
+	   <MergeAssemblies Include="$(OutputPath)\SharpYaml.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\System.Buffers.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\System.ComponentModel.Annotations.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\System.Memory.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\System.Numerics.Vectors.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\System.Runtime.CompilerServices.Unsafe.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\System.Text.Encodings.Web.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\System.Text.Json.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\System.Threading.Tasks.Extensions.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\System.ValueTuple.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Transport.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.Context.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.Hercules.Client.Abstractions.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.Hercules.Client.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Context.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.File.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Formatting.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Hercules.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Microsoft.dll" />
+     </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputPath)\cm.exe</OutputAssembly>
-      <Merger>"$(SolutionDir)\packages\ILRepack.1.26.0\tools\ILRepack.exe"</Merger>
+      <Merger>"$(SolutionDir)\externals\ILRepack.exe"</Merger>
     </PropertyGroup>
     <Message Text="MERGING: @(MergeAssemblies->'%(Filename)') into $(OutputAssembly)" Importance="High" />
-    <Exec Command="$(Merger) /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
+    <Exec Command="$(Merger) /allowduplicateresources /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
   </Target>
-  <Target Name="CopyExe" DependsOnTargets="AfterBuild" Condition="'$(OS)' != 'Unix'">
+  <Target Name="CopyExe" AfterTargets="Build" DependsOnTargets="Merge" Condition="'$(OS)' != 'Unix'">
     <Exec Command="rmdir /S /Q %25userprofile%25\bin\dotnet" />
     <Exec Command="mkdir %25userprofile%25\bin\dotnet" />
     <Exec Command="copy $(OutputAssembly) %25userprofile%25\bin\dotnet\cm.exe" />
     <Exec Command="copy $(OutputAssembly).config %25userprofile%25\bin\dotnet\cm.exe.config" />
+    <Exec Command="copy $(OutputPath)\Microsoft.Extensions.Primitives.dll %25userprofile%25\bin\dotnet\Microsoft.Extensions.Primitives.dll" />
+    <Exec Command="copy $(OutputPath)\Vostok.ClusterClient.Core.dll %25userprofile%25\bin\dotnet\Vostok.ClusterClient.Core.dll" />
+    <Exec Command="copy $(OutputPath)\Vostok.Logging.Abstractions.dll %25userprofile%25\bin\dotnet\Vostok.Logging.Abstractions.dll" />
     <Exec Command="xcopy $(SolutionDir)\files-common %25userprofile%25\bin\dotnet /s /i /Y" />
     <Exec Condition="Exists('$(SolutionDir)\files-kontur')" Command="xcopy $(SolutionDir)\files-kontur %25userprofile%25\bin\dotnet /s /i /Y" />
     <Exec Command="$(OutputAssembly) help --gen $(SolutionDir)\README-commands.md" />
   </Target>
-  <Target Name="CopyExeUnix" DependsOnTargets="AfterBuild" Condition="'$(OS)' == 'Unix'">
+  <Target Name="CopyExeUnix" DependsOnTargets="Merge" Condition="'$(OS)' == 'Unix'">
     <Exec Command="rm -rf ~/bin/dotnet" />
     <Exec Command="mkdir ~/bin/dotnet" />
     <Exec Command="cp $(OutputAssembly) ~/bin/dotnet/cm.exe" />
     <Exec Command="cp $(OutputAssembly).config ~/bin/dotnet/cm.exe.config" />
+    <Exec Command="cp $(OutputPath)/Microsoft.Extensions.Primitives.dll ~/bin/dotnet/Microsoft.Extensions.Primitives.dll" />
+    <Exec Command="cp $(OutputPath)/Vostok.ClusterClient.Core.dll ~/bin/dotnet/Vostok.ClusterClient.Core.dll" />
+    <Exec Command="cp $(OutputPath)/Vostok.Logging.Abstractions.dll ~/bin/dotnet/Vostok.Logging.Abstractions.dll" />
     <Exec Command="cp -R $(SolutionDir)/files-common/* ~/bin/dotnet" />
     <Exec Condition="Exists('$(SolutionDir)/files-kontur')" Command="cp -R $(SolutionDir)/files-kontur/* ~/bin/dotnet" />
   </Target>
+	<ItemGroup>
+    <ProjectReference Include="..\Commands\Commands.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
 </Project>

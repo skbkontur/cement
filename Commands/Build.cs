@@ -15,7 +15,7 @@ namespace Commands
             : base(new CommandSettings
             {
                 LogPerfix = "BUILD",
-                LogFileName = "build.net.log",
+                LogFileName = "build",
                 MeasureElapsedTime = false,
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
             })
