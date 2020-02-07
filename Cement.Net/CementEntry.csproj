@@ -33,6 +33,7 @@
 	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.FileProviders.Physical.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Logging.Abstractions.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Logging.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Primitives.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Microsoft.Extensions.Options.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\NDesk.Options.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\NuGet.exe" />
@@ -46,10 +47,12 @@
 	   <MergeAssemblies Include="$(OutputPath)\System.Text.Json.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\System.Threading.Tasks.Extensions.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\System.ValueTuple.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Core.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.ClusterClient.Transport.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Context.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Hercules.Client.Abstractions.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Hercules.Client.dll" />
+	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Abstractions.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Context.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.File.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Formatting.dll" />
@@ -61,16 +64,13 @@
       <Merger>"$(SolutionDir)\externals\ILRepack.exe"</Merger>
     </PropertyGroup>
     <Message Text="MERGING: @(MergeAssemblies->'%(Filename)') into $(OutputAssembly)" Importance="High" />
-    <Exec Command="$(Merger) /allowduplicateresources /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
+    <Exec Command="$(Merger) /allowdup:Microsoft.Extensions.Primitives.IChangeToken /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
   </Target>
   <Target Name="CopyExe" AfterTargets="Build" DependsOnTargets="Merge" Condition="'$(OS)' != 'Unix'">
     <Exec Command="rmdir /S /Q %25userprofile%25\bin\dotnet" />
     <Exec Command="mkdir %25userprofile%25\bin\dotnet" />
     <Exec Command="copy $(OutputAssembly) %25userprofile%25\bin\dotnet\cm.exe" />
     <Exec Command="copy $(OutputAssembly).config %25userprofile%25\bin\dotnet\cm.exe.config" />
-    <Exec Command="copy $(OutputPath)\Microsoft.Extensions.Primitives.dll %25userprofile%25\bin\dotnet\Microsoft.Extensions.Primitives.dll" />
-    <Exec Command="copy $(OutputPath)\Vostok.ClusterClient.Core.dll %25userprofile%25\bin\dotnet\Vostok.ClusterClient.Core.dll" />
-    <Exec Command="copy $(OutputPath)\Vostok.Logging.Abstractions.dll %25userprofile%25\bin\dotnet\Vostok.Logging.Abstractions.dll" />
     <Exec Command="xcopy $(SolutionDir)\files-common %25userprofile%25\bin\dotnet /s /i /Y" />
     <Exec Condition="Exists('$(SolutionDir)\files-kontur')" Command="xcopy $(SolutionDir)\files-kontur %25userprofile%25\bin\dotnet /s /i /Y" />
     <Exec Command="$(OutputAssembly) help --gen $(SolutionDir)\README-commands.md" />
@@ -80,9 +80,6 @@
     <Exec Command="mkdir ~/bin/dotnet" />
     <Exec Command="cp $(OutputAssembly) ~/bin/dotnet/cm.exe" />
     <Exec Command="cp $(OutputAssembly).config ~/bin/dotnet/cm.exe.config" />
-    <Exec Command="cp $(OutputPath)/Microsoft.Extensions.Primitives.dll ~/bin/dotnet/Microsoft.Extensions.Primitives.dll" />
-    <Exec Command="cp $(OutputPath)/Vostok.ClusterClient.Core.dll ~/bin/dotnet/Vostok.ClusterClient.Core.dll" />
-    <Exec Command="cp $(OutputPath)/Vostok.Logging.Abstractions.dll ~/bin/dotnet/Vostok.Logging.Abstractions.dll" />
     <Exec Command="cp -R $(SolutionDir)/files-common/* ~/bin/dotnet" />
     <Exec Condition="Exists('$(SolutionDir)/files-kontur')" Command="cp -R $(SolutionDir)/files-kontur/* ~/bin/dotnet" />
   </Target>
