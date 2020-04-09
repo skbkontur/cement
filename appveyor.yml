@@ -24,6 +24,6 @@ deploy:
   description: automatic release
   artifact: $(appveyor_repo_commit).zip
   auth_token:
-    secure: 4ZYJdojxUj1R94fuci26zjd+Rs1Hmy5lPmPKi+/FWMwSJFTccFzgpsm3uHP/y4i8
+    secure: IohH0lniXT8rX6Z5YVGV52bgpi4ZK8t92aD8a2HcBQ6P/+PQvqjE9r5kMCgWb15z
   on:
     appveyor_repo_tag: true
