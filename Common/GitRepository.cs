@@ -46,7 +46,7 @@ namespace Common
             log.LogInformation($"{"[" + ModuleName + "]",-30}Cloning treeish {treeish ?? "master"} into {RepoPath}");
             var treeishSuffix = "-b " + (treeish ?? "master");
             var depthSuffix = depth.HasValue ? $" --depth {depth.Value} --no-single-branch" : "";
-            var cmd = $"git clone {url} {treeishSuffix}{depthSuffix} \"{RepoPath}\" 2>&1";
+            var cmd = $"git clone --recursive {url} {treeishSuffix}{depthSuffix} \"{RepoPath}\" 2>&1";
             var exitCode = runner.Run(cmd, TimeSpan.FromMinutes(60), RetryStrategy.IfTimeoutOrFailed);
             if (exitCode != 0)
             {
