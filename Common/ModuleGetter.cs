@@ -185,7 +185,7 @@ namespace Common
                 getInfo.Cloned = true;
             }
             repo.TryUpdateUrl(modules.FirstOrDefault(m => m.Name.Equals(dep.Name)));
-
+            repo.SubmoduleUpdate();
             GetTreeish(repo, dep, force, dep.Treeish, getInfo);
             if (verbose)
                 getInfo.CommitInfo = repo.GetCommitInfo();

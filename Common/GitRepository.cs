@@ -155,6 +155,21 @@ namespace Common
             }
         }
 
+        public void SubmoduleUpdate()
+        {
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Submodule init");
+
+            var command = "git submodule update --init --recursive";
+
+            var submoduleUpdateTaskExitCode = runner.RunInDirectory(RepoPath, command, TimeSpan.FromMinutes(60));
+
+            if (submoduleUpdateTaskExitCode != 0)
+            {
+                var output = runner.Errors;
+                throw new GitCheckoutException($"Failed to checkout to submodule update from {ModuleName}. {output}");
+            }
+        }
+
         public void Fetch(string branch, int? depth = null)
         {
             log.LogInformation($"{"[" + ModuleName + "]",-30}Fetching {branch}");
