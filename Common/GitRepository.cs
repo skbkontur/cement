@@ -159,6 +159,12 @@ namespace Common
         {
             log.LogInformation($"{"[" + ModuleName + "]",-30}Submodule init");
 
+            if (!File.Exists(Path.Combine(RepoPath, ".gitmodules")))
+            {
+                log.LogInformation($"{"[" + ModuleName + "]",-30} No submodules found");
+                return;
+            }
+
             var command = "git submodule update --init --recursive";
 
             var submoduleUpdateTaskExitCode = runner.RunInDirectory(RepoPath, command, TimeSpan.FromMinutes(60));
