@@ -40,7 +40,8 @@ namespace Commands
             {
                 ShowAllWarnings = (bool) parsedArgs["warnings"],
                 ShowOutput = (bool) parsedArgs["verbose"],
-                ShowProgress = (bool) parsedArgs["progress"]
+                ShowProgress = (bool) parsedArgs["progress"],
+                ClearBeforeBuild = (bool) parsedArgs["clear"]
             };
         }
 
@@ -222,6 +223,7 @@ namespace Commands
         -w/--warnings             - show warnings
 
         -p/--progress             - show msbuild output in one line
+        --clear                   - remove 'bin' and 'obj' folders before build
 ";
     }
 }

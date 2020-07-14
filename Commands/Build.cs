@@ -32,7 +32,8 @@ namespace Commands
                 ShowObsoleteWarnings = (bool) parsedArgs["obsolete"],
                 ShowOutput = (bool) parsedArgs["verbose"],
                 ShowProgress = (bool) parsedArgs["progress"],
-                ShowWarningsSummary = true
+                ShowWarningsSummary = true,
+                ClearBeforeBuild = (bool) parsedArgs["clear"]
             };
             restore = (bool) parsedArgs["restore"];
         }
@@ -83,6 +84,7 @@ namespace Commands
         -W                      - show only obsolete warnings
 
         -p/--progress           - show msbuild output in one line
+        --clear                 - remove 'bin' and 'obj' folders before build
 ";
     }
 }

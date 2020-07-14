@@ -106,11 +106,35 @@ namespace Common
         {
             var moduleYaml = Path.Combine(Helper.CurrentWorkspace, dep.Name, Helper.YamlSpecFile);
             var cmdFile = Path.Combine(Helper.CurrentWorkspace, ModuleBuilderHelper.GetBuildScriptName(dep));
+            if (buildSettings.ClearBeforeBuild)
+                DeleteBinAndObjFolders(dep);
+
             if (!Build(dep, moduleYaml, cmdFile))
                 return false;
 
             CheckHasInstall(dep);
             return true;
+        }
+
+        private void DeleteBinAndObjFolders(Dep dep)
+        {
+            try
+            {
+                var binPath = Path.Combine(Helper.CurrentWorkspace, dep.Name, "bin");
+                if (Directory.Exists(binPath))
+                    Directory.Delete(binPath, recursive: true);
+
+                var objPath = Path.Combine(Helper.CurrentWorkspace, dep.Name, "obj");
+                if (Directory.Exists(objPath))
+                    Directory.Delete(objPath, recursive: true);
+
+                ConsoleWriter.WriteOk("Folders 'bin' and 'obj' was deleted successfully");
+            }
+            catch (Exception e)
+            {
+                log.LogWarning(e, "An error occured while deleting bin or obj folders");
+                ConsoleWriter.WriteWarning("An error occured while deleting bin or obj folders");
+            }
         }
 
         private void CheckHasInstall(Dep dep)
