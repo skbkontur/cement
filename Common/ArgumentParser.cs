@@ -101,8 +101,7 @@ namespace Common
                 {"obsolete", false},
                 {"verbose", false},
                 {"progress", false},
-                {"prerelease", false},
-                {"clear", false }
+                {"prerelease", false}
             };
             var parser = new OptionSet
             {
@@ -111,8 +110,7 @@ namespace Common
                 {"W", f => parsedArguments["obsolete"] = true},
                 {"v|verbose", v => parsedArguments["verbose"] = true},
                 {"p|progress", p => parsedArguments["progress"] = true},
-                {"prerelease", p => parsedArguments["prerelease"] = true},
-                {"clear", q => parsedArguments["clear"] = true}
+                {"prerelease", p => parsedArguments["prerelease"] = true}
             };
             args = parser.Parse(args).ToArray();
 
@@ -223,7 +221,7 @@ namespace Common
                 {"progress", false},
                 {"restore", true},
                 {"quickly", false},
-                {"clear", false }
+                {"clean", false }
             };
             var parser = new OptionSet
             {
@@ -235,7 +233,7 @@ namespace Common
                 {"p|progress", p => parsedArguments["progress"] = true},
                 {"restore", p => parsedArguments["restore"] = true},
                 {"q|quickly", q => parsedArguments["quickly"] = true},
-                {"clear", q => parsedArguments["clear"] = true}
+                {"clean", q => parsedArguments["clean"] = true}
             };
             var extraArgs = parser.Parse(args.Skip(1));
             ThrowIfHasExtraArgs(extraArgs);

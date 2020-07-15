@@ -1,6 +1,7 @@
 using Common.YamlParsers;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,11 +16,14 @@ namespace Common
         private readonly ILogger log;
         public static long TotalMsbuildTime;
         private readonly BuildSettings buildSettings;
+        private readonly Cleaner cleaner;
 
-        public ModuleBuilder(ILogger log, BuildSettings buildSettings)
+        public ModuleBuilder(ILogger log, BuildSettings buildSettings, Cleaner cleaner)
         {
             this.log = log;
             this.buildSettings = buildSettings;
+
+            this.cleaner = cleaner;
         }
 
         public void Init()
@@ -106,8 +110,8 @@ namespace Common
         {
             var moduleYaml = Path.Combine(Helper.CurrentWorkspace, dep.Name, Helper.YamlSpecFile);
             var cmdFile = Path.Combine(Helper.CurrentWorkspace, ModuleBuilderHelper.GetBuildScriptName(dep));
-            if (buildSettings.ClearBeforeBuild)
-                DeleteBinAndObjFolders(dep);
+            if (buildSettings.CleanBeforeBuild)
+                TryClean(dep);
 
             if (!Build(dep, moduleYaml, cmdFile))
                 return false;
@@ -116,25 +120,10 @@ namespace Common
             return true;
         }
 
-        private void DeleteBinAndObjFolders(Dep dep)
+        private void TryClean(Dep dep)
         {
-            try
-            {
-                var binPath = Path.Combine(Helper.CurrentWorkspace, dep.Name, "bin");
-                if (Directory.Exists(binPath))
-                    Directory.Delete(binPath, recursive: true);
-
-                var objPath = Path.Combine(Helper.CurrentWorkspace, dep.Name, "obj");
-                if (Directory.Exists(objPath))
-                    Directory.Delete(objPath, recursive: true);
-
-                ConsoleWriter.WriteOk("Folders 'bin' and 'obj' was deleted successfully");
-            }
-            catch (Exception e)
-            {
-                log.LogWarning(e, "An error occured while deleting bin or obj folders");
-                ConsoleWriter.WriteWarning("An error occured while deleting bin or obj folders");
-            }
+            if (cleaner.IsNetStandard(dep))
+                cleaner.Clean(dep);
         }
 
         private void CheckHasInstall(Dep dep)

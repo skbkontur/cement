@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Common;
+using Common.Logging;
 
 namespace Commands
 {
@@ -33,7 +34,7 @@ namespace Commands
                 ShowOutput = (bool) parsedArgs["verbose"],
                 ShowProgress = (bool) parsedArgs["progress"],
                 ShowWarningsSummary = true,
-                ClearBeforeBuild = (bool) parsedArgs["clear"]
+                CleanBeforeBuild = (bool) parsedArgs["clean"]
             };
             restore = (bool) parsedArgs["restore"];
         }
@@ -50,7 +51,9 @@ namespace Commands
                 return -1;
             }
 
-            var builder = new ModuleBuilder(Log, buildSettings);
+            var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
+            var cleaner = new Cleaner(shellRunner);
+            var builder = new ModuleBuilder(Log, buildSettings, cleaner);
             var builderInitTask = Task.Run(() => builder.Init());
             var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration);
             var builtStorage = BuiltInfoStorage.Deserialize();
@@ -84,7 +87,7 @@ namespace Commands
         -W                      - show only obsolete warnings
 
         -p/--progress           - show msbuild output in one line
-        --clear                 - remove 'bin' and 'obj' folders before build
+        --clean                 - remove all local changes (include all build results) before build | only in netstandard projects and .sln targets
 ";
     }
 }

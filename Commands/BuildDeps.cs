@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Common;
 using Common.Extensions;
 using Common.Graph;
+using Common.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Commands
@@ -41,7 +42,7 @@ namespace Commands
                 ShowAllWarnings = (bool) parsedArgs["warnings"],
                 ShowOutput = (bool) parsedArgs["verbose"],
                 ShowProgress = (bool) parsedArgs["progress"],
-                ClearBeforeBuild = (bool) parsedArgs["clear"]
+                CleanBeforeBuild = (bool) parsedArgs["clean"]
             };
         }
 
@@ -51,8 +52,10 @@ namespace Commands
             var moduleName = Path.GetFileName(cwd);
 
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
-            
-            var builder = new ModuleBuilder(Log, buildSettings);
+
+            var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
+            var cleaner = new Cleaner(shellRunner);
+            var builder = new ModuleBuilder(Log, buildSettings, cleaner);
             var builderInitTask = Task.Run(() => builder.Init());
             var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build");
             var modulesToBuild = modulesOrder.UpdatedModules;
@@ -223,7 +226,7 @@ namespace Commands
         -w/--warnings             - show warnings
 
         -p/--progress             - show msbuild output in one line
-        --clear                   - remove 'bin' and 'obj' folders before build
+        --clean                   - remove all local changes (include all build results) before build | only in netstandard projects and .sln targets
 ";
     }
 }

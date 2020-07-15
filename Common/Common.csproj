@@ -10,8 +10,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+    <PackageReference Include="MvsSln" Version="2.5.2" />
     <PackageReference Include="NDesk.Options" Version="0.2.1" />
     <PackageReference Include="SharpYaml" Version="1.6.5" />
+	  
     <PackageReference Include="Vostok.Hercules.Client" Version="0.1.11" />
     <PackageReference Include="Vostok.Logging.File" Version="1.0.6" />
     <PackageReference Include="Vostok.Logging.Hercules" Version="0.1.2" />
