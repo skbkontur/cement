@@ -34,7 +34,6 @@ namespace Commands
                 ShowOutput = (bool) parsedArgs["verbose"],
                 ShowProgress = (bool) parsedArgs["progress"],
                 ShowWarningsSummary = true,
-                CleanBeforeBuild = (bool) parsedArgs["clean"]
             };
             restore = (bool) parsedArgs["restore"];
         }
@@ -87,7 +86,6 @@ namespace Commands
         -W                      - show only obsolete warnings
 
         -p/--progress           - show msbuild output in one line
-        --clean                 - remove all local changes (include all build results) before build | only in netstandard projects and .sln targets
 ";
     }
 }

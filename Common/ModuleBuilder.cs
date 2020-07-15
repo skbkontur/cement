@@ -108,10 +108,10 @@ namespace Common
 
         private bool BuildSingleModule(Dep dep)
         {
+            TryClean(dep);
+
             var moduleYaml = Path.Combine(Helper.CurrentWorkspace, dep.Name, Helper.YamlSpecFile);
             var cmdFile = Path.Combine(Helper.CurrentWorkspace, ModuleBuilderHelper.GetBuildScriptName(dep));
-            if (buildSettings.CleanBeforeBuild)
-                TryClean(dep);
 
             if (!Build(dep, moduleYaml, cmdFile))
                 return false;
