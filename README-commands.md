@@ -162,7 +162,6 @@
         -w/--warnings             - show warnings
 
         -p/--progress             - show msbuild output in one line
-        --clean                   - remove all local changes (include all build results) before build | only in netstandard projects and .sln targets
 
 ### cm build
 

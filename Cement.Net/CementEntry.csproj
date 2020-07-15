@@ -58,7 +58,7 @@
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Formatting.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Hercules.dll" />
 	   <MergeAssemblies Include="$(OutputPath)\Vostok.Logging.Microsoft.dll" />
-		 <MergeAssemblies Include="$(OutputPath)\MvsSln.dll" />
+      <MergeAssemblies Include="$(OutputPath)\MvsSln.dll" />
      </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputPath)\cm.exe</OutputAssembly>
