@@ -89,7 +89,7 @@ Feature flags may be edit in config file '%USERPROFILE%/bin/dotnet/featureFlags.
 ### Clean before build
 Deleting all local changes before build in commands 'build' and 'build-deps' if project's TargetFramework is 'netstandardXX'
 
-Default: true
+Default: false
 
 ## Creating modules
 
