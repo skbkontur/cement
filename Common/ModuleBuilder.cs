@@ -17,13 +17,15 @@ namespace Common
         public static long TotalMsbuildTime;
         private readonly BuildSettings buildSettings;
         private readonly Cleaner cleaner;
+        private readonly FeatureFlags featureFlags;
 
-        public ModuleBuilder(ILogger log, BuildSettings buildSettings, Cleaner cleaner)
+        public ModuleBuilder(ILogger log, BuildSettings buildSettings, Cleaner cleaner, FeatureFlags featureFlags)
         {
             this.log = log;
             this.buildSettings = buildSettings;
 
             this.cleaner = cleaner;
+            this.featureFlags = featureFlags;
         }
 
         public void Init()
@@ -108,7 +110,8 @@ namespace Common
 
         private bool BuildSingleModule(Dep dep)
         {
-            TryClean(dep);
+            if (featureFlags.IsCleanBeforeBuildEnabled)
+                TryClean(dep);
 
             var moduleYaml = Path.Combine(Helper.CurrentWorkspace, dep.Name, Helper.YamlSpecFile);
             var cmdFile = Path.Combine(Helper.CurrentWorkspace, ModuleBuilderHelper.GetBuildScriptName(dep));

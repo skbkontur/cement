@@ -54,7 +54,7 @@ namespace Commands
 
             var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
             var cleaner = new Cleaner(shellRunner);
-            var builder = new ModuleBuilder(Log, buildSettings, cleaner);
+            var builder = new ModuleBuilder(Log, buildSettings, cleaner, FeatureFlags);
             var builderInitTask = Task.Run(() => builder.Init());
             var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build");
             var modulesToBuild = modulesOrder.UpdatedModules;

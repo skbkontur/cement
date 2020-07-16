@@ -51,12 +51,23 @@ namespace cm
             catch (CementException e)
             {
                 ConsoleWriter.WriteError(e.Message);
+                LogManager.GetLogger(typeof(EntryPoint)).LogError(e, e.Message);
                 return -1;
             }
             catch (Exception e)
             {
-                ConsoleWriter.WriteError(e.Message);
-                ConsoleWriter.WriteError(e.StackTrace);
+                if (e.InnerException != null && e.InnerException is CementException cementException)
+                {
+                    ConsoleWriter.WriteError(cementException.Message);
+                    LogManager.GetLogger(typeof(EntryPoint)).LogError(e.InnerException, e.InnerException.Message);
+                }
+                else
+                {
+                    ConsoleWriter.WriteError(e.Message);
+                    ConsoleWriter.WriteError(e.StackTrace);
+                    LogManager.GetLogger(typeof(EntryPoint)).LogError(e, e.Message);
+                }
+                
                 return -1;
             }
         }

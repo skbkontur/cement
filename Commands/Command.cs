@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Common;
 using Common.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Commands
@@ -11,10 +12,18 @@ namespace Commands
     {
         protected static ILogger Log;
         protected readonly CommandSettings CommandSettings;
+        protected readonly FeatureFlags FeatureFlags;
 
         protected Command(CommandSettings settings)
         {
             CommandSettings = settings;
+
+            var featureFlagsConfigPath = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "featureFlags.json");
+            if (!File.Exists(featureFlagsConfigPath))
+                throw new FeatureFlagsConfigNotFound(featureFlagsConfigPath);
+
+            var configuration = new ConfigurationBuilder().AddJsonFile(featureFlagsConfigPath).Build();
+            FeatureFlags = configuration.Get<FeatureFlags>();
         }
 
         public int Run(string[] args)
