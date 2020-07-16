@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Common;
+using Common.Logging;
 
 namespace Commands
 {
@@ -32,7 +33,7 @@ namespace Commands
                 ShowObsoleteWarnings = (bool) parsedArgs["obsolete"],
                 ShowOutput = (bool) parsedArgs["verbose"],
                 ShowProgress = (bool) parsedArgs["progress"],
-                ShowWarningsSummary = true
+                ShowWarningsSummary = true,
             };
             restore = (bool) parsedArgs["restore"];
         }
@@ -49,7 +50,9 @@ namespace Commands
                 return -1;
             }
 
-            var builder = new ModuleBuilder(Log, buildSettings);
+            var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
+            var cleaner = new Cleaner(shellRunner);
+            var builder = new ModuleBuilder(Log, buildSettings, cleaner, FeatureFlags);
             var builderInitTask = Task.Run(() => builder.Init());
             var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration);
             var builtStorage = BuiltInfoStorage.Deserialize();

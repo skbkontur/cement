@@ -1,6 +1,7 @@
 using Common.YamlParsers;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,11 +16,16 @@ namespace Common
         private readonly ILogger log;
         public static long TotalMsbuildTime;
         private readonly BuildSettings buildSettings;
+        private readonly Cleaner cleaner;
+        private readonly FeatureFlags featureFlags;
 
-        public ModuleBuilder(ILogger log, BuildSettings buildSettings)
+        public ModuleBuilder(ILogger log, BuildSettings buildSettings, Cleaner cleaner, FeatureFlags featureFlags)
         {
             this.log = log;
             this.buildSettings = buildSettings;
+
+            this.cleaner = cleaner;
+            this.featureFlags = featureFlags;
         }
 
         public void Init()
@@ -104,13 +110,23 @@ namespace Common
 
         private bool BuildSingleModule(Dep dep)
         {
+            if (featureFlags.CleanBeforeBuild)
+                TryClean(dep);
+
             var moduleYaml = Path.Combine(Helper.CurrentWorkspace, dep.Name, Helper.YamlSpecFile);
             var cmdFile = Path.Combine(Helper.CurrentWorkspace, ModuleBuilderHelper.GetBuildScriptName(dep));
+
             if (!Build(dep, moduleYaml, cmdFile))
                 return false;
 
             CheckHasInstall(dep);
             return true;
+        }
+
+        private void TryClean(Dep dep)
+        {
+            if (cleaner.IsNetStandard(dep))
+                cleaner.Clean(dep);
         }
 
         private void CheckHasInstall(Dep dep)

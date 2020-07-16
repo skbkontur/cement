@@ -83,6 +83,14 @@ Need to build new version of modules, which were changed.
 ### cm build
 And current module.
 
+## Feature flags
+Feature flags may be edit in config file '%USERPROFILE%/bin/dotnet/featureFlags.json'
+
+### Clean before build
+Deleting all local changes before build in commands 'build' and 'build-deps' if project's TargetFramework is 'netstandardXX'
+
+Default: false
+
 ## Creating modules
 
 1. Specify git repo witch will contain all module descriptions like https://github.com/KungA/cement-sample-modules

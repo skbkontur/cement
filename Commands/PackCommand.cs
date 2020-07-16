@@ -4,6 +4,7 @@ using Common.YamlParsers;
 using System.IO;
 using System.Linq;
 using Common.Extensions;
+using Common.Logging;
 
 namespace Commands
 {
@@ -46,7 +47,9 @@ namespace Commands
             try
             {
                 XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
-                var moduleBuilder = new ModuleBuilder(Log, buildSettings);
+                var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
+                var cleaner = new Cleaner(shellRunner);
+                var moduleBuilder = new ModuleBuilder(Log, buildSettings, cleaner, FeatureFlags);
                 moduleBuilder.Init();
                 ConsoleWriter.WriteInfo("start pack");
                 if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))

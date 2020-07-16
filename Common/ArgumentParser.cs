@@ -110,7 +110,7 @@ namespace Common
                 {"W", f => parsedArguments["obsolete"] = true},
                 {"v|verbose", v => parsedArguments["verbose"] = true},
                 {"p|progress", p => parsedArguments["progress"] = true},
-                {"prerelease", p => parsedArguments["prerelease"] = true},
+                {"prerelease", p => parsedArguments["prerelease"] = true}
             };
             args = parser.Parse(args).ToArray();
 
@@ -231,7 +231,7 @@ namespace Common
                 {"v|verbose", v => parsedArguments["verbose"] = true},
                 {"p|progress", p => parsedArguments["progress"] = true},
                 {"restore", p => parsedArguments["restore"] = true},
-                {"q|quickly", q => parsedArguments["quickly"] = true},
+                {"q|quickly", q => parsedArguments["quickly"] = true}
             };
             var extraArgs = parser.Parse(args.Skip(1));
             ThrowIfHasExtraArgs(extraArgs);

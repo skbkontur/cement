@@ -88,4 +88,12 @@ namespace Common
         {
         }
     }
+
+    public class FeatureFlagsConfigNotFound : CementException
+    {
+        public FeatureFlagsConfigNotFound(string expectedConfigPath)
+            :base($"File with feature flags not found in '{expectedConfigPath}'. Try reinstall cement")
+        {
+        }
+    }
 }

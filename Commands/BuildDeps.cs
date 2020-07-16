@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Common;
 using Common.Extensions;
 using Common.Graph;
+using Common.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Commands
@@ -40,7 +41,7 @@ namespace Commands
             {
                 ShowAllWarnings = (bool) parsedArgs["warnings"],
                 ShowOutput = (bool) parsedArgs["verbose"],
-                ShowProgress = (bool) parsedArgs["progress"]
+                ShowProgress = (bool) parsedArgs["progress"],
             };
         }
 
@@ -50,8 +51,10 @@ namespace Commands
             var moduleName = Path.GetFileName(cwd);
 
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
-            
-            var builder = new ModuleBuilder(Log, buildSettings);
+
+            var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
+            var cleaner = new Cleaner(shellRunner);
+            var builder = new ModuleBuilder(Log, buildSettings, cleaner, FeatureFlags);
             var builderInitTask = Task.Run(() => builder.Init());
             var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build");
             var modulesToBuild = modulesOrder.UpdatedModules;
