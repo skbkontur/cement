@@ -10,9 +10,14 @@ namespace cm
 {
     internal static class EntryPoint
     {
+        private static ILogger logger;
+
         private static int Main(string[] args)
         {
             LogManager.SetDebugLoggingLevel();
+
+            logger = LogManager.GetLogger(typeof(EntryPoint));
+
             ThreadPoolSetUp(Helper.MaxDegreeOfParallelism);
             args = FixArgs(args);
             var exitCode = TryRun(args);
@@ -24,7 +29,7 @@ namespace cm
                 && (command != "help" || !args.Contains("--gen")))
                 SelfUpdate.UpdateIfOld();
 
-            LogManager.GetLogger(typeof(EntryPoint)).LogInformation($"Exit code: {exitCode}");
+            logger.LogInformation($"Exit code: {exitCode}");
 
             LogManager.DisposeLoggers();
             
@@ -51,7 +56,7 @@ namespace cm
             catch (CementException e)
             {
                 ConsoleWriter.WriteError(e.Message);
-                LogManager.GetLogger(typeof(EntryPoint)).LogError(e, e.Message);
+                logger.LogError(e, e.Message);
                 return -1;
             }
             catch (Exception e)
@@ -59,13 +64,13 @@ namespace cm
                 if (e.InnerException != null && e.InnerException is CementException cementException)
                 {
                     ConsoleWriter.WriteError(cementException.Message);
-                    LogManager.GetLogger(typeof(EntryPoint)).LogError(e.InnerException, e.InnerException.Message);
+                    logger.LogError(e.InnerException, e.InnerException.Message);
                 }
                 else
                 {
                     ConsoleWriter.WriteError(e.Message);
                     ConsoleWriter.WriteError(e.StackTrace);
-                    LogManager.GetLogger(typeof(EntryPoint)).LogError(e, e.Message);
+                    logger.LogError(e, e.Message);
                 }
                 
                 return -1;

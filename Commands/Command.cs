@@ -19,11 +19,16 @@ namespace Commands
             CommandSettings = settings;
 
             var featureFlagsConfigPath = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "featureFlags.json");
-            if (!File.Exists(featureFlagsConfigPath))
-                throw new FeatureFlagsConfigNotFound(featureFlagsConfigPath);
-
-            var configuration = new ConfigurationBuilder().AddJsonFile(featureFlagsConfigPath).Build();
-            FeatureFlags = configuration.Get<FeatureFlags>();
+            if (File.Exists(featureFlagsConfigPath))
+            {
+                var configuration = new ConfigurationBuilder().AddJsonFile(featureFlagsConfigPath).Build();
+                FeatureFlags = configuration.Get<FeatureFlags>();
+            }
+            else
+            {
+                ConsoleWriter.WriteWarning($"File with feature flags not found in '{featureFlagsConfigPath}'. Reinstalling cement may fix that issue");
+                FeatureFlags = FeatureFlags.Default;
+            }
         }
 
         public int Run(string[] args)

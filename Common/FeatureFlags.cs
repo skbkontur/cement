@@ -6,6 +6,11 @@ namespace Common
     public sealed class FeatureFlags
     {
         [JsonProperty]
-        public bool IsCleanBeforeBuildEnabled { get; set; }
+        public bool CleanBeforeBuild { get; set; }
+
+        public static FeatureFlags Default => new FeatureFlags
+        {
+            CleanBeforeBuild = false
+        };
     }
 }
