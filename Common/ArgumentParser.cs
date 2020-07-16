@@ -220,7 +220,8 @@ namespace Common
                 {"verbose", false},
                 {"progress", false},
                 {"restore", true},
-                {"quickly", false}
+                {"quickly", false},
+                {"cleanBeforeBuild", false }
             };
             var parser = new OptionSet
             {
@@ -231,7 +232,8 @@ namespace Common
                 {"v|verbose", v => parsedArguments["verbose"] = true},
                 {"p|progress", p => parsedArguments["progress"] = true},
                 {"restore", p => parsedArguments["restore"] = true},
-                {"q|quickly", q => parsedArguments["quickly"] = true}
+                {"q|quickly", q => parsedArguments["quickly"] = true},
+                {"cleanBeforeBuild", q => parsedArguments["cleanBeforeBuild"] = true}
             };
             var extraArgs = parser.Parse(args.Skip(1));
             ThrowIfHasExtraArgs(extraArgs);

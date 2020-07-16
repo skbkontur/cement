@@ -110,7 +110,7 @@ namespace Common
 
         private bool BuildSingleModule(Dep dep)
         {
-            if (featureFlags.CleanBeforeBuild)
+            if (featureFlags.CleanBeforeBuild || buildSettings.CleanBeforeBuild)
                 TryClean(dep);
 
             var moduleYaml = Path.Combine(Helper.CurrentWorkspace, dep.Name, Helper.YamlSpecFile);

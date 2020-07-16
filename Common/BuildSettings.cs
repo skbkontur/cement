@@ -7,5 +7,6 @@
         public bool ShowOutput;
         public bool ShowProgress;
         public bool ShowWarningsSummary;
+        public bool CleanBeforeBuild;
     }
 }

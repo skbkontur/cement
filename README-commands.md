@@ -162,6 +162,7 @@
         -w/--warnings             - show warnings
 
         -p/--progress             - show msbuild output in one line
+        --cleanBeforeBuild        - delete all local changes if project's TargetFramework is 'netstandardXX'
 
 ### cm build
 
@@ -177,6 +178,7 @@
         -W                      - show only obsolete warnings
 
         -p/--progress           - show msbuild output in one line
+        --cleanBeforeBuild      - delete all local changes if project's TargetFramework is 'netstandardXX'
 
 
 ### cm ls
