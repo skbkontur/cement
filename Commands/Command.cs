@@ -12,23 +12,11 @@ namespace Commands
     {
         protected static ILogger Log;
         protected readonly CommandSettings CommandSettings;
-        protected readonly FeatureFlags FeatureFlags;
+        protected FeatureFlags FeatureFlags;
 
         protected Command(CommandSettings settings)
         {
             CommandSettings = settings;
-
-            var featureFlagsConfigPath = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "featureFlags.json");
-            if (File.Exists(featureFlagsConfigPath))
-            {
-                var configuration = new ConfigurationBuilder().AddJsonFile(featureFlagsConfigPath).Build();
-                FeatureFlags = configuration.Get<FeatureFlags>();
-            }
-            else
-            {
-                ConsoleWriter.WriteWarning($"File with feature flags not found in '{featureFlagsConfigPath}'. Reinstalling cement may fix that issue");
-                FeatureFlags = FeatureFlags.Default;
-            }
         }
 
         public int Run(string[] args)
@@ -37,6 +25,7 @@ namespace Commands
             {
                 var sw = Stopwatch.StartNew();
 
+                ReadFeatureFlags();
                 SetWorkspace();
                 CheckRequireYaml();
                 InitLogging();
@@ -72,6 +61,21 @@ namespace Commands
                 ConsoleWriter.WriteError(e.Message);
                 ConsoleWriter.WriteError(e.StackTrace);
                 return -1;
+            }
+        }
+
+        private void ReadFeatureFlags()
+        {
+            var featureFlagsConfigPath = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "featureFlags.json");
+            if (File.Exists(featureFlagsConfigPath))
+            {
+                var configuration = new ConfigurationBuilder().AddJsonFile(featureFlagsConfigPath).Build();
+                FeatureFlags = configuration.Get<FeatureFlags>();
+            }
+            else
+            {
+                ConsoleWriter.WriteWarning($"File with feature flags not found in '{featureFlagsConfigPath}'. Reinstalling cement may fix that issue");
+                FeatureFlags = FeatureFlags.Default;
             }
         }
 
