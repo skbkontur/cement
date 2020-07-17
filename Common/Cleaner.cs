@@ -48,7 +48,7 @@ namespace Common
             }
             catch (Exception e)
             {
-                ConsoleWriter.WriteWarning($"An error occured when checking target framework in '{dep.Name}'. Continue building without clean");
+                ConsoleWriter.WriteInfo($"Could not check TargetFramework in '{dep.Name}'. Continue building without clean");
                 log.LogWarning(e, $"An error occured when checking target framework in '{dep.Name}'");
                 return false;
             }
@@ -70,7 +70,7 @@ namespace Common
             if (exitCode != 0)
             {
                 log.LogWarning($"'git clean' finished with non-zero exit code: '{exitCode}'");
-                ConsoleWriter.WriteWarning($"An error occured while cleaning {dep.Name}");
+                ConsoleWriter.WriteInfo($"Could not clean {dep.Name}. Continue building without clean");
                 return;
             }
 
