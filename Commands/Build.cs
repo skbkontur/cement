@@ -53,7 +53,7 @@ namespace Commands
 
             var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
             var cleaner = new Cleaner(shellRunner);
-            var builder = new ModuleBuilder(Log, buildSettings, cleaner, FeatureFlags);
+            var builder = new ModuleBuilder(Log, buildSettings);
             var builderInitTask = Task.Run(() => builder.Init());
             var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration);
             var builtStorage = BuiltInfoStorage.Deserialize();
@@ -61,7 +61,13 @@ namespace Commands
 
             builderInitTask.Wait();
             var module = new Dep(moduleName, null, configuration);
-            
+
+            if (FeatureFlags.CleanBeforeBuild || buildSettings.CleanBeforeBuild)
+            {
+                if (cleaner.IsNetStandard(module))
+                    cleaner.Clean(module);
+            }
+
             BuildDeps.TryNugetRestore(new List<Dep> {module}, builder);
 
             if (!builder.Build(module))

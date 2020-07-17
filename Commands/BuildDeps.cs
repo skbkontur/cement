@@ -55,7 +55,7 @@ namespace Commands
 
             var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
             var cleaner = new Cleaner(shellRunner);
-            var builder = new ModuleBuilder(Log, buildSettings, cleaner, FeatureFlags);
+            var builder = new ModuleBuilder(Log, buildSettings);
             var builderInitTask = Task.Run(() => builder.Init());
             var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build");
             var modulesToBuild = modulesOrder.UpdatedModules;
@@ -73,12 +73,25 @@ namespace Commands
                 builtStorage.RemoveBuildInfo(dep.Name);
 
             builderInitTask.Wait();
+
+            if (FeatureFlags.CleanBeforeBuild || buildSettings.CleanBeforeBuild)
+                TryCleanModules(modulesToBuild, cleaner);
+
             TryNugetRestore(modulesToBuild, builder);
 
             var isSuccessful = parallel ?
                 BuildDepsParallel(modulesOrder, builtStorage, modulesToBuild, builder) :
                 BuildDepsSequential(modulesOrder, builtStorage, modulesToBuild, builder);
             return isSuccessful ? 0 : -1;
+        }
+
+        private void TryCleanModules(List<Dep> modules, Cleaner cleaner)
+        {
+            foreach (var module in modules)
+            {
+                if (cleaner.IsNetStandard(module))
+                    cleaner.Clean(module);
+            }
         }
 
         private static bool BuildDepsSequential(ModulesOrder modulesOrder, BuiltInfoStorage builtStorage, List<Dep> modulesToBuild, ModuleBuilder builder)

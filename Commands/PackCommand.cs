@@ -49,7 +49,7 @@ namespace Commands
                 XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
                 var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
                 var cleaner = new Cleaner(shellRunner);
-                var moduleBuilder = new ModuleBuilder(Log, buildSettings, cleaner, FeatureFlags);
+                var moduleBuilder = new ModuleBuilder(Log, buildSettings);
                 moduleBuilder.Init();
                 ConsoleWriter.WriteInfo("start pack");
                 if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))
