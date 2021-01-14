@@ -11,5 +11,5 @@ if(Test-Path $binDir){
 	rm $binDir -Recurse -Force | Out-Null
 }
 
-copy $backupDir $binDir -Recurse -Force 
+copy $backupDir\ $binDir -Recurse -Force 
 Write-Host "Cement binaries restored from backup $backupDir to $binDir" -ForegroundColor Green
