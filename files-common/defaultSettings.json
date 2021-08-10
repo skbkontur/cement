@@ -19,6 +19,7 @@
 	}
   ],
   "UserCommands": {
-    "full": "cm init && cm get {0} && cd {0} && cm build-deps && cm build"
+    "full": "cm init && cm get {0} && cd {0} && cm build-deps && cm build",
+    "all": "cm update && cm update-deps && cm build-deps && cm build"
   }
 }
