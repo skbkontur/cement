@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -37,8 +38,12 @@ namespace Common
         private static void UpdateGitPackage(Package package)
         {
             var runner = new ShellRunner(Log);
-
             var timeout = TimeSpan.FromMinutes(1);
+
+            var remoteHash = GetRepositoryHeadHash(package);
+            var localHash = Helper.GetPackageCommitHash(package.Name);
+            if (remoteHash.Equals(localHash))
+                return;
 
             for (int i = 0; i < 3; i++)
             {
@@ -66,10 +71,23 @@ namespace Common
                             Directory.CreateDirectory(Helper.GetGlobalCementDirectory());
                         File.Copy(Path.Combine(tempDir.Path, package.Name, "modules"),
                             Helper.GetPackagePath(package.Name), true);
+                        Helper.WritePackageCommitHash(package.Name, remoteHash);
                     }
                     break;
                 }
             }
+        }
+
+        private static string GetRepositoryHeadHash(Package package)
+        {
+            var runner = new ShellRunner(Log);
+            var timeout = TimeSpan.FromMinutes(1);
+
+            runner.RunOnce($"git ls-remote {package.Url} HEAD", Directory.GetCurrentDirectory(), timeout);
+
+            var output = runner.Output;
+
+            return output.Split().FirstOrDefault();
         }
     }
 }
