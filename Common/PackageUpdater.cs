@@ -42,7 +42,7 @@ namespace Common
 
             var remoteHash = GetRepositoryHeadHash(package);
             var localHash = Helper.GetPackageCommitHash(package.Name);
-            if (remoteHash.Equals(localHash))
+            if (remoteHash != null && remoteHash.Equals(localHash))
                 return;
 
             for (int i = 0; i < 3; i++)
