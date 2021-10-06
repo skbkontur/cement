@@ -76,6 +76,20 @@ namespace Common
             return Path.Combine(GetGlobalCementDirectory(), packageName + ".cmpkg");
         }
 
+        public static string GetPackageCommitHash(string packageName)
+        {
+            var path = Path.Combine(GetGlobalCementDirectory(), packageName + ".cmpkg.hash");
+            if (!File.Exists(path))
+                return "";
+            return File.ReadAllText(path);
+        }
+
+        public static void WritePackageCommitHash(string packageName, string commitHash)
+        {
+            var path = Path.Combine(GetGlobalCementDirectory(), packageName + ".cmpkg.hash");
+            File.WriteAllText(path, commitHash);
+        }
+
         public static string GetServerRepositoriesPath()
         {
             return Path.Combine(Directory.GetDirectoryRoot(HomeDirectory()), "CementServer", "Repositories");
