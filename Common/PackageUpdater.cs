@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
+using net.r_eg.MvsSln.Extensions;
 
 namespace Common
 {
@@ -83,7 +84,16 @@ namespace Common
             var runner = new ShellRunner(Log);
             var timeout = TimeSpan.FromMinutes(1);
 
-            runner.RunOnce($"git ls-remote {package.Url} HEAD", Directory.GetCurrentDirectory(), timeout);
+            var exitCode = runner.RunOnce($"git ls-remote {package.Url} HEAD", Directory.GetCurrentDirectory(), timeout);
+
+            if (exitCode != 0)
+            {
+                var errorMessage = $"Cannot get hash code of package '{package.Name}' ({package.Url})\n" +
+                                   "Git output:\n\n" +
+                                   runner.Errors;
+
+                throw new CementException(errorMessage);
+            }
 
             var output = runner.Output;
 
