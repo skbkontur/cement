@@ -23,22 +23,22 @@ namespace Common
             var webClient = new WebClient();
             try
             {
-                var infoModel = JsonConvert.DeserializeObject<InfoResponseModel>(webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/cement/info/head/" + branch));
-                return infoModel?.CommitHash;
+                var info = JsonConvert.DeserializeObject<InfoResponseModel>(webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/cement/info/head/" + branch));
+                return info?.CommitHash;
             }
-            catch (WebException ex)
+            catch (WebException webException)
             {
-                log.LogError("Fail self-update ", ex);
-                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                log.LogError("Fail self-update, exception: '{Exception}'", webException);
+                if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
-                    var resp = (HttpWebResponse) ex.Response;
-                    if (resp.StatusCode == HttpStatusCode.NotFound) // HTTP 404
+                    var response = (HttpWebResponse) webException.Response;
+                    if (response.StatusCode == HttpStatusCode.NotFound) // HTTP 404
                     {
-                        ConsoleWriter.WriteError("Failed to look for updates on branch " + branch + ". Server responsed 404");
+                        ConsoleWriter.WriteWarning("Failed to look for updates on branch " + branch + ". Server replied 404");
                         return null;
                     }
                 }
-                ConsoleWriter.WriteError("Failed to look for updates on branch " + branch + ": " + ex.Message);
+                ConsoleWriter.WriteWarning("Failed to look for updates on branch " + branch + ": " + webException.Message);
                 return null;
             }
         }

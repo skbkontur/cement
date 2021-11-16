@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net;
-using Common.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Common
@@ -31,19 +30,19 @@ namespace Common
                 var parts = downloadUri.Split('/', '.');
                 return parts[parts.Length - 2];
             }
-            catch (WebException ex)
+            catch (WebException webException)
             {
-                log.LogError("Fail self-update ", ex);
-                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                log.LogError("Fail self-update, exception: '{Exception}' ", webException);
+                if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
-                    var resp = (HttpWebResponse) ex.Response;
-                    if (resp.StatusCode == HttpStatusCode.NotFound) // HTTP 404
+                    var response = (HttpWebResponse) webException.Response;
+                    if (response.StatusCode == HttpStatusCode.NotFound) // HTTP 404
                     {
-                        ConsoleWriter.WriteError("Failed to look for updates on github. Server responsed 404");
+                        ConsoleWriter.WriteWarning("Failed to look for updates on github. Server replied 404");
                         return null;
                     }
                 }
-                ConsoleWriter.WriteError("Failed to look for updates on github: " + ex.Message);
+                ConsoleWriter.WriteWarning("Failed to look for updates on github: " + webException.Message);
                 return null;
             }
         }
