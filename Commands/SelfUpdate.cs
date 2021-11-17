@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using Common;
+using Microsoft.Build.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Commands
@@ -35,11 +36,17 @@ namespace Commands
                 if (diff <= TimeSpan.FromHours(5))
                     return;
                 isAutoUpdate = true;
-                new SelfUpdate().Run(new[] {"self-update"});
+                var exitCode = new SelfUpdate().Run(new[] {"self-update"});
+                if (exitCode != 0)
+                {
+                    Log.LogError("Auto update cement failed. 'self-update' exited with code '{Code}'", exitCode);
+                    ConsoleWriter.WriteWarning("Auto update failed. Check previous warnings for details");
+                }
             }
             catch (Exception exception)
             {
-                Log.LogError("Fail to auto update", exception);
+                Log.LogError("Auto update failed, error: '{Exception}'", exception);
+                ConsoleWriter.WriteWarning("Auto update failed. Check logs for details");
             }
         }
 
@@ -187,21 +194,21 @@ exit $exit_code";
                 Log.LogDebug(okMessage);
                 return true;
             }
-            catch (WebException ex)
+            catch (WebException webException)
             {
-                Log.LogError("Fail self-update", ex);
+                Log.LogError("Fail self-update, exception: '{Exception}'", webException);
 
-                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
-                    var resp = (HttpWebResponse) ex.Response;
+                    var resp = (HttpWebResponse) webException.Response;
                     if (resp.StatusCode == HttpStatusCode.NotFound) // HTTP 404
                     {
-                        ConsoleWriter.WriteError($"Failed to look for updates on branch {branch}. Server responsed 404 ({updater.GetName()})");
+                        ConsoleWriter.WriteWarning($"Failed to look for updates on branch {branch}. Server replied 404 ({updater.GetName()})");
                         return false;
                     }
                 }
 
-                ConsoleWriter.WriteError($"Failed to look for updates on branch {branch}. {ex.Message} ({updater.GetName()})");
+                ConsoleWriter.WriteWarning($"Failed to look for updates on branch {branch}. {webException.Message} ({updater.GetName()})");
                 return false;
             }
         }
