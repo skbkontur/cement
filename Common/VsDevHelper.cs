@@ -87,12 +87,23 @@ namespace Common
             if (programFiles == null)
                 return null;
 
-            foreach (var version in Helper.VisualStudioVersions)
-            foreach (var edition in Helper.VisualStudioEditions)
+            var forcePath = CementSettings.Get().ForceMsBuildPath;
+            
+            if (string.IsNullOrWhiteSpace(forcePath))
             {
-                paths.Add(new KeyValuePair<string, string>(
-                    Helper.GetEnvVariableByVisualStudioVersion(version),
-                    Path.Combine(programFiles, "Microsoft Visual Studio", version, edition, "Common7", "Tools", "VsDevCmd.bat")));
+                foreach (var version in Helper.VisualStudioVersions)
+                foreach (var edition in Helper.VisualStudioEditions)
+                {
+                    paths.Add(
+                        new KeyValuePair<string, string>(
+                            Helper.GetEnvVariableByVisualStudioVersion(version),
+                            Path.Combine(programFiles, "Microsoft Visual Studio", version, edition, "Common7", "Tools", "VsDevCmd.bat")));
+                }
+            }
+            else
+            {
+                Log.LogInformation($"Force use MSBuild from {forcePath}");
+                paths.Add(new KeyValuePair<string, string>("Force", forcePath));
             }
 
             paths = paths.OrderByDescending(x => x.Key).Where(x => File.Exists(x.Value)).ToList();

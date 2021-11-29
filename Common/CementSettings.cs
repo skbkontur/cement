@@ -14,6 +14,7 @@ namespace Common
         public string Password;
         public string EncryptedPassword;
         public string DefaultMsBuildVersion;
+        public string ForceMsBuildPath;
         public string CementServer;
         public bool KillMsBuild = true;
         public string SelfUpdateTreeish;
