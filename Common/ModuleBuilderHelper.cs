@@ -49,9 +49,6 @@ namespace Common
 
         public static List<KeyValuePair<string, string>> FindMsBuildsWindows()
         {
-            if (msBuildsCache != null)
-                return msBuildsCache;
-
             var result = new List<KeyValuePair<string, string>>();
 
             var ms1 = FindAvailableMsBuildsInProgramFiles();
@@ -66,11 +63,11 @@ namespace Common
 
         private static List<KeyValuePair<string, string>> FindAvailableMsBuildsInProgramFiles()
         {
-            var programFiles = Helper.ProgramFiles();
+            var programFiles = Helper.GetProgramFilesInfo();
             if (programFiles == null)
                 return new List<KeyValuePair<string, string>>();
 
-            var folders = new List<string> {programFiles};
+            var folders = new List<string> {programFiles.x86, programFiles.x64};
 
             var variables = VsDevHelper.GetCurrentSetVariables();
             if (variables.ContainsKey("VSINSTALLDIR"))
@@ -79,7 +76,11 @@ namespace Common
             foreach (var version in Helper.VisualStudioVersions)
             foreach (var edition in Helper.VisualStudioEditions)
             {
-                folders.Add(Path.Combine(programFiles, "Microsoft Visual Studio", version, edition));
+                if (!string.IsNullOrWhiteSpace(programFiles.x86))
+                    folders.Add(Path.Combine(programFiles.x86, "Microsoft Visual Studio", version, edition));
+
+                if (!string.IsNullOrWhiteSpace(programFiles.x64))
+                    folders.Add(Path.Combine(programFiles.x64, "Microsoft Visual Studio", version, edition));
             }
 
             return folders.SelectMany(FindAvailableMsBuildsIn).Distinct().OrderByDescending(k => k.Key).ToList();
@@ -104,19 +105,21 @@ namespace Common
                     continue;
 
                 var match = new DirectoryInfo(bin).GetFiles("msbuild.exe")
-                    .Select(m => new {fullPath = m.FullName, version = Helper.GetMsBuildVersion(m.FullName) })
+                    .Select(m => new {fullPath = m.FullName, version = Helper.GetMsBuildVersion(m.FullName)})
                     .LastOrDefault(v => !string.IsNullOrEmpty(v.version));
                 if (match != null)
                 {
                     result.Add(new KeyValuePair<string, string>(match.version, match.fullPath));
                 }
             }
+
             return result;
         }
 
         private static List<KeyValuePair<string, string>> FindAvailableMsBuildsInWindows()
         {
             var winDir = Environment.GetEnvironmentVariable("WINDIR");
+
             if (winDir == null)
                 throw new CementException("WINDIR system variable not found");
 
@@ -141,7 +144,9 @@ namespace Common
 
             var subFolders = Directory.GetDirectories(frameworkDirectory);
             return subFolders.Select(folder => Path.Combine(folder, "msbuild.exe"))
-                .Where(File.Exists).Select(f => new FileInfo(f)).ToList();
+                .Where(File.Exists)
+                .Select(f => new FileInfo(f))
+                .ToList();
         }
 
         public static void KillMsBuild(ILogger log)
@@ -170,7 +175,9 @@ namespace Common
         public static string GetBuildScriptName(Dep dep)
         {
             var configToBuild = dep.Configuration == "full-build" || dep.Configuration == null ? "" : "." + dep.Configuration;
-            return Path.Combine(Helper.CurrentWorkspace, dep.Name,
+            return Path.Combine(
+                Helper.CurrentWorkspace,
+                dep.Name,
                 "build" + configToBuild + ".cmd");
         }
 

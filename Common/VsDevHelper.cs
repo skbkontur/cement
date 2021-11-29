@@ -21,6 +21,7 @@ namespace Common
             {
                 result.Add(de.Key.ToString(), de.Value.ToString());
             }
+
             return result;
         }
 
@@ -37,8 +38,10 @@ namespace Common
         private static Dictionary<string, string> GetVsSetVariables()
         {
             var text = RunVsDevCmd();
+            
             if (text == null)
                 return null;
+            
             var lines = text.Split('\n');
             var result = new Dictionary<string, string>();
             foreach (var line in lines)
@@ -50,6 +53,7 @@ namespace Common
                 var value = line.Substring(equal + 1);
                 result.Add(name, value);
             }
+
             return result;
         }
 
@@ -61,7 +65,8 @@ namespace Common
                 Log.LogDebug("VsDevCmd.bat not found");
                 return null;
             }
-            Log.LogInformation($"VsDevCmd found in {path}");
+
+            Log.LogInformation($"VsDevCmd found in '{path}'");
             var command = $"\"{path}\" && set";
             var runner = new ShellRunner();
             if (runner.Run(command) != 0)
@@ -69,6 +74,7 @@ namespace Common
                 Log.LogDebug("VsDevCmd.bat not working");
                 return null;
             }
+
             return runner.Output;
         }
 
@@ -79,20 +85,30 @@ namespace Common
             foreach (var key in set.Keys)
             {
                 if (key.StartsWith("VS") && key.EndsWith("COMNTOOLS"))
-                    paths.Add(new KeyValuePair<string, string>(
-                        key, Path.Combine(set[key], "VsDevCmd.bat")));
+                    paths.Add(
+                        new KeyValuePair<string, string>(
+                            key,
+                            Path.Combine(set[key], "VsDevCmd.bat")));
             }
 
-            var programFiles = Helper.ProgramFiles();
+            var programFiles = Helper.GetProgramFilesInfo();
             if (programFiles == null)
                 return null;
 
             foreach (var version in Helper.VisualStudioVersions)
             foreach (var edition in Helper.VisualStudioEditions)
             {
-                paths.Add(new KeyValuePair<string, string>(
-                    Helper.GetEnvVariableByVisualStudioVersion(version),
-                    Path.Combine(programFiles, "Microsoft Visual Studio", version, edition, "Common7", "Tools", "VsDevCmd.bat")));
+                if (programFiles.x64 != null)
+                    paths.Add(
+                        new KeyValuePair<string, string>(
+                            Helper.GetEnvVariableByVisualStudioVersion(version),
+                            Path.Combine(programFiles.x64, "Microsoft Visual Studio", version, edition, "Common7", "Tools", "VsDevCmd.bat")));
+                
+                if (programFiles.x86 != null)
+                    paths.Add(
+                        new KeyValuePair<string, string>(
+                            Helper.GetEnvVariableByVisualStudioVersion(version),
+                            Path.Combine(programFiles.x86, "Microsoft Visual Studio", version, edition, "Common7", "Tools", "VsDevCmd.bat")));
             }
 
             paths = paths.OrderByDescending(x => x.Key).Where(x => File.Exists(x.Value)).ToList();
