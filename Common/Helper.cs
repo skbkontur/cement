@@ -20,7 +20,7 @@ namespace Common
         public const string ConfigurationDelimiter = "/";
         public static readonly object LockObject = new object();
         public static readonly int MaxDegreeOfParallelism = CementSettings.Get().MaxDegreeOfParallelism ?? 2 * Environment.ProcessorCount;
-        public static ParallelOptions ParallelOptions => new ParallelOptions { MaxDegreeOfParallelism = MaxDegreeOfParallelism };
+        public static ParallelOptions ParallelOptions => new ParallelOptions {MaxDegreeOfParallelism = MaxDegreeOfParallelism};
         public static string CurrentWorkspace { get; private set; }
         public static readonly object PackageLockObject = new object();
         private static readonly ILogger Log = LogManager.GetLogger(typeof(Helper));
@@ -175,7 +175,8 @@ namespace Common
         public static string GetAssemblyTitle()
         {
             return ((AssemblyTitleAttribute)
-                Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(),
+                Attribute.GetCustomAttribute(
+                    Assembly.GetEntryAssembly(),
                     typeof(AssemblyTitleAttribute))).Title;
         }
 
@@ -189,6 +190,7 @@ namespace Common
             {
                 idx++;
             }
+
             res = res.Substring(idx);
             return res;
         }
@@ -211,6 +213,7 @@ namespace Common
                 path = parent.FullName;
                 parent = Directory.GetParent(parent.FullName);
             }
+
             return null;
         }
 
@@ -221,6 +224,7 @@ namespace Common
             {
                 folder = Directory.GetParent(folder.FullName);
             }
+
             return folder?.FullName;
         }
 
@@ -231,6 +235,7 @@ namespace Common
             {
                 fromFolder += Path.DirectorySeparatorChar;
             }
+
             var folderUri = new Uri(fromFolder);
             return Uri.UnescapeDataString(folderUri.MakeRelativeUri(pathUri).ToString().Replace('/', Path.DirectorySeparatorChar));
         }
@@ -244,6 +249,7 @@ namespace Common
                     break;
                 path = temp;
             }
+
             return path;
         }
 
@@ -297,11 +303,14 @@ namespace Common
             return path.Replace('\\', Path.DirectorySeparatorChar);
         }
 
-        public static string ProgramFiles()
+        public static ProgramFilesInfo GetProgramFilesInfo()
         {
-            var programFiles = Environment.GetEnvironmentVariable("ProgramFiles(x86)") ??
-                               Environment.GetEnvironmentVariable("ProgramFiles");
-            return programFiles;
+            var x86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+            var x64 = Environment.GetEnvironmentVariable("ProgramFiles");
+            if (x64 == null && x86 == null)
+                return null;
+
+            return new ProgramFilesInfo {x64 = x64, x86 = x86};
         }
 
         public static IReadOnlyList<string> VisualStudioEditions { get; } =
@@ -314,16 +323,13 @@ namespace Common
             }.AsReadOnly();
 
         public static IReadOnlyList<string> VisualStudioVersions { get; } =
-            new List<string>
-            {
-                "2017",
-                "2019",
-            }.AsReadOnly();
+            new List<string> {"2017", "2019", "2022"}.AsReadOnly();
 
         public static string GetEnvVariableByVisualStudioVersion(string version)
         {
             switch (version)
             {
+                case "2022": return "VS170COMNTOOLS";
                 case "2019": return "VS160COMNTOOLS";
                 default: return "VS150COMNTOOLS";
             }
@@ -393,6 +399,7 @@ namespace Common
             {
                 Log.LogWarning("Failed to get MSBuild version from " + fullPathToMsBuild, e);
             }
+
             return null;
         }
     }
