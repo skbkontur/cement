@@ -82,7 +82,7 @@ namespace Common
             refXml = Document
                 .GetElementsByTagName("Reference")
                 .Cast<XmlNode>()
-                .FirstOrDefault(node => node.Attributes?["Include"].Value != null && node.Attributes["Include"].Value.Split(',').First().Trim() == reference);
+                .FirstOrDefault(node => node.Attributes?["Include"]?.Value != null && node.Attributes["Include"].Value.Split(',').First().Trim() == reference);
             return refXml != null;
         }
 
