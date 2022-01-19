@@ -380,7 +380,7 @@ namespace Common
 
             try
             {
-                var shellRunner = new ShellRunner();
+                var shellRunner = ShellRunnerFactory.Create();
                 var exitCode = shellRunner.RunOnce(Path.GetFileName(fullPathToMsBuild) + " -version", Path.GetDirectoryName(fullPathToMsBuild), TimeSpan.FromSeconds(10));
                 if (exitCode == 0 && !string.IsNullOrEmpty(shellRunner.Output))
                 {

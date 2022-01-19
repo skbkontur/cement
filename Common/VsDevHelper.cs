@@ -68,7 +68,7 @@ namespace Common
 
             Log.LogInformation($"VsDevCmd found in '{path}'");
             var command = $"\"{path}\" && set";
-            var runner = new ShellRunner();
+            var runner = ShellRunnerFactory.Create();
             if (runner.Run(command) != 0)
             {
                 Log.LogDebug("VsDevCmd.bat not working");

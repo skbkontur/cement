@@ -38,7 +38,7 @@ namespace Common
 
         private static void UpdateGitPackage(Package package)
         {
-            var runner = new ShellRunner(Log);
+            var runner = ShellRunnerFactory.Create(Log);
             var timeout = TimeSpan.FromMinutes(1);
 
             var remoteHash = GetRepositoryHeadHash(package);
@@ -81,7 +81,7 @@ namespace Common
 
         private static string GetRepositoryHeadHash(Package package)
         {
-            var runner = new ShellRunner(Log);
+            var runner = ShellRunnerFactory.Create(Log);
             var timeout = TimeSpan.FromMinutes(1);
 
             var exitCode = runner.RunOnce($"git ls-remote {package.Url} HEAD", Directory.GetCurrentDirectory(), timeout);

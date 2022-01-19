@@ -12,7 +12,7 @@ namespace Common
 
         public static string GetNugetPackageVersion(string packageName, string nugetRunCommand, bool preRelease)
         {
-            var shellRunner = new ShellRunner();
+            var shellRunner = ShellRunnerFactory.Create();
             ConsoleWriter.WriteProgressWithoutSave("Get package version for " + packageName);
 
             shellRunner.Run($"{nugetRunCommand} list {packageName} -NonInteractive" + (preRelease ? " -PreRelease" : ""));

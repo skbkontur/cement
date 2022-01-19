@@ -18,7 +18,7 @@ namespace Tests.UtilsTests
             using (new DirectoryJumper(url.Path))
             {
                 File.WriteAllText(Path.Combine(url.Path, "README.txt"), "README");
-                var runner = new ShellRunner();
+                var runner = ShellRunnerFactory.Create();
                 runner.Run("git init");
                 runner.Run("git add README.txt");
                 runner.Run(@"git commit -am initial");
@@ -29,7 +29,7 @@ namespace Tests.UtilsTests
         {
             using (new DirectoryJumper(url.Path))
             {
-                var runner = new ShellRunner();
+                var runner = ShellRunnerFactory.Create();
                 runner.Run("git branch " + branchName);
             }
         }
@@ -38,7 +38,7 @@ namespace Tests.UtilsTests
         {
             using (new DirectoryJumper(url.Path))
             {
-                var runner = new ShellRunner();
+                var runner = ShellRunnerFactory.Create();
                 runner.Run("git checkout " + branch);
                 File.WriteAllText(Path.Combine(url.Path, "content.txt"), "README");
                 runner.Run("git add content.txt");
@@ -133,7 +133,7 @@ namespace Tests.UtilsTests
                 string sha1;
                 using (new DirectoryJumper(tempRepo.Path))
                 {
-                    var runner = new ShellRunner();
+                    var runner = ShellRunnerFactory.Create();
                     runner.Run("git rev-parse HEAD");
                     sha1 = runner.Output.Trim();
                     runner.Run("git checkout " + sha1);
@@ -153,7 +153,7 @@ namespace Tests.UtilsTests
                 CreateTempRepo(tempRepo);
                 using (new DirectoryJumper(tempRepo.Path))
                 {
-                    var runner = new ShellRunner();
+                    var runner = ShellRunnerFactory.Create();
                     runner.Run("git tag testTag");
                     runner.Run("git checkout testTag");
                 }

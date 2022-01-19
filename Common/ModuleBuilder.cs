@@ -186,7 +186,7 @@ namespace Common
             return true;
         }
 
-        private static void PrintBuildFailResult(Dep dep, string buildName, BuildScriptWithBuildData script, ShellRunner runner)
+        private static void PrintBuildFailResult(Dep dep, string buildName, BuildScriptWithBuildData script, IShellRunner runner)
         {
             ConsoleWriter.WriteBuildError(
                 $"Failed to build {dep.Name}{(dep.Configuration == null ? "" : "/" + dep.Configuration)} {buildName}");
@@ -214,9 +214,9 @@ namespace Common
             }
         }
 
-        private ShellRunner PrepareShellRunner()
+        private IShellRunner PrepareShellRunner()
         {
-            var runner = new ShellRunner();
+            var runner = ShellRunnerFactory.Create();
             if (buildSettings.ShowOutput)
             {
                 runner.OnOutputChange += ModuleBuilderHelper.WriteLine;

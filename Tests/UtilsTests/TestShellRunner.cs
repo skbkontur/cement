@@ -12,7 +12,7 @@ namespace Tests.UtilsTests
     [TestFixture]
     public class TestShellRunner
     {
-        private readonly ShellRunner runner = new ShellRunner();
+        private readonly IShellRunner runner =ShellRunnerFactory.Create();
 
         [Test]
         public void TestRunCommand()
@@ -78,7 +78,7 @@ namespace Tests.UtilsTests
             var tasks = new List<Task>();
             for (int i = 0; i < 10; i++)
             {
-                tasks.Add(Task.Run(() => new ShellRunner().Run("ping 127.0.0.1 -n 2 > nul", TimeSpan.FromSeconds(1))));
+                tasks.Add(Task.Run(() => ShellRunnerFactory.Create().Run("ping 127.0.0.1 -n 2 > nul", TimeSpan.FromSeconds(1))));
             }
             await Task.WhenAll(tasks);
             sw.Stop();

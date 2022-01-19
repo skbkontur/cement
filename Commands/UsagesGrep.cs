@@ -15,7 +15,7 @@ namespace Commands
         private string cwd;
         private string workspace;
         private GitRepository currentRepository;
-        private readonly ShellRunner runner;
+        private readonly IShellRunner runner;
         private string[] arguments;
         private string[] fileMasks;
         private bool skipGet;
@@ -35,7 +35,7 @@ namespace Commands
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
             })
         {
-            runner = new ShellRunner(Log);
+            runner = ShellRunnerFactory.Create(Log);
         }
 
         protected override void ParseArgs(string[] args)
@@ -86,9 +86,9 @@ namespace Commands
                 foreach (var module in clonedModules)
                 {
                     runner.RunInDirectory(module, command);
-                    if (string.IsNullOrWhiteSpace(ShellRunner.LastOutput))
+                    if (string.IsNullOrWhiteSpace(ShellRunnerStaticInfo.LastOutput))
                         continue;
-                    ConsoleWriter.WriteLine(AddModuleToOutput(ShellRunner.LastOutput, module));
+                    ConsoleWriter.WriteLine(AddModuleToOutput(ShellRunnerStaticInfo.LastOutput, module));
                     ConsoleWriter.WriteLine();
                 }
             }

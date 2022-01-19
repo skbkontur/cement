@@ -47,7 +47,7 @@ namespace Commands
             try
             {
                 XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
-                var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
+                var shellRunner = ShellRunnerFactory.Create(LogManager.GetLogger<ShellRunner>());
                 var cleaner = new Cleaner(shellRunner);
                 var moduleBuilder = new ModuleBuilder(Log, buildSettings);
                 moduleBuilder.Init();

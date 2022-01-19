@@ -15,10 +15,10 @@ namespace Common
 {
     public sealed class Cleaner
     {
-        private readonly ShellRunner shellRunner;
+        private readonly IShellRunner shellRunner;
         private readonly ILogger<Cleaner> log = LogManager.GetLogger<Cleaner>();
 
-        public Cleaner(ShellRunner shellRunner)
+        public Cleaner(IShellRunner shellRunner)
         {
             this.shellRunner = shellRunner;
         }

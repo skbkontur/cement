@@ -53,7 +53,7 @@ namespace Commands
 
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
 
-            var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
+            var shellRunner = ShellRunnerFactory.Create(LogManager.GetLogger<ShellRunner>());
             var cleaner = new Cleaner(shellRunner);
             var builder = new ModuleBuilder(Log, buildSettings);
             var builderInitTask = Task.Run(() => builder.Init());

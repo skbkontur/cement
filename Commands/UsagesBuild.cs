@@ -73,7 +73,7 @@ namespace Commands
                         badParents.Add(new KeyValuePair<Dep, string>(depParent,
                             exception.Message +
                             "\nLast command output:\n" +
-                            ShellRunner.LastOutput));
+                            ShellRunnerStaticInfo.LastOutput));
                         if (pause)
                             WaitKey();
                     }

@@ -20,14 +20,14 @@ namespace Tests.Helpers
     public class TestEnvironment : IDisposable
     {
         public readonly TempDirectory WorkingDirectory;
-        private ShellRunner runner;
+        private IShellRunner runner;
         public readonly string PackageFile;
         public readonly string RemoteWorkspace;
         private static ILogger Log = LogManager.GetLogger<TestEnvironment>();
 
         public TestEnvironment()
         {
-            runner = new ShellRunner();
+            runner = ShellRunnerFactory.Create();
             WorkingDirectory = new TempDirectory();
             Directory.CreateDirectory(Path.Combine(WorkingDirectory.Path, ".cement"));
             RemoteWorkspace = Path.Combine(WorkingDirectory.Path, "remote");

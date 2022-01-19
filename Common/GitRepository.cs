@@ -12,7 +12,7 @@ namespace Common
         public string RepoPath { get; }
         public string Workspace { get; }
         public string ModuleName { get; }
-        private readonly ShellRunner runner;
+        private readonly IShellRunner runner;
         public bool IsGitRepo { get; private set; }
         private static ILogger log;
         private IList<Branch> RemoteBranches { get; set; }
@@ -23,7 +23,7 @@ namespace Common
             Workspace = workspace;
             RepoPath = Path.Combine(workspace, moduleName);
             GitRepository.log = log;
-            runner = new ShellRunner(GitRepository.log);
+            runner = ShellRunnerFactory.Create(GitRepository.log);
             IsGitRepo = Directory.Exists(Path.Combine(workspace, moduleName, ".git"));
         }
 
@@ -36,7 +36,7 @@ namespace Common
         {
             if (string.IsNullOrEmpty(branchName))
                 return false;
-            var runner = new ShellRunner();
+            var runner = ShellRunnerFactory.Create();
             runner.Run($"git ls-remote {url} {branchName}");
             return runner.Output.Contains("refs/heads");
         }

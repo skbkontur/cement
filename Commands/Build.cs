@@ -51,7 +51,7 @@ namespace Commands
                 return -1;
             }
 
-            var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
+            var shellRunner = ShellRunnerFactory.Create(LogManager.GetLogger<ShellRunner>());
             var cleaner = new Cleaner(shellRunner);
             var builder = new ModuleBuilder(Log, buildSettings);
             var builderInitTask = Task.Run(() => builder.Init());
