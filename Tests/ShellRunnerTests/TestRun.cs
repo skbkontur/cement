@@ -6,6 +6,7 @@ using NUnit.Framework;
 namespace Tests.ShellRunnerTests
 {
     [TestFixture]
+    [Platform("Windows10")]
     public class TestRun
     {
         private IShellRunner runner;
@@ -30,7 +31,7 @@ namespace Tests.ShellRunnerTests
             Assert.That(runner.Output, Is.EqualTo("current\n"), "Output is wrong");
             Assert.That(runner.Errors, Is.Empty, "Errors is wrong");
             Assert.That(runner.HasTimeout, Is.False, "HasTimeout is wrong");
-            Assert.That(ShellRunnerStaticInfo.LastOutput, Is.EqualTo("current\n"), "");
+            Assert.That(ShellRunnerStaticInfo.LastOutput, Is.EqualTo("current\n"), "LastOutput is wrong");
             outputChangedEvent.Received(1).Invoke("current");
             outputChangedEvent.DidNotReceive();
         }
@@ -45,10 +46,11 @@ namespace Tests.ShellRunnerTests
             Assert.That(runner.HasTimeout, Is.False, "HasTimeout is wrong");
             Assert.That(ShellRunnerStaticInfo.LastOutput, Is.Empty, "LastOutput is wrong");
             outputChangedEvent.DidNotReceiveWithAnyArgs().Invoke(Arg.Any<string>());
-            errorChangedEvent.Received(1).Invoke("\"wrong_command\" не является внутренней или внешней");
+            errorChangedEvent.Received(1).Invoke(Arg.Is<string>(line => line.StartsWith("\"wrong_command\"")));
         }
 
-        [Test, Explicit]
+        [Test]
+        [Explicit("The test is too slow because default timeout increasing in IShellRunner implementations is too big")]
         public void TestTimeout()
         {
             runner.Run("pause", TimeSpan.Zero);

@@ -9,6 +9,7 @@ using Tests.Helpers;
 namespace Tests.ShellRunnerTests
 {
     [TestFixture]
+    [Platform("Windows10")]
     public class TestRunOnce
     {
         private IShellRunner runner;
@@ -41,6 +42,7 @@ namespace Tests.ShellRunnerTests
         }
         
         [Test]
+        [Explicit("The test requires the path 'C:\\' to exists")]
         public void TestWorkingDirectoryC()
         {
             runner.RunOnce("echo %cd%", "C:\\", TimeSpan.FromSeconds(4));
@@ -54,6 +56,7 @@ namespace Tests.ShellRunnerTests
         }
         
         [Test]
+        [Explicit("The test requires the path 'C:\\Users' to exists")]
         public void TestWorkingDirectoryUsersOnC()
         {
             runner.RunOnce("echo %cd%", "C:\\Users", TimeSpan.FromSeconds(4));
@@ -76,7 +79,7 @@ namespace Tests.ShellRunnerTests
             Assert.That(runner.HasTimeout, Is.False, "HasTimeout is wrong");
             Assert.That(ShellRunnerStaticInfo.LastOutput, Is.Empty, "LastOutput is wrong");
             outputChangedEvent.DidNotReceiveWithAnyArgs().Invoke(Arg.Any<string>());
-            errorChangedEvent.Received(1).Invoke("\"wrong_command\" не является внутренней или внешней");
+            errorChangedEvent.Received(1).Invoke(Arg.Is<string>(line => line.StartsWith("\"wrong_command\"")));
         }
 
         [Test]

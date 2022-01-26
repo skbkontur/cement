@@ -2,6 +2,7 @@ using System;
 
 namespace Common
 {
+    // TODO (DonMorozov): пробежаться по всему проекту с целью поменять интерфейс для более красивого кода
     public interface IShellRunner
     {
         string Output { get; }
@@ -17,6 +18,7 @@ namespace Common
         int RunInDirectory(string path, string commandWithArguments, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout);
     }
     
+    // TODO (DonMorozov): избавиться от класса, потребуется рефакторинг UsagesBuild
     public static class ShellRunnerStaticInfo
     {
         public static string LastOutput { get; set; }
@@ -24,6 +26,7 @@ namespace Common
     
     public delegate void ReadLineEvent(string content);
     
+    // TODO (DonMorozov): реализация выбора стратегии через enum - не самый красивый путь, для более красивого решения потребуются относительно масштабные изменения
     public enum RetryStrategy
     {
         None,

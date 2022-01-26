@@ -6,6 +6,7 @@ using NUnit.Framework;
 namespace Tests.ShellRunnerTests
 {
     [TestFixture]
+    [Platform("Windows10")]
     public class TestRunInDirectory
     {
 private IShellRunner runner;
@@ -38,6 +39,7 @@ private IShellRunner runner;
         }
         
         [Test]
+        [Explicit("The test requires the path 'C:\\' to exists")]
         public void TestWorkingDirectoryC()
         {
             runner.RunInDirectory("C:\\", "echo %cd%", TimeSpan.FromSeconds(4));
@@ -51,6 +53,7 @@ private IShellRunner runner;
         }
         
         [Test]
+        [Explicit("The test requires the path 'C:\\Users' to exists")]
         public void TestWorkingDirectoryUsersOnC()
         {
             runner.RunInDirectory("C:\\Users", "echo %cd%", TimeSpan.FromSeconds(4));
@@ -73,10 +76,11 @@ private IShellRunner runner;
             Assert.That(runner.HasTimeout, Is.False, "HasTimeout is wrong");
             Assert.That(ShellRunnerStaticInfo.LastOutput, Is.Empty, "LastOutput is wrong");
             outputChangedEvent.DidNotReceiveWithAnyArgs().Invoke(Arg.Any<string>());
-            errorChangedEvent.Received(1).Invoke("\"wrong_command\" не является внутренней или внешней");
+            errorChangedEvent.Received(1).Invoke(Arg.Is<string>(line => line.StartsWith("\"wrong_command\"")));
         }
 
-        [Test, Explicit]
+        [Test]
+        [Explicit("The test is too slow because default timeout increasing in IShellRunner implementations is too big")]
         public void TestTimeout()
         {
             runner.RunInDirectory("", "pause", TimeSpan.Zero);

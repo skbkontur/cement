@@ -6,6 +6,7 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
 	<ItemGroup>
+	  <PackageReference Include="CliWrap" Version="3.4.0" />
 	  <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.0.0" />
