@@ -33,12 +33,11 @@ namespace Common
         {
             if (readLineEvent == null)
                 return;
-            
-            var buff = new byte[count];
+
+            var sb = new StringBuilder();
             for (var i = 0; i < count; i++)
-                buff[i] = buffer[i];
-            // TODO (DonMorozov): научиться доставать текущую кодировку и использовать её, а не константу 866, которая не везде заработает
-            var line = Encoding.GetEncoding(866).GetString(buff).TrimEnd(Environment.NewLine.ToCharArray());
+                sb.Append((char)buffer[i]);
+            var line = sb.ToString();
             // TODO (DonMorozov): не нравится исправление переносов строк заменой - или отказаться от \n в пользу \r\n или найти настройку CliWrap или попытаться сделать более красиво
             // TODO (DonMorozov): не нравится то, что сначала получение строки из буфера, а потом сплит - выглядит неэффективно
             line.Replace("\r\n", "\n").Split('\n').ForEach(x => readLineEvent(x));
