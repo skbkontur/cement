@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using Common.Extensions;
 using NUnit.Framework;
 
 namespace Tests.UtilsTests
@@ -96,9 +97,9 @@ FOR /L %%G IN (1,1," + count + @") DO echo %%G");
 
             runner.Run(bat);
 
-            var lines = runner.Output.Split('\n').ToList();
+            var lines = runner.Output.ToLines().ToList();
             if (lines.Last() == "")
-                lines = lines.Take(lines.Count() - 1).ToList();
+                lines = lines.Take(lines.Count - 1).ToList();
             CollectionAssert.AreEqual(Enumerable.Range(1, count).Select(i => i.ToString()), lines);
         }
     }

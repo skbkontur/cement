@@ -1,3 +1,5 @@
+using System;
+
 namespace Common.Extensions
 {
     public static class StringExtensions
@@ -6,6 +8,18 @@ namespace Common.Extensions
         public static bool IsFakeTarget(this string target)
         {
             return string.IsNullOrEmpty(target) || target == "None";
+        }
+
+        private static readonly string[] NewLineStrings = {"\r\n", "\n"};
+
+        public static string[] ToLines(this string src)
+        {
+            return src.Split(NewLineStrings, StringSplitOptions.None);
+        }
+
+        public static string[] ToNonEmptyLines(this string src)
+        {
+            return src.Split(NewLineStrings, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 }

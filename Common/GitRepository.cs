@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Common.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Common
@@ -265,7 +266,7 @@ namespace Common
 
         public bool HasLocalChanges()
         {
-            return ShowLocalChanges().Split('\n').Any(line => line.Trim().Length > 0);
+            return ShowLocalChanges().ToLines().Any(line => line.Trim().Length > 0);
         }
 
         public IList<string> LocalBranches()
@@ -278,7 +279,7 @@ namespace Common
                 throw new GitBranchException($"Failed to get local branches in {RepoPath}. Error message:\n{runner.Errors}");
             }
 
-            var lines = runner.Output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = runner.Output.ToNonEmptyLines();
             return lines.Select(l => l.Replace("*", "").Trim()).ToArray();
         }
 
@@ -364,7 +365,7 @@ namespace Common
                     $"Failed to get remote branches in {RepoPath}. Error message:\n{runner.Errors}");
             }
 
-            var branches = runner.Output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            var branches = runner.Output.ToNonEmptyLines();
             return branches.Select(s => new Branch(s)).Where(b => b.Name != null).ToList();
         }
 
@@ -384,7 +385,7 @@ namespace Common
             }
 
             var knownRemoteBranches = runner.Output
-                .Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
+                .ToNonEmptyLines()
                 .Select(line => line.Split('/').Last());
             return knownRemoteBranches.Contains(branch);
         }
@@ -421,7 +422,7 @@ namespace Common
                 throw new GitBranchException($"Failed to get list of merged branches in {RepoPath}. Error message:\n{runner.Errors}");
             }
 
-            var lines = runner.Output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = runner.Output.ToNonEmptyLines();
             return lines
                 .Select(l => l.Replace("*", "").Trim())
                 .Any(l => l.EndsWith("/" + treeish));
@@ -438,7 +439,7 @@ namespace Common
             }
 
             var lines = runner.Output
-                .Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
+                .ToNonEmptyLines()
                 .Select(line => line.Trim()).ToList();
 
             var linesWithFetch = lines.Where(l => l.StartsWith("origin") && l.EndsWith("(fetch)")).ToList();
@@ -482,7 +483,7 @@ namespace Common
                 throw new GitCommitException($"Failed to get commit files in {RepoPath}. Error message:\n{runner.Errors}");
             }
 
-            var lines = runner.Output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = runner.Output.ToNonEmptyLines();
             return lines.ToList();
         }
 

@@ -98,8 +98,8 @@ namespace Common
                 }
             }
             
-            Output = result?.StandardOutput.Replace("\r\n", "\n") ?? "";
-            Errors = result?.StandardError.Replace("\r\n", "\n") ?? "";
+            Output = result?.StandardOutput ?? "";
+            Errors = result?.StandardError ?? "";
             ShellRunnerStaticInfo.LastOutput = Output;
             
             logger.LogInformation($"EXECUTED {commandWithArguments} in {workingDirectory} in {result.RunTime.TotalMilliseconds}ms with exitCode {result.ExitCode}");

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Common.Extensions;
 
 namespace Common
 {
@@ -23,7 +24,7 @@ namespace Common
             this.solutionPath = solutionPath;
             cwd = Path.GetDirectoryName(solutionPath);
             modulesList = modules.ToList();
-            solutionContent = File.ReadAllText(solutionPath).Split('\n');
+            solutionContent = File.ReadAllText(solutionPath).ToLines();
         }
 
         public List<string> GetReferences(BuildData buildData)

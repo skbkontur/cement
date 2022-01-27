@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Common;
+using Common.Extensions;
 
 namespace Commands
 {
@@ -7,7 +8,7 @@ namespace Commands
     {
         public int Run(string[] args)
         {
-            var lines = Helper.GetAssemblyTitle().Split('\n');
+            var lines = Helper.GetAssemblyTitle().ToLines();
             var version = string.Join("\n", lines.Skip(1).Take(4));
             ConsoleWriter.WriteInfo(version);
             return 0;

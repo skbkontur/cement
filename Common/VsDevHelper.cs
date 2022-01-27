@@ -42,7 +42,7 @@ namespace Common
             if (text == null)
                 return null;
             
-            var lines = text.Split('\n');
+            var lines = text.ToLines();
             var result = new Dictionary<string, string>();
             foreach (var line in lines)
             {

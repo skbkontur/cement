@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common;
+using Common.Extensions;
 
 namespace Commands
 {
@@ -48,7 +49,7 @@ namespace Commands
         private static string GetSmallHelp(string commandName)
         {
             var help = Commands[commandName].HelpMessage;
-            var lines = help.Split('\n');
+            var lines = help.ToLines();
             return lines.Length < 2 ? "???" : lines[1].Trim();
         }
     }

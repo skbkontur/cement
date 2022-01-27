@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Xml;
+using Common.Extensions;
 
 namespace Common
 {
@@ -20,9 +21,7 @@ namespace Common
             using (TextWriter tempWriter = new StringWriter(xmlContent))
                 document.Save(tempWriter);
 
-            var contentLines = xmlContent
-                .ToString()
-                .Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            var contentLines = xmlContent.ToString().ToNonEmptyLines();
             contentLines[0] = contentLines[0].Replace("utf-16", "utf-8");
             File.WriteAllText(filePath, string.Join(lineEndings, contentLines), new UTF8Encoding(true));
         }

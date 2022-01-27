@@ -172,8 +172,8 @@ namespace Common
             Interlocked.Add(ref TotalMsbuildTime, sw.ElapsedTicks);
 
             var elapsedTime = Helper.ConvertTime(sw.ElapsedMilliseconds);
-            var warnCount = runner.Output.Split('\n').Count(ModuleBuilderHelper.IsWarning);
-            var obsoleteUsages = runner.Output.Split('\n').Where(ModuleBuilderHelper.IsObsoleteWarning).ToList();
+            var warnCount = runner.Output.ToLines().Count(ModuleBuilderHelper.IsWarning);
+            var obsoleteUsages = runner.Output.ToLines().Where(ModuleBuilderHelper.IsObsoleteWarning).ToList();
 
             var buildName = script.BuildData == null ? "" : script.BuildData.Name;
             if (exitCode != 0)
@@ -190,12 +190,12 @@ namespace Common
         {
             ConsoleWriter.WriteBuildError(
                 $"Failed to build {dep.Name}{(dep.Configuration == null ? "" : "/" + dep.Configuration)} {buildName}");
-            foreach (var line in runner.Output.Split('\n'))
+            foreach (var line in runner.Output.ToLines())
                 ModuleBuilderHelper.WriteLine(line);
 
             ConsoleWriter.WriteLine();
             ConsoleWriter.WriteInfo("Errors summary:");
-            foreach (var line in runner.Output.Split('\n'))
+            foreach (var line in runner.Output.ToLines())
                 ModuleBuilderHelper.WriteIfErrorToStandartStream(line);
 
             ConsoleWriter.WriteLine($"({script.Script})");

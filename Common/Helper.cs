@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Common.Extensions;
 using Common.Logging;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
@@ -168,7 +169,7 @@ namespace Common
         public static string GetCurrentBuildCommitHash()
         {
             var gitInfo = GetAssemblyTitle();
-            var commitHash = gitInfo.Split('\n').Skip(1).First().Replace("Commit: ", String.Empty).Trim();
+            var commitHash = gitInfo.ToLines().Skip(1).First().Replace("Commit: ", String.Empty).Trim();
             return commitHash;
         }
 

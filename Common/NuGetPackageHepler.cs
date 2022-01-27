@@ -82,8 +82,7 @@ namespace Common
                 projectSystem.Save();
 
                 var projectFileContent = File.ReadAllText(projectSystem.ProjectFileFullPath);
-                var contentLines = projectFileContent
-                    .Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+                var contentLines = projectFileContent.ToNonEmptyLines();
                 contentLines[0] = contentLines[0].Replace("utf-16", "utf-8");
                 File.WriteAllText(
                     projectSystem.ProjectFileFullPath,
