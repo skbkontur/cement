@@ -38,7 +38,6 @@ namespace Common
             for (var i = 0; i < count; i++)
                 sb.Append((char)buffer[i]);
             var line = sb.ToString();
-            // TODO (DonMorozov): не нравится то, что сначала получение строки из буфера, а потом сплит - выглядит неэффективно
             line.Split(new[] {Environment.NewLine}, StringSplitOptions.None).ForEach(x => readLineEvent(x));
         }
 

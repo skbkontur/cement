@@ -2,7 +2,6 @@ using System;
 
 namespace Common
 {
-    // TODO (DonMorozov): пробежаться по всему проекту с целью поменять интерфейс для более красивого кода
     public interface IShellRunner
     {
         string Output { get; }

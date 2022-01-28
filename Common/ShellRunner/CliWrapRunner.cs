@@ -57,7 +57,6 @@ namespace Common
                 .WithStandardOutputPipe(PipeTarget.ToStream(new ReadLineEventStream(OnOutputChange)))
                 .WithStandardErrorPipe(PipeTarget.ToStream(new ReadLineEventStream(OnErrorsChange)))
                 .WithValidation(CommandResultValidation.None);
-            // TODO (DonMorozov): проверить, работают ли Credentials
             if (!string.IsNullOrWhiteSpace(userName))
                 command = command.WithCredentials(builder => builder.SetDomain(domain).SetUserName(userName).SetPassword(password).Build());
             var task = command.ExecuteBufferedAsync(cancellationTokenSource.Token);
@@ -120,9 +119,6 @@ namespace Common
 
         private int RunThreeTimes(string commandWithArguments, string workingDirectory, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
         {
-            // TODO (DonMorozov): пока - реализация как в старом ShellRunner, подумать, как сделать более симпатично
-            // это будет проще сделать, если можно добавить протоколирование и после первого вызова тоже
-            // ещё более симпатичный код может получиться, если поменять интерфейс IShellRunner, но это - более сильный рефакторинг уже всего проекта 
             int exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
             int times = 2;
 
