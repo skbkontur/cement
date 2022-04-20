@@ -118,7 +118,7 @@ namespace Common
         public int RunOnce(string commandWithArguments, string workingDirectory, TimeSpan timeout)
         {
             BeforeRun();
-            var quote = Helper.OsIsUnix() ? '\'' : '"';
+            var quote = '"';
             startInfo.Arguments = startInfo.Arguments + quote + commandWithArguments + quote;
             startInfo.WorkingDirectory = workingDirectory;
 

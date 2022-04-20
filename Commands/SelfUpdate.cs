@@ -4,7 +4,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using Common;
-using Microsoft.Build.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Commands
@@ -45,7 +44,7 @@ namespace Commands
             }
             catch (Exception exception)
             {
-                Log.LogError("Auto update failed, error: '{Exception}'", exception);
+                Log.LogError(exception, "Auto update failed, error: '{errorMessage}'", exception.Message);
                 ConsoleWriter.WriteWarning("Auto update failed. Check logs for details");
             }
         }
@@ -81,15 +80,15 @@ namespace Commands
             }
             catch (Exception exception)
             {
-                Log.LogError("Fail to install cement", exception);
+                Log.LogError(exception, "Fail to install cement: {ErrorMessage}", exception.Message);
                 ConsoleWriter.WriteError("Fail to install cement: " + exception);
             }
 
             var server = CementSettings.Get().CementServer;
-            Log.LogInformation($"Cement server: {server}");
+            Log.LogInformation("Cement server: {ServerName}", server);
             var updater = server == null
-                ? (ICementUpdater) new CementFromGitHubUpdater(Log)
-                : (ICementUpdater) new CementFromServerUpdater(server, branch, Log);
+               ? new CementFromGitHubUpdater(Log)
+               : (ICementUpdater) new CementFromServerUpdater(server, branch, Log);
 
             return UpdateBinary(updater);
         }
@@ -99,23 +98,39 @@ namespace Commands
             const string cmdText = @"@echo off
 ""%~dp0\dotnet\cm.exe"" %*
 SET exit_code=%errorlevel%
-if exist %~dp0\dotnet\cm_new.exe (
-	copy %~dp0\dotnet\cm_new.exe %~dp0\dotnet\cm.exe /Y > nul
-	del %~dp0\dotnet\cm_new.exe > nul
-)
+if exist %~dp0\dotnet\win10-x64\cm.exe (
+	copy %~dp0\dotnet\win10-x64\cm.exe %~dp0\dotnet\cm.exe /Y > nul
+    del %~dp0\dotnet\win10-x64\cm.exe > nul
+) else (
+    if exist %~dp0\dotnet\cm_new.exe (
+	    copy %~dp0\dotnet\cm_new.exe %~dp0\dotnet\cm.exe /Y > nul
+	    del %~dp0\dotnet\cm_new.exe > nul
+        )
+    )
 cmd /C exit %exit_code% > nul";
 
             var bashTextUnix = @"#!/bin/bash
 path=""`dirname \""$0\""`/dotnet/cm.exe""
-cmd=""mono $path""
+usingMono=""mono ""
+if [ -f ~/bin/dotnet/linux-x64/cm ]
+then
+    usingMono=""""
+fi
+cmd=""$usingMono$path""
 for word in ""$@""; do cmd=""$cmd \""$word\""""; done
 eval $cmd
 exit_code=$?
-if [ -f ~/bin/dotnet/cm_new.exe ];
+if [ -f ~/bin/dotnet/linux-x64/cm ];
 then
-	cp ~/bin/dotnet/cm_new.exe ~/bin/dotnet/cm.exe
-	rm ~/bin/dotnet/cm_new.exe
+	cp ~/bin/dotnet/linux-x64/cm ~/bin/dotnet/cm.exe
+    rm ~/bin/dotnet/linux-x64/cm
 	chmod u+x ~/bin/dotnet/cm.exe
+else
+    if [ -f ~/bin/dotnet/cm_new.exe ]
+    then
+        cp ~/bin/dotnet/cm_new.exe ~/bin/dotnet/cm.exe
+	    rm ~/bin/dotnet/cm_new.exe
+    fi
 fi
 exit $exit_code";
             bashTextUnix = bashTextUnix.Replace("\r\n", "\n");
@@ -125,11 +140,17 @@ path=""`dirname \""$0\""`/dotnet/cm.exe""
 args=$@
 $path ""$@""
 exit_code=$?
-if [ -f ~/bin/dotnet/cm_new.exe ];
+if [ -f ~/bin/dotnet/os-x64/cm ];
 then
-	cp ~/bin/dotnet/cm_new.exe ~/bin/dotnet/cm.exe
-	rm ~/bin/dotnet/cm_new.exe
+	cp ~/bin/dotnet/os-x64/cm ~/bin/dotnet/cm.exe
+    rm ~/bin/dotnet/os-x64/cm
 	chmod u+x ~/bin/dotnet/cm.exe
+else
+    if [ -f ~/bin/dotnet/cm_new.exe ]
+    then
+        cp ~/bin/dotnet/cm_new.exe ~/bin/dotnet/cm.exe
+	    rm ~/bin/dotnet/cm_new.exe
+    fi
 fi
 exit $exit_code";
 
@@ -158,7 +179,7 @@ exit $exit_code";
             else
             {
                 ConsoleWriter.WriteInfo($"No cement binary updates available ({updater.GetName()})");
-                Log.LogDebug("Already has {0} version", currentCommitHash);
+                Log.LogDebug("Already has {CurrentCommitHash} version", currentCommitHash);
             }
             return 0;
         }
@@ -196,7 +217,7 @@ exit $exit_code";
             }
             catch (WebException webException)
             {
-                Log.LogError("Fail self-update, exception: '{Exception}'", webException);
+                Log.LogError(webException, "Fail self-update, exception: '{ErrorMessage}'", webException.Message);
 
                 if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
@@ -236,11 +257,10 @@ exit $exit_code";
             var dotnetInstallFolder = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet");
             if (!Directory.Exists(dotnetInstallFolder))
                 Directory.CreateDirectory(dotnetInstallFolder);
-            Log.LogDebug("dotnet install folder: " + dotnetInstallFolder);
+            Log.LogDebug("dotnet install folder: {InstallFolder}", dotnetInstallFolder);
 
             var cm = Path.Combine(from, "cm.exe");
-            var cmNew = Path.Combine(from, "cm_new.exe");
-            File.Copy(cm, cmNew, true);
+            
             if (!IsInstallingCement && File.Exists(Path.Combine(dotnetInstallFolder, "cm.exe")))
                 File.Delete(cm);
 
@@ -250,7 +270,7 @@ exit $exit_code";
                 var to = file.Replace(from, dotnetInstallFolder);
                 var toDir = Path.GetDirectoryName(to);
                 if (!Directory.Exists(toDir))
-                    Directory.CreateDirectory(toDir);
+                    Directory.CreateDirectory(toDir!);
                 File.Copy(file, to, true);
             }
         }
@@ -261,7 +281,7 @@ exit $exit_code";
                 return;
 
             var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
-            var toAdd = Path.Combine(Helper.GetCementInstallDirectory());
+            var toAdd = Helper.GetCementInstallDirectory();
 
             if (path == null)
             {
@@ -279,7 +299,7 @@ exit $exit_code";
             Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
             ConsoleWriter.WriteOk(toAdd + " added to $PATH");
             ConsoleWriter.WriteOk("To finish installation, please restart your terminal process");
-            Log.LogDebug(toAdd + " added to $PATH: " + path);
+            Log.LogDebug("{ToAdd} added to $PATH: {InstallPath}", toAdd, path);
         }
 
         private void InstallPowerShell()
