@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using NUnit.Framework;
@@ -74,7 +75,6 @@ namespace Tests.UtilsTests
         public async Task TimeMultiThreads()
         {
             var sw = Stopwatch.StartNew();
-
             var tasks = new List<Task>();
             for (int i = 0; i < 10; i++)
             {

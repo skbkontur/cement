@@ -2,45 +2,43 @@ using System;
 using System.IO;
 using Microsoft.Extensions.Logging;
 
-namespace Common
+namespace Common;
+
+public sealed class CementFromLocalPathUpdater: ICementUpdater
 {
-    public sealed class CementFromLocalPathUpdater : ICementUpdater
+    private readonly ILogger log;
+    
+    public CementFromLocalPathUpdater(ILogger log)
     {
-        private readonly ILogger log;
-
-        public CementFromLocalPathUpdater(ILogger log)
-        {
-            this.log = log;
-        }
-
-        public string GetNewCommitHash()
-        {
-            return DateTime.Now.Ticks.ToString();
-        }
-
-        public byte[] GetNewCementZip()
-        {
-            try
-            { 
-                return File.ReadAllBytes(Path.Combine(GetZipCementDirectory(), "cement.zip"));
-            }
-            catch (Exception ex)
-            {
-                log.LogError(ex,"Fail self-update, exception: '{ErrorMessage}' ", ex.Message);
-            }
-
-            return null;
-        }
-
-        private string GetZipCementDirectory()
-        {
-            var zipDir = Path.Combine(Helper.HomeDirectory(), "work");
-            if (!Directory.Exists(zipDir))
-                Directory.CreateDirectory(zipDir);
-            return zipDir;
-        }
-        
-        public string GetName() =>
-            "fileSystemLocalPath";
+        this.log = log;
     }
+    
+    public string GetNewCommitHash()
+    {
+        return DateTime.Now.Ticks.ToString();
+    }
+
+    public byte[] GetNewCementZip()
+    {
+        try
+        {
+            return File.ReadAllBytes(Path.Combine(GetZipCementDirectory(), "cement.zip"));
+        }
+        catch (Exception ex)
+        {
+            log.LogError(ex, "Fail self-update, exception: '{ErrorMessage}'", ex.Message);
+        }
+        return null;
+    }
+    
+    public static string GetZipCementDirectory()
+    {
+        var zipDir = Path.Combine(Helper.HomeDirectory(), "work");
+        if (!Directory.Exists(zipDir))
+            Directory.CreateDirectory(zipDir);
+        return zipDir;
+    }
+
+    public string GetName() =>
+        "fileSystemLocalPath" ;
 }

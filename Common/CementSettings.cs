@@ -21,6 +21,7 @@ namespace Common
         public int? MaxDegreeOfParallelism;
         public bool? IsEnabledSelfUpdate;
 
+
         public Dictionary<string, string> UserCommands;
         // ReSharper restore UnassignedField.Global
 

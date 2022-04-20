@@ -1,6 +1,6 @@
 skip_branch_with_pr: true
 version: '{build}-{branch}'
-image: Visual Studio 2017
+image: Visual Studio 2022
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
@@ -13,14 +13,15 @@ build:
   project: Cement.Net.sln
 after_build:
   - mkdir dotnet
-  - copy Cement.Net\bin\Debug\cm.exe dotnet\cm.exe
-  - mkdir dotnet\win10-x64
-  - copy Cement.Net\bin\Debug\cm.exe dotnet\win10-x64\cm.exe
-  - mkdir dotnet\linux-x64
-  - copy Cement.Net\bin\Debug\cm.exe dotnet\linux-x64\cm
-  - mkdir dotnet\osx-x64
-  - copy Cement.Net\bin\Debug\cm.exe dotnet\osx-x64\cm
-  - copy Cement.Net\bin\Debug\cm.exe.config dotnet\cm.exe.config
+  - cd Cement.Net
+  - if not exist ..\files-common\win10-x64 mkdir ..\files-common\win10-x64
+  - dotnet publish -r win10-x64 -o ..\files-common\win10-x64 /p:PublishSingleFile=true /p:DebugType=None --self-contained true
+  - if not exist ..\files-common\linux-x64 mkdir ..\files-common\linux-x64
+  - dotnet publish -r linux-x64 -o ..\files-common\linux-x64 /p:PublishSingleFile=true /p:DebugType=None --self-contained true
+  - if not exist ..\files-common\osx-x64 mkdir ..\files-common\osx-x64
+  - dotnet publish -r osx-x64 -o ..\files-common\osx-x64 /p:PublishSingleFile=true /p:DebugType=None --self-contained true
+  - copy ..\files-common\win10-x64\cm.exe ..\files-common\cm_new.exe
+  - cd %APPVEYOR_BUILD_FOLDER%
   - xcopy files-common dotnet /s /i /Y
   - 7z a %APPVEYOR_REPO_COMMIT%.zip dotnet
 artifacts:

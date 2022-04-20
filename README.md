@@ -18,10 +18,10 @@
 6. If you have installed Visual Studio 2017 in custom folder run `set VS150COMNTOOLS=D:\Program Files\Microsoft Visual Studio\2017\Professional\Common7\Tools\` (with your custom foler path) in cmd.
 
 ### macOS
-1. You should have git and mono (5 or above) installed
+1. You should have git installed
 2. Download zip from https://github.com/skbkontur/cement/releases/latest
 3. Unzip and run `./install.sh` from the dotnet directory
-4. Either add `~/bin/` to your `PATH` variable or run `alias cm='mono ~/bin/dotnet/cm.exe'`
+4. Either add `~/bin/` to your `PATH` variable or run `alias cm='~/bin/dotnet/cm.exe'`
 5. Run `cm` to see the list of commands
 
 ### Linux

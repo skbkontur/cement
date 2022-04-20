@@ -1,7 +1,7 @@
 ﻿using System.Net;
-using Common.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Common
 {
@@ -28,7 +28,7 @@ namespace Common
             }
             catch (WebException webException)
             {
-                log.LogError("Fail self-update, exception: '{Exception}'", webException);
+                log.LogError(webException,"Fail self-update, exception: '{ExceptionErrorMessage}'", webException.Message);
                 if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
                     var response = (HttpWebResponse) webException.Response;

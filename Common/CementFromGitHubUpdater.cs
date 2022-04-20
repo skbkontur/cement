@@ -32,7 +32,7 @@ namespace Common
             }
             catch (WebException webException)
             {
-                log.LogError("Fail self-update, exception: '{Exception}' ", webException);
+                log.LogError(webException, "Fail self-update, exception: '{ExceptionErrorMessage}' ", webException.Message);
                 if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
                     var response = (HttpWebResponse) webException.Response;
@@ -69,4 +69,5 @@ namespace Common
     {
         [JsonProperty(PropertyName = "browser_download_url")] public string BrowserDownloadUrl;
     }
+
 }

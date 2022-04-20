@@ -1,4 +1,6 @@
-﻿namespace Common
+﻿using System.Threading.Tasks;
+
+namespace Common
 {
     public interface ICementUpdater
     {

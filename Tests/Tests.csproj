@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyTitle>Tests</AssemblyTitle>
     <Product>Tests</Product>
-    <Copyright>Copyright © 2019</Copyright>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <Copyright>Copyright © 2022</Copyright>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.5" />
@@ -13,7 +12,8 @@
     <PackageReference Include="CommandLineParser" Version="2.4.3" />
     <PackageReference Include="FluentAssertions" Version="5.6.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.0" />
+	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="NSubstitute" Version="4.1.0" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="SharpYaml" Version="1.6.5" />
@@ -28,6 +28,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ParsersTestData.resx</DependentUpon>
     </Compile>
+    <Compile Remove="CommandsTests\TestSelfUpdate.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Commands\Commands.csproj" />

@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
@@ -35,7 +36,7 @@ namespace Common
         }
 
         private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
-            SslPolicyErrors error)
+                                                      SslPolicyErrors error)
         {
             // If the certificate is a valid, signed certificate, return true.
             if (error == System.Net.Security.SslPolicyErrors.None)
