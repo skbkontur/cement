@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using NUnit.Framework;
@@ -73,12 +74,19 @@ namespace Tests.UtilsTests
         [Test]
         public async Task TimeMultiThreads()
         {
+            var source = new CancellationTokenSource();
+            var token = source.Token;
             var sw = Stopwatch.StartNew();
-
             var tasks = new List<Task>();
             for (int i = 0; i < 10; i++)
             {
-                tasks.Add(Task.Run(() => new ShellRunner().Run("ping 127.0.0.1 -n 2 > nul", TimeSpan.FromSeconds(1))));
+                tasks.Add(Task.Run(() =>
+                {
+                    var result = new ShellRunner().Run("ping 127.0.0.1 -n 2 > nul", TimeSpan.FromSeconds(1));
+                    if(result == -1)
+                        token.ThrowIfCancellationRequested();
+                    return result;
+                }, token));
             }
             await Task.WhenAll(tasks);
             sw.Stop();

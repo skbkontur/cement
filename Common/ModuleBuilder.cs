@@ -1,12 +1,10 @@
 using Common.YamlParsers;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Common.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Common

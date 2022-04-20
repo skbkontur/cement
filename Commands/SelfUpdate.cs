@@ -4,7 +4,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using Common;
-using Microsoft.Build.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Commands
@@ -82,15 +81,17 @@ namespace Commands
             catch (Exception exception)
             {
                 Log.LogError(exception, "Fail to install cement: '{ErrorMessage}'", exception.Message);
+
                 ConsoleWriter.WriteError("Fail to install cement: " + exception);
             }
 
             var server = CementSettings.Get().CementServer;
-            Log.LogInformation($"Cement server: {server}");
-            
-            var updater = server == null 
-                ? (ICementUpdater) new CementFromGitHubUpdater(Log)
-                : (ICementUpdater) new CementFromServerUpdater(server, branch, Log);
+
+            Log.LogInformation("Cement server: {ServerName}", server);
+            var updater = server == null
+               ? new CementFromGitHubUpdater(Log)
+               : (ICementUpdater) new CementFromServerUpdater(server, branch, Log);
+
 
             return UpdateBinary(updater);
         }
@@ -181,7 +182,7 @@ exit $exit_code";
             else
             {
                 ConsoleWriter.WriteInfo($"No cement binary updates available ({updater.GetName()})");
-                Log.LogDebug("Already has {0} version", currentCommitHash);
+                Log.LogDebug("Already has {CurrentCommitHash} version", currentCommitHash);
             }
             return 0;
         }
@@ -259,10 +260,11 @@ exit $exit_code";
             var dotnetInstallFolder = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet");
             if (!Directory.Exists(dotnetInstallFolder))
                 Directory.CreateDirectory(dotnetInstallFolder);
-            Log.LogDebug("dotnet install folder: " + dotnetInstallFolder);
+            Log.LogDebug("dotnet install folder: {InstallFolder}", dotnetInstallFolder);
 
             var cm = Path.Combine(from, "cm.exe");
-            if (!IsInstallingCement && File.Exists(Path.Combine(dotnetInstallFolder, "cm.exe"))) 
+
+            if (!IsInstallingCement && File.Exists(Path.Combine(dotnetInstallFolder, "cm.exe")))
                 File.Delete(cm);
 
             var files = Directory.GetFiles(from, "*", SearchOption.AllDirectories);
@@ -271,7 +273,7 @@ exit $exit_code";
                 var to = file.Replace(from, dotnetInstallFolder);
                 var toDir = Path.GetDirectoryName(to);
                 if (!Directory.Exists(toDir))
-                    Directory.CreateDirectory(toDir);
+                    Directory.CreateDirectory(toDir!);
                 File.Copy(file, to, true);
             }
         }
@@ -282,7 +284,7 @@ exit $exit_code";
                 return;
 
             var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
-            var toAdd = Path.Combine(Helper.GetCementInstallDirectory());
+            var toAdd = Helper.GetCementInstallDirectory();
 
             if (path == null)
             {
@@ -300,7 +302,7 @@ exit $exit_code";
             Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
             ConsoleWriter.WriteOk(toAdd + " added to $PATH");
             ConsoleWriter.WriteOk("To finish installation, please restart your terminal process");
-            Log.LogDebug(toAdd + " added to $PATH: " + path);
+            Log.LogDebug("{ToAdd} added to $PATH: {InstallPath}", toAdd, path);
         }
 
         private void InstallPowerShell()

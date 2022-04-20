@@ -43,7 +43,7 @@ namespace Common
             if (IsCementTrackedDirectory(cwd))
                 return false;
 
-            var parentDirectory = Directory.GetParent(cwd).FullName;
+            var parentDirectory = Directory.GetParent(cwd)?.FullName;
             if (!IsCementTrackedDirectory(parentDirectory))
                 return false;
             return true;
@@ -114,7 +114,7 @@ namespace Common
                 var packageConfig = GetPackagePath(package.Name);
                 if (!File.Exists(packageConfig))
                     PackageUpdater.UpdatePackages();
-                var configData = File.ReadAllText(packageConfig);
+                var configData = File.ReadAllText(packageConfig!);
                 return ModuleIniParser.Parse(configData).ToList();
             }
         }
@@ -174,10 +174,7 @@ namespace Common
 
         public static string GetAssemblyTitle()
         {
-            return ((AssemblyTitleAttribute)
-                Attribute.GetCustomAttribute(
-                    Assembly.GetEntryAssembly(),
-                    typeof(AssemblyTitleAttribute))).Title;
+            return ((AssemblyTitleAttribute)Attribute.GetCustomAttribute(Assembly.GetEntryAssembly()!, typeof(AssemblyTitleAttribute)))?.Title;
         }
 
         public static string ConvertTime(long millisecs)
@@ -281,7 +278,7 @@ namespace Common
 
         private static void CreateFileAndDirectory(string filePath)
         {
-            var dir = Directory.GetParent(filePath).FullName;
+            var dir = Directory.GetParent(filePath)?.FullName;
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
             if (!File.Exists(filePath))
@@ -293,7 +290,7 @@ namespace Common
             if (args.Contains(oldKey))
             {
                 ConsoleWriter.WriteError("Don't use old " + oldKey + " key.");
-                log.LogWarning("Found old key " + oldKey + " in " + string.Join(" ", args) + " in " + Directory.GetCurrentDirectory());
+                log.LogWarning("Found old key {OldKey} in {JoinArgs} in {DirectoryPath}", oldKey, string.Join(" ", args), Directory.GetCurrentDirectory());
                 args = args.Where(a => a != oldKey).ToArray();
             }
         }
@@ -393,11 +390,11 @@ namespace Common
                     }
                 }
                 else
-                    Log.LogDebug("Failed to get msbuild version for " + fullPathToMsBuild);
+                    Log.LogDebug("Failed to get msbuild version for {FullPathToMsBuild}", fullPathToMsBuild);
             }
             catch (Exception e)
             {
-                Log.LogWarning("Failed to get MSBuild version from " + fullPathToMsBuild, e);
+                Log.LogWarning("Failed to get MSBuild version from {FullPathToMsBuild}: {WarningMessage}", fullPathToMsBuild, e.Message);
             }
 
             return null;

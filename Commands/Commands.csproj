@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-	  <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyTitle>Commands</AssemblyTitle>
     <Product>Commands</Product>
     <Copyright>Copyright © 2019</Copyright>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
@@ -12,9 +11,8 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="NuGet">
-      <HintPath>..\externals\NuGet.exe</HintPath>
+      <HintPath>..\externals\NuGet.dll</HintPath>
     </Reference>
-    <Reference Include="System.IO.Compression" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
