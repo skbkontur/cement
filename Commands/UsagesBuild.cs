@@ -46,7 +46,7 @@ namespace Commands
             if (checkingBranch == null)
                 checkingBranch = branch;
 
-            var response = Usages.GetUsagesResponse(moduleName, checkingBranch);
+            var response = Usages.GetUsagesResponseAsync(moduleName, checkingBranch).GetAwaiter().GetResult();
 
             var toBuild = response.Items.SelectMany(kvp => kvp.Value).Where(d => d.Treeish == "master").ToList();
             BuildDeps(toBuild);

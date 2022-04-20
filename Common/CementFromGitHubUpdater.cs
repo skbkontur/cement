@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Common
@@ -15,24 +16,26 @@ namespace Common
             this.log = log;
         }
 
-        public string GetNewCommitHash()
+        public async Task<string> GetNewCommitHashAsync()
         {
             try
             {
-                var webClient = new WebClientWithTimeout();
-                webClient.Headers.Add("User-Agent", "Anything");
-                var json = webClient.DownloadString("https://api.github.com/repos/skbkontur/cement/releases/latest");
-                var release = JsonConvert.DeserializeObject<GitHubRelease>(json);
-                if (release.Assets.Count != 1)
-                    throw new CementException("Failed to parse json:\n" + json);
-                downloadUri = release.Assets[0].BrowserDownloadUrl;
+                using (var webClient = new WebClientWithTimeout())
+                {
+                    webClient.DefaultRequestHeaders.Add("User-Agent", "Anything");
+                    var jsonResult = await webClient.GetStringAsync("https://api.github.com/repos/skbkontur/cement/releases/latest");
+                    var release = JsonConvert.DeserializeObject<GitHubRelease>(jsonResult);
+                    if (release.Assets.Count != 1)
+                        throw new CementException("Failed to parse json:\n" + jsonResult);
+                    downloadUri = release.Assets[0].BrowserDownloadUrl;
 
-                var parts = downloadUri.Split('/', '.');
-                return parts[parts.Length - 2];
+                    var parts = downloadUri.Split('/', '.');
+                    return parts[parts.Length - 2];
+                }
             }
             catch (WebException webException)
             {
-                log.LogError("Fail self-update, exception: '{Exception}' ", webException);
+                log.LogError(webException, "Fail self-update, exception: '{ErrorMessage}' ", webException.Message);
                 if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
                     var response = (HttpWebResponse) webException.Response;
@@ -47,11 +50,13 @@ namespace Common
             }
         }
 
-        public byte[] GetNewCementZip()
+        public async Task<byte[]> GetNewCementZipAsync()
         {
-            var client = new WebClientWithTimeout();
-            var zipContent = client.DownloadData(downloadUri);
-            return zipContent;
+            using (var client = new WebClientWithTimeout())
+            {
+                var zipContent = await client.GetByteArrayAsync(downloadUri);
+                return zipContent;
+            }
         }
 
         public string GetName()

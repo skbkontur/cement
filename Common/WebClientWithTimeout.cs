@@ -1,19 +1,18 @@
 using System;
 using System.Net;
+using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Common
 {
-    public class WebClientWithTimeout : WebClient
+    public class WebClientWithTimeout : HttpClient
     {
-        private int Timeout { get; set; }
-
         public WebClientWithTimeout() : this(30000) { }
 
         public WebClientWithTimeout(int timeout)
         {
-            this.Timeout = timeout;
+            base.Timeout = new TimeSpan(0, 0, timeout/1000);
         }
 
         static WebClientWithTimeout()
@@ -23,19 +22,8 @@ namespace Common
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
         }
 
-        protected override WebRequest GetWebRequest(Uri address)
-        {
-            var request = base.GetWebRequest(address);
-            if (request != null)
-            {
-                request.Timeout = this.Timeout;
-            }
-
-            return request;
-        }
-
         private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
-            SslPolicyErrors error)
+                                                      SslPolicyErrors error)
         {
             // If the certificate is a valid, signed certificate, return true.
             if (error == System.Net.Security.SslPolicyErrors.None)

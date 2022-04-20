@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-	  <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyTitle>Commands</AssemblyTitle>
     <Product>Commands</Product>
-    <Copyright>Copyright © 2019</Copyright>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <Copyright>Copyright © 2022</Copyright>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
@@ -12,11 +11,14 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="NuGet">
-      <HintPath>..\externals\NuGet.exe</HintPath>
+      <!-- NuGet.dll это тот же NuGet.exe с измененным расширением, костыль придуман чтобы сформировался единый PublishSingleFile -->
+      <HintPath>..\externals\NuGet.dll</HintPath>
     </Reference>
-    <Reference Include="System.IO.Compression" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="app.config" />
   </ItemGroup>
 </Project>

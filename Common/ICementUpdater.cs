@@ -1,9 +1,11 @@
-﻿namespace Common
+﻿using System.Threading.Tasks;
+
+namespace Common
 {
     public interface ICementUpdater
     {
-        string GetNewCommitHash();
-        byte[] GetNewCementZip();
+        Task<string> GetNewCommitHashAsync();
+        Task<byte[]> GetNewCementZipAsync();
         string GetName();
     }
 }

@@ -1,15 +1,25 @@
 ﻿using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace Common
 {
     public static class Usages
     {
-        public static ShowParentsAnswer GetUsagesResponse(string moduleName, string checkingBranch, string configuration="*")
+        public static async Task<ShowParentsAnswer> GetUsagesResponseAsync(string moduleName, string checkingBranch, string configuration="*")
         {
-            var webClient = new WebClient();
-            var str = webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/{moduleName}/deps/{configuration}/{checkingBranch}");
-            return JsonConvert.DeserializeObject<ShowParentsAnswer>(str);
+            string url = $"{CementSettings.Get().CementServer}/api/v1/{moduleName}/deps/{configuration}/{checkingBranch}";
+            HttpClient client = new HttpClient();
+
+            using (HttpResponseMessage response = await client.GetAsync(url))
+            {
+                using (HttpContent content = response.Content)
+                {
+                    var jsonContent = await content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<ShowParentsAnswer>(jsonContent);
+                }
+            }
         }
     }
 }
