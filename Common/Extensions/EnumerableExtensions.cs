@@ -5,7 +5,7 @@ namespace Common.Extensions
 {
     public static class EnumerableExtensions
     {
-        public static IEnumerable<TSource> DistinctBy<TSource, TKey>
+        public static IEnumerable<TSource> DistinctByKey<TSource, TKey>
             (this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
             var keys = new HashSet<TKey>();
