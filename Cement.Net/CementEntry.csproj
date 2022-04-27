@@ -4,48 +4,15 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>cm</RootNamespace>
-		<AssemblyName>Cement</AssemblyName>
+		<AssemblyName>cm</AssemblyName>
 		<TargetFramework>net6.0</TargetFramework>
 		<Product>Cement.Net</Product>
 		<Copyright>Copyright © 2019</Copyright>
 		<Version>4.1.0</Version>
-		<BuildDependsOn>$(BuildDependsOn);AfterBuildMigrated</BuildDependsOn>
-		<OutputPath>bin\$(Configuration)\</OutputPath>
-		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<PublishSingleFile>true</PublishSingleFile>
-		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-		<PublishReadyToRun>true</PublishReadyToRun>
+		<SelfContained>true</SelfContained>
+		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<WarningLevel>2</WarningLevel>
-	</PropertyGroup>
-	<Target Name="Merge" AfterTargets="Build">
-		<PropertyGroup>
-			<OutputAssembly>$(OutputPath)\Cement.exe</OutputAssembly>
-			<Merger>"$(SolutionDir)\externals\ILRepack.exe"</Merger>
-		</PropertyGroup>
-	</Target>
-
-	<Target Name="CopyExe" AfterTargets="Build" DependsOnTargets="Merge" Condition="'$(OS)' != 'Unix'">
-		<Exec Command="rmdir /S /Q %25userprofile%25\bin\dotnet" />
-		<Exec Command="mkdir %25userprofile%25\bin\dotnet" />
-		<Exec Command="copy $(OutputAssembly) %25userprofile%25\bin\dotnet\cm.exe" />
-		<Exec Command="copy $(OutputPath)\Cement.dll.config %25userprofile%25\bin\dotnet\cm.exe.config" />
-		<Exec Command="xcopy $(SolutionDir)\files-common %25userprofile%25\bin\dotnet /s /i /Y" />
-		<Exec Condition="Exists('$(SolutionDir)\files-kontur')"
-		      Command="xcopy $(SolutionDir)\files-kontur %25userprofile%25\bin\dotnet /s /i /Y" />
-		<Exec Command="$(OutputAssembly) help --gen $(SolutionDir)\README-commands.md" />
-	</Target>
-	<Target Name="CopyExeUnix" DependsOnTargets="Merge" Condition="'$(OS)' == 'Unix'">
-		<Exec Command="rm -rf ~/bin/dotnet" />
-		<Exec Command="mkdir ~/bin/dotnet" />
-		<Exec Command="cp $(OutputAssembly) ~/bin/dotnet/cm.exe" />
-		<Exec Command="cp $(OutputPath)\Cement.dll ~/bin/dotnet/Cement.dll" />
-		<Exec Command="cp $(OutputPath)\Cement.exe.config ~/bin/dotnet/cm.exe.config" />
-		<Exec Command="cp $(OutputPath)\Cement.runtimeconfig.json ~/bin/dotnet/Cement.runtimeconfig.json" />
-		<Exec Command="cp -R $(SolutionDir)/files-common/* ~/bin/dotnet" />
-		<Exec Condition="Exists('$(SolutionDir)/files-kontur')" Command="cp -R $(SolutionDir)/files-kontur/* ~/bin/dotnet" />
-	</Target>
 	<ItemGroup>
 		<ProjectReference Include="..\Commands\Commands.csproj" />
 		<ProjectReference Include="..\Common\Common.csproj" />

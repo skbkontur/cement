@@ -87,15 +87,18 @@ namespace Commands
 
             var server = CementSettings.Get().CementServer;
             Log.LogInformation($"Cement server: {server}");
-            var updater = server == null
-                ? (ICementUpdater) new CementFromGitHubUpdater(Log)
-                : (ICementUpdater) new CementFromServerUpdater(server, branch, Log);
+            //добавить реализацию для создания класса тестового обновления из локальной папки
+            // var updater = server == null
+            //     ? (ICementUpdater) new CementFromGitHubUpdater(Log)
+            //     : (ICementUpdater) new CementFromServerUpdater(server, branch, Log);
+            var updater = new CementFromLocalPathUpdater(Log);
 
             return UpdateBinary(updater);
         }
 
         private static void CreateRunners()
         {
+            // изменить скрипты для тестового обновления из локальной папки
             const string cmdText = @"@echo off
 ""%~dp0\dotnet\cm.exe"" %*
 SET exit_code=%errorlevel%

@@ -4,7 +4,6 @@
     <AssemblyTitle>Commands</AssemblyTitle>
     <Product>Commands</Product>
     <Copyright>Copyright © 2019</Copyright>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
@@ -12,7 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="NuGet">
-      <HintPath>..\externals\NuGet.exe</HintPath>
+      <HintPath>..\externals\NuGet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
