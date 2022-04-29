@@ -9,9 +9,6 @@
 		<Product>Cement.Net</Product>
 		<Copyright>Copyright © 2019</Copyright>
 		<Version>4.1.0</Version>
-		<PublishSingleFile>true</PublishSingleFile>
-		<SelfContained>true</SelfContained>
-		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Commands\Commands.csproj" />

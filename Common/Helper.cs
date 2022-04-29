@@ -59,6 +59,14 @@ namespace Common
             return Path.Combine(HomeDirectory(), "bin");
         }
 
+        public static string GetZipCementDirectory()
+        {
+            var zipDir = Path.Combine(HomeDirectory(), "work");
+            if (!Directory.Exists(zipDir))
+                Directory.CreateDirectory(zipDir);
+            return zipDir;
+        }
+        
         public static bool OsIsUnix()
         {
             return Environment.OSVersion.Platform == PlatformID.Unix;

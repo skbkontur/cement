@@ -7,8 +7,7 @@ namespace Common;
 public class CementFromLocalPathUpdater: ICementUpdater
 {
     private readonly ILogger log;
-    private const string zipCementPath = @"C:\WORK\iDevOps\cement\Cement.Net\bin\Release\net6.0\win10-x64\publish";
-
+    
     public CementFromLocalPathUpdater(ILogger log)
     {
         this.log = log;
@@ -25,7 +24,7 @@ public class CementFromLocalPathUpdater: ICementUpdater
         try
         {
 
-            using (FileStream fsSource = new FileStream(Path.Combine(zipCementPath, "cement.zip"),
+            using (FileStream fsSource = new FileStream(Path.Combine(Helper.GetZipCementDirectory(), "cement.zip"),
                        FileMode.Open, FileAccess.Read))
             {
                 byte[] zipContent = new byte[fsSource.Length];

@@ -33,7 +33,8 @@ namespace Commands
                 var lastUpdate = Helper.GetLastUpdateTime();
                 var now = DateTime.Now;
                 var diff = now - lastUpdate;
-                if (diff <= TimeSpan.FromHours(5))
+                if (diff <= TimeSpan.FromMinutes(15))
+                    //if (diff <= TimeSpan.FromHours(5))
                     return;
                 isAutoUpdate = true;
                 var exitCode = new SelfUpdate().Run(new[] {"self-update"});
