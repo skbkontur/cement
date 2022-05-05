@@ -111,7 +111,7 @@ cmd /C exit %exit_code% > nul";
 
             var bashTextUnix = @"#!/bin/bash
 path=""`dirname \""$0\""`/dotnet/cm.exe""
-cmd=""mono $path""
+cmd=""$path""
 for word in ""$@""; do cmd=""$cmd \""$word\""""; done
 eval $cmd
 exit_code=$?
