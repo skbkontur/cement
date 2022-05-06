@@ -3,9 +3,12 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Runtime.Versioning;
 using Common;
+using Microsoft.Build.Framework;
 using Microsoft.Build.Logging;
 using Microsoft.Extensions.Logging;
+using NuGet.ProjectModel;
 
 namespace Commands
 {
@@ -99,7 +102,6 @@ namespace Commands
 
         private static void CreateRunners()
         {
-            // изменить скрипты для тестового обновления из локальной папки
             const string cmdText = @"@echo off
 ""%~dp0\dotnet\cm.exe"" %*
 SET exit_code=%errorlevel%
@@ -229,6 +231,7 @@ exit $exit_code";
 
         private void CopyNewCmExe(string from)
         {
+            string fromOs = Path.Combine(from, "cement", "dotnet", Helper.GetOsPublishPath());
             from = Path.Combine(from, "cement", "dotnet");
             if (!Directory.Exists(from))
             {
@@ -242,8 +245,8 @@ exit $exit_code";
                 Directory.CreateDirectory(dotnetInstallFolder);
             Log.LogDebug("dotnet install folder: " + dotnetInstallFolder);
 
-            var cm = Path.Combine(from, "cm.exe");
-            var cmNew = Path.Combine(from, "cm_new.exe");
+            var cm = Path.Combine(fromOs, "cm.exe");
+            var cmNew = Path.Combine(fromOs, "cm_new.exe");
             File.Copy(cm, cmNew, true);
             if (!IsInstallingCement && File.Exists(Path.Combine(dotnetInstallFolder, "cm.exe")))
                 File.Delete(cm);
@@ -252,6 +255,16 @@ exit $exit_code";
             foreach (var file in files)
             {
                 var to = file.Replace(from, dotnetInstallFolder);
+                var toDir = Path.GetDirectoryName(to);
+                if (!Directory.Exists(toDir))
+                    Directory.CreateDirectory(toDir);
+                File.Copy(file, to, true);
+            }
+            
+            var filesFromOs = Directory.GetFiles(fromOs, "*", SearchOption.AllDirectories);
+            foreach (var file in filesFromOs)
+            {
+                var to = file.Replace(fromOs, dotnetInstallFolder);
                 var toDir = Path.GetDirectoryName(to);
                 if (!Directory.Exists(toDir))
                     Directory.CreateDirectory(toDir);

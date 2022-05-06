@@ -72,6 +72,23 @@ namespace Common
             return Environment.OSVersion.Platform == PlatformID.Unix;
         }
 
+        public static string GetOsPublishPath()
+        {
+            if (OsIsUnix())
+            {
+                return "linux-x64";
+            }
+            else
+            {
+                if (Environment.OSVersion.Platform == PlatformID.MacOSX)
+                {
+                    return "os-x64";
+                }
+
+                return "win-x64";
+            }
+        }
+
         public static string HomeDirectory()
         {
             return OsIsUnix()
