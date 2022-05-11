@@ -85,7 +85,7 @@ namespace Common
                     return "os-x64";
                 }
 
-                return "win-x64";
+                return "win10-x64";
             }
         }
 

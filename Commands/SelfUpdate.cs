@@ -105,9 +105,8 @@ namespace Commands
             const string cmdText = @"@echo off
 ""%~dp0\dotnet\cm.exe"" %*
 SET exit_code=%errorlevel%
-if exist %~dp0\dotnet\cm_new.exe (
-	copy %~dp0\dotnet\cm_new.exe %~dp0\dotnet\cm.exe /Y > nul
-	del %~dp0\dotnet\cm_new.exe > nul
+if exist %~dp0\dotnet\win10-x64\cm.exe (
+	copy %~dp0\dotnet\win10-x64\cm.exe %~dp0\dotnet\cm.exe /Y > nul	
 )
 cmd /C exit %exit_code% > nul";
 
@@ -117,10 +116,9 @@ cmd=""$path""
 for word in ""$@""; do cmd=""$cmd \""$word\""""; done
 eval $cmd
 exit_code=$?
-if [ -f ~/bin/dotnet/cm_new.exe ];
+if [ -f ~/bin/dotnet/linux-x64/cm ];
 then
-	cp ~/bin/dotnet/cm_new.exe ~/bin/dotnet/cm.exe
-	rm ~/bin/dotnet/cm_new.exe
+	cp ~/bin/dotnet/linux-x64/cm ~/bin/dotnet/cm.exe
 	chmod u+x ~/bin/dotnet/cm.exe
 fi
 exit $exit_code";
@@ -131,10 +129,9 @@ path=""`dirname \""$0\""`/dotnet/cm.exe""
 args=$@
 $path ""$@""
 exit_code=$?
-if [ -f ~/bin/dotnet/cm_new.exe ];
+if [ -f ~/bin/dotnet/os-x64/cm ];
 then
-	cp ~/bin/dotnet/cm_new.exe ~/bin/dotnet/cm.exe
-	rm ~/bin/dotnet/cm_new.exe
+	cp ~/bin/dotnet/os-x64/cm ~/bin/dotnet/cm.exe
 	chmod u+x ~/bin/dotnet/cm.exe
 fi
 exit $exit_code";
@@ -231,7 +228,6 @@ exit $exit_code";
 
         private void CopyNewCmExe(string from)
         {
-            string fromOs = Path.Combine(from, "cement", "dotnet", Helper.GetOsPublishPath());
             from = Path.Combine(from, "cement", "dotnet");
             if (!Directory.Exists(from))
             {
@@ -245,26 +241,16 @@ exit $exit_code";
                 Directory.CreateDirectory(dotnetInstallFolder);
             Log.LogDebug("dotnet install folder: " + dotnetInstallFolder);
 
-            var cm = Path.Combine(fromOs, "cm.exe");
-            var cmNew = Path.Combine(fromOs, "cm_new.exe");
-            File.Copy(cm, cmNew, true);
-            if (!IsInstallingCement && File.Exists(Path.Combine(dotnetInstallFolder, "cm.exe")))
-                File.Delete(cm);
+            // var cm = Path.Combine(from, "cm.exe");
+            // var cmNew = Path.Combine(from, "cm_new.exe");
+            // File.Copy(cm, cmNew, true);
+            // if (!IsInstallingCement && File.Exists(Path.Combine(dotnetInstallFolder, "cm.exe")))
+            //     File.Delete(cm);
 
             var files = Directory.GetFiles(from, "*", SearchOption.AllDirectories);
             foreach (var file in files)
             {
                 var to = file.Replace(from, dotnetInstallFolder);
-                var toDir = Path.GetDirectoryName(to);
-                if (!Directory.Exists(toDir))
-                    Directory.CreateDirectory(toDir);
-                File.Copy(file, to, true);
-            }
-            
-            var filesFromOs = Directory.GetFiles(fromOs, "*", SearchOption.AllDirectories);
-            foreach (var file in filesFromOs)
-            {
-                var to = file.Replace(fromOs, dotnetInstallFolder);
                 var toDir = Path.GetDirectoryName(to);
                 if (!Directory.Exists(toDir))
                     Directory.CreateDirectory(toDir);
