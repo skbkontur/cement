@@ -44,7 +44,7 @@ namespace Commands
             }
             catch (Exception exception)
             {
-                Log.LogError(exception, "Auto update failed, error: '{errorMessage}'", exception.Message);
+                Log.LogError(exception, "Auto update failed, error: '{ErrorMessage}'", exception.Message);
                 ConsoleWriter.WriteWarning("Auto update failed. Check logs for details");
             }
         }
