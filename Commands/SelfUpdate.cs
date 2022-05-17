@@ -117,7 +117,7 @@ if exist %~dp0\dotnet\win10-x64\cm.exe (
     if exist %~dp0\dotnet\cm_new.exe (
 	    copy %~dp0\dotnet\cm_new.exe %~dp0\dotnet\cm.exe /Y > nul
 	    del %~dp0\dotnet\cm_new.exe > nul
-        ) 
+        )
     )
 cmd /C exit %exit_code% > nul";
 
@@ -135,7 +135,7 @@ exit_code=$?
 if [ -f ~/bin/dotnet/linux-x64/cm ];
 then
 	cp ~/bin/dotnet/linux-x64/cm ~/bin/dotnet/cm.exe
-    rm ~/bin/dotnet/linux-x64/cm	
+    rm ~/bin/dotnet/linux-x64/cm
 else
     if [ -f ~/bin/dotnet/cm_new.exe ]
     then
@@ -155,7 +155,7 @@ exit_code=$?
 if [ -f ~/bin/dotnet/osx-x64/cm ];
 then
 	cp ~/bin/dotnet/osx-x64/cm ~/bin/dotnet/cm.exe
-    rm ~/bin/dotnet/osx-x64/cm	
+    rm ~/bin/dotnet/osx-x64/cm
 else
     if [ -f ~/bin/dotnet/cm_new.exe ]
     then
