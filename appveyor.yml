@@ -14,6 +14,12 @@ build:
 after_build:
   - mkdir dotnet
   - copy Cement.Net\bin\Debug\cm.exe dotnet\cm.exe
+  - mkdir dotnet\win10-x64
+  - copy Cement.Net\bin\Debug\cm.exe dotnet\win10-x64\cm.exe
+  - mkdir dotnet\linux-x64
+  - copy Cement.Net\bin\Debug\cm.exe dotnet\linux-x64\cm
+  - mkdir dotnet\osx-x64
+  - copy Cement.Net\bin\Debug\cm.exe dotnet\osx-x64\cm
   - copy Cement.Net\bin\Debug\cm.exe.config dotnet\cm.exe.config
   - xcopy files-common dotnet /s /i /Y
   - 7z a %APPVEYOR_REPO_COMMIT%.zip dotnet
