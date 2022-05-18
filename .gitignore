@@ -12,3 +12,6 @@ server.lnk
 deploy.bat
 .idea/
 Cement.Net/Properties/
+/files-common/linux-x64/*
+/files-common/osx-x64/*
+/files-common/win10-x64/*

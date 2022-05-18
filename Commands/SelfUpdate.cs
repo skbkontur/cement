@@ -1,28 +1,29 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using Common;
-using Microsoft.Build.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
     public class SelfUpdate : Command
     {
-        private string branch;
         private static bool isAutoUpdate;
         protected bool IsInstallingCement;
+        private string branch;
 
         public SelfUpdate()
-            : base(new CommandSettings
-            {
-                LogPerfix = "SELF-UPDATE",
-                LogFileName = null,
-                MeasureElapsedTime = false,
-                Location = CommandSettings.CommandLocation.Any
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "SELF-UPDATE",
+                    LogFileName = null,
+                    MeasureElapsedTime = false,
+                    Location = CommandSettings.CommandLocation.Any
+                })
         {
         }
 
@@ -30,6 +31,9 @@ namespace Commands
         {
             try
             {
+                var isEnabledSelfUpdate = CementSettings.Get().IsEnabledSelfUpdate;
+                if (isEnabledSelfUpdate.HasValue && !isEnabledSelfUpdate.Value)
+                    return;
                 var lastUpdate = Helper.GetLastUpdateTime();
                 var now = DateTime.Now;
                 var diff = now - lastUpdate;
@@ -50,10 +54,17 @@ namespace Commands
             }
         }
 
+        public override string HelpMessage => @"
+    Updates cement itself (automatically updated every 5 hours)
+
+    Usage:
+        cm self-update
+";
+
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseSelfUpdate(args);
-            branch = (string) parsedArgs["branch"];
+            branch = (string)parsedArgs["branch"];
             SearchAndSaveBranchInSettings(ref branch);
             if (isAutoUpdate)
                 Log.LogDebug("Auto updating cement");
@@ -87,11 +98,10 @@ namespace Commands
 
             var server = CementSettings.Get().CementServer;
             Log.LogInformation($"Cement server: {server}");
-            
-            var updater = server == null 
-                ? (ICementUpdater) new CementFromGitHubUpdater(Log)
-                : (ICementUpdater) new CementFromServerUpdater(server, branch, Log);
 
+            var updater = (server == null)
+                ? (ICementUpdater)new CementFromGitHubUpdater(Log)
+                : new CementFromServerUpdater(server, branch, Log);
             return UpdateBinary(updater);
         }
 
@@ -107,7 +117,7 @@ if exist %~dp0\dotnet\win10-x64\cm.exe (
     if exist %~dp0\dotnet\cm_new.exe (
 	    copy %~dp0\dotnet\cm_new.exe %~dp0\dotnet\cm.exe /Y > nul
 	    del %~dp0\dotnet\cm_new.exe > nul
-        )
+        ) 
     )
 cmd /C exit %exit_code% > nul";
 
@@ -125,8 +135,7 @@ exit_code=$?
 if [ -f ~/bin/dotnet/linux-x64/cm ];
 then
 	cp ~/bin/dotnet/linux-x64/cm ~/bin/dotnet/cm.exe
-    rm ~/bin/dotnet/linux-x64/cm
-	chmod u+x ~/bin/dotnet/cm.exe
+    rm ~/bin/dotnet/linux-x64/cm	
 else
     if [ -f ~/bin/dotnet/cm_new.exe ]
     then
@@ -134,6 +143,7 @@ else
 	    rm ~/bin/dotnet/cm_new.exe
     fi
 fi
+chmod u+x ~/bin/dotnet/cm.exe
 exit $exit_code";
             bashTextUnix = bashTextUnix.Replace("\r\n", "\n");
 
@@ -142,11 +152,10 @@ path=""`dirname \""$0\""`/dotnet/cm.exe""
 args=$@
 $path ""$@""
 exit_code=$?
-if [ -f ~/bin/dotnet/os-x64/cm ];
+if [ -f ~/bin/dotnet/osx-x64/cm ];
 then
-	cp ~/bin/dotnet/os-x64/cm ~/bin/dotnet/cm.exe
-    rm ~/bin/dotnet/os-x64/cm
-	chmod u+x ~/bin/dotnet/cm.exe
+	cp ~/bin/dotnet/osx-x64/cm ~/bin/dotnet/cm.exe
+    rm ~/bin/dotnet/osx-x64/cm	
 else
     if [ -f ~/bin/dotnet/cm_new.exe ]
     then
@@ -154,12 +163,71 @@ else
 	    rm ~/bin/dotnet/cm_new.exe
     fi
 fi
+chmod u+x ~/bin/dotnet/cm.exe
 exit $exit_code";
 
             var installDirectory = Helper.GetCementInstallDirectory();
             Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm.cmd"), cmdText);
             Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm"), Helper.OsIsUnix() ? bashTextUnix : bashText);
             Log.LogDebug("Successfully created cm.cmd & cm.");
+        }
+
+        private static bool HasInstalledCement()
+        {
+            var installDirectory = Helper.GetCementInstallDirectory();
+            return File.Exists(Path.Combine(installDirectory, "dotnet", "cm.exe"));
+        }
+
+        private static bool HasAllCementFiles()
+        {
+            var installDirectory = Helper.GetCementInstallDirectory();
+            return Directory.Exists(Path.Combine(installDirectory, "dotnet", "arborjs"));
+        }
+
+        private static void SearchAndSaveBranchInSettings(ref string branch)
+        {
+            var settings = CementSettings.Get();
+            if (branch != null)
+                settings.SelfUpdateTreeish = branch;
+            else
+                branch = settings.SelfUpdateTreeish;
+            settings.Save();
+        }
+
+        private static bool IsWindowsPlatform()
+        {
+            return Environment.OSVersion.Platform != PlatformID.Unix
+                   && Environment.OSVersion.Platform != PlatformID.MacOSX
+                   && Environment.OSVersion.Platform != PlatformID.Xbox;
+        }
+
+        private static IEnumerable<string> GetIncludeFilesForCopy(string from, string currOsDir)
+        {
+            var filesForCopy = new List<string>();
+
+            if (Directory.Exists(Path.Combine(from, currOsDir)))
+            {
+                filesForCopy.AddRange(Directory.GetFiles(Path.Combine(from, currOsDir), $"*", SearchOption.TopDirectoryOnly).ToList());
+            }
+
+            filesForCopy.AddRange(Directory.GetFiles(from, $"arborjs\\*", SearchOption.AllDirectories).ToList());
+
+            filesForCopy.AddRange(Directory.GetFiles(from, "*", SearchOption.TopDirectoryOnly));
+
+            return filesForCopy;
+        }
+
+        private static string GetCurrentOsDirectory()
+        {
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.MacOSX:
+                    return "osx-x64";
+                case PlatformID.Unix:
+                    return "linux-x64";
+                default:
+                    return "win10-x64";
+            }
         }
 
         private int UpdateBinary(ICementUpdater updater)
@@ -183,19 +251,8 @@ exit $exit_code";
                 ConsoleWriter.WriteInfo($"No cement binary updates available ({updater.GetName()})");
                 Log.LogDebug("Already has {0} version", currentCommitHash);
             }
+
             return 0;
-        }
-
-        private static bool HasInstalledCement()
-        {
-            var installDirectory = Helper.GetCementInstallDirectory();
-            return File.Exists(Path.Combine(installDirectory, "dotnet", "cm.exe"));
-        }
-
-        private static bool HasAllCementFiles()
-        {
-            var installDirectory = Helper.GetCementInstallDirectory();
-            return Directory.Exists(Path.Combine(installDirectory, "dotnet", "arborjs"));
         }
 
         private bool UpdateBinaries(ICementUpdater updater, string oldHash, string newHash)
@@ -223,7 +280,7 @@ exit $exit_code";
 
                 if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
-                    var resp = (HttpWebResponse) webException.Response;
+                    var resp = (HttpWebResponse)webException.Response;
                     if (resp.StatusCode == HttpStatusCode.NotFound) // HTTP 404
                     {
                         ConsoleWriter.WriteWarning($"Failed to look for updates on branch {branch}. Server replied 404 ({updater.GetName()})");
@@ -234,16 +291,6 @@ exit $exit_code";
                 ConsoleWriter.WriteWarning($"Failed to look for updates on branch {branch}. {webException.Message} ({updater.GetName()})");
                 return false;
             }
-        }
-
-        private static void SearchAndSaveBranchInSettings(ref string branch)
-        {
-            var settings = CementSettings.Get();
-            if (branch != null)
-                settings.SelfUpdateTreeish = branch;
-            else
-                branch = settings.SelfUpdateTreeish;
-            settings.Save();
         }
 
         private void CopyNewCmExe(string from)
@@ -261,19 +308,36 @@ exit $exit_code";
                 Directory.CreateDirectory(dotnetInstallFolder);
             Log.LogDebug("dotnet install folder: " + dotnetInstallFolder);
 
+            var currOsDir = GetCurrentOsDirectory();
+            var tempPathToCementBinary = Path.Combine(from, currOsDir);
+
             var cm = Path.Combine(from, "cm.exe");
-            if (!IsInstallingCement && File.Exists(Path.Combine(dotnetInstallFolder, "cm.exe"))) 
+            var cmNew = Path.Combine(from, "cm_new.exe");
+
+            if (!File.Exists(cm) && Directory.Exists(tempPathToCementBinary))
+            {
+                var isOsWin = IsWindowsPlatform();
+                cm = Path.Combine(tempPathToCementBinary, $"cm{(isOsWin ? ".exe" : "")}");
+            }
+
+            Log.LogDebug($"cement exe in temp folder: {cm}");
+
+            File.Copy(cm, cmNew, true);
+            if (!IsInstallingCement && File.Exists(Path.Combine(dotnetInstallFolder, "cm.exe")))
                 File.Delete(cm);
 
-            var files = Directory.GetFiles(from, "*", SearchOption.AllDirectories);
-            foreach (var file in files)
+            var includeFiles = GetIncludeFilesForCopy(from, currOsDir);
+
+            foreach (var file in includeFiles)
             {
-                var to = file.Replace(from, dotnetInstallFolder);
+                var to = file.Replace(from, dotnetInstallFolder).Replace($"{currOsDir}\\", "");
                 var toDir = Path.GetDirectoryName(to);
                 if (!Directory.Exists(toDir))
                     Directory.CreateDirectory(toDir);
                 File.Copy(file, to, true);
             }
+
+            Log.LogDebug($"copy files from temp folder to bin completed");
         }
 
         private void AddInstallToPath()
@@ -289,6 +353,7 @@ exit $exit_code";
                 Log.LogWarning("Path is null");
                 path = "";
             }
+
             if (path.ToLower().Contains(toAdd.ToLower()))
                 return;
 
@@ -328,6 +393,7 @@ exit $exit_code";
                 ConsoleWriter.WriteWarning("cement powershell script not found at " + src);
                 return;
             }
+
             File.Copy(src, Path.Combine(moduleDirectory, "cementPM.psm1"), true);
         }
 
@@ -346,6 +412,7 @@ exit $exit_code";
                 ConsoleWriter.WriteWarning("lua script not found at " + src);
                 return;
             }
+
             File.Copy(src, Path.Combine(directory, "cement_completion.lua"), true);
         }
 
@@ -368,12 +435,5 @@ exit $exit_code";
                 .ToArray();
             File.WriteAllLines(file, lines);
         }
-
-        public override string HelpMessage => @"
-    Updates cement itself (automatically updated every 5 hours)
-
-    Usage:
-        cm self-update
-";
     }
 }

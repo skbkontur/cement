@@ -6,6 +6,7 @@
   "DefaultMsBuildVersion": null,
   "CementServer": null,
   "SelfUpdateTreeish": "release",
+  "IsEnabledSelfUpdate": true,
   "Packages": [
     {
       "Name": "sample",
