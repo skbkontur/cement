@@ -303,10 +303,15 @@ exit $exit_code";
         var cm = Path.Combine(from, "cm.exe");
         var cmNew = Path.Combine(from, "cm_new.exe");
 
-        if (!File.Exists(cm) && Directory.Exists(tempPathToCementBinary))
+        if (Directory.Exists(tempPathToCementBinary))
         {
             var isOsWin = IsWindowsPlatform();
-            cm = Path.Combine(tempPathToCementBinary, $"cm{(isOsWin ? ".exe" : "")}");
+            var newcm = Path.Combine(tempPathToCementBinary, $"cm{(isOsWin ? ".exe" : "")}");
+            if (File.Exists(newcm))
+            { 
+                File.Delete(cm);
+                cm = newcm;
+            }
         }
 
         Log.LogDebug($"cement exe in temp folder: {cm}");
