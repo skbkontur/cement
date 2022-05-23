@@ -36,7 +36,7 @@ namespace Commands
 
         protected override int Execute()
         {
-            var response = Usages.GetUsagesResponseAsync(module, branch, configuration).GetAwaiter().GetResult();
+            var response = Usages.GetUsagesResponse(module, branch, configuration);
 
             if (printEdges)
             {

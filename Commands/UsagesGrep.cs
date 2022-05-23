@@ -59,7 +59,7 @@ namespace Commands
                 checkingBranch = currentRepository.HasLocalBranch("master") ?
                     "master" : currentRepository.CurrentLocalTreeish().Value;
 
-            var response = Usages.GetUsagesResponseAsync(moduleName, checkingBranch).GetAwaiter().GetResult();
+            var response = Usages.GetUsagesResponse(moduleName, checkingBranch);
 
             var usages = response.Items
                 .SelectMany(kvp => kvp.Value)

@@ -6,13 +6,15 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Common
 {
-    public class WebClientWithTimeout : HttpClient
+    public class WebClientWithTimeout : WebClient
     {
+        private int Timeout { get; set; }
+
         public WebClientWithTimeout() : this(30000) { }
 
         public WebClientWithTimeout(int timeout)
         {
-            base.Timeout = new TimeSpan(0, 0, timeout/1000);
+            this.Timeout = timeout;
         }
 
         static WebClientWithTimeout()
@@ -20,6 +22,17 @@ namespace Common
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+        }
+
+        protected override WebRequest GetWebRequest(Uri address)
+        {
+            var request = base.GetWebRequest(address);
+            if (request != null)
+            {
+                request.Timeout = this.Timeout;
+            }
+
+            return request;
         }
 
         private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,

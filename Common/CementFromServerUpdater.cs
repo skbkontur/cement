@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -20,24 +18,17 @@ namespace Common
             this.log = log;
         }
 
-        public async Task<string> GetNewCommitHashAsync()
+        public string GetNewCommitHash()
         {
+            var webClient = new WebClient();
             try
             {
-                var client = new HttpClient();
-                using (HttpResponseMessage response = await client.GetAsync($"{CementSettings.Get().CementServer}/api/v1/cement/info/head/" + branch))
-                {
-                    using (HttpContent content = response.Content)
-                    {
-                        var jsonContent = await content.ReadAsStringAsync();
-                        var info =  JsonConvert.DeserializeObject<InfoResponseModel>(jsonContent);
-                        return info?.CommitHash;
-                    }
-                }
+                var info = JsonConvert.DeserializeObject<InfoResponseModel>(webClient.DownloadString($"{CementSettings.Get().CementServer}/api/v1/cement/info/head/" + branch));
+                return info?.CommitHash;
             }
             catch (WebException webException)
             {
-                log.LogError(webException, "Fail self-update, exception: '{ExceptionMessage}'", webException.Message);
+                log.LogError(webException,"Fail self-update, exception: '{ExceptionErrorMessage}'", webException.Message);
                 if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
                     var response = (HttpWebResponse) webException.Response;
@@ -52,17 +43,11 @@ namespace Common
             }
         }
 
-        public async Task<byte[]> GetNewCementZipAsync()
+        public byte[] GetNewCementZip()
         {
-            var client = new HttpClient();
-            using (HttpResponseMessage response = await client.GetAsync($"{server}/api/v1/cement/head/{branch}"))
-            {
-                using (HttpContent content = response.Content)
-                {
-                    var zipContent = await content.ReadAsByteArrayAsync();
-                    return zipContent;
-                }
-            }
+            var client = new WebClient();
+            var zipContent = client.DownloadData($"{server}/api/v1/cement/head/{branch}");
+            return zipContent;
         }
 
         public string GetName()

@@ -4,8 +4,8 @@ namespace Common
 {
     public interface ICementUpdater
     {
-        Task<string> GetNewCommitHashAsync();
-        Task<byte[]> GetNewCementZipAsync();
+        string GetNewCommitHash();
+        byte[] GetNewCementZip();
         string GetName();
     }
 }

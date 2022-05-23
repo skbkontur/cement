@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Common
@@ -16,26 +15,24 @@ namespace Common
             this.log = log;
         }
 
-        public async Task<string> GetNewCommitHashAsync()
+        public string GetNewCommitHash()
         {
             try
             {
-                using (var webClient = new WebClientWithTimeout())
-                {
-                    webClient.DefaultRequestHeaders.Add("User-Agent", "Anything");
-                    var jsonResult = await webClient.GetStringAsync("https://api.github.com/repos/skbkontur/cement/releases/latest");
-                    var release = JsonConvert.DeserializeObject<GitHubRelease>(jsonResult);
-                    if (release.Assets.Count != 1)
-                        throw new CementException("Failed to parse json:\n" + jsonResult);
-                    downloadUri = release.Assets[0].BrowserDownloadUrl;
+                var webClient = new WebClientWithTimeout();
+                webClient.Headers.Add("User-Agent", "Anything");
+                var json = webClient.DownloadString("https://api.github.com/repos/skbkontur/cement/releases/latest");
+                var release = JsonConvert.DeserializeObject<GitHubRelease>(json);
+                if (release.Assets.Count != 1)
+                    throw new CementException("Failed to parse json:\n" + json);
+                downloadUri = release.Assets[0].BrowserDownloadUrl;
 
-                    var parts = downloadUri.Split('/', '.');
-                    return parts[parts.Length - 2];
-                }
+                var parts = downloadUri.Split('/', '.');
+                return parts[parts.Length - 2];
             }
             catch (WebException webException)
             {
-                log.LogError(webException, "Fail self-update, exception: '{ErrorMessage}' ", webException.Message);
+                log.LogError(webException, "Fail self-update, exception: '{ExceptionErrorMessage}' ", webException.Message);
                 if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
                     var response = (HttpWebResponse) webException.Response;
@@ -50,13 +47,11 @@ namespace Common
             }
         }
 
-        public async Task<byte[]> GetNewCementZipAsync()
+        public byte[] GetNewCementZip()
         {
-            using (var client = new WebClientWithTimeout())
-            {
-                var zipContent = await client.GetByteArrayAsync(downloadUri);
-                return zipContent;
-            }
+            var client = new WebClientWithTimeout();
+            var zipContent = client.DownloadData(downloadUri);
+            return zipContent;
         }
 
         public string GetName()
@@ -74,4 +69,5 @@ namespace Common
     {
         [JsonProperty(PropertyName = "browser_download_url")] public string BrowserDownloadUrl;
     }
+
 }

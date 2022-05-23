@@ -224,7 +224,7 @@ exit $exit_code";
         var currentCommitHash = Helper.GetCurrentBuildCommitHash();
 
         ConsoleWriter.WriteProgressWithoutSave("Looking for cement updates");
-        var newCommitHash = updater.GetNewCommitHashAsync().GetAwaiter().GetResult();
+        var newCommitHash = updater.GetNewCommitHash();
         if (newCommitHash == null)
             return -1;
 
@@ -250,7 +250,7 @@ exit $exit_code";
 
         try
         {
-            var zipContent = updater.GetNewCementZipAsync().GetAwaiter().GetResult();
+            var zipContent = updater.GetNewCementZip();
             using (var tempDir = new TempDirectory())
             {
                 File.WriteAllBytes(Path.Combine(tempDir.Path, "cement.zip"), zipContent);

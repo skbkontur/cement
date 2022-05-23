@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Common;
@@ -14,16 +13,16 @@ public sealed class CementFromLocalPathUpdater: ICementUpdater
         this.log = log;
     }
     
-    public Task<string> GetNewCommitHashAsync()
+    public string GetNewCommitHash()
     {
-        return Task.FromResult(DateTime.Now.Ticks.ToString());
+        return DateTime.Now.Ticks.ToString();
     }
 
-    public async Task<byte[]> GetNewCementZipAsync()
+    public byte[] GetNewCementZip()
     {
         try
         {
-            return await File.ReadAllBytesAsync(Path.Combine(GetZipCementDirectory(), "cement.zip"));
+            return File.ReadAllBytes(Path.Combine(GetZipCementDirectory(), "cement.zip"));
         }
         catch (Exception ex)
         {
