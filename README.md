@@ -47,7 +47,7 @@ Use `cm %command_name% /?` or `cm help %command_name%` to view command descripti
 
 All module descriptions are stored in a special git repo. 
 
-In the beginning your cement will use sample modules from https://github.com/KungA/cement-sample-modules/blob/master/modules
+In the beginning your cement will use sample modules from https://github.com/skbkontur/cement-sample-modules/blob/master/modules
 
 Command `cm ls` shows modules A, B, C, D.
 
@@ -93,20 +93,20 @@ Default: false
 
 ## Creating modules
 
-1. Specify git repo witch will contain all module descriptions like https://github.com/KungA/cement-sample-modules
+1. Specify git repo witch will contain all module descriptions like https://github.com/skbkontur/cement-sample-modules
 2. Add empty `modules` file to it and push
-2. Fill it into `%userprofile%\.cement\settings` file instead of `git@github.com:KungA/cement-sample-modules.git`
+2. Fill it into `%userprofile%\.cement\settings` file instead of `git@github.com:skbkontur/cement-sample-modules.git`
 3. Create repositories for your modules like
 
-   https://github.com/KungA/cement-sample-A
+   https://github.com/skbkontur/cement-sample-A
    
-   https://github.com/KungA/cement-sample-B
+   https://github.com/skbkontur/cement-sample-B
    
-   https://github.com/KungA/cement-sample-C
+   https://github.com/skbkontur/cement-sample-C
    
-   https://github.com/KungA/cement-sample-D
+   https://github.com/skbkontur/cement-sample-D
    
-4. Run `cm module add A git@github.com:KungA/cement-sample-A.git` to add your modules to cement
+4. Run `cm module add A git@github.com:skbkontur/cement-sample-A.git` to add your modules to cement
 5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](README-module.yaml.md#moduleyaml)) 
 
 
