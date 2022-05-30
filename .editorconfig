@@ -1,4 +1,19 @@
 ; 4-column space indentation
-[*.{cs,tt}]
+[*]
 indent_style = space
+trim_trailing_whitespace = true
+end_of_line = lf
+
+[*.{cs,csx,vb,vbx,tt}]
 indent_size = 4
+charset = utf-8
+
+[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
+indent_size = 2
+ij_xml_space_inside_empty_tag = true
+
+[*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct}]
+indent_size = 2
+
+[*.{yaml,json}]
+indent_size = 2
