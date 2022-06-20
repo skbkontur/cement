@@ -12,6 +12,8 @@ cp -R ~/bin/dotnet/linux-x64/cm ~/bin/dotnet/cm.exe
 
 rm -rf ~/bin/dotnet/linux-x64/cm
 
+chmod +x ./cm
+
 ./cm reinstall
 
 chmod +x ~/bin/cm
