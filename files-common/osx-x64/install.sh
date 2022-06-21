@@ -17,3 +17,4 @@ chmod +x ./cm
 ./cm reinstall
 
 chmod +x ~/bin/cm
+chmod +x ~/bin/dotnet/cm.exe
