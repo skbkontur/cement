@@ -2,7 +2,7 @@
 
 namespace Common
 {
-    public class BuildData
+    public sealed class BuildData
     {
         public string Target { get; }
         public Tool Tool { get; }
@@ -24,27 +24,5 @@ namespace Common
             Parameters = parameters;
             Name = name;
         }
-    }
-
-    /// <summary>
-    /// An assembling tool
-    /// </summary>
-    public class Tool
-    {
-        public Tool(string name, string version = null)
-        {
-            Name = name;
-            Version = version;
-        }
-
-        public Tool()
-        {
-        }
-
-        // msbuild - for MSBuild.exe at Windows and xbuild at *nix. dotnet - for new .NET Core
-        public string Name { get; set; }
-
-        // assembling tool version, the latest at default
-        public string Version { get; set; }
     }
 }

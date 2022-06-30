@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.Models
 {
-    public class InstallSection
+    public sealed class InstallSection
     {
         public InstallSection(object install, object artifacts)
         {

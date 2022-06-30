@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using Common.Extensions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Common
 {
-    public class ProjectFile
+    public sealed class ProjectFile
     {
         public readonly string LineEndings;
 
@@ -245,7 +244,7 @@ namespace Common
                 .FirstOrDefault();
             if (rootNode == null)
             {
-                ConsoleWriter.WriteError("Really bad cspoj :(");
+                ConsoleWriter.Shared.WriteError("Really bad cspoj :(");
                 return null;
             }
 

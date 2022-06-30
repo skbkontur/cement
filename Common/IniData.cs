@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Common
 {
-    public class IniData
+    public sealed class IniData
     {
         private readonly Dictionary<string, Dictionary<string, string>> data;
 

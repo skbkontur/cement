@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Common.Extensions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Common.Graph
 {
-    public class ParallelBuilder
+    public sealed class ParallelBuilder
     {
         private static readonly ILogger Log = LogManager.GetLogger(typeof(ParallelBuilder));
 

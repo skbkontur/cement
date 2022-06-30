@@ -53,9 +53,12 @@ namespace Commands
 
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
 
+            var cleanerLogger = LogManager.GetLogger<Cleaner>();
             var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
-            var cleaner = new Cleaner(shellRunner);
-            var builder = new ModuleBuilder(Log, buildSettings);
+            var consoleWriter = ConsoleWriter.Shared;
+            var cleaner = new Cleaner(cleanerLogger, shellRunner, consoleWriter);
+            var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
+            var builder = new ModuleBuilder(Log, buildSettings, buildYamlScriptsMaker);
             var builderInitTask = Task.Run(() => builder.Init());
             var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build");
             var modulesToBuild = modulesOrder.UpdatedModules;
@@ -68,7 +71,7 @@ namespace Commands
                 modulesToBuild.RemoveAt(modulesToBuild.Count - 1); //remove root
             }
 
-            var builtStorage = BuiltInfoStorage.Deserialize();
+            var builtStorage = BuildInfoStorage.Deserialize();
             foreach (var dep in modulesToBuild)
                 builtStorage.RemoveBuildInfo(dep.Name);
 
@@ -94,7 +97,7 @@ namespace Commands
             }
         }
 
-        private static bool BuildDepsSequential(ModulesOrder modulesOrder, BuiltInfoStorage builtStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
+        private static bool BuildDepsSequential(ModulesOrder modulesOrder, BuildInfoStorage buildStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
         {
             var built = 1;
             for (var i = 0; i < modulesOrder.BuildOrder.Count - 1; i++)
@@ -103,34 +106,34 @@ namespace Commands
 
                 if (NoNeedToBuild(dep, modulesToBuild))
                 {
-                    builtStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
+                    buildStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
                     continue;
                 }
 
-                ConsoleWriter.WriteProgress($"{dep.ToBuildString(),-49} {$"{built}/{modulesToBuild.Count}",10}");
+                ConsoleWriter.Shared.WriteProgress($"{dep.ToBuildString(),-49} {$"{built}/{modulesToBuild.Count}",10}");
                 try
                 {
                     if (!builder.Build(dep))
                     {
-                        builtStorage.Save();
+                        buildStorage.Save();
                         return false;
                     }
                 }
                 catch (Exception)
                 {
-                    builtStorage.Save();
+                    buildStorage.Save();
                     throw;
                 }
 
-                builtStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
+                buildStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
                 built++;
             }
-            builtStorage.Save();
+            buildStorage.Save();
             Log.LogDebug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
             return true;
         }
 
-        private static bool BuildDepsParallel(ModulesOrder modulesOrder, BuiltInfoStorage builtStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
+        private static bool BuildDepsParallel(ModulesOrder modulesOrder, BuildInfoStorage buildStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
         {
             var parallelBuilder = new ParallelBuilder(modulesOrder.ConfigsGraph);
             var tasks = new List<Task>();
@@ -156,20 +159,20 @@ namespace Commands
                         {
                             parallelBuilder.EndBuild(dep);
 
-                            lock (builtStorage)
-                                builtStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
+                            lock (buildStorage)
+                                buildStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
                             continue;
                         }
 
-                        ConsoleWriter.WriteProgress($"{dep.ToBuildString(),-49} {$"{builtCount}/{modulesToBuild.Count}",10}");
+                        ConsoleWriter.Shared.WriteProgress($"{dep.ToBuildString(),-49} {$"{builtCount}/{modulesToBuild.Count}",10}");
                         var success = builder.Build(dep);
 
                         parallelBuilder.EndBuild(dep, !success);
 
                         if (success)
-                            lock (builtStorage)
+                            lock (buildStorage)
                             {
-                                builtStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
+                                buildStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
                                 builtCount++;
                             }
                     }
@@ -178,7 +181,7 @@ namespace Commands
 
             Task.WaitAll(tasks.ToArray());
 
-            builtStorage.Save();
+            buildStorage.Save();
             Log.LogDebug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
             return !parallelBuilder.IsFailed;
         }
@@ -186,7 +189,7 @@ namespace Commands
         public static void TryNugetRestore(List<Dep> modulesToUpdate, ModuleBuilder builder)
         {
             Log.LogDebug("Restoring NuGet packages");
-            ConsoleWriter.ResetProgress();
+            ConsoleWriter.Shared.ResetProgress();
             try
             {
                 var nugetRunCommand = NuGetHelper.GetNugetRunCommand();
@@ -196,9 +199,9 @@ namespace Commands
                 var deps = modulesToUpdate.GroupBy(d => d.Name).ToList();
                 Parallel.ForEach(deps, Helper.ParallelOptions, group =>
                 {
-                    ConsoleWriter.WriteProgress($"{group.Key,-30} nuget restoring");
+                    ConsoleWriter.Shared.WriteProgress($"{group.Key,-30} nuget restoring");
                     builder.NugetRestore(group.Key, group.Select(d => d.Configuration).ToList(), nugetRunCommand);
-                    ConsoleWriter.SaveToProcessedModules(group.Key);
+                    ConsoleWriter.Shared.SaveToProcessedModules(group.Key);
                 });
             }
             catch (AggregateException ae)
@@ -210,7 +213,7 @@ namespace Commands
                 Log.LogError(e, e.Message);
             }
             Log.LogDebug("OK NuGet packages restored");
-            ConsoleWriter.ResetProgress();
+            ConsoleWriter.Shared.ResetProgress();
         }
 
         private static bool NoNeedToBuild(Dep dep, List<Dep> modulesToBuild)
@@ -218,7 +221,7 @@ namespace Commands
             if (!modulesToBuild.Contains(dep))
             {
                 Log.LogDebug($"{dep.ToBuildString(),-40} *build skipped");
-                ConsoleWriter.WriteSkip($"{dep.ToBuildString(),-40}");
+                ConsoleWriter.Shared.WriteSkip($"{dep.ToBuildString(),-40}");
                 return true;
             }
             return false;

@@ -5,12 +5,12 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class BuildSectionParser
+    public sealed class BuildSectionParser
     {
         private readonly CementSettings settings;
         private const string DefaultToolName = "msbuild";
 
-        public BuildSectionParser() : this(CementSettings.Get())
+        public BuildSectionParser() : this(CementSettingsRepository.Get())
         {
         }
 

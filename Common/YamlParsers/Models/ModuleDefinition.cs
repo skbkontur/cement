@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.Models
 {
-    public class ModuleDefinition
+    public sealed class ModuleDefinition
     {
         public ModuleDefinition(
             [NotNull] IReadOnlyDictionary<string, ModuleConfig> allConfigurations,

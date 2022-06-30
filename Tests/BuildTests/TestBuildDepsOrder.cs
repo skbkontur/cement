@@ -26,7 +26,7 @@ namespace Tests.BuildTests
                 {new Dep("C/full-build"), new List<Dep> {new Dep("D/full-build")}},
                 {new Dep("D/full-build"), new List<Dep> {new Dep("A/full-build")}}
             };
-            Assert.Throws<CementException>(() => BuildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build"));
+            Assert.Throws<CementException>(() => BuildPreparer.Shared.GetTopologicallySortedGraph(graph, "A", "full-build"));
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace Tests.BuildTests
                 new Dep("D/client"),
                 new Dep("C/client"),
                 new Dep("A/full-build")
-            }, BuildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build").ToArray());
+            }, BuildPreparer.Shared.GetTopologicallySortedGraph(graph, "A", "full-build").ToArray());
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace Tests.BuildTests
                     {"client", new DepsData(null, new List<Dep>())}
                 });
                 Helper.SetWorkspace(env.RemoteWorkspace);
-                var result = BuildPreparer.BuildConfigsGraph("A", null);
+                var result = BuildPreparer.Shared.BuildConfigsGraph("A", null);
                 Assert.AreEqual(new[] {new Dep("B", null, "full-build"), new Dep("C/client")}, result[new Dep("A", null, "full-build")].ToArray());
                 Assert.AreEqual(new[] {new Dep("D", null, "full-build")}, result[new Dep("B", null, "full-build")].ToArray());
                 Assert.AreEqual(new Dep[] { }, result[new Dep("D", null, "full-build")].ToArray());

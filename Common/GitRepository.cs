@@ -7,23 +7,28 @@ using Microsoft.Extensions.Logging;
 
 namespace Common
 {
-    public class GitRepository
+    public sealed class GitRepository
     {
+        private readonly BuildHelper buildHelper;
+        private readonly ILogger log;
+
         public string RepoPath { get; }
         public string Workspace { get; }
         public string ModuleName { get; }
         private readonly ShellRunner runner;
         public bool IsGitRepo { get; private set; }
-        private static ILogger log;
         private IList<Branch> RemoteBranches { get; set; }
 
         public GitRepository(string moduleName, string workspace, ILogger log)
         {
+            this.log = log;
+            runner = new ShellRunner(log);
+            buildHelper = BuildHelper.Shared;
+
             ModuleName = moduleName;
             Workspace = workspace;
             RepoPath = Path.Combine(workspace, moduleName);
-            GitRepository.log = log;
-            runner = new ShellRunner(GitRepository.log);
+
             IsGitRepo = Directory.Exists(Path.Combine(workspace, moduleName, ".git"));
         }
 
@@ -333,7 +338,7 @@ namespace Common
             if (File.Exists(gitIgnore))
                 File.Delete(gitIgnore);
             log.LogInformation($"{"[" + ModuleName + "]",-30}Remove from built cache");
-            BuiltHelper.RemoveModuleFromBuiltInfo(ModuleName);
+            buildHelper.RemoveModuleFromBuiltInfo(ModuleName);
 
             var exitCode = runner.RunInDirectory(RepoPath, "git clean -f -d -q");
             if (exitCode != 0)
@@ -392,7 +397,7 @@ namespace Common
         public void ResetHard(string treeish = null)
         {
             log.LogInformation($"{"[" + ModuleName + "]",-30}Reset hard {treeish}");
-            BuiltHelper.RemoveModuleFromBuiltInfo(ModuleName);
+            buildHelper.RemoveModuleFromBuiltInfo(ModuleName);
             runner.RunInDirectory(RepoPath, "git reset --hard " + (treeish == null ? "" : "origin/" + treeish));
         }
 
@@ -460,14 +465,14 @@ namespace Common
                 return;
 
             log.LogInformation($"{"[" + ModuleName + "]",-30}Updating URL");
-            ConsoleWriter.WriteInfo($"Update url for {RepoPath}: {fetchUrl} => {module.Url}");
+            ConsoleWriter.Shared.WriteInfo($"Update url for {RepoPath}: {fetchUrl} => {module.Url}");
             RemoveOrigin();
             AddOrigin(module.Url);
 
             if (module.Pushurl != null)
             {
                 log.LogInformation($"{"[" + ModuleName + "]",-30}Updating push URL");
-                ConsoleWriter.WriteInfo($"Update push url for {RepoPath}: {pushUrl} => {module.Pushurl}");
+                ConsoleWriter.Shared.WriteInfo($"Update push url for {RepoPath}: {pushUrl} => {module.Pushurl}");
                 SetPushUrl(module.Pushurl);
             }
         }
@@ -540,100 +545,6 @@ namespace Common
             {
                 throw new GitPushException($"Failed to push {RepoPath}:{branch}. Error:\n{runner.Output + runner.Errors}");
             }
-        }
-    }
-
-    public class CurrentTreeish
-    {
-        public readonly string Value;
-        public readonly TreeishType Type;
-
-        public CurrentTreeish(TreeishType type, string value)
-        {
-            Value = value;
-            Type = type;
-        }
-    }
-
-    public enum TreeishType
-    {
-        Branch,
-        Tag,
-        CommitHash
-    }
-
-    public class GitCommitException : CementException
-    {
-        public GitCommitException(string s) : base(s)
-        {
-        }
-    }
-
-    public class GitPushException : CementException
-    {
-        public GitPushException(string s)
-            : base(s)
-        {
-        }
-    }
-
-    public class GitRemoteException : CementException
-    {
-        public GitRemoteException(string message) : base(message)
-        {
-        }
-    }
-
-    public class GitBranchException : CementException
-    {
-        public GitBranchException(string message) : base(message)
-        {
-        }
-    }
-
-    public class GitInitException : CementException
-    {
-        public GitInitException(string format) : base(format)
-        {
-        }
-    }
-
-    public class GitCloneException : CementException
-    {
-        public GitCloneException(string message) : base(message)
-        {
-        }
-    }
-
-    public class GitCheckoutException : CementException
-    {
-        public GitCheckoutException(string message)
-            : base(message)
-        {
-        }
-    }
-
-    public class GitPullException : CementException
-    {
-        public GitPullException(string message)
-            : base(message)
-        {
-        }
-    }
-
-    public class GitLocalChangesException : CementException
-    {
-        public GitLocalChangesException(string s)
-            : base(s)
-        {
-        }
-    }
-
-    public class GitTreeishException : CementException
-    {
-        public GitTreeishException(string message)
-            : base(message)
-        {
         }
     }
 }

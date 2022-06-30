@@ -2,7 +2,7 @@ using System;
 
 namespace Common.YamlParsers.Models
 {
-    public class DepSectionItem: IEquatable<DepSectionItem>
+    public sealed class DepSectionItem: IEquatable<DepSectionItem>
     {
         public DepSectionItem(Dep dependency): this(false, dependency)
         {

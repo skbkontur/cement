@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class DepsSectionParser
+    public sealed class DepsSectionParser
     {
         private readonly DepSectionItemParser depSectionItemParser;
 

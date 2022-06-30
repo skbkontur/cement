@@ -2,7 +2,7 @@
 
 namespace Common
 {
-    public class Module
+    public sealed class Module
     {
         public string Name { get; }
         public string Url { get; }

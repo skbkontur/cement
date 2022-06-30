@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Common.Extensions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -38,10 +37,10 @@ namespace Common
         private static Dictionary<string, string> GetVsSetVariables()
         {
             var text = RunVsDevCmd();
-            
+
             if (text == null)
                 return null;
-            
+
             var lines = text.Split('\n');
             var result = new Dictionary<string, string>();
             foreach (var line in lines)
@@ -103,7 +102,7 @@ namespace Common
                         new KeyValuePair<string, string>(
                             Helper.GetEnvVariableByVisualStudioVersion(version),
                             Path.Combine(programFiles.x64, "Microsoft Visual Studio", version, edition, "Common7", "Tools", "VsDevCmd.bat")));
-                
+
                 if (programFiles.x86 != null)
                     paths.Add(
                         new KeyValuePair<string, string>(

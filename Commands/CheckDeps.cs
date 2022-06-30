@@ -39,56 +39,56 @@ namespace Commands
             var ok = true;
             configuration = configuration ?? "full-build";
 
-            ConsoleWriter.WriteInfo($"Checking {configuration} configuration result:");
+            ConsoleWriter.Shared.WriteInfo($"Checking {configuration} configuration result:");
             var result = new DepsChecker(cwd, configuration, Helper.GetModules()).GetCheckDepsResult(findExternal);
             if (result.NoYamlInstallSection.Any())
             {
                 ok = false;
-                ConsoleWriter.WriteWarning("No 'install' section in modules:");
+                ConsoleWriter.Shared.WriteWarning("No 'install' section in modules:");
                 foreach (var m in result.NoYamlInstallSection)
-                    ConsoleWriter.WriteBuildWarning("\t- " + m);
+                    ConsoleWriter.Shared.WriteBuildWarning("\t- " + m);
             }
 
             if (result.NotInDeps.Any())
             {
                 ok = false;
-                ConsoleWriter.WriteWarning("Found references in *csproj, but not found in deps:");
+                ConsoleWriter.Shared.WriteWarning("Found references in *csproj, but not found in deps:");
                 var refs = result.NotInDeps.GroupBy(r => r.Reference);
                 foreach (var group in refs.OrderBy(g => g.Key))
                 {
-                    ConsoleWriter.WriteBuildWarning("\t- " + group.Key);
+                    ConsoleWriter.Shared.WriteBuildWarning("\t- " + group.Key);
                     if (!showAll)
                         continue;
                     foreach (var file in group)
-                        ConsoleWriter.WriteLine("\t\t" + file.CsprojFile);
+                        ConsoleWriter.Shared.WriteLine("\t\t" + file.CsprojFile);
                 }
             }
 
             if (result.NotUsedDeps.Any() && !showShort)
             {
                 ok = false;
-                ConsoleWriter.WriteWarning("Extra deps:");
+                ConsoleWriter.Shared.WriteWarning("Extra deps:");
                 foreach (var m in result.NotUsedDeps)
-                    ConsoleWriter.WriteBuildWarning("\t- " + m);
+                    ConsoleWriter.Shared.WriteBuildWarning("\t- " + m);
             }
 
             var overhead = new SortedSet<string>(result.ConfigOverhead.Where(m => !result.NotUsedDeps.Contains(m)));
             if (overhead.Any() && !showShort)
             {
                 ok = false;
-                ConsoleWriter.WriteWarning("Config overhead:");
+                ConsoleWriter.Shared.WriteWarning("Config overhead:");
                 foreach (var m in overhead)
-                    ConsoleWriter.WriteBuildWarning("\t- " + m);
+                    ConsoleWriter.Shared.WriteBuildWarning("\t- " + m);
             }
 
             if (ok)
             {
-                ConsoleWriter.WriteOk("No problems with deps");
+                ConsoleWriter.Shared.WriteOk("No problems with deps");
             }
             else
             {
                 if (result.NotInDeps.Any())
-                    ConsoleWriter.WriteInfo("See also 'ref fix' command.");
+                    ConsoleWriter.Shared.WriteInfo("See also 'ref fix' command.");
             }
             return 0;
         }

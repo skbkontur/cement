@@ -20,8 +20,8 @@ namespace Commands
             if (subCommand != null && subCommands.ContainsKey(subCommand))
                 return subCommands[subCommand].Run(args);
 
-            ConsoleWriter.WriteError($"Bad arguments: cm analyzer [{subCommand}]");
-            ConsoleWriter.WriteInfo($"Possible arguments: [{string.Join("|", subCommands.Keys)}]");
+            ConsoleWriter.Shared.WriteError($"Bad arguments: cm analyzer [{subCommand}]");
+            ConsoleWriter.Shared.WriteInfo($"Possible arguments: [{string.Join("|", subCommands.Keys)}]");
             return -1;
         }
 

@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace Common
 {
-    public class RulesetFile
+    public sealed class RulesetFile
     {
         private readonly string lineEndings;
 

@@ -5,7 +5,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Common
 {
-    public class DictionaryFriendlyContractResolver : CamelCasePropertyNamesContractResolver
+    public sealed class DictionaryFriendlyContractResolver : CamelCasePropertyNamesContractResolver
     {
         protected override JsonContract CreateContract(Type objectType)
         {

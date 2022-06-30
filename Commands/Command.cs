@@ -38,28 +38,28 @@ namespace Commands
 
                 if (CommandSettings.MeasureElapsedTime)
                 {
-                    ConsoleWriter.WriteInfo("Total time: " + sw.Elapsed);
+                    ConsoleWriter.Shared.WriteInfo("Total time: " + sw.Elapsed);
                     Log.LogDebug("Total time: " + sw.Elapsed);
                 }
                 return exitCode;
             }
             catch (GitLocalChangesException e)
             {
-                Log?.LogWarning("Failed to " + GetType().Name.ToLower(), e);
-                ConsoleWriter.WriteError(e.Message);
+                Log?.LogWarning(e, "Failed to " + GetType().Name.ToLower());
+                ConsoleWriter.Shared.WriteError(e.Message);
                 return -1;
             }
             catch (CementException e)
             {
-                Log?.LogError("Failed to " + GetType().Name.ToLower(), e);
-                ConsoleWriter.WriteError(e.Message);
+                Log?.LogError(e, "Failed to " + GetType().Name.ToLower());
+                ConsoleWriter.Shared.WriteError(e.Message);
                 return -1;
             }
             catch (Exception e)
             {
-                Log?.LogError("Failed to " + GetType().Name.ToLower(), e);
-                ConsoleWriter.WriteError(e.Message);
-                ConsoleWriter.WriteError(e.StackTrace);
+                Log?.LogError(e, "Failed to " + GetType().Name.ToLower());
+                ConsoleWriter.Shared.WriteError(e.Message);
+                ConsoleWriter.Shared.WriteError(e.StackTrace);
                 return -1;
             }
         }
@@ -74,7 +74,7 @@ namespace Commands
             }
             else
             {
-                ConsoleWriter.WriteWarning($"File with feature flags not found in '{featureFlagsConfigPath}'. Reinstalling cement may fix that issue");
+                ConsoleWriter.Shared.WriteWarning($"File with feature flags not found in '{featureFlagsConfigPath}'. Reinstalling cement may fix that issue");
                 FeatureFlags = FeatureFlags.Default;
             }
         }

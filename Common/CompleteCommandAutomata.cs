@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Common
 {
-    public class CompleteCommandAutomata
+    public sealed class CompleteCommandAutomata
     {
         private readonly ILogger log;
         private TokensList root;
@@ -225,39 +225,6 @@ namespace Common
             {
                 {"cm", () => commands}
             };
-        }
-    }
-
-    internal class TokensList : List<KeyValuePair<string, Func<TokensList>>>
-    {
-        public static TokensList Create(IEnumerable<string> items)
-        {
-            var result = new TokensList();
-            foreach (var item in items)
-            {
-                result.Add(item);
-            }
-            return result;
-        }
-
-        public static TokensList Create(IEnumerable<string> items, Func<TokensList> next)
-        {
-            var result = new TokensList();
-            foreach (var item in items)
-            {
-                result.Add(item, next);
-            }
-            return result;
-        }
-
-        public void Add(string key, Func<TokensList> value)
-        {
-            Add(new KeyValuePair<string, Func<TokensList>>(key, value));
-        }
-
-        public void Add(string key)
-        {
-            Add(new KeyValuePair<string, Func<TokensList>>(key, null));
         }
     }
 }

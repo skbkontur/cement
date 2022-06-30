@@ -22,7 +22,7 @@ namespace Commands
 
         protected override int Execute()
         {
-            var cmd = CementSettings.Get().UserCommands[arguments[0]];
+            var cmd = CementSettingsRepository.Get().UserCommands[arguments[0]];
             Log.LogDebug("Run command " + arguments[0] + ": '" + cmd + "'");
             if (arguments.Length > 1)
             {
@@ -40,12 +40,12 @@ namespace Commands
 
         private static int Run(string cmd)
         {
-            ConsoleWriter.WriteInfo("Running command '" + cmd + "'");
+            ConsoleWriter.Shared.WriteInfo("Running command '" + cmd + "'");
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = Helper.OsIsUnix() ? "/bin/bash" : "cmd",
-                Arguments = Helper.OsIsUnix() ? " -lc " : " /c ",
+                FileName = Platform.IsUnix() ? "/bin/bash" : "cmd",
+                Arguments = Platform.IsUnix() ? " -lc " : " /c ",
                 UseShellExecute = false
             };
             startInfo.Arguments = startInfo.Arguments + "\"" + cmd + "\"";

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Extensions;
 using Common.Logging;
 using Common.YamlParsers;
 using Microsoft.Extensions.Logging;
 
 namespace Common
 {
-    public class ModuleGetter
+    public sealed class ModuleGetter
     {
         private readonly List<Module> modules;
         private readonly Dep rootModule;
@@ -23,6 +22,7 @@ namespace Common
         private readonly string mergedBranch;
         private GitRepository rootRepo;
         private string rootRepoTreeish;
+        private readonly CycleDetector cycleDetector;
 
         public ModuleGetter(List<Module> modules, Dep rootModule,
             LocalChangesPolicy userLocalChangesPolicy,
@@ -35,6 +35,7 @@ namespace Common
             this.gitDepth = gitDepth;
             this.verbose = verbose;
             this.mergedBranch = mergedBranch;
+            cycleDetector = new CycleDetector();
         }
 
         public void GetModule()
@@ -57,7 +58,7 @@ namespace Common
             var proceed = new ModulesContainer();
             GetDeps(depsContent.Force, queue, proceed);
 
-            CycleDetector.WarnIfCycle(rootModule.Name, rootModule.Configuration, Log);
+            cycleDetector.WarnIfCycle(rootModule.Name, rootModule.Configuration, Log);
         }
 
         private void TakeDepsToProcessFromQueue(DepsQueue queue, IList<DepWithParent> depsPool,
@@ -96,7 +97,7 @@ namespace Common
             }
 
             if (errorOnMerge)
-                ConsoleWriter.WriteWarning($"Branch '{mergedBranch}' was not merged into some of dependencies");
+                ConsoleWriter.Shared.WriteWarning($"Branch '{mergedBranch}' was not merged into some of dependencies");
         }
 
         private void ProcessDeps(string[] force, List<DepWithParent> depsPool)
@@ -158,7 +159,7 @@ namespace Common
                 force = new[] {Helper.DefineForce(dep.Treeish, rootRepoTreeish)};
                 dep.Treeish = null;
             }
-            ConsoleWriter.WriteProgress(dep.Name + "   " + dep.Treeish);
+            ConsoleWriter.Shared.WriteProgress(dep.Name + "   " + dep.Treeish);
 
             var module = modules.FirstOrDefault(m => m.Name.Equals(dep.Name));
             if (module == null)
@@ -177,7 +178,7 @@ namespace Common
             var repo = new GitRepository(dep.Name, Helper.CurrentWorkspace, Log);
             if (!repo.IsGitRepo)
             {
-                ConsoleWriter.WriteProgress(dep.Name + "   " + dep.Treeish + " cloning");
+                ConsoleWriter.Shared.WriteProgress(dep.Name + "   " + dep.Treeish + " cloning");
                 if (Directory.Exists(Path.Combine(repo.Workspace, repo.ModuleName)))
                     CloneInNotEmptyFolder(module, repo);
                 else
@@ -229,11 +230,11 @@ namespace Common
             {
                 if (repo.BranchWasMerged(mergedBranch))
                 {
-                    ConsoleWriter.WriteOk($"Branch '{mergedBranch}' was merged into {repo.ModuleName}");
+                    ConsoleWriter.Shared.WriteOk($"Branch '{mergedBranch}' was merged into {repo.ModuleName}");
                 }
                 else
                 {
-                    ConsoleWriter.WriteWarning($"Branch '{mergedBranch}' was not merged into {repo.ModuleName}");
+                    ConsoleWriter.Shared.WriteWarning($"Branch '{mergedBranch}' was not merged into {repo.ModuleName}");
                     errorOnMerge = true;
                 }
             }
@@ -258,33 +259,33 @@ namespace Common
             if (getInfo.Pulled)
             {
                 outputTreeish += " *pulled";
-                ConsoleWriter.WriteUpdate(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
+                ConsoleWriter.Shared.WriteUpdate(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
                 Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
                 return;
             }
             if (getInfo.ForcedLocal)
             {
                 outputTreeish += " *forced local";
-                ConsoleWriter.WriteWarning(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
+                ConsoleWriter.Shared.WriteWarning(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
                 Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
                 return;
             }
             if (getInfo.Reset)
             {
                 outputTreeish += " *reset";
-                ConsoleWriter.WriteWarning(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
+                ConsoleWriter.Shared.WriteWarning(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
                 Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
                 return;
             }
             if (getInfo.Changed || getInfo.Cloned)
             {
                 Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish + (getInfo.Cloned ? " *cloned" : " *changed"),-18}    {getInfo.CommitInfo}");
-                ConsoleWriter.WriteUpdate(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
+                ConsoleWriter.Shared.WriteUpdate(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
             }
             else
             {
                 Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish + " *skipped",-18}    {getInfo.CommitInfo}");
-                ConsoleWriter.WriteSkip(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
+                ConsoleWriter.Shared.WriteSkip(GetPrintString(longestModuleName, name, outputTreeish, getInfo.CommitInfo));
             }
         }
 
@@ -301,7 +302,7 @@ namespace Common
                 Log.LogInformation($"{"[" + dep.Name + "]",-30}treeish '{treeish}' was forced");
             }
 
-            ConsoleWriter.WriteProgress(dep.Name + "/" + dep.Configuration + "\t" + treeish);
+            ConsoleWriter.Shared.WriteProgress(dep.Name + "/" + dep.Configuration + "\t" + treeish);
 
             var oldSha = repo.SafeGetCurrentLocalCommitHash();
             var remoteSha = repo.HasRemoteBranch(treeish) ? repo.RemoteCommitHashAtBranch(treeish) : treeish;
@@ -320,7 +321,7 @@ namespace Common
                 getInfo.Reset = true;
             }
 
-            ConsoleWriter.WriteProgress(dep.Name + " looking for remote commit hash");
+            ConsoleWriter.Shared.WriteProgress(dep.Name + " looking for remote commit hash");
             if (hasRemoteBranch && repo.RemoteCommitHashAtBranch(treeish).Equals(oldSha) && repo.CurrentLocalTreeish().Value.Equals(treeish))
             {
                 return;
@@ -328,10 +329,10 @@ namespace Common
 
             if (repo.HasLocalBranch(treeish))
             {
-                ConsoleWriter.WriteProgress(dep.Name + " has local branch " + treeish);
+                ConsoleWriter.Shared.WriteProgress(dep.Name + " has local branch " + treeish);
                 Log.LogInformation($"{"[" + dep.Name + "]",-30}has local branch '{treeish}'");
 
-                ConsoleWriter.WriteProgress(dep.Name + " checkout " + treeish);
+                ConsoleWriter.Shared.WriteProgress(dep.Name + " checkout " + treeish);
                 repo.Checkout(treeish);
                 if (hasRemoteBranch)
                 {
@@ -339,7 +340,7 @@ namespace Common
                         repo.ResetHard(treeish);
                     else
                     {
-                        ConsoleWriter.WriteProgress(dep.Name + " pull " + treeish);
+                        ConsoleWriter.Shared.WriteProgress(dep.Name + " pull " + treeish);
                         repo.Pull(treeish);
                     }
                 }
@@ -347,9 +348,9 @@ namespace Common
             else
             {
                 Log.LogInformation($"{"[" + dep.Name + "]",-30}doesn't have local branch '{treeish}'");
-                ConsoleWriter.WriteProgress(dep.Name + " fetch " + treeish);
+                ConsoleWriter.Shared.WriteProgress(dep.Name + " fetch " + treeish);
                 repo.Fetch(repo.HasRemoteBranch(treeish) ? treeish : "", gitDepth);
-                ConsoleWriter.WriteProgress(dep.Name + " checkout " + treeish);
+                ConsoleWriter.Shared.WriteProgress(dep.Name + " checkout " + treeish);
                 repo.Checkout(treeish);
             }
 
@@ -373,9 +374,9 @@ namespace Common
             {
                 try
                 {
-                    ConsoleWriter.WriteProgress(dep.Name + " cleaning");
+                    ConsoleWriter.Shared.WriteProgress(dep.Name + " cleaning");
                     repo.Clean();
-                    ConsoleWriter.WriteProgress(dep.Name + " resetting");
+                    ConsoleWriter.Shared.WriteProgress(dep.Name + " resetting");
                     repo.ResetHard();
                     Log.LogInformation($"{"[" + dep.Name + "]",-30}Reseted in {i + 1} times");
                     return;
@@ -395,7 +396,7 @@ namespace Common
                 {
                     if (!localBranchForce && repo.HasLocalBranch(f) && !repo.HasRemoteBranch(f))
                     {
-                        ConsoleWriter.WriteWarning(
+                        ConsoleWriter.Shared.WriteWarning(
                             $"Module '{repo.ModuleName}' has local-only branch '{f}' which will not be forced.\nUse --allow-local-branch-force key to force it");
                         continue;
                     }
@@ -415,7 +416,7 @@ namespace Common
             {
                 return LocalChangesAction.Nothing;
             }
-            ConsoleWriter.WriteWarning($"Local changes found in '{repo.RepoPath}'\n{repo.ShowLocalChanges()}");
+            ConsoleWriter.Shared.WriteWarning($"Local changes found in '{repo.RepoPath}'\n{repo.ShowLocalChanges()}");
             switch (userLocalChangesPolicy)
             {
                 case LocalChangesPolicy.FailOnLocalChanges:
@@ -454,48 +455,6 @@ namespace Common
                     return userActions[answer];
                 Console.WriteLine("Unknown choice. Try again");
             }
-        }
-    }
-
-    public enum LocalChangesAction
-    {
-        Nothing,
-        Reset,
-        ForceLocal,
-        Pull
-    }
-
-    public enum LocalChangesPolicy
-    {
-        FailOnLocalChanges,
-        Reset,
-        ForceLocal,
-        Pull,
-        Interactive
-    }
-
-    public class GetInfo
-    {
-        public bool Cloned;
-        public bool Forced => ForcedBranch != null;
-        public string ForcedBranch;
-        public bool Changed;
-        public bool ForcedLocal;
-        public bool Pulled;
-        public bool Reset;
-        public string CommitInfo;
-        public bool HookUpdated;
-
-        public GetInfo()
-        {
-            Cloned = false;
-            ForcedBranch = null;
-            Changed = false;
-            ForcedLocal = false;
-            Pulled = false;
-            Reset = false;
-            HookUpdated = false;
-            CommitInfo = "";
         }
     }
 }

@@ -1,6 +1,6 @@
 namespace Common.YamlParsers.Models
 {
-    public class ModuleConfig
+    public sealed class ModuleConfig
     {
         public string Name {get;set;}
         public bool IsDefault { get; set; }

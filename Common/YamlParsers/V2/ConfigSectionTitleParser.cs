@@ -4,7 +4,7 @@ using Common.YamlParsers.Models;
 
 namespace Common.YamlParsers.V2
 {
-    public class ConfigSectionTitleParser
+    public sealed class ConfigSectionTitleParser
     {
         private const string defaultKeyword = "*default";
         private static readonly char[] separators = {'>', ' ', ','};

@@ -27,7 +27,7 @@ namespace Commands
             var parsedArgs = ArgumentParser.ParseShowParents(args);
             module = (string) parsedArgs["module"];
             if (Helper.GetModules().All(m => m.Name.ToLower() != module.ToLower()))
-                ConsoleWriter.WriteWarning("Module " + module + " not found");
+                ConsoleWriter.Shared.WriteWarning("Module " + module + " not found");
             branch = (string) parsedArgs["branch"];
             configuration = (string) parsedArgs["configuration"];
             showAll = (bool) parsedArgs["all"];
@@ -92,7 +92,7 @@ namespace Commands
 
         private void PrintFooter(DateTime updTime)
         {
-            ConsoleWriter.WriteInfo("Data from cache relevant to the " + updTime);
+            ConsoleWriter.Shared.WriteInfo("Data from cache relevant to the " + updTime);
         }
 
         public override string HelpMessage => @"";

@@ -4,7 +4,7 @@ using Common.YamlParsers.Models;
 
 namespace Common.YamlParsers.V2
 {
-    public class ConfigSectionParser
+    public sealed class ConfigSectionParser
     {
         private readonly ConfigSectionTitleParser configSectionTitleParser;
         private readonly InstallSectionParser installSectionParser;

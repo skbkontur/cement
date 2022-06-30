@@ -16,7 +16,7 @@ namespace Commands
         {
             if (args.Length < 2 || !commands.ContainsKey(args[1]))
             {
-                ConsoleWriter.WriteError("Bad arguments");
+                ConsoleWriter.Shared.WriteError("Bad arguments");
                 return -1;
             }
             return commands[args[1]].Run(args);
@@ -69,6 +69,6 @@ namespace Commands
                 show lines contains ""new Class"" or ""Class.New"" in modules linked to the current, only in *.cs files
 ";
 
-        public bool IsHiddenCommand => CementSettings.Get().CementServer == null;
+        public bool IsHiddenCommand => CementSettingsRepository.Get().CementServer == null;
     }
 }

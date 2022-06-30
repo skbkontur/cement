@@ -36,9 +36,9 @@ namespace Commands
             writer.Close();
             File.Move(yamlTempName, Helper.YamlSpecFile);
 
-            ConsoleWriter.WriteOk("Successfully converted info.");
-            ConsoleWriter.WriteInfo("Check build section.");
-            ConsoleWriter.WriteInfo("Add install section.");
+            ConsoleWriter.Shared.WriteOk("Successfully converted info.");
+            ConsoleWriter.Shared.WriteInfo("Check build section.");
+            ConsoleWriter.Shared.WriteInfo("Add install section.");
             return 0;
         }
 
@@ -94,7 +94,7 @@ namespace Commands
             {
                 var withSameName = childrenDeps.Where(c => c.Name == dep.Name).ToList();
                 if (withSameName.Count() > 1)
-                    ConsoleWriter.WriteError("Fail to delete dep " + dep.Name + " and add");
+                    ConsoleWriter.Shared.WriteError("Fail to delete dep " + dep.Name + " and add");
                 if (withSameName.Count() == 1)
                 {
                     var remove = withSameName.First();

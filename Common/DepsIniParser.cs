@@ -5,7 +5,7 @@ using Common.YamlParsers;
 
 namespace Common
 {
-    public class DepsIniParser
+    public sealed class DepsIniParser
     {
         private readonly IniParser parser;
         private readonly string content;

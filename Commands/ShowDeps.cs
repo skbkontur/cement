@@ -8,6 +8,7 @@ namespace Commands
 {
     public class ShowDeps : Command
     {
+        private readonly ArborJs arborJs;
         private string configuration;
 
         public ShowDeps()
@@ -19,6 +20,7 @@ namespace Commands
                 Location = CommandSettings.CommandLocation.RootModuleDirectory
             })
         {
+            arborJs = new ArborJs();
         }
 
         protected override void ParseArgs(string[] args)
@@ -37,8 +39,8 @@ namespace Commands
             var full = moduleName;
             if (!string.IsNullOrEmpty(configuration))
                 full += "/" + configuration;
-            ArborJs.Show(full, result);
 
+            arborJs.Show(full, result);
             return 0;
         }
 

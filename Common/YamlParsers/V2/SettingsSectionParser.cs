@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class SettingsSectionParser
+    public sealed class SettingsSectionParser
     {
         [NotNull]
         public ModuleSettings Parse([CanBeNull] object settingsSection)

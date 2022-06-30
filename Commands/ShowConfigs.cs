@@ -53,11 +53,11 @@ namespace Commands
                 if (config == defaultConfig)
                 {
                     sb.Append("  *default");
-                    ConsoleWriter.PrintLn(sb.ToString(), ConsoleColor.Green);
+                    ConsoleWriter.Shared.PrintLn(sb.ToString(), ConsoleColor.Green);
                 }
                 else
                 {
-                    ConsoleWriter.WriteLine(sb.ToString());
+                    ConsoleWriter.Shared.WriteLine(sb.ToString());
                 }
             }
             return 0;

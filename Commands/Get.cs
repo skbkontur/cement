@@ -14,6 +14,7 @@ namespace Commands
         private string mergedBranch;
         private bool verbose;
         private int? gitDepth;
+        private readonly CycleDetector cycleDetector;
 
         public Get()
             : base(new CommandSettings
@@ -24,6 +25,7 @@ namespace Commands
                 Location = CommandSettings.CommandLocation.WorkspaceDirectory
             })
         {
+            cycleDetector = new CycleDetector();
         }
 
         protected override void ParseArgs(string[] args)
@@ -55,7 +57,7 @@ namespace Commands
             PackageUpdater.UpdatePackages();
 
             GetModule();
-            CycleDetector.WarnIfCycle(module, configuration, Log);
+            cycleDetector.WarnIfCycle(module, configuration, Log);
 
             Log.LogInformation("SUCCESS get " + module);
             return 0;
@@ -73,7 +75,7 @@ namespace Commands
 
             getter.GetModule();
 
-            ConsoleWriter.WriteInfo("Getting deps for " + module);
+            ConsoleWriter.Shared.WriteInfo("Getting deps for " + module);
             Log.LogInformation("Getting deps list for " + module);
 
             getter.GetDeps();

@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
 namespace Common
 {
-    public static class ArborJs
+    public sealed class ArborJs
     {
-        public static void Show(string moduleName, List<string> lines)
+        public void Show(string moduleName, List<string> lines)
         {
             var arborDir = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "arborjs");
             var templateFileName = Path.Combine(arborDir, "deps_template.html");

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Common
 {
-    public class IniParser
+    public sealed class IniParser
     {
         public IniParser()
         {

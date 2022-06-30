@@ -41,7 +41,7 @@ namespace Commands
             {
                 if (Commands[commandName].IsHiddenCommand)
                     continue;
-                ConsoleWriter.WriteLine($"{commandName,-25}{GetSmallHelp(commandName)}");
+                ConsoleWriter.Shared.WriteLine($"{commandName,-25}{GetSmallHelp(commandName)}");
             }
         }
 

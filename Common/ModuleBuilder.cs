@@ -9,21 +9,23 @@ using Microsoft.Extensions.Logging;
 
 namespace Common
 {
-    public class ModuleBuilder
+    public sealed class ModuleBuilder
     {
         private readonly ILogger log;
         public static long TotalMsbuildTime;
         private readonly BuildSettings buildSettings;
+        private readonly BuildYamlScriptsMaker buildYamlScriptsMaker;
 
-        public ModuleBuilder(ILogger log, BuildSettings buildSettings)
+        public ModuleBuilder(ILogger log, BuildSettings buildSettings, BuildYamlScriptsMaker buildYamlScriptsMaker)
         {
             this.log = log;
             this.buildSettings = buildSettings;
+            this.buildYamlScriptsMaker = buildYamlScriptsMaker;
         }
 
         public void Init()
         {
-            if (!Helper.OsIsUnix())
+            if (!Platform.IsUnix())
             {
                 VsDevHelper.ReplaceVariablesToVs();
                 ModuleBuilderHelper.FindMsBuildsWindows();
@@ -35,7 +37,7 @@ namespace Common
         {
             var runner = PrepareShellRunner();
             var exitCode = runner.RunInDirectory(directory, $"dotnet pack \\\"{projectFileName}\\\" -c {buildConfiguration}");
-            ConsoleWriter.Write(runner.Output);
+            ConsoleWriter.Shared.Write(runner.Output);
             if (exitCode == 0)
                 return true;
             log.LogWarning($"Failed to build nuget package {projectFileName}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
@@ -96,7 +98,7 @@ namespace Common
             catch (Exception e)
             {
                 log.LogError(e, e.Message);
-                ConsoleWriter.WriteError($"Failed to buid {dep}.\n{e}");
+                ConsoleWriter.Shared.WriteError($"Failed to buid {dep}.\n{e}");
                 return false;
             }
         }
@@ -124,7 +126,7 @@ namespace Common
                 var fixedPath = Helper.FixPath(artifact);
                 if (!File.Exists(Path.Combine(Helper.CurrentWorkspace, dep.Name, fixedPath)))
                 {
-                    ConsoleWriter.WriteError($"{artifact} not found in {dep.Name}. Check install section.");
+                    ConsoleWriter.Shared.WriteError($"{artifact} not found in {dep.Name}. Check install section.");
                     log.LogWarning($"{artifact} not found in {dep.Name}");
                 }
             }
@@ -134,7 +136,7 @@ namespace Common
         {
             if (File.Exists(moduleYaml))
             {
-                var scripts = BuildYamlScriptsMaker.PrepareBuildScriptsFromYaml(dep);
+                var scripts = buildYamlScriptsMaker.PrepareBuildScriptsFromYaml(dep);
                 if (scripts.Any(script => script != null))
                     return scripts.All(script => RunBuildScript(dep, script));
             }
@@ -142,7 +144,7 @@ namespace Common
             {
                 return BuildByCmd(dep, cmdFile);
             }
-            ConsoleWriter.WriteSkip($"{dep.ToBuildString(),-40}*content");
+            ConsoleWriter.Shared.WriteSkip($"{dep.ToBuildString(),-40}*content");
             return true;
         }
 
@@ -162,7 +164,7 @@ namespace Common
             {
                 log.LogDebug("Build command: '{0}'", command);
                 if (buildSettings.ShowOutput)
-                    ConsoleWriter.WriteInfo($"BUILDING {command}");
+                    ConsoleWriter.Shared.WriteInfo($"BUILDING {command}");
                 exitCode = runner.RunInDirectory(Path.Combine(Helper.CurrentWorkspace, dep.Name), command, TimeSpan.FromMinutes(60));
             }
 
@@ -186,28 +188,28 @@ namespace Common
 
         private static void PrintBuildFailResult(Dep dep, string buildName, BuildScriptWithBuildData script, ShellRunner runner)
         {
-            ConsoleWriter.WriteBuildError(
+            ConsoleWriter.Shared.WriteBuildError(
                 $"Failed to build {dep.Name}{(dep.Configuration == null ? "" : "/" + dep.Configuration)} {buildName}");
             foreach (var line in runner.Output.Split('\n'))
                 ModuleBuilderHelper.WriteLine(line);
 
-            ConsoleWriter.WriteLine();
-            ConsoleWriter.WriteInfo("Errors summary:");
+            ConsoleWriter.Shared.WriteLine();
+            ConsoleWriter.Shared.WriteInfo("Errors summary:");
             foreach (var line in runner.Output.Split('\n'))
                 ModuleBuilderHelper.WriteIfErrorToStandartStream(line);
 
-            ConsoleWriter.WriteLine($"({script.Script})");
+            ConsoleWriter.Shared.WriteLine($"({script.Script})");
         }
 
         private void PrintBuildResult(Dep dep, string buildName, int warnCount, string elapsedTime, List<string> obsoleteUsages)
         {
-            ConsoleWriter.WriteOk(
+            ConsoleWriter.Shared.WriteOk(
                 $"{dep.ToBuildString() + " " + buildName,-40}{(warnCount == 0 || buildSettings.ShowWarningsSummary ? "" : "warnings: " + warnCount),-15}{elapsedTime,10}");
 
             var obsoleteCount = obsoleteUsages.Count;
             if (buildSettings.ShowWarningsSummary && warnCount > 0)
             {
-                ConsoleWriter.WriteBuildWarning(
+                ConsoleWriter.Shared.WriteBuildWarning(
                     $"       warnings: {warnCount}{(obsoleteCount == 0 ? "" : ", obsolete usages: " + obsoleteCount)} (Use -w key to print warnings or -W to print obsolete usages. You can also use ReSharper to find them.)");
             }
         }
@@ -239,18 +241,6 @@ namespace Common
             if (buildSettings.ShowWarningsSummary)
                 runner.OnOutputChange += ModuleBuilderHelper.WriteIfObsoleteGrouped;
             return runner;
-        }
-    }
-
-    public class BuildScriptWithBuildData
-    {
-        public readonly string Script;
-        public readonly BuildData BuildData;
-
-        public BuildScriptWithBuildData(string script, BuildData buildData)
-        {
-            Script = script;
-            BuildData = buildData;
         }
     }
 }

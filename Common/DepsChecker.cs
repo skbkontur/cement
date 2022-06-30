@@ -6,7 +6,7 @@ using Common.YamlParsers;
 
 namespace Common
 {
-    public class DepsChecker
+    public sealed class DepsChecker
     {
         private readonly List<BuildData> buildData;
         private readonly DepsReferencesCollector depsRefsCollector;
@@ -100,99 +100,6 @@ namespace Common
         {
             refs.RemoveWhere(r => r == "msbuild" || r.StartsWith("msbuild/") || r.StartsWith("msbuild\\"));
             refs.RemoveWhere(r => r == "nuget" || r.StartsWith("nuget/") || r.StartsWith("nuget\\"));
-        }
-    }
-
-    public class ReferenceWithCsproj
-    {
-        public readonly string CsprojFile;
-        public readonly string Reference;
-
-        public ReferenceWithCsproj(string reference, string csprojFile)
-        {
-            Reference = reference;
-            CsprojFile = csprojFile;
-        }
-    }
-
-    public class CheckDepsResult
-    {
-        public readonly SortedSet<string> NotUsedDeps;
-        public readonly List<ReferenceWithCsproj> NotInDeps;
-        public readonly SortedSet<string> NoYamlInstallSection;
-        public readonly SortedSet<string> ConfigOverhead;
-
-        public CheckDepsResult(SortedSet<string> notUsedDeps, List<ReferenceWithCsproj> notInDeps,
-            SortedSet<string> noYamlInstall, SortedSet<string> configOverhead)
-        {
-            NotUsedDeps = notUsedDeps;
-            NotInDeps = notInDeps;
-            NoYamlInstallSection = noYamlInstall;
-            ConfigOverhead = configOverhead;
-        }
-    }
-
-    public class DepsReferencesCollector
-    {
-        private readonly List<Dep> deps;
-        private readonly string workspace;
-
-        public DepsReferencesCollector(string modulePath, string config)
-        {
-            workspace = Directory.GetParent(modulePath).FullName;
-            deps = new DepsYamlParser(new FileInfo(modulePath)).Get(config).Deps;
-        }
-
-        public DepsReferenceSearchModel GetRefsFromDeps()
-        {
-            var notFoundInstall = new List<string>();
-            var resultInstallData = new List<InstallData>();
-
-            foreach (var dep in deps)
-            {
-                if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, dep.Name)))
-                {
-                    ConsoleWriter.WriteError("Module " + dep.Name + " not found.");
-                    continue;
-                }
-
-                var depInstall = new InstallCollector(Path.Combine(workspace, dep.Name)).Get(dep.Configuration);
-                if (!depInstall.Artifacts.Any())
-                {
-                    if (!Yaml.Exists(dep.Name) || !IsContentModule(dep))
-                        notFoundInstall.Add(dep.Name);
-                }
-                else
-                {
-                    depInstall.ModuleName = dep.Name;
-                    depInstall.InstallFiles =
-                        depInstall.InstallFiles.Select(reference => reference.Replace('/', '\\')).ToList();
-                    depInstall.Artifacts =
-                        depInstall.Artifacts.Select(reference => reference.Replace('/', '\\')).ToList();
-                    depInstall.CurrentConfigurationInstallFiles =
-                        depInstall.CurrentConfigurationInstallFiles.Select(reference => reference.Replace('/', '\\')).ToList();
-                    resultInstallData.Add(depInstall);
-                }
-            }
-            return new DepsReferenceSearchModel(resultInstallData, notFoundInstall);
-        }
-
-        private static bool IsContentModule(Dep dep)
-        {
-            return Yaml.SettingsParser(dep.Name).Get().IsContentModule || Yaml.BuildParser(dep.Name).Get(dep.Configuration)
-                .All(t => t.Target == "None");
-        }
-    }
-
-    public class DepsReferenceSearchModel
-    {
-        public List<InstallData> FoundReferences;
-        public List<string> NotFoundInstallSection;
-
-        public DepsReferenceSearchModel(List<InstallData> found, List<string> notFound)
-        {
-            FoundReferences = found;
-            NotFoundInstallSection = notFound;
         }
     }
 }

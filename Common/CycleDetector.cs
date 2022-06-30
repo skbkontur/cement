@@ -1,57 +1,56 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Common.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Common
 {
-    public static class CycleDetector
+    public sealed class CycleDetector
     {
-        private static readonly ISet<string> ModulesInProcessing = new HashSet<string>();
-        private static readonly ISet<string> VisitedConfigurations = new HashSet<string>();
+        private readonly ISet<string> modulesInProcessing = new HashSet<string>();
+        private readonly ISet<string> visitedConfigurations = new HashSet<string>();
 
-        public static void WarnIfCycle(string rootModuleName, string configuration, ILogger log)
+        public void WarnIfCycle(string rootModuleName, string configuration, ILogger log)
         {
             log.LogInformation("Looking for cycles");
-            ConsoleWriter.WriteProgress("Looking for cycles");
+            ConsoleWriter.Shared.WriteProgress("Looking for cycles");
             var cycle = TryFindCycle(rootModuleName + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration));
             if (cycle != null)
             {
                 log.LogWarning("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
-                ConsoleWriter.WriteWarning("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
+                ConsoleWriter.Shared.WriteWarning("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
             }
-            ConsoleWriter.ResetProgress();
+            ConsoleWriter.Shared.ResetProgress();
         }
 
-        public static List<string> TryFindCycle(string moduleName)
+        public List<string> TryFindCycle(string moduleName)
         {
             var cycle = new List<string>();
-            ModulesInProcessing.Clear();
-            VisitedConfigurations.Clear();
+            modulesInProcessing.Clear();
+            visitedConfigurations.Clear();
             var cycleFound = Dfs(new Dep(moduleName), cycle);
             cycle.Reverse();
             return cycleFound ? cycle : null;
         }
 
-        private static bool Dfs(Dep dep, List<string> cycle)
+        private bool Dfs(Dep dep, List<string> cycle)
         {
             dep.UpdateConfigurationIfNull();
             var depNameAndConfig = dep.Name + Helper.ConfigurationDelimiter + dep.Configuration;
-            ModulesInProcessing.Add(depNameAndConfig);
-            VisitedConfigurations.Add(depNameAndConfig);
+            modulesInProcessing.Add(depNameAndConfig);
+            visitedConfigurations.Add(depNameAndConfig);
             var deps = new DepsParser(Path.Combine(Helper.CurrentWorkspace, dep.Name)).Get(dep.Configuration).Deps ?? new List<Dep>();
             foreach (var d in deps)
             {
                 d.UpdateConfigurationIfNull();
                 var currentDep = d.Name + Helper.ConfigurationDelimiter + d.Configuration;
-                if (ModulesInProcessing.Contains(currentDep))
+                if (modulesInProcessing.Contains(currentDep))
                 {
                     cycle.Add(currentDep);
                     cycle.Add(depNameAndConfig);
                     return true;
                 }
-                if (VisitedConfigurations.Contains(currentDep))
+                if (visitedConfigurations.Contains(currentDep))
                     continue;
                 if (Dfs(d, cycle))
                 {
@@ -59,7 +58,7 @@ namespace Common
                     return true;
                 }
             }
-            ModulesInProcessing.Remove(depNameAndConfig);
+            modulesInProcessing.Remove(depNameAndConfig);
             return false;
         }
     }

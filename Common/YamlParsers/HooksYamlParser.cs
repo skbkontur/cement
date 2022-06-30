@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Common.YamlParsers
 {
-    public class HooksYamlParser : ConfigurationYamlParser
+    public sealed class HooksYamlParser : ConfigurationYamlParser
     {
         public HooksYamlParser(FileInfo moduleName) : base(moduleName)
         {

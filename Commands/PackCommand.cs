@@ -38,7 +38,7 @@ namespace Commands
             var projectPath = Path.GetFullPath(project);
             var csproj = new ProjectFile(projectPath);
             var deps = new DepsParser(modulePath).Get(configuration);
-            ConsoleWriter.WriteInfo("patching csproj");
+            ConsoleWriter.Shared.WriteInfo("patching csproj");
             var patchedDocument = csproj.CreateCsProjWithNugetReferences(deps.Deps, preRelease);
             var backupFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "backup." + Path.GetFileName(projectPath));
             if (File.Exists(backupFileName))
@@ -47,11 +47,10 @@ namespace Commands
             try
             {
                 XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
-                var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
-                var cleaner = new Cleaner(shellRunner);
-                var moduleBuilder = new ModuleBuilder(Log, buildSettings);
+                var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
+                var moduleBuilder = new ModuleBuilder(Log, buildSettings, buildYamlScriptsMaker);
                 moduleBuilder.Init();
-                ConsoleWriter.WriteInfo("start pack");
+                ConsoleWriter.Shared.WriteInfo("start pack");
                 if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))
                     return -1;
             }

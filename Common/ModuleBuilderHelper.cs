@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Common.Extensions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +14,7 @@ namespace Common
 
         public static MsBuildLikeTool FindMsBuild(string version, string moduleName)
         {
-            if (Helper.OsIsUnix())
+            if (Platform.IsUnix())
                 return new MsBuildLikeTool(FindMsBuildUnix(version, moduleName));
 
             var msBuilds = FindMsBuildsWindows();
@@ -151,7 +150,7 @@ namespace Common
 
         public static void KillMsBuild(ILogger log)
         {
-            if (!CementSettings.Get().KillMsBuild || Rider.IsRunning)
+            if (!CementSettingsRepository.Get().KillMsBuild || Rider.IsRunning)
                 return;
 
             try
@@ -200,7 +199,7 @@ namespace Common
         {
             if (IsWarning(line))
             {
-                ConsoleWriter.WriteLineBuildWarning(line);
+                ConsoleWriter.Shared.WriteLineBuildWarning(line);
             }
         }
 
@@ -208,7 +207,7 @@ namespace Common
         {
             if (IsObsoleteWarning(line))
             {
-                ConsoleWriter.WriteLineBuildWarning(line);
+                ConsoleWriter.Shared.WriteLineBuildWarning(line);
             }
         }
 
@@ -222,7 +221,7 @@ namespace Common
                 if (PrintedObsolete.Contains(line))
                     return;
                 PrintedObsolete.Add(line);
-                ConsoleWriter.WriteLineBuildWarning(line);
+                ConsoleWriter.Shared.WriteLineBuildWarning(line);
             }
         }
 
@@ -244,27 +243,27 @@ namespace Common
         public static void WriteIfError(string line)
         {
             if (IsError(line))
-                ConsoleWriter.WriteBuildError(line);
+                ConsoleWriter.Shared.WriteBuildError(line);
         }
 
         public static void WriteIfErrorToStandartStream(string line)
         {
             if (IsError(line))
-                ConsoleWriter.PrintLn(line, ConsoleColor.Red);
+                ConsoleWriter.Shared.PrintLn(line, ConsoleColor.Red);
         }
 
         public static void WriteLine(string line)
         {
             if (IsError(line))
-                ConsoleWriter.WriteBuildError(line);
+                ConsoleWriter.Shared.WriteBuildError(line);
             else if (IsWarning(line))
-                ConsoleWriter.WriteBuildWarning(line);
-            else ConsoleWriter.WriteLine(line);
+                ConsoleWriter.Shared.WriteBuildWarning(line);
+            else ConsoleWriter.Shared.WriteLine(line);
         }
 
         public static void WriteProgress(string line)
         {
-            ConsoleWriter.WriteProgress(line);
+            ConsoleWriter.Shared.WriteProgress(line);
         }
     }
 }

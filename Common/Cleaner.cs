@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using Common.Extensions;
-using Common.Logging;
 using Common.YamlParsers;
 using Microsoft.Extensions.Logging;
 using net.r_eg.MvsSln;
@@ -16,11 +11,14 @@ namespace Common
     public sealed class Cleaner
     {
         private readonly ShellRunner shellRunner;
-        private readonly ILogger<Cleaner> log = LogManager.GetLogger<Cleaner>();
+        private readonly ILogger<Cleaner> log;
+        private readonly ConsoleWriter consoleWriter;
 
-        public Cleaner(ShellRunner shellRunner)
+        public Cleaner(ILogger<Cleaner> log, ShellRunner shellRunner, ConsoleWriter consoleWriter)
         {
+            this.log = log;
             this.shellRunner = shellRunner;
+            this.consoleWriter = consoleWriter;
         }
 
         public bool IsNetStandard(Dep dep)
@@ -48,7 +46,7 @@ namespace Common
             }
             catch (Exception e)
             {
-                ConsoleWriter.WriteInfo($"Could not check TargetFramework in '{dep.Name}'. Continue building without clean");
+                consoleWriter.WriteInfo($"Could not check TargetFramework in '{dep.Name}'. Continue building without clean");
                 log.LogWarning(e, $"An error occured when checking target framework in '{dep.Name}'");
                 return false;
             }
@@ -59,23 +57,23 @@ namespace Common
         public void Clean(Dep dep)
         {
             log.LogInformation($"Start cleaning {dep.Name}");
-            ConsoleWriter.WriteProgress($"Cleaning {dep.Name}");
+            consoleWriter.WriteProgress($"Cleaning {dep.Name}");
 
             var command = "git clean -d -f -x"; // -d               - remove whole directory
                                                 // -f               - force delete
-                                                // -x               - remove ignored files, too 
+                                                // -x               - remove ignored files, too
 
             var exitCode = shellRunner.RunInDirectory(Path.Combine(Helper.CurrentWorkspace, dep.Name), command, TimeSpan.FromMinutes(1), RetryStrategy.None);
 
             if (exitCode != 0)
             {
                 log.LogWarning($"'git clean' finished with non-zero exit code: '{exitCode}'");
-                ConsoleWriter.WriteInfo($"Could not clean {dep.Name}. Continue building without clean");
+                consoleWriter.WriteInfo($"Could not clean {dep.Name}. Continue building without clean");
                 return;
             }
 
             log.LogInformation($"{dep.Name} was cleaned successfully");
-            ConsoleWriter.WriteOk($"{dep.Name} was cleaned successfully");
+            consoleWriter.WriteOk($"{dep.Name} was cleaned successfully");
         }
 
         private bool IsProjectsTargetFrameworkIsNetStandard(string csprojPath)

@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Common
 {
-    public class InstallData
+    public sealed class InstallData
     {
         public string ModuleName { get; set; }
 

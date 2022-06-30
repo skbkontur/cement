@@ -4,7 +4,7 @@ using Common.YamlParsers;
 
 namespace Common
 {
-    public class ConfigurationParser : IConfigurationParser
+    public sealed class ConfigurationParser : IConfigurationParser
     {
         private readonly IConfigurationParser parser;
 

@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.Logging;
 using Common.YamlParsers;
 using Microsoft.Extensions.Logging;
 
 namespace Common
 {
-    public class BuildPreparer
+    public sealed class BuildPreparer
     {
+        private static readonly Dictionary<string, bool> DepConfigurationExistsCache = new Dictionary<string, bool>();
+
         private readonly ILogger log;
 
         public BuildPreparer(ILogger log)
@@ -16,24 +19,26 @@ namespace Common
             this.log = log;
         }
 
+        public static BuildPreparer Shared { get; } = new(LogManager.GetLogger<BuildPreparer>());
+
         public ModulesOrder GetModulesOrder(string moduleName, string configuration)
         {
             var modulesOrder = new ModulesOrder();
             log.LogDebug("Building configurations graph");
-            ConsoleWriter.WriteProgress("Building configurations graph");
+            ConsoleWriter.Shared.WriteProgress("Building configurations graph");
             modulesOrder.ConfigsGraph = BuildConfigsGraph(moduleName, configuration);
             modulesOrder.ConfigsGraph = EraseExtraChildren(modulesOrder.ConfigsGraph);
             modulesOrder.BuildOrder = GetTopologicallySortedGraph(modulesOrder.ConfigsGraph, moduleName, configuration);
 
             log.LogDebug("Getting current commit hashes");
-            ConsoleWriter.WriteProgress("Getting current commit hashes");
+            ConsoleWriter.Shared.WriteProgress("Getting current commit hashes");
             modulesOrder.CurrentCommitHashes = GetCurrentCommitHashes(modulesOrder.ConfigsGraph);
-            modulesOrder.UpdatedModules = BuiltInfoStorage.Deserialize().GetUpdatedModules(modulesOrder.BuildOrder, modulesOrder.CurrentCommitHashes);
-            ConsoleWriter.ResetProgress();
+            modulesOrder.UpdatedModules = BuildInfoStorage.Deserialize().GetUpdatedModules(modulesOrder.BuildOrder, modulesOrder.CurrentCommitHashes);
+            ConsoleWriter.Shared.ResetProgress();
             return modulesOrder;
         }
 
-        private static Dictionary<Dep, List<Dep>> EraseExtraChildren(Dictionary<Dep, List<Dep>> configsGraph)
+        private Dictionary<Dep, List<Dep>> EraseExtraChildren(Dictionary<Dep, List<Dep>> configsGraph)
         {
             var vertices = configsGraph.Select(e => e.Key).ToList();
             var deletedChildren = new List<Dep>();
@@ -96,12 +101,12 @@ namespace Common
             }
             catch (Exception e)
             {
-                ConsoleWriter.WriteWarning($"Failed to retrieve local commit hash for '{moduleName}': {e}");
+                ConsoleWriter.Shared.WriteWarning($"Failed to retrieve local commit hash for '{moduleName}': {e}");
                 return null;
             }
         }
 
-        public static List<Dep> GetTopologicallySortedGraph(Dictionary<Dep, List<Dep>> graph, string root, string config, bool printCycle = true)
+        public List<Dep> GetTopologicallySortedGraph(Dictionary<Dep, List<Dep>> graph, string root, string config, bool printCycle = true)
         {
             var visitedConfigurations = new HashSet<Dep>();
             var processingConfigs = new List<Dep>();
@@ -141,7 +146,7 @@ namespace Common
             result.Add(dep);
         }
 
-        public static Dictionary<Dep, List<Dep>> BuildConfigsGraph(string moduleName, string config)
+        public Dictionary<Dep, List<Dep>> BuildConfigsGraph(string moduleName, string config)
         {
             var graph = new Dictionary<Dep, List<Dep>>();
             var visitedConfigurations = new HashSet<Dep>();
@@ -149,7 +154,6 @@ namespace Common
             return graph;
         }
 
-        private static readonly Dictionary<string, bool> DepConfigurationExistsCache = new Dictionary<string, bool>();
         private static void CheckAndUpdateDepConfiguration(Dep dep)
         {
             dep.UpdateConfigurationIfNull();
@@ -165,7 +169,7 @@ namespace Common
             }
             if (!DepConfigurationExistsCache[key])
             {
-                ConsoleWriter.WriteWarning(
+                ConsoleWriter.Shared.WriteWarning(
                     $"Configuration '{dep.Configuration}' was not found in {dep.Name}. Will take full-build config");
                 dep.Configuration = "full-build";
             }
@@ -188,13 +192,5 @@ namespace Common
                 }
             }
         }
-    }
-
-    public class ModulesOrder
-    {
-        public List<Dep> BuildOrder;
-        public List<Dep> UpdatedModules;
-        public Dictionary<string, string> CurrentCommitHashes;
-        public Dictionary<Dep, List<Dep>> ConfigsGraph;
     }
 }

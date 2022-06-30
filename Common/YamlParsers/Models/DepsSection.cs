@@ -1,6 +1,6 @@
 namespace Common.YamlParsers.Models
 {
-    public class DepsSection
+    public sealed class DepsSection
     {
         public DepsSection(string[] force = null) : this(force, new DepSectionItem[0])
         {

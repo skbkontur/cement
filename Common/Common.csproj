@@ -3,6 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Product>Common</Product>
     <Copyright>Copyright © 2022</Copyright>
+    <Nullable>warnings</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />

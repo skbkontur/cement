@@ -69,7 +69,7 @@ namespace Commands
                     }
                     catch (CementException exception)
                     {
-                        ConsoleWriter.WriteError(exception.ToString());
+                        ConsoleWriter.Shared.WriteError(exception.ToString());
                         badParents.Add(new KeyValuePair<Dep, string>(depParent,
                             exception.Message +
                             "\nLast command output:\n" +
@@ -88,20 +88,20 @@ namespace Commands
         private static void WriteStat(List<KeyValuePair<Dep, string>> badParents, List<Dep> goodParents)
         {
             if (!badParents.Any())
-                ConsoleWriter.WriteOk("All usages builds is fine");
+                ConsoleWriter.Shared.WriteOk("All usages builds is fine");
             else
             {
-                ConsoleWriter.WriteOk("Ok builds:");
+                ConsoleWriter.Shared.WriteOk("Ok builds:");
                 if (!goodParents.Any())
                     Console.WriteLine("none");
                 foreach (var dep in goodParents)
-                    ConsoleWriter.WriteOk(dep.ToString());
+                    ConsoleWriter.Shared.WriteOk(dep.ToString());
                 Console.WriteLine();
-                ConsoleWriter.WriteError("There were some errors in modules:");
+                ConsoleWriter.Shared.WriteError("There were some errors in modules:");
                 foreach (var pair in badParents)
                 {
                     Console.WriteLine();
-                    ConsoleWriter.WriteError(pair.Key.ToString());
+                    ConsoleWriter.Shared.WriteError(pair.Key.ToString());
                     Console.WriteLine(pair.Value);
                 }
             }
@@ -115,24 +115,24 @@ namespace Commands
 
         private void BuildParent(Dep depParent)
         {
-            ConsoleWriter.WriteInfo("Checking parent " + depParent);
+            ConsoleWriter.Shared.WriteInfo("Checking parent " + depParent);
             if (new Get().Run(new[] {"get", depParent.Name, "-c", depParent.Configuration}) != 0)
                 throw new CementException("Failed get module " + depParent.Name);
-            ConsoleWriter.ResetProgress();
+            ConsoleWriter.Shared.ResetProgress();
             if (new Get().Run(new[] {"get", moduleName, branch}) != 0)
                 throw new CementException("Failed get current module " + moduleName);
-            ConsoleWriter.ResetProgress();
+            ConsoleWriter.Shared.ResetProgress();
 
             using (new DirectoryJumper(Path.Combine(workspace, depParent.Name)))
             {
                 if (new BuildDeps().Run(new[] {"build-deps", "-c", depParent.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + depParent.Name);
-                ConsoleWriter.ResetProgress();
+                ConsoleWriter.Shared.ResetProgress();
                 if (new Build().Run(new[] {"build"}) != 0)
                     throw new CementException("Failed to build " + depParent.Name);
-                ConsoleWriter.ResetProgress();
+                ConsoleWriter.Shared.ResetProgress();
             }
-            ConsoleWriter.WriteOk($"{depParent} build fine");
+            ConsoleWriter.Shared.WriteOk($"{depParent} build fine");
             Console.WriteLine();
         }
 

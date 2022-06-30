@@ -24,13 +24,13 @@ namespace Commands
             }
             catch (CementException e)
             {
-                ConsoleWriter.WriteError(e.Message);
+                ConsoleWriter.Shared.WriteError(e.Message);
                 return -1;
             }
             catch (Exception e)
             {
-                ConsoleWriter.WriteError(e.Message);
-                ConsoleWriter.WriteError(e.StackTrace);
+                ConsoleWriter.Shared.WriteError(e.Message);
+                ConsoleWriter.Shared.WriteError(e.StackTrace);
                 return -1;
             }
         }
@@ -39,7 +39,7 @@ namespace Commands
         {
             if (package.Type != "git")
             {
-                ConsoleWriter.WriteError("You should add/change local modules file manually");
+                ConsoleWriter.Shared.WriteError("You should add/change local modules file manually");
                 {
                     return -1;
                 }
@@ -79,7 +79,7 @@ namespace Commands
                 repo.Clone(package.Url);
                 if (FindModule(repo, moduleName) != null)
                 {
-                    ConsoleWriter.WriteError("Module " + moduleName + " already exists in " + package.Name);
+                    ConsoleWriter.Shared.WriteError("Module " + moduleName + " already exists in " + package.Name);
                     return -1;
                 }
                 WriteModuleDescription(moduleName, pushUrl, fetchUrl, repo);
@@ -89,7 +89,7 @@ namespace Commands
                 repo.Push("master");
             }
 
-            ConsoleWriter.WriteOk($"Successfully added {moduleName} to {package.Name} package.");
+            ConsoleWriter.Shared.WriteOk($"Successfully added {moduleName} to {package.Name} package.");
 
             PackageUpdater.UpdatePackages();
 
@@ -106,12 +106,12 @@ namespace Commands
                 var toChange = FindModule(repo, moduleName);
                 if (toChange == null)
                 {
-                    ConsoleWriter.WriteError("Unable to find module " + moduleName + " in package " + package.Name);
+                    ConsoleWriter.Shared.WriteError("Unable to find module " + moduleName + " in package " + package.Name);
                     return -1;
                 }
                 if (toChange.Url == fetchUrl && toChange.Pushurl == pushUrl)
                 {
-                    ConsoleWriter.WriteInfo("Your changes were already made");
+                    ConsoleWriter.Shared.WriteInfo("Your changes were already made");
                     return 0;
                 }
 
@@ -122,7 +122,7 @@ namespace Commands
                 repo.Push("master");
             }
 
-            ConsoleWriter.WriteOk("Success changed " + moduleName + " in " + package.Name);
+            ConsoleWriter.Shared.WriteOk("Success changed " + moduleName + " in " + package.Name);
             return 0;
         }
 

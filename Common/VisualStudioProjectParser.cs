@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace Common
 {
-    public class VisualStudioProjectParser
+    public sealed class VisualStudioProjectParser
     {
         private readonly string solutionPath;
         private readonly string[] solutionContent;
@@ -67,7 +67,7 @@ namespace Common
         {
             if (!File.Exists(csprojPath))
             {
-                ConsoleWriter.WriteError(csprojPath + " not found");
+                ConsoleWriter.Shared.WriteError(csprojPath + " not found");
                 return new List<string>();
             }
             var result = new List<string>();
@@ -205,7 +205,7 @@ namespace Common
             }
             catch (Exception)
             {
-                ConsoleWriter.WriteError($"Failed to find reference {reference}");
+                ConsoleWriter.Shared.WriteError($"Failed to find reference {reference}");
                 return false;
             }
         }

@@ -2,17 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.DepsValidators;
 
 namespace Common.YamlParsers
 {
-    public class DepsYamlParser : ConfigurationYamlParser
+    public sealed class DepsYamlParser : ConfigurationYamlParser
     {
-        public DepsYamlParser(FileInfo moduleName) : base(moduleName)
+        private readonly IDepsValidatorFactory depsValidatorFactory;
+
+        public DepsYamlParser(FileInfo moduleName)
+            : base(moduleName)
         {
+            // TODO: use dependency injection
+            depsValidatorFactory = new DepsValidatorFactory();
         }
 
-        public DepsYamlParser(string moduleName, string contents) : base(moduleName, contents)
+        public DepsYamlParser(string moduleName, string contents)
+            : base(moduleName, contents)
         {
+            // TODO: use dependency injection
+            depsValidatorFactory = new DepsValidatorFactory();
         }
 
         public DepsData Get(string configuration = null)
@@ -20,7 +29,7 @@ namespace Common.YamlParsers
             configuration = configuration ?? GetDefaultConfigurationName();
             if (!ConfigurationExists(configuration))
             {
-                ConsoleWriter.WriteWarning(
+                ConsoleWriter.Shared.WriteWarning(
                     $"Configuration '{configuration}' was not found in {ModuleName}. Will take full-build config");
                 if (!ConfigurationExists("full-build"))
                     throw new NoSuchConfigurationException(ModuleName, "full-build and " + configuration);
@@ -57,7 +66,7 @@ namespace Common.YamlParsers
             foreach (Dep dep in relaxedDeps)
                 if (relaxedDeps.Count(d => d.Name.Equals(dep.Name)) > 1)
                 {
-                    ConsoleWriter.WriteError(string.Format(@"Module duplication found in 'module.yaml' for dep {0}. To depend on different variations of same dep, you must turn it off.
+                    ConsoleWriter.Shared.WriteError(string.Format(@"Module duplication found in 'module.yaml' for dep {0}. To depend on different variations of same dep, you must turn it off.
 Example:
 client:
   dep:
@@ -114,6 +123,18 @@ sdk:
             {
                 var currentConfig = configQueue[idx];
                 var currentDeps = GetDepsFromConfig(currentConfig).Deps;
+
+                var depsValidator = depsValidatorFactory.Create(currentConfig);
+                if (depsValidator.Validate(currentDeps, out var validateErrors) != DepsValidateResult.Valid)
+                {
+                    foreach (var validateError in validateErrors)
+                        ConsoleWriter.Shared.WriteWarning(validateError);
+
+                    var variable = Environment.GetEnvironmentVariable("CEMENT__STRICT_DEPS");
+                    if (bool.TryParse(variable, out var strict) && strict)
+                        throw new BadYamlException(ModuleName, "deps", "The module dependencies are not valid");
+                }
+
                 currentDeps.AddRange(deps.Where(dep => !currentDeps.Contains(dep)));
                 deps = currentDeps;
                 if (!IsInherited(currentConfig))

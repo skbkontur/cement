@@ -5,7 +5,7 @@ using Common.YamlParsers;
 
 namespace Common
 {
-    public class InstallCollector
+    public sealed class InstallCollector
     {
         private readonly string path;
         private readonly string moduleName;

@@ -9,7 +9,7 @@ namespace Commands
         {
             var lines = Helper.GetAssemblyTitle().Split('\n');
             var version = string.Join("\n", lines.Skip(1).Take(4));
-            ConsoleWriter.WriteInfo(version);
+            ConsoleWriter.Shared.WriteInfo(version);
             return 0;
         }
 

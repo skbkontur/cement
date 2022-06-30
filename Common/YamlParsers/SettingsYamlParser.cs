@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Common.YamlParsers
 {
-    public class SettingsYamlParser : ConfigurationYamlParser
+    public sealed class SettingsYamlParser : ConfigurationYamlParser
     {
         public SettingsYamlParser(FileInfo moduleName) : base(moduleName)
         {
@@ -49,10 +49,5 @@ namespace Common.YamlParsers
                 result.IsContentModule = true;
             return result;
         }
-    }
-
-    public class ModuleSettings
-    {
-        public bool IsContentModule;
     }
 }

@@ -4,6 +4,7 @@
     <AssemblyTitle>Tests</AssemblyTitle>
     <Product>Tests</Product>
     <Copyright>Copyright © 2022</Copyright>
+    <Nullable>warnings</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.5" />

@@ -4,14 +4,13 @@ using System.Linq;
 
 namespace Common
 {
-    public static class ConsoleWriter
+    public sealed class ConsoleWriter
     {
-        private static readonly ConsoleColor DefaultColor = Console.ForegroundColor;
-        private static readonly int ConsoleWindowWidth = CalculateWindowWidth();
+        public static ConsoleWriter Shared { get; } = new();
 
-        private static readonly Stack<string> ProgressMessageStack = new Stack<string>();
-
-        private static readonly HashSet<string> ProcessedModules = new HashSet<string>();
+        private readonly ConsoleColor defaultColor = Console.ForegroundColor;
+        private readonly Stack<string> progressMessageStack = new();
+        private readonly HashSet<string> processedModules = new();
 
         // ReSharper disable InconsistentNaming
         private const string PROGRESS = "[PROGRESS] ";
@@ -25,7 +24,7 @@ namespace Common
         private const string INFO = "[INFO] ";
         // ReSharper restore InconsistentNaming
 
-        private static int CalculateWindowWidth()
+        private int CalculateWindowWidth()
         {
             var result = 80;
             try
@@ -39,13 +38,13 @@ namespace Common
             return result;
         }
 
-        public static void WriteProgress(string progress)
+        public void WriteProgress(string progress)
         {
             if (!Console.IsOutputRedirected)
                 Print(TakeNoMoreThanConsoleWidth(PROGRESS + " " + progress), ConsoleColor.Cyan);
         }
 
-        public static void WriteProgressWithoutSave(string progress)
+        public void WriteProgressWithoutSave(string progress)
         {
             if (!Console.IsOutputRedirected)
             {
@@ -53,146 +52,150 @@ namespace Common
             }
         }
 
-        private static string TakeNoMoreThanConsoleWidth(string line)
+        private string TakeNoMoreThanConsoleWidth(string line)
         {
-            return line.Length < ConsoleWindowWidth - 1 ? line : line.Substring(0, ConsoleWindowWidth - 1);
+            var consoleWindowWidth = CalculateWindowWidth();
+            return line.Length < consoleWindowWidth - 1 ? line : line.Substring(0, consoleWindowWidth - 1);
         }
 
-        public static void WriteInfo(string info)
+        public void WriteInfo(string info)
         {
             PrintLn(INFO + info, ConsoleColor.White);
         }
 
-        public static void WriteSkip(string text)
+        public void WriteSkip(string text)
         {
             PrintLn(SKIP + text, ConsoleColor.DarkGray);
         }
 
-        public static void WriteUpdate(string text)
+        public void WriteUpdate(string text)
         {
             PrintLn(UPDATE + text, ConsoleColor.Green);
         }
 
-        public static void WriteOk(string text)
+        public void WriteOk(string text)
         {
             PrintLn(OK + text, ConsoleColor.Green);
         }
 
-        public static void WriteLine(string text)
+        public void WriteLine(string text)
         {
-            PrintLn(text, DefaultColor);
+            PrintLn(text, defaultColor);
         }
 
-        public static void WriteLine()
+        public void WriteLine()
         {
-            PrintLn("", DefaultColor);
+            PrintLn("", defaultColor);
         }
 
-        public static void Write(string text)
+        public void Write(string text)
         {
-            Print(text, DefaultColor);
+            Print(text, defaultColor);
         }
 
-        public static void WriteWarning(string warning)
+        public void WriteWarning(string warning)
         {
             PrintLnError(WARNING + warning, ConsoleColor.Yellow);
         }
 
-        public static void WriteBuildWarning(string warning)
+        public void WriteBuildWarning(string warning)
         {
             PrintLnError(warning, ConsoleColor.Yellow);
         }
 
-        public static void WriteLineBuildWarning(string warning)
+        public void WriteLineBuildWarning(string warning)
         {
             PrintLnError(warning, ConsoleColor.Yellow, true);
         }
 
-        public static void WriteError(string error)
+        public void WriteError(string error)
         {
             PrintLnError(ERROR + error, ConsoleColor.Red);
         }
 
-        public static void WriteBuildError(string error)
+        public void WriteBuildError(string error)
         {
             PrintLnError(error, ConsoleColor.Red);
         }
 
-        private static void PrintLnError(string text, ConsoleColor color, bool emptyLineAfter = false)
+        private void PrintLnError(string text, ConsoleColor color, bool emptyLineAfter = false)
         {
+            var consoleWindowWidth = CalculateWindowWidth();
             lock (Helper.LockObject)
             {
                 Console.ForegroundColor = color;
                 if (!Console.IsErrorRedirected)
-                    Console.Error.Write("\r{0,-" + $"{ConsoleWindowWidth - 1}" + "}\r", "");
+                    Console.Error.Write($"\r{{0,-{consoleWindowWidth - 1}}}\r", "");
                 Console.Error.WriteLine(text);
                 if (emptyLineAfter)
                     Console.Error.WriteLine();
-                Console.ForegroundColor = DefaultColor;
+                Console.ForegroundColor = defaultColor;
             }
         }
 
-        public static void ClearLine()
+        public void ClearLine()
         {
             if (Console.IsOutputRedirected)
                 return;
-            Console.Write("\r{0,-" + $"{ConsoleWindowWidth - 1}" + "}\r", "");
+
+            var consoleWindowWidth = CalculateWindowWidth();
+            Console.Write($"\r{{0,-{consoleWindowWidth - 1}}}\r", "");
         }
 
-        private static void Print(string text, ConsoleColor color, bool saveProgress = true)
+        private void Print(string text, ConsoleColor color, bool saveProgress = true)
         {
             lock (Helper.LockObject)
             {
                 Console.ForegroundColor = color;
                 ClearLine();
                 Console.Write(text);
-                Console.ForegroundColor = DefaultColor;
+                Console.ForegroundColor = defaultColor;
                 if (text.StartsWith(PROGRESS) && saveProgress)
-                    ProgressMessageStack.Push(text);
+                    progressMessageStack.Push(text);
             }
         }
 
-        public static void PrintLn(string text, ConsoleColor color)
+        public void PrintLn(string text, ConsoleColor color)
         {
             lock (Helper.LockObject)
             {
                 Console.ForegroundColor = color;
                 ClearLine();
                 Console.WriteLine(text);
-                Console.ForegroundColor = DefaultColor;
+                Console.ForegroundColor = defaultColor;
                 SaveToProcessedModules(text);
             }
         }
 
-        public static void SaveToProcessedModules(string text)
+        public void SaveToProcessedModules(string text)
         {
             lock (Helper.LockObject)
             {
                 var moduleName = text.Split(']').Last().Trim().Split(' ', '/').First();
-                ProcessedModules.Add(moduleName);
+                processedModules.Add(moduleName);
                 PrintLastProgressFromStack();
             }
         }
 
-        private static void PrintLastProgressFromStack()
+        private void PrintLastProgressFromStack()
         {
-            while (ProgressMessageStack.Count > 0)
+            while (progressMessageStack.Count > 0)
             {
-                var topQueueModuleName = ProgressMessageStack.Peek().Replace(PROGRESS, "").Trim().Split(' ', '/').First();
-                if (ProcessedModules.Contains(topQueueModuleName))
-                    ProgressMessageStack.Pop();
+                var topQueueModuleName = progressMessageStack.Peek().Replace(PROGRESS, "").Trim().Split(' ', '/').First();
+                if (processedModules.Contains(topQueueModuleName))
+                    progressMessageStack.Pop();
                 else
                 {
-                    WriteProgress(ProgressMessageStack.Pop().Replace(PROGRESS + " ", ""));
+                    WriteProgress(progressMessageStack.Pop().Replace(PROGRESS + " ", ""));
                     break;
                 }
             }
         }
 
-        public static void ResetProgress()
+        public void ResetProgress()
         {
-            ProgressMessageStack.Clear();
-            ProcessedModules.Clear();
+            progressMessageStack.Clear();
+            processedModules.Clear();
             ClearLine();
         }
     }

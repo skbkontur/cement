@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Common
 {
-    public class Branch
+    public sealed class Branch
     {
         public string CommitHash { get; }
         public string Name { get; }

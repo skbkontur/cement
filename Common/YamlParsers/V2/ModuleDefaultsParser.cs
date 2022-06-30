@@ -1,13 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Common.Extensions;
 using Common.YamlParsers.Models;
 using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class ModuleDefaultsParser
+    public sealed class ModuleDefaultsParser
     {
         private readonly HooksSectionParser hooksSectionParser;
         private readonly DepsSectionParser depsSectionParser;

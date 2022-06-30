@@ -4,7 +4,7 @@ using Common.YamlParsers;
 
 namespace Common
 {
-    public class DepsParser
+    public sealed class DepsParser
     {
         private readonly string modulePath;
 
@@ -25,7 +25,7 @@ namespace Common
 
             if (File.Exists(Path.Combine(modulePath, "deps")))
             {
-                ConsoleWriter.WriteWarning("Configuration '" + config + "' was not found in " + modulePath + ". Will take full-build config");
+                ConsoleWriter.Shared.WriteWarning("Configuration '" + config + "' was not found in " + modulePath + ". Will take full-build config");
                 return new DepsIniParser(Path.Combine(modulePath, "deps")).Get();
             }
             return new DepsData(null, new List<Dep>());

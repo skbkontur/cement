@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using Common.Extensions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -13,7 +12,7 @@ namespace Common
         public static string GetNugetPackageVersion(string packageName, string nugetRunCommand, bool preRelease)
         {
             var shellRunner = new ShellRunner();
-            ConsoleWriter.WriteProgressWithoutSave("Get package version for " + packageName);
+            ConsoleWriter.Shared.WriteProgressWithoutSave("Get package version for " + packageName);
 
             shellRunner.Run($"{nugetRunCommand} list {packageName} -NonInteractive" + (preRelease ? " -PreRelease" : ""));
             foreach (var line in shellRunner.Output.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
@@ -23,14 +22,14 @@ namespace Common
                 {
                     var msg = $"Got package version: {lineTokens[1]} for {packageName}";
                     Log.LogInformation(msg);
-                    ConsoleWriter.WriteInfo(msg);
+                    ConsoleWriter.Shared.WriteInfo(msg);
                     return lineTokens[1];
                 }
             }
 
             var message = $"not found package version for package {packageName}. nuget output: " + shellRunner.Output + shellRunner.Errors;
             Log.LogDebug(message);
-            ConsoleWriter.WriteWarning(message);
+            ConsoleWriter.Shared.WriteWarning(message);
             return null;
         }
 
@@ -40,7 +39,7 @@ namespace Common
             if (nuGetPath == null)
                 return null;
             var nugetCommand = $"\"{nuGetPath}\"";
-            if (Helper.OsIsUnix())
+            if (Platform.IsUnix())
                 nugetCommand = $"mono {nugetCommand}";
             return nugetCommand;
         }

@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class InstallSectionMerger
+    public sealed class InstallSectionMerger
     {
         [NotNull]
         public InstallData Merge(InstallData currentInstalls, InstallData defaultInstalls = null, InstallData[] parentInstalls = null)

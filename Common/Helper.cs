@@ -19,7 +19,7 @@ namespace Common
         public const string YamlSpecFile = "module.yaml";
         public const string ConfigurationDelimiter = "/";
         public static readonly object LockObject = new object();
-        public static readonly int MaxDegreeOfParallelism = CementSettings.Get().MaxDegreeOfParallelism ?? 2 * Environment.ProcessorCount;
+        public static readonly int MaxDegreeOfParallelism = CementSettingsRepository.Get().MaxDegreeOfParallelism ?? 2 * Environment.ProcessorCount;
         public static ParallelOptions ParallelOptions => new ParallelOptions {MaxDegreeOfParallelism = MaxDegreeOfParallelism};
         public static string CurrentWorkspace { get; private set; }
         public static readonly object PackageLockObject = new object();
@@ -59,14 +59,9 @@ namespace Common
             return Path.Combine(HomeDirectory(), "bin");
         }
 
-        public static bool OsIsUnix()
-        {
-            return Environment.OSVersion.Platform == PlatformID.Unix;
-        }
-
         public static string HomeDirectory()
         {
-            return OsIsUnix()
+            return Platform.IsUnix()
                 ? Environment.GetEnvironmentVariable("HOME")
                 : Environment.GetEnvironmentVariable("USERPROFILE");
         }
@@ -104,7 +99,7 @@ namespace Common
 
         public static IList<Package> GetPackages()
         {
-            return CementSettings.Get().Packages ?? throw new CementException("Packages not specified.");
+            return CementSettingsRepository.Get().Packages ?? throw new CementException("Packages not specified.");
         }
 
         public static IList<Module> GetModulesFromPackage(Package package)
@@ -289,7 +284,7 @@ namespace Common
         {
             if (args.Contains(oldKey))
             {
-                ConsoleWriter.WriteError("Don't use old " + oldKey + " key.");
+                ConsoleWriter.Shared.WriteError("Don't use old " + oldKey + " key.");
                 log.LogWarning("Found old key {OldKey} in {JoinedBySpaceArgs} in {DirectoryPath}", oldKey, string.Join(" ", args), Directory.GetCurrentDirectory());
                 args = args.Where(a => a != oldKey).ToArray();
             }

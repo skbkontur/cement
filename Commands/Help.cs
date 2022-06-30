@@ -18,14 +18,14 @@ namespace Commands
             if (args.Length == 1)
             {
                 CommandsList.Print();
-                ConsoleWriter.WriteLine("");
+                ConsoleWriter.Shared.WriteLine("");
                 PrintHelpFooter();
                 return 0;
             }
 
             if (args.Length > 2)
             {
-                ConsoleWriter.WriteError("Wrong usage. Type 'cm help commandName'");
+                ConsoleWriter.Shared.WriteError("Wrong usage. Type 'cm help commandName'");
                 return 0;
             }
 
@@ -33,12 +33,12 @@ namespace Commands
             if (CommandsList.Commands.ContainsKey(command))
             {
                 var help = CommandsList.Commands[args[1]].HelpMessage;
-                ConsoleWriter.WriteLine(help);
+                ConsoleWriter.Shared.WriteLine(help);
                 PrintHelpFooter();
                 return 0;
             }
 
-            ConsoleWriter.WriteError("Bad command: '" + command + "'");
+            ConsoleWriter.Shared.WriteError("Bad command: '" + command + "'");
             return -1;
         }
 
@@ -50,7 +50,7 @@ namespace Commands
 
         private static void PrintHelpFooter()
         {
-            ConsoleWriter.WriteLine($"Cement. {DateTime.Now.Year}.");
+            ConsoleWriter.Shared.WriteLine($"Cement. {DateTime.Now.Year}.");
         }
 
         public string HelpMessage => @"

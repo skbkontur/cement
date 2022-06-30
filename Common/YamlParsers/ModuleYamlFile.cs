@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Common.YamlParsers
 {
-    public class ModuleYamlFile
+    public sealed class ModuleYamlFile
     {
         public readonly List<string> Lines;
         private readonly string lineEndings;

@@ -2,7 +2,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.Models
 {
-    public class ModuleDefaults
+    public sealed class ModuleDefaults
     {
         public ModuleDefaults()
         {

@@ -18,7 +18,7 @@ namespace Tests.UtilsTests
         [Test]
         public void TestRunCommand()
         {
-            Assert.AreEqual(0, runner.Run(Helper.OsIsUnix() ? "ls" : "dir"));
+            Assert.AreEqual(0, runner.Run(Platform.IsUnix() ? "ls" : "dir"));
         }
 
         [Test]

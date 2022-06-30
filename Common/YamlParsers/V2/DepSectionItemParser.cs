@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class DepSectionItemParser
+    public sealed class DepSectionItemParser
     {
         public DepSectionItem Parse(string line)
         {

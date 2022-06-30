@@ -66,7 +66,7 @@ namespace Commands
             var installData = InstallParser.Get(analyzerModuleName, configuration);
             if (!installData.InstallFiles.Any())
             {
-                ConsoleWriter.WriteWarning($"No install files found in '{analyzerModuleName}'");
+                ConsoleWriter.Shared.WriteWarning($"No install files found in '{analyzerModuleName}'");
                 return 0;
             }
 
@@ -112,7 +112,7 @@ namespace Commands
                 pair.Ruleset.Save();
             }
 
-            ConsoleWriter.WriteOk($"Add {analyzerModuleName} to {Path.GetFileName(moduleSolutionPath)} successfully completed");
+            ConsoleWriter.Shared.WriteOk($"Add {analyzerModuleName} to {Path.GetFileName(moduleSolutionPath)} successfully completed");
             return 0;
         }
 
@@ -126,7 +126,7 @@ namespace Commands
                 var repo = new GitRepository(analyzerModule.Name, Helper.CurrentWorkspace, Log);
                 var current = repo.CurrentLocalTreeish().Value;
                 if (current != analyzerModule.Treeish)
-                    ConsoleWriter.WriteWarning($"{analyzerModule.Name} on @{current} but adding @{analyzerModule.Treeish}");
+                    ConsoleWriter.Shared.WriteWarning($"{analyzerModule.Name} on @{current} but adding @{analyzerModule.Treeish}");
             }
             catch (Exception e)
             {

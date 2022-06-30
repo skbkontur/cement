@@ -3,12 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.JsonConverters;
 using Newtonsoft.Json;
 
 namespace Common
 {
-    [JsonConverter(typeof(DepConverter))]
-    public class Dep : IEquatable<Dep>
+    [JsonConverter(typeof(DepJsonConverter))]
+    public sealed class Dep : IEquatable<Dep>
     {
         public string Name { get; }
         public string Treeish { get; set; }
@@ -108,54 +109,6 @@ namespace Common
         {
             return Name +
                    (Configuration == null || Configuration.Equals("full-build") ? "" : "/" + Configuration);
-        }
-    }
-
-    public class DepConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(Dep);
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            var str = reader.Value.ToString();
-            return new Dep(str);
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            var item = (Dep) value;
-            writer.WriteValue(ToJsonValueString(item));
-            writer.Flush();
-        }
-
-        private string ToJsonValueString(Dep dep)
-        {
-            var str = dep.Name;
-            if (dep.Configuration != null)
-                str += "/" + EscapeBadChars(dep.Configuration);
-            if (dep.Treeish != null)
-                str += "@" + EscapeBadChars(dep.Treeish);
-            return str;
-        }
-
-        private string EscapeBadChars(string str)
-        {
-            return str.Replace("@", "\\@").Replace("/", "\\/");
-        }
-    }
-
-    public class DepWithCommitHash
-    {
-        public readonly Dep Dep;
-        public readonly string CommitHash;
-
-        public DepWithCommitHash(Dep dep, string commitHash)
-        {
-            Dep = dep;
-            CommitHash = commitHash;
         }
     }
 }

@@ -2,7 +2,7 @@ using System;
 
 namespace Common
 {
-    public class MsBuildLikeTool
+    public sealed class MsBuildLikeTool
     {
         public MsBuildLikeTool(string path, string version=null, bool isWindowsMsBuild=false)
         {

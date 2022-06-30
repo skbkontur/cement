@@ -459,15 +459,4 @@ namespace Common
             return parsedArgs;
         }
     }
-
-    public class BadArgumentException : CementException
-    {
-        public BadArgumentException()
-        {
-        }
-
-        public BadArgumentException(string message) : base(message)
-        {
-        }
-    }
 }

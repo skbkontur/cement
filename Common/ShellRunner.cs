@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Common
 {
-    public class ShellRunner
+    public sealed class ShellRunner
     {
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(10);
         public static string LastOutput;
@@ -30,7 +30,7 @@ namespace Common
             this.log = log;
             startInfo = new ProcessStartInfo
             {
-                FileName = Helper.OsIsUnix() ? "/bin/bash" : "cmd",
+                FileName = Platform.IsUnix() ? "/bin/bash" : "cmd",
                 CreateNoWindow = true,
                 RedirectStandardError = true,
                 RedirectStandardInput = true,
@@ -43,7 +43,7 @@ namespace Common
 
         private void AddUserPassword()
         {
-            var settings = CementSettings.Get();
+            var settings = CementSettingsRepository.Get();
             if (settings.UserName == null || settings.EncryptedPassword == null)
                 return;
 
@@ -59,7 +59,7 @@ namespace Common
 
         private void BeforeRun()
         {
-            startInfo.Arguments = Helper.OsIsUnix() ? " -lc " : " /D /C ";
+            startInfo.Arguments = Platform.IsUnix() ? " -lc " : " /D /C ";
             Output = "";
             Errors = "";
             HasTimeout = false;
@@ -67,7 +67,8 @@ namespace Common
 
         public delegate void ReadLineEvent(string content);
 
-        public event ReadLineEvent OnOutputChange, OnErrorsChange;
+        public event ReadLineEvent OnOutputChange;
+        public event ReadLineEvent OnErrorsChange;
 
         private string ReadStream(StreamReader output, ReadLineEvent evt)
         {
@@ -162,12 +163,12 @@ namespace Common
                     if (e is TimeoutException)
                     {
                         if (!commandWithArguments.Equals("git ls-remote --heads"))
-                            ConsoleWriter.WriteWarning(e.Message);
+                            ConsoleWriter.Shared.WriteWarning(e.Message);
                         log?.LogWarning(e.Message);
                     }
                     else
                     {
-                        ConsoleWriter.WriteError(e.Message);
+                        ConsoleWriter.Shared.WriteError(e.Message);
                         log?.LogError(e.Message);
                     }
                     return -1;
@@ -227,35 +228,6 @@ namespace Common
         public int RunInDirectory(string path, string commandWithArguments, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
         {
             return RunThreeTimes(commandWithArguments, path, timeout, retryStrategy);
-        }
-    }
-
-    public enum RetryStrategy
-    {
-        None,
-        IfTimeout,
-        IfTimeoutOrFailed
-    }
-
-    public static class TimeoutHelper
-    {
-        private static readonly TimeSpan SmallTimeout = TimeSpan.FromSeconds(30);
-        private static readonly TimeSpan BigTimeout = TimeSpan.FromMinutes(10);
-        private const int TimesForUseBigDefault = 1;
-
-        private static int badTimes;
-
-        public static TimeSpan IncreaseTimeout(TimeSpan was)
-        {
-            badTimes++;
-            return was < BigTimeout ? BigTimeout : was;
-        }
-
-        public static TimeSpan GetStartTimeout()
-        {
-            if (badTimes > TimesForUseBigDefault)
-                return BigTimeout;
-            return SmallTimeout;
         }
     }
 }

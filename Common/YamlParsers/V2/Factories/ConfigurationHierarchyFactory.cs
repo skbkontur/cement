@@ -141,7 +141,7 @@ namespace Common.YamlParsers.V2.Factories
             return configNameToAllParentsMap;
         }
 
-        private class TraversalState
+        private sealed class TraversalState
         {
             private readonly IReadOnlyDictionary<string, string[]> adjacencyMap;
             private readonly HashSet<string> yieldedNodesSet = new HashSet<string>();

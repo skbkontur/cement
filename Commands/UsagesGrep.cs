@@ -74,8 +74,8 @@ namespace Commands
         {
             var modules = Helper.GetModules();
             var command = BuildGitCommand(arguments, fileMasks);
-            ConsoleWriter.WriteInfo(command);
-            ConsoleWriter.WriteLine();
+            ConsoleWriter.Shared.WriteInfo(command);
+            ConsoleWriter.Shared.WriteLine();
 
             using (new DirectoryJumper(workspace))
             {
@@ -88,8 +88,8 @@ namespace Commands
                     runner.RunInDirectory(module, command);
                     if (string.IsNullOrWhiteSpace(ShellRunner.LastOutput))
                         continue;
-                    ConsoleWriter.WriteLine(AddModuleToOutput(ShellRunner.LastOutput, module));
-                    ConsoleWriter.WriteLine();
+                    ConsoleWriter.Shared.WriteLine(AddModuleToOutput(ShellRunner.LastOutput, module));
+                    ConsoleWriter.Shared.WriteLine();
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace Commands
                 }
                 catch (CementException exception)
                 {
-                    ConsoleWriter.WriteError(exception.ToString());
+                    ConsoleWriter.Shared.WriteError(exception.ToString());
                 }
             }
 

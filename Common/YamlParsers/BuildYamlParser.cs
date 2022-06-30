@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Common.YamlParsers
 {
-    public class BuildYamlParser : ConfigurationYamlParser
+    public sealed class BuildYamlParser : ConfigurationYamlParser
     {
         public BuildYamlParser(FileInfo modulePath) : base(modulePath)
         {
@@ -110,7 +110,7 @@ namespace Common.YamlParsers
                     tool.Version = (string) dict[key];
             }
 
-            tool.Version = tool.Version ?? CementSettings.Get().DefaultMsBuildVersion;
+            tool.Version = tool.Version ?? CementSettingsRepository.Get().DefaultMsBuildVersion;
             return tool;
         }
 

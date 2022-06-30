@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class ConfigurationHierarchy
+    public sealed class ConfigurationHierarchy
     {
         [CanBeNull]
         private readonly string defaultConfig;

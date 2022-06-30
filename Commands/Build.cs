@@ -47,16 +47,19 @@ namespace Commands
 
             if (!new ConfigurationParser(new FileInfo(cwd)).ConfigurationExists(configuration))
             {
-                ConsoleWriter.WriteError($"Configuration '{configuration}' was not found in {moduleName}.");
+                ConsoleWriter.Shared.WriteError($"Configuration '{configuration}' was not found in {moduleName}.");
                 return -1;
             }
 
+            var cleanerLogger = LogManager.GetLogger<Cleaner>();
             var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
-            var cleaner = new Cleaner(shellRunner);
-            var builder = new ModuleBuilder(Log, buildSettings);
+            var consoleWriter = ConsoleWriter.Shared;
+            var cleaner = new Cleaner(cleanerLogger, shellRunner, consoleWriter);
+            var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
+            var builder = new ModuleBuilder(Log, buildSettings, buildYamlScriptsMaker);
             var builderInitTask = Task.Run(() => builder.Init());
             var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration);
-            var builtStorage = BuiltInfoStorage.Deserialize();
+            var builtStorage = BuildInfoStorage.Deserialize();
             builtStorage.RemoveBuildInfo(moduleName);
 
             builderInitTask.Wait();

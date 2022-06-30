@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
-using net.r_eg.MvsSln.Extensions;
 
 namespace Common
 {
@@ -13,7 +12,7 @@ namespace Common
 
         public static void UpdatePackages()
         {
-            ConsoleWriter.WriteProgress("Updating module urls");
+            ConsoleWriter.Shared.WriteProgress("Updating module urls");
             var packages = Helper.GetPackages();
             foreach (var package in packages)
             {
@@ -26,7 +25,7 @@ namespace Common
                     UpdateFilePackage(package);
                 }
             }
-            ConsoleWriter.ResetProgress();
+            ConsoleWriter.Shared.ResetProgress();
         }
 
         private static void UpdateFilePackage(Package package)

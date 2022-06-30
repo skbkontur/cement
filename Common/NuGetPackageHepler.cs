@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Common.Extensions;
 using Microsoft.Extensions.Logging;
 using NuGet.CommandLine;
 using NuGet.Common;
@@ -22,7 +21,7 @@ using Settings = NuGet.Configuration.Settings;
 
 namespace Common
 {
-    public class NuGetPackageHepler
+    public sealed class NuGetPackageHepler
     {
         private readonly ILogger log;
 
@@ -127,7 +126,7 @@ namespace Common
                 else
                 {
                     log.LogInformation($"{package} not installed");
-                    ConsoleWriter.WriteWarning($"Nuget package {package} not installed");
+                    ConsoleWriter.Shared.WriteWarning($"Nuget package {package} not installed");
                 }
             }
 

@@ -24,7 +24,7 @@ namespace Commands
                 return 0;
             }
 
-            ConsoleWriter.WriteError("Failed to get info in %s\nNot a module or module's parent folder");
+            ConsoleWriter.Shared.WriteError("Failed to get info in %s\nNot a module or module's parent folder");
             return -1;
         }
 
@@ -40,7 +40,7 @@ namespace Commands
                     if (repo.IsGitRepo)
                     {
                         var hash = repo.CurrentLocalCommitHash();
-                        ConsoleWriter.WriteLine(moduleName + " " + hash);
+                        ConsoleWriter.Shared.WriteLine(moduleName + " " + hash);
                     }
                 }
                 catch (Exception)

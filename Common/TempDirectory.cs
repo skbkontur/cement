@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Common
 {
-    public class TempDirectory : IDisposable
+    public sealed class TempDirectory : IDisposable
     {
         public readonly string Path;
 

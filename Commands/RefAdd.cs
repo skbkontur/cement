@@ -56,7 +56,7 @@ namespace Commands
 
             if (!Helper.HasModule(moduleToInsert))
             {
-                ConsoleWriter.WriteError($"Can't find module '{moduleToInsert}'");
+                ConsoleWriter.Shared.WriteError($"Can't find module '{moduleToInsert}'");
                 return -1;
             }
 
@@ -72,7 +72,7 @@ namespace Commands
             var installData = InstallParser.Get(moduleToInsert, configuration);
             if (!installData.InstallFiles.Any())
             {
-                ConsoleWriter.WriteWarning($"No install files found in '{moduleToInsert}'");
+                ConsoleWriter.Shared.WriteWarning($"No install files found in '{moduleToInsert}'");
                 return 0;
             }
 
@@ -91,24 +91,24 @@ namespace Commands
         {
             using (new DirectoryJumper(Helper.CurrentWorkspace))
             {
-                ConsoleWriter.WriteInfo("cm get " + module);
+                ConsoleWriter.Shared.WriteInfo("cm get " + module);
                 if (new Get().Run(new[] {"get", module.ToYamlString()}) != 0)
                     throw new CementException("Failed get module " + module);
-                ConsoleWriter.ResetProgress();
+                ConsoleWriter.Shared.ResetProgress();
             }
 
             module.Configuration = module.Configuration ?? Yaml.ConfigurationParser(module.Name).GetDefaultConfigurationName();
 
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
             {
-                ConsoleWriter.WriteInfo("cm build-deps " + module);
+                ConsoleWriter.Shared.WriteInfo("cm build-deps " + module);
                 if (new BuildDeps().Run(new[] { "build-deps", "-c", module.Configuration }) != 0)
                     throw new CementException("Failed to build deps for " + dep);
-                ConsoleWriter.ResetProgress();
-                ConsoleWriter.WriteInfo("cm build " + module);
+                ConsoleWriter.Shared.ResetProgress();
+                ConsoleWriter.Shared.WriteInfo("cm build " + module);
                 if (new Build().Run(new[] { "build", "-c", module.Configuration }) != 0)
                     throw new CementException("Failed to build " + dep);
-                ConsoleWriter.ResetProgress();
+                ConsoleWriter.Shared.ResetProgress();
             }
             Console.WriteLine();
         }
@@ -123,7 +123,7 @@ namespace Commands
                 var repo = new GitRepository(dep.Name, Helper.CurrentWorkspace, Log);
                 var current = repo.CurrentLocalTreeish().Value;
                 if (current != dep.Treeish)
-                    ConsoleWriter.WriteWarning($"{dep.Name} on @{current} but adding @{dep.Treeish}");
+                    ConsoleWriter.Shared.WriteWarning($"{dep.Name} on @{current} but adding @{dep.Treeish}");
             }
             catch (Exception e)
             {
@@ -142,19 +142,19 @@ namespace Commands
             }
             catch (Exception e)
             {
-                ConsoleWriter.WriteWarning($"Installation of NuGet packages failed: {e.InnerException?.Message ?? e.Message}");
+                ConsoleWriter.Shared.WriteWarning($"Installation of NuGet packages failed: {e.InnerException?.Message ?? e.Message}");
                 Log.LogError("Installation of NuGet packages failed:", e);
             }
 
             foreach (var buildItem in installData.InstallFiles)
             {
-                var buildItemPath = Helper.OsIsUnix() ? Helper.WindowsPathSlashesToUnix(buildItem) : buildItem;
+                var buildItemPath = Platform.IsUnix() ? Helper.WindowsPathSlashesToUnix(buildItem) : buildItem;
                 var refName = Path.GetFileNameWithoutExtension(buildItemPath);
 
                 var hintPath = Helper.GetRelativePath(Path.Combine(Helper.CurrentWorkspace, buildItemPath),
                     Directory.GetParent(projectPath).FullName);
 
-                if (Helper.OsIsUnix())
+                if (Platform.IsUnix())
                 {
                     hintPath = Helper.UnixPathSlashesToWindows(hintPath);
                 }
@@ -171,7 +171,7 @@ namespace Commands
         {
             if (File.Exists(file))
                 return;
-            ConsoleWriter.WriteWarning($"File {file} does not exist. Probably you need to build {dep.Name}.");
+            ConsoleWriter.Shared.WriteWarning($"File {file} does not exist. Probably you need to build {dep.Name}.");
         }
 
         private void AddRef(ProjectFile csproj, string refName, string hintPath)
@@ -189,14 +189,14 @@ namespace Commands
                 {
                     csproj.ReplaceRef(refName, hintPath);
                     Log.LogDebug($"'{refName}' ref replaced");
-                    ConsoleWriter.WriteOk("Successfully replaced " + refName);
+                    ConsoleWriter.Shared.WriteOk("Successfully replaced " + refName);
                 }
             }
             else
             {
                 SafeAddRef(csproj, refName, hintPath);
                 Log.LogDebug($"'{refName}' ref added");
-                ConsoleWriter.WriteOk("Successfully installed " + refName);
+                ConsoleWriter.Shared.WriteOk("Successfully installed " + refName);
             }
         }
 
@@ -231,10 +231,10 @@ namespace Commands
 
             if (oldRef.Equals(newRef))
             {
-                ConsoleWriter.WriteSkip("Already has same " + refName);
+                ConsoleWriter.Shared.WriteSkip("Already has same " + refName);
                 return false;
             }
-            ConsoleWriter.WriteWarning(
+            ConsoleWriter.Shared.WriteWarning(
                 $"'{project}' already contains ref '{refName}'.\n\n<<<<\n{oldRef}\n\n>>>>\n{newRef}\nDo you want to replace (y/N)?");
             var answer = Console.ReadLine();
             return answer != null && answer.Trim().ToLowerInvariant() == "y";

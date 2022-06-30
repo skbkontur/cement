@@ -4,7 +4,7 @@ using Common.YamlParsers.Models;
 
 namespace Common.YamlParsers.V2
 {
-    public class InstallSectionParser
+    public sealed class InstallSectionParser
     {
         private const string NugetPrefix = "nuget ";
         private const string ModulePrefix = "module ";

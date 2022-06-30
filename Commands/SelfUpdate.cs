@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using Common;
+using Common.Updaters;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
@@ -31,7 +32,7 @@ public class SelfUpdate : Command
     {
         try
         {
-            var isEnabledSelfUpdate = CementSettings.Get().IsEnabledSelfUpdate;
+            var isEnabledSelfUpdate = CementSettingsRepository.Get().IsEnabledSelfUpdate;
             if (isEnabledSelfUpdate.HasValue && !isEnabledSelfUpdate.Value)
                 return;
             var lastUpdate = Helper.GetLastUpdateTime();
@@ -44,13 +45,13 @@ public class SelfUpdate : Command
             if (exitCode != 0)
             {
                 Log.LogError("Auto update cement failed. 'self-update' exited with code '{Code}'", exitCode);
-                ConsoleWriter.WriteWarning("Auto update failed. Check previous warnings for details");
+                ConsoleWriter.Shared.WriteWarning("Auto update failed. Check previous warnings for details");
             }
         }
         catch (Exception exception)
         {
             Log.LogError(exception, "Auto update failed, error: '{ErrorMessage}'", exception.Message);
-            ConsoleWriter.WriteWarning("Auto update failed. Check logs for details");
+            ConsoleWriter.Shared.WriteWarning("Auto update failed. Check logs for details");
         }
     }
 
@@ -70,14 +71,14 @@ public class SelfUpdate : Command
         IsInstallingCement |= !HasInstalledCement();
         if (IsInstallingCement)
         {
-            ConsoleWriter.WriteInfo("Installing cement");
+            ConsoleWriter.Shared.WriteInfo("Installing cement");
             Log.LogDebug("Installing cement");
         }
     }
 
     protected override int Execute()
     {
-        ConsoleWriter.WriteProgressWithoutSave("self-update");
+        ConsoleWriter.Shared.WriteProgressWithoutSave("self-update");
         Helper.SaveLastUpdateTime();
 
         try
@@ -92,15 +93,17 @@ public class SelfUpdate : Command
         catch (Exception exception)
         {
             Log.LogError(exception, "Fail to install cement: '{ErrorMessage}'", exception.Message);
-            ConsoleWriter.WriteError("Fail to install cement: " + exception);
+            ConsoleWriter.Shared.WriteError("Fail to install cement: " + exception);
         }
 
-        var server = CementSettings.Get().CementServer;
-        Log.LogInformation($"Cement server: {server}");
+        var server = CementSettingsRepository.Get().CementServer;
+        Log.LogInformation("Cement server: {CementServerUri}", server);
 
-        ICementUpdater updater = (server == null)
-            ? new CementFromGitHubUpdater(Log)
-            : new CementFromServerUpdater(server, branch, Log);
+        ICementUpdater updater = server == null
+            ? new GitHubReleaseCementUpdater(Log)
+            : new ServerCementUpdater(Log, server, branch);
+
+        Log.LogInformation("Updater: {CementUpdaterName}", updater.Name);
         return UpdateBinary(updater);
     }
 
@@ -163,7 +166,7 @@ exit $exit_code";
 
         var installDirectory = Helper.GetCementInstallDirectory();
         Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm.cmd"), cmdText);
-        Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm"), Helper.OsIsUnix() ? bashTextUnix : bashText);
+        Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm"), Platform.IsUnix() ? bashTextUnix : bashText);
         Log.LogDebug("Successfully created cm.cmd & cm.");
     }
 
@@ -181,12 +184,12 @@ exit $exit_code";
 
     private static void SearchAndSaveBranchInSettings(ref string branch)
     {
-        var settings = CementSettings.Get();
+        var settings = CementSettingsRepository.Get();
         if (branch != null)
             settings.SelfUpdateTreeish = branch;
         else
             branch = settings.SelfUpdateTreeish;
-        settings.Save();
+        CementSettingsRepository.Save(settings);
     }
 
     private static bool IsWindowsPlatform()
@@ -223,7 +226,7 @@ exit $exit_code";
     {
         var currentCommitHash = Helper.GetCurrentBuildCommitHash();
 
-        ConsoleWriter.WriteProgressWithoutSave("Looking for cement updates");
+        ConsoleWriter.Shared.WriteProgressWithoutSave("Looking for cement updates");
         var newCommitHash = updater.GetNewCommitHash();
         if (newCommitHash == null)
             return -1;
@@ -237,7 +240,7 @@ exit $exit_code";
         }
         else
         {
-            ConsoleWriter.WriteInfo($"No cement binary updates available ({updater.GetName()})");
+            ConsoleWriter.Shared.WriteInfo($"No cement binary updates available ({updater.Name})");
             Log.LogDebug("Already has {0} version", currentCommitHash);
         }
 
@@ -246,7 +249,7 @@ exit $exit_code";
 
     private bool UpdateBinaries(ICementUpdater updater, string oldHash, string newHash)
     {
-        ConsoleWriter.WriteProgressWithoutSave("Updating cement binaries");
+        ConsoleWriter.Shared.WriteProgressWithoutSave("Updating cement binaries");
 
         try
         {
@@ -258,8 +261,8 @@ exit $exit_code";
                 CopyNewCmExe(tempDir.Path);
             }
 
-            var okMessage = $"Successfully updated cement binaries. {oldHash} -> {newHash} ({updater.GetName()})";
-            ConsoleWriter.WriteOk(okMessage);
+            var okMessage = $"Successfully updated cement binaries. {oldHash} -> {newHash} ({updater.Name})";
+            ConsoleWriter.Shared.WriteOk(okMessage);
             Log.LogDebug(okMessage);
             return true;
         }
@@ -272,12 +275,12 @@ exit $exit_code";
                 var resp = (HttpWebResponse)webException.Response;
                 if (resp.StatusCode == HttpStatusCode.NotFound) // HTTP 404
                 {
-                    ConsoleWriter.WriteWarning($"Failed to look for updates on branch {branch}. Server replied 404 ({updater.GetName()})");
+                    ConsoleWriter.Shared.WriteWarning($"Failed to look for updates on branch {branch}. Server replied 404 ({updater.Name})");
                     return false;
                 }
             }
 
-            ConsoleWriter.WriteWarning($"Failed to look for updates on branch {branch}. {webException.Message} ({updater.GetName()})");
+            ConsoleWriter.Shared.WriteWarning($"Failed to look for updates on branch {branch}. {webException.Message} ({updater.Name})");
             return false;
         }
     }
@@ -287,7 +290,7 @@ exit $exit_code";
         from = Path.Combine(from, "cement", "dotnet");
         if (!Directory.Exists(from))
         {
-            ConsoleWriter.WriteError($"Someting bad with self-update: {from} not found.");
+            ConsoleWriter.Shared.WriteError($"Someting bad with self-update: {from} not found.");
             Log.LogError("Someting bad with self-update.");
             return;
         }
@@ -308,7 +311,7 @@ exit $exit_code";
             var isOsWin = IsWindowsPlatform();
             var newcm = Path.Combine(tempPathToCementBinary, $"cm{(isOsWin ? ".exe" : "")}");
             if (File.Exists(newcm))
-            { 
+            {
                 File.Delete(cm);
                 cm = newcm;
             }
@@ -336,7 +339,7 @@ exit $exit_code";
 
     private void AddInstallToPath()
     {
-        if (Helper.OsIsUnix())
+        if (Platform.IsUnix())
             return;
 
         var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
@@ -357,14 +360,14 @@ exit $exit_code";
             path = toAdd;
 
         Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
-        ConsoleWriter.WriteOk(toAdd + " added to $PATH");
-        ConsoleWriter.WriteOk("To finish installation, please restart your terminal process");
+        ConsoleWriter.Shared.WriteOk(toAdd + " added to $PATH");
+        ConsoleWriter.Shared.WriteOk("To finish installation, please restart your terminal process");
         Log.LogDebug(toAdd + " added to $PATH: " + path);
     }
 
     private void InstallPowerShell()
     {
-        if (Helper.OsIsUnix() || IsInstallingCement)
+        if (Platform.IsUnix() || IsInstallingCement)
             return;
 
         var directory = Path.Combine(Helper.HomeDirectory(), "Documents", "WindowsPowerShell");
@@ -384,7 +387,7 @@ exit $exit_code";
         var src = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "cementPM.psm1");
         if (!File.Exists(src))
         {
-            ConsoleWriter.WriteWarning("cement powershell script not found at " + src);
+            ConsoleWriter.Shared.WriteWarning("cement powershell script not found at " + src);
             return;
         }
 
@@ -393,7 +396,7 @@ exit $exit_code";
 
     private void InstallClinkScript()
     {
-        if (Helper.OsIsUnix() || IsInstallingCement)
+        if (Platform.IsUnix() || IsInstallingCement)
             return;
 
         var directory = Path.Combine(Helper.HomeDirectory(), "AppData", "Local", "clink");
@@ -403,7 +406,7 @@ exit $exit_code";
         var src = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "cement_completion.lua");
         if (!File.Exists(src))
         {
-            ConsoleWriter.WriteWarning("lua script not found at " + src);
+            ConsoleWriter.Shared.WriteWarning("lua script not found at " + src);
             return;
         }
 
@@ -412,7 +415,7 @@ exit $exit_code";
 
     private void InstallBashScript()
     {
-        if (Helper.OsIsUnix())
+        if (Platform.IsUnix())
             return;
 
         var file = Path.Combine(Helper.HomeDirectory(), ".profile");

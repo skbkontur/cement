@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 namespace Common
 {
-    public class InstallXmlParser
+    public sealed class InstallXmlParser
     {
         private readonly XDocument document;
         private readonly string moduleName;

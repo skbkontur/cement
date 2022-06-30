@@ -26,7 +26,7 @@ namespace Commands
             var packages = Helper.GetPackages();
             foreach (var package in packages)
                 PrintPackage(package);
-            ConsoleWriter.ClearLine();
+            ConsoleWriter.Shared.ClearLine();
             return 0;
         }
 
@@ -45,12 +45,12 @@ namespace Commands
             var modules = Helper.GetModulesFromPackage(package).OrderBy(m => m.Name);
             foreach (var module in modules)
                 PrintModule(module);
-            ConsoleWriter.ClearLine();
+            ConsoleWriter.Shared.ClearLine();
         }
 
         private void PrintModule(Module module)
         {
-            ConsoleWriter.WriteProgress(module.Name);
+            ConsoleWriter.Shared.WriteProgress(module.Name);
             var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
 
             if ((bool) parsedArgs["all"] || (bool) parsedArgs["local"] &&
@@ -58,7 +58,7 @@ namespace Commands
             {
                 if (parsedArgs["branch"] != null && !GitRepository.HasRemoteBranch(module.Url, (string) parsedArgs["branch"]))
                     return;
-                ConsoleWriter.ClearLine();
+                ConsoleWriter.Shared.ClearLine();
                 Console.Write("{0, -30}", module.Name);
                 if ((bool) parsedArgs["url"])
                     Console.Write("{0, -60}", module.Url);

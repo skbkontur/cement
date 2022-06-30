@@ -1,6 +1,6 @@
 ﻿namespace Common
 {
-    public class Package
+    public sealed class Package
     {
         public string Name { get; set; }
         public string Url { get; set; }

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Common
 {
-    public class ConfigurationManager
+    public sealed class ConfigurationManager
     {
         private Dictionary<string, IList<string>> configHierarchy;
         public readonly List<string> ProcessedDeps;

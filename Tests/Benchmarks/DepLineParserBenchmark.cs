@@ -23,7 +23,7 @@ namespace Tests.Benchmarks
     {
         private DepSectionItemParser parser;
 
-        private class Config : ManualConfig
+        private sealed class Config : ManualConfig
         {
             public Config()
             {

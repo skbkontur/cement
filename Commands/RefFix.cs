@@ -47,14 +47,14 @@ namespace Commands
             fixReferenceResult.Print();
 
             if (!Yaml.ReadAllText(rootModuleName).Equals(oldYamlContent))
-                ConsoleWriter.WriteOk("Check and commit modified module.yaml.");
+                ConsoleWriter.Shared.WriteOk("Check and commit modified module.yaml.");
 
             if (!hasFixedReferences)
-                ConsoleWriter.WriteInfo("No fixed references.");
+                ConsoleWriter.Shared.WriteInfo("No fixed references.");
             else
-                ConsoleWriter.WriteOk("Check and commit new references.");
+                ConsoleWriter.Shared.WriteOk("Check and commit new references.");
 
-            ConsoleWriter.WriteInfo("See also 'check-deps' command.");
+            ConsoleWriter.Shared.WriteInfo("See also 'check-deps' command.");
 
             return 0;
         }
@@ -102,7 +102,7 @@ namespace Commands
             {
                 if (!missingModules.Contains(moduleName))
                 {
-                    ConsoleWriter.WriteError($"Can't find module '{moduleName}'");
+                    ConsoleWriter.Shared.WriteError($"Can't find module '{moduleName}'");
                     missingModules.Add(moduleName);
                 }
                 return;
@@ -144,13 +144,13 @@ namespace Commands
 
         private string UserChoseReplace(string project, string oldReference, List<string> withSameName)
         {
-            ConsoleWriter.WriteWarning($"{project}\n\tMultiple choise for replace '{oldReference}':");
+            ConsoleWriter.Shared.WriteWarning($"{project}\n\tMultiple choise for replace '{oldReference}':");
             withSameName = new[] {"don't replace"}.Concat(withSameName).ToList();
             for (int i = 0; i < withSameName.Count; i++)
             {
-                ConsoleWriter.WriteLine($"\t{i}. {withSameName[i].Replace("/", "\\")}");
+                ConsoleWriter.Shared.WriteLine($"\t{i}. {withSameName[i].Replace("/", "\\")}");
             }
-            ConsoleWriter.WriteLine($"Print 0-{withSameName.Count - 1} for choose");
+            ConsoleWriter.Shared.WriteLine($"Print 0-{withSameName.Count - 1} for choose");
 
             var answer = Console.ReadLine();
             int index;
@@ -226,27 +226,27 @@ namespace Commands
         {
             if (NoYamlModules.Any())
             {
-                ConsoleWriter.WriteWarning("No 'install' section in modules:");
+                ConsoleWriter.Shared.WriteWarning("No 'install' section in modules:");
                 foreach (var m in NoYamlModules)
-                    ConsoleWriter.WriteBuildWarning("\t- " + m);
+                    ConsoleWriter.Shared.WriteBuildWarning("\t- " + m);
             }
 
             foreach (var key in Replaced.Keys)
             {
                 if (!Replaced[key].Any())
                     continue;
-                ConsoleWriter.WriteOk(key + " replaces:");
+                ConsoleWriter.Shared.WriteOk(key + " replaces:");
                 foreach (var value in Replaced[key])
-                    ConsoleWriter.WriteLine("\t" + value);
+                    ConsoleWriter.Shared.WriteLine("\t" + value);
             }
 
             foreach (var key in NotFound.Keys)
             {
                 if (!NotFound[key].Any())
                     continue;
-                ConsoleWriter.WriteError(key + "\n\tnot found references in install/artifacts section of any module:");
+                ConsoleWriter.Shared.WriteError(key + "\n\tnot found references in install/artifacts section of any module:");
                 foreach (var value in NotFound[key])
-                    ConsoleWriter.WriteLine("\t" + value);
+                    ConsoleWriter.Shared.WriteLine("\t" + value);
             }
         }
     }

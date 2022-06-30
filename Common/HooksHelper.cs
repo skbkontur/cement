@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Common.Extensions;
 using Common.Logging;
 using Common.YamlParsers;
 using Microsoft.Extensions.Logging;
@@ -43,8 +42,8 @@ namespace Common
         {
             if (hooks.Contains(CementPreCommitHookName) && hooks.Contains("pre-commit"))
             {
-                ConsoleWriter.WriteError($"You can't use {CementPreCommitHookName} with custom pre-commit hook in {moduleName}");
-                ConsoleWriter.WriteLine(@"if you want to use cement hook, add this to your bash hook:
+                ConsoleWriter.Shared.WriteError($"You can't use {CementPreCommitHookName} with custom pre-commit hook in {moduleName}");
+                ConsoleWriter.Shared.WriteLine(@"if you want to use cement hook, add this to your bash hook:
 .git/hooks/pre-commit.cement
 if [ $? -ne 0 ]; then
   exit 1
@@ -58,7 +57,7 @@ fi
                 return true;
 
             Log.LogError("Duplicate hook in " + moduleName);
-            ConsoleWriter.WriteError("Duplicate git hook found in " + moduleName + " module");
+            ConsoleWriter.Shared.WriteError("Duplicate git hook found in " + moduleName + " module");
             return false;
         }
 
@@ -67,7 +66,7 @@ fi
             if (Directory.Exists(gitFolder))
                 return true;
 
-            ConsoleWriter.WriteWarning(".git folder not found at " + moduleName);
+            ConsoleWriter.Shared.WriteWarning(".git folder not found at " + moduleName);
             return false;
         }
 
@@ -95,7 +94,7 @@ fi
         {
             if (!File.Exists(hookSrc))
             {
-                ConsoleWriter.WriteWarning("Hook " + hookSrc + " not found.");
+                ConsoleWriter.Shared.WriteWarning("Hook " + hookSrc + " not found.");
                 return false;
             }
 

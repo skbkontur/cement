@@ -15,7 +15,7 @@ namespace Commands
         {
             if (args.Length < 2 || !commands.ContainsKey(args[1]))
             {
-                ConsoleWriter.WriteError("Bad arguments");
+                ConsoleWriter.Shared.WriteError("Bad arguments");
                 return -1;
             }
             return commands[args[1]].Run(args);

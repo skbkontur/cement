@@ -22,7 +22,7 @@ namespace cm
             args = FixArgs(args);
             var exitCode = TryRun(args);
 
-            ConsoleWriter.ResetProgress();
+            ConsoleWriter.Shared.ResetProgress();
 
             var command = args[0];
             if (command != "complete" && command != "check-pre-commit"
@@ -55,7 +55,7 @@ namespace cm
             }
             catch (CementException e)
             {
-                ConsoleWriter.WriteError(e.Message);
+                ConsoleWriter.Shared.WriteError(e.Message);
                 logger.LogError(e, e.Message);
                 return -1;
             }
@@ -63,13 +63,13 @@ namespace cm
             {
                 if (e.InnerException != null && e.InnerException is CementException cementException)
                 {
-                    ConsoleWriter.WriteError(cementException.Message);
+                    ConsoleWriter.Shared.WriteError(cementException.Message);
                     logger.LogError(e.InnerException, e.InnerException.Message);
                 }
                 else
                 {
-                    ConsoleWriter.WriteError(e.Message);
-                    ConsoleWriter.WriteError(e.StackTrace);
+                    ConsoleWriter.Shared.WriteError(e.Message);
+                    ConsoleWriter.Shared.WriteError(e.StackTrace);
                     logger.LogError(e, e.Message);
                 }
                 
@@ -85,10 +85,10 @@ namespace cm
                 return commands[args[0]].Run(args);
             }
 
-            if (CementSettings.Get().UserCommands.ContainsKey(args[0]))
+            if (CementSettingsRepository.Get().UserCommands.ContainsKey(args[0]))
                 return new UserCommand().Run(args);
 
-            ConsoleWriter.WriteError("Bad command: '" + args[0] + "'");
+            ConsoleWriter.Shared.WriteError("Bad command: '" + args[0] + "'");
             return -1;
         }
 

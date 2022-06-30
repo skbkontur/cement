@@ -6,9 +6,9 @@ using Common.Extensions;
 
 namespace Common
 {
-    public static class BuildYamlScriptsMaker
+    public sealed class BuildYamlScriptsMaker
     {
-        public static List<BuildScriptWithBuildData> PrepareBuildScriptsFromYaml(Dep dep)
+        public List<BuildScriptWithBuildData> PrepareBuildScriptsFromYaml(Dep dep)
         {
             var buildSections = Yaml.BuildParser(dep.Name).Get(dep.Configuration);
 
@@ -64,7 +64,7 @@ namespace Common
 
             var toolPath = tool.Path;
 
-            if (!Helper.OsIsUnix())
+            if (!Platform.IsUnix())
                 toolPath = "\"" + tool.Path + "\"";
             return toolPath + " " + string.Join(" ", parameters);
         }
@@ -73,7 +73,7 @@ namespace Common
         {
             if (buildTool.Name != "msbuild")
                 return new MsBuildLikeTool(buildTool.Name);
-            if (Helper.OsIsUnix())
+            if (Platform.IsUnix())
                 return new MsBuildLikeTool("msbuild");
 
             var tool = ModuleBuilderHelper.FindMsBuild(buildTool.Version, moduleName);
@@ -104,7 +104,7 @@ namespace Common
         {
             var parameters = GetDefaultMsbuildParameters(tool.Name);
             var toolVersion = tool.Version;
-            if (!Helper.OsIsUnix() && Helper.IsVisualStudioVersion(toolVersion))
+            if (!Platform.IsUnix() && Helper.IsVisualStudioVersion(toolVersion))
                 parameters.Add($"/p:VisualStudioVersion={toolVersion}");
             return parameters;
         }
@@ -114,12 +114,12 @@ namespace Common
             if (toolName == "dotnet")
                 return DefaultDotnetParameters.ToList();
 
-            return (Helper.OsIsUnix() ? DefaultXbuildParameters : DefaultMsbuildParameters).ToList();
+            return (Platform.IsUnix() ? DefaultXbuildParameters : DefaultMsbuildParameters).ToList();
         }
 
         private static string EscapeSemicolon(string cmdPart)
         {
-            if (!Helper.OsIsUnix())
+            if (!Platform.IsUnix())
                 return cmdPart;
             return cmdPart.Replace(";", "\\;");
         }

@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class HooksSectionParser
+    public sealed class HooksSectionParser
     {
         [NotNull]
         public string[] Parse([CanBeNull] object hooksSection)

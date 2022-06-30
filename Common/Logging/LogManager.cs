@@ -70,7 +70,7 @@ namespace Common.Logging
             var configLogFilePath = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "herculeslog.config.json");
             if (!File.Exists(configLogFilePath))
             {
-                ConsoleWriter.WriteError($"{configLogFilePath} not found.");
+                ConsoleWriter.Shared.WriteError($"{configLogFilePath} not found.");
                 return;
             }
 

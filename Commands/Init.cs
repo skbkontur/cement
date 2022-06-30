@@ -9,7 +9,7 @@ namespace Commands
         {
             if (args.Length != 1)
             {
-                ConsoleWriter.WriteError("Invalid command usage. User 'cm help init' for details");
+                ConsoleWriter.Shared.WriteError("Invalid command usage. User 'cm help init' for details");
                 return -1;
             }
 
@@ -18,18 +18,18 @@ namespace Commands
 
             if (cwd == home)
             {
-                ConsoleWriter.WriteError("$HOME cannot be used as cement base directory");
+                ConsoleWriter.Shared.WriteError("$HOME cannot be used as cement base directory");
                 return -1;
             }
 
             if (Helper.IsCementTrackedDirectory(cwd))
             {
-                ConsoleWriter.WriteInfo("It is already cement tracked directory");
+                ConsoleWriter.Shared.WriteInfo("It is already cement tracked directory");
                 return 0;
             }
 
             Directory.CreateDirectory(Helper.CementDirectory);
-            ConsoleWriter.WriteOk(Directory.GetCurrentDirectory() + " became cement tracked directory.");
+            ConsoleWriter.Shared.WriteOk(Directory.GetCurrentDirectory() + " became cement tracked directory.");
             return 0;
         }
 

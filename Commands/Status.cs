@@ -14,7 +14,7 @@ namespace Commands
         {
             if (args.Length != 1)
             {
-                ConsoleWriter.WriteError("Invalid command usage. User 'cm help init' for details");
+                ConsoleWriter.Shared.WriteError("Invalid command usage. User 'cm help init' for details");
                 return -1;
             }
 
@@ -23,7 +23,7 @@ namespace Commands
 
             if (cwd == null)
             {
-                ConsoleWriter.WriteError("Cement root was not found");
+                ConsoleWriter.Shared.WriteError("Cement root was not found");
                 return -1;
             }
 
@@ -39,9 +39,9 @@ namespace Commands
             {
                 var repo = new GitRepository(dir, Log);
                 PrintStatus(repo);
-                ConsoleWriter.WriteProgress(++count + "/" + listDir.Length + " " + repo.ModuleName);
+                ConsoleWriter.Shared.WriteProgress(++count + "/" + listDir.Length + " " + repo.ModuleName);
             }
-            ConsoleWriter.ResetProgress();
+            ConsoleWriter.Shared.ResetProgress();
         }
 
         private void PrintStatus(GitRepository repo)
@@ -51,11 +51,11 @@ namespace Commands
                 if (!repo.HasLocalChanges() && repo.ShowUnpushedCommits().Length == 0)
                     return;
 
-                ConsoleWriter.WriteInfo(repo.ModuleName);
+                ConsoleWriter.Shared.WriteInfo(repo.ModuleName);
                 if (repo.HasLocalChanges())
-                    ConsoleWriter.WriteLine(repo.ShowLocalChanges());
+                    ConsoleWriter.Shared.WriteLine(repo.ShowLocalChanges());
                 if (repo.ShowUnpushedCommits().Length > 0)
-                    ConsoleWriter.WriteLine(repo.ShowUnpushedCommits());
+                    ConsoleWriter.Shared.WriteLine(repo.ShowUnpushedCommits());
             }
             catch (Exception)
             {

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Common
 {
-    public class DirectoryJumper : IDisposable
+    public sealed class DirectoryJumper : IDisposable
     {
         private readonly string oldCurrentDirectory;
 

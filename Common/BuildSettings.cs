@@ -1,6 +1,6 @@
 ﻿namespace Common
 {
-    public class BuildSettings
+    public sealed class BuildSettings
     {
         public bool ShowObsoleteWarnings;
         public bool ShowAllWarnings;

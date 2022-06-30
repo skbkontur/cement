@@ -8,7 +8,7 @@ using SharpYaml.Serialization;
 
 namespace Common.YamlParsers.V2
 {
-    public class ModuleYamlParser
+    public sealed class ModuleYamlParser
     {
         private readonly ModuleDefaultsParser moduleDefaultsParser;
         private readonly ConfigSectionParser configSectionParser;
@@ -92,7 +92,7 @@ namespace Common.YamlParsers.V2
             if (!string.IsNullOrEmpty(moduleInfo))
                 msg += " " + moduleInfo;
 
-            ConsoleWriter.WriteWarning(msg);
+            ConsoleWriter.Shared.WriteWarning(msg);
 
             var lines = input.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
             for (var i = 1; i < lines.Length; i++)

@@ -5,7 +5,7 @@ using System.Xml;
 
 namespace Common
 {
-    public class ConfigurationXmlParser : IConfigurationParser
+    public sealed class ConfigurationXmlParser : IConfigurationParser
     {
         private XmlDocument document;
 

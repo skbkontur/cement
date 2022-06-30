@@ -2,7 +2,7 @@ using Common.YamlParsers.Models;
 
 namespace Common.YamlParsers.V2
 {
-    public class ConfigSection
+    public sealed class ConfigSection
     {
         public ConfigSectionTitle Title { get; set; }
         public DepsSection DepsSection { get; set; }

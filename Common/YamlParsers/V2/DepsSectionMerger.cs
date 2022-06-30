@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.YamlParsers.Models;
@@ -6,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.V2
 {
-    public class DepsSectionMerger
+    public sealed class DepsSectionMerger
     {
         public DepsData Merge(DepsSection current, [CanBeNull]  DepsSection defaults = null, [CanBeNull] DepsSection[] parents = null)
         {
@@ -69,7 +68,7 @@ namespace Common.YamlParsers.V2
             if (!duplicatedDeps.Any())
                 return;
 
-            ConsoleWriter.WriteError(ModuleDuplicationError(duplicatedDeps));
+            ConsoleWriter.Shared.WriteError(ModuleDuplicationError(duplicatedDeps));
             throw new BadYamlException("deps", "duplicate dep " + string.Join(",", duplicatedDeps));
         }
 
