@@ -64,10 +64,17 @@ namespace Tests.BuildTests
     [TestFixture]
     public class TestTreeishManager
     {
+        private readonly TreeishManager treeishManager;
+
+        public TestTreeishManager()
+        {
+            treeishManager = new TreeishManager();
+        }
+
         [Test]
         public void TestTreeishProceeded()
         {
-            Assert.IsTrue(TreeishManager.TreeishAlreadyProcessed(new Dep("", "treeish"), new List<Dep>
+            Assert.IsTrue(treeishManager.TreeishAlreadyProcessed(new Dep("", "treeish"), new List<Dep>
             {
                 new Dep("", "A"),
                 new Dep("", "treeish"),
@@ -78,7 +85,7 @@ namespace Tests.BuildTests
         [Test]
         public void TestThrowsOnTreeishConflict()
         {
-            Assert.Throws<TreeishConflictException>(() => TreeishManager.ThrowOnTreeishConflict(
+            Assert.Throws<TreeishConflictException>(() => treeishManager.ThrowOnTreeishConflict(
                 new DepWithParent(new Dep("", "treeish1"), "A"), new List<DepWithParent>
                 {
                     new DepWithParent(new Dep("", "treeish1"), "B"),
@@ -89,7 +96,7 @@ namespace Tests.BuildTests
         [Test]
         public void TestThreeishNotProcceded()
         {
-            Assert.IsFalse(TreeishManager.TreeishAlreadyProcessed(new Dep("", "treeish"), new List<Dep>
+            Assert.IsFalse(treeishManager.TreeishAlreadyProcessed(new Dep("", "treeish"), new List<Dep>
             {
                 new Dep("", "A"),
                 new Dep("", "B")
@@ -99,7 +106,7 @@ namespace Tests.BuildTests
         [Test]
         public void TestNotThrowsWithoutConflict()
         {
-            Assert.DoesNotThrow(() => TreeishManager.ThrowOnTreeishConflict(new DepWithParent(new Dep("", "treeish"), "A"), new List<DepWithParent>
+            Assert.DoesNotThrow(() => treeishManager.ThrowOnTreeishConflict(new DepWithParent(new Dep("", "treeish"), "A"), new List<DepWithParent>
             {
                 new DepWithParent(new Dep(""), "B"),
                 new DepWithParent(new Dep("", "treeish"), "C")

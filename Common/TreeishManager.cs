@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace Common
 {
-    public static class TreeishManager
+    public sealed class TreeishManager
     {
-        public static bool TreeishAlreadyProcessed(Dep dep, IList<Dep> processed)
+        public bool TreeishAlreadyProcessed(Dep dep, IList<Dep> processed)
         {
             return
                 processed.Select(d => d.Treeish)
@@ -15,7 +15,7 @@ namespace Common
                             dtreeish != null && (dtreeish.Equals(dep.Treeish) || dep.Treeish == null));
         }
 
-        public static void ThrowOnTreeishConflict(DepWithParent depWithParent, IList<DepWithParent> processed)
+        public void ThrowOnTreeishConflict(DepWithParent depWithParent, IList<DepWithParent> processed)
         {
             var conflictDep =
                 processed.FirstOrDefault(d => d.Dep.Treeish != null && !d.Dep.Treeish.Equals(depWithParent.Dep.Treeish));

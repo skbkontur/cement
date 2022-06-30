@@ -8,12 +8,14 @@ namespace Common
         private readonly Dictionary<string, IList<DepWithParent>> container;
         private readonly Dictionary<string, IList<string>> proceedConfigs;
         private readonly Dictionary<string, string> currentTreeish;
-        
+        private readonly TreeishManager treeishManager;
+
         public ModulesContainer()
         {
             container = new Dictionary<string, IList<DepWithParent>>();
             proceedConfigs = new Dictionary<string, IList<string>>();
             currentTreeish = new Dictionary<string, string>();
+            treeishManager = new TreeishManager();
         }
 
         public void AddConfig(string moduleName, string config)
@@ -60,13 +62,13 @@ namespace Common
         public bool IsProcessed(Dep dep)
         {
             return container.ContainsKey(dep.Name) && new ConfigurationManager(dep.Name, container[dep.Name].Select(dP => dP.Dep)).ProcessedParent(dep) &&
-                   TreeishManager.TreeishAlreadyProcessed(dep, container[dep.Name].Select(dP => dP.Dep).ToList());
+                   treeishManager.TreeishAlreadyProcessed(dep, container[dep.Name].Select(dP => dP.Dep).ToList());
         }
 
         public void ThrowOnTreeishConflict(DepWithParent depWithParent)
         {
             if (container.ContainsKey(depWithParent.Dep.Name))
-                TreeishManager.ThrowOnTreeishConflict(depWithParent, container[depWithParent.Dep.Name]);
+                treeishManager.ThrowOnTreeishConflict(depWithParent, container[depWithParent.Dep.Name]);
         }
     }
 }
