@@ -5,8 +5,15 @@ using System.Linq;
 
 namespace Commands
 {
-    public class Help : ICommand
+    public sealed class Help : ICommand
     {
+        private readonly ReadmeGenerator readmeGenerator;
+
+        public Help()
+        {
+            readmeGenerator = new ReadmeGenerator();
+        }
+
         public int Run(string[] args)
         {
             if (args.Contains("--gen"))
@@ -42,9 +49,9 @@ namespace Commands
             return -1;
         }
 
-        private static void GenerateReadme(string file)
+        private void GenerateReadme(string file)
         {
-            var text = ReadmeGenerator.Generate();
+            var text = readmeGenerator.Generate();
             File.WriteAllText(file, text);
         }
 

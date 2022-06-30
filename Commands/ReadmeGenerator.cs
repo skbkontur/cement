@@ -2,9 +2,9 @@ using System;
 
 namespace Commands
 {
-    public static class ReadmeGenerator
+    public sealed class ReadmeGenerator
     {
-        public static string Generate()
+        public string Generate()
         {
             var commands = CommandsList.Commands;
 
