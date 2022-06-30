@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
+using Common.Extensions;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -116,21 +117,7 @@ namespace Common.Updaters
             httpResponseMessage.EnsureSuccessStatusCode();
 
             using var stream = httpResponseMessage.Content.ReadAsStream(cts.Token);
-            return ReadAllBytes(stream);
-        }
-
-        private static byte[] ReadAllBytes(Stream stream)
-        {
-            if (stream is MemoryStream ms)
-            {
-                stream.CopyTo(ms);
-                return ms.ToArray();
-            }
-
-            using var buffer = new MemoryStream();
-            stream.CopyTo(buffer);
-
-            return buffer.ToArray();
+            return stream.ReadAllBytes();
         }
 
         public string Name => "GitHub";

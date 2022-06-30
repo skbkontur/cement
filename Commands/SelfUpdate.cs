@@ -101,7 +101,7 @@ public class SelfUpdate : Command
 
         ICementUpdater updater = server == null
             ? new GitHubReleaseCementUpdater(Log)
-            : new ServerCementUpdater(Log, server, branch);
+            : new ServerCementUpdater(Log, ConsoleWriter.Shared, server, branch);
 
         Log.LogInformation("Updater: {CementUpdaterName}", updater.Name);
         return UpdateBinary(updater);

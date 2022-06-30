@@ -32,11 +32,13 @@ namespace Common.Updaters
             return null;
         }
 
-        public static string GetZipCementDirectory()
+        private static string GetZipCementDirectory()
         {
             var zipDir = Path.Combine(Helper.HomeDirectory(), "work");
+
             if (!Directory.Exists(zipDir))
                 Directory.CreateDirectory(zipDir);
+
             return zipDir;
         }
 

@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
+using Common.Extensions;
+using Humanizer;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -19,12 +21,14 @@ namespace Common.Updaters
         private readonly ILogger log;
         private readonly string server;
         private readonly string branch;
+        private readonly ConsoleWriter consoleWriter;
 
-        public ServerCementUpdater(ILogger log, string server, string branch)
+        public ServerCementUpdater(ILogger log, ConsoleWriter consoleWriter, string server, string branch)
         {
             this.server = server;
             this.branch = branch;
             this.log = log;
+            this.consoleWriter = consoleWriter;
         }
 
         public string GetNewCommitHash()
@@ -63,7 +67,7 @@ namespace Common.Updaters
             catch (Exception ex)
             {
                 log.LogError(ex, "Failed to look for updates on server");
-                ConsoleWriter.Shared.WriteWarning("Failed to look for updates on server: " + ex.Message);
+                consoleWriter.WriteWarning("Failed to look for updates on server: " + ex.Message);
 
                 return null;
             }
@@ -91,27 +95,26 @@ namespace Common.Updaters
                     }
                 };
 
-                using var httpResponseMessage = httpClient.Send(httpRequestMessage, cts.Token);
+                using var httpResponseMessage = httpClient.Send(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cts.Token);
                 httpResponseMessage.EnsureSuccessStatusCode();
 
                 using var stream = httpResponseMessage.Content.ReadAsStream(cts.Token);
-                return ReadAllBytes(stream);
+
+                return stream.ReadAllBytesWithProgress(ReportProgress);
+
+                void ReportProgress(long totalBytes)
+                {
+                    var readableBytes = totalBytes.Bytes().ToString();
+                    consoleWriter.WriteProgress($"Downloading: {readableBytes}");
+                }
             }
             catch (Exception ex)
             {
                 log.LogError(ex, "Failed to look for updates on server, channel='{CementServerReleaseChannel}'", branch);
-                ConsoleWriter.Shared.WriteWarning("Failed to look for updates on server: " + ex.Message);
+                consoleWriter.WriteWarning("Failed to look for updates on server: " + ex.Message);
 
                 return null;
             }
-        }
-
-        private static byte[] ReadAllBytes(Stream stream)
-        {
-            using var buffer = new MemoryStream();
-            stream.CopyTo(buffer);
-
-            return buffer.ToArray();
         }
 
         public string Name => server;
