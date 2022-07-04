@@ -15,6 +15,7 @@ public class SelfUpdate : Command
     private static bool isAutoUpdate;
     protected bool IsInstallingCement;
     private string branch;
+    private string server;
 
     public SelfUpdate()
         : base(
@@ -65,7 +66,10 @@ public class SelfUpdate : Command
     {
         var parsedArgs = ArgumentParser.ParseSelfUpdate(args);
         branch = (string)parsedArgs["branch"];
-        SearchAndSaveBranchInSettings(ref branch);
+        server = (string)parsedArgs["server"];
+
+        SearchAndSaveBranchInSettings(ref server, ref branch);
+
         if (isAutoUpdate)
             Log.LogDebug("Auto updating cement");
         IsInstallingCement |= !HasInstalledCement();
@@ -96,7 +100,6 @@ public class SelfUpdate : Command
             ConsoleWriter.Shared.WriteError("Fail to install cement: " + exception);
         }
 
-        var server = CementSettingsRepository.Get().CementServer;
         Log.LogInformation("Cement server: {CementServerUri}", server);
 
         ICementUpdater updater = server == null
@@ -182,13 +185,25 @@ exit $exit_code";
         return Directory.Exists(Path.Combine(installDirectory, "dotnet", "arborjs"));
     }
 
-    private static void SearchAndSaveBranchInSettings(ref string branch)
+    private static void SearchAndSaveBranchInSettings(ref string server, ref string branch)
     {
         var settings = CementSettingsRepository.Get();
+
         if (branch != null)
             settings.SelfUpdateTreeish = branch;
         else
             branch = settings.SelfUpdateTreeish;
+
+        if (server != null)
+        {
+            var uri = new Uri(server);
+            settings.CementServer = uri.ToString();
+        }
+        else
+        {
+            server = settings.CementServer;
+        }
+
         CementSettingsRepository.Save(settings);
     }
 

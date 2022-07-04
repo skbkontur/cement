@@ -28,6 +28,7 @@ namespace Common
             {
                 throw new BadArgumentException("Bad arguments: all and local");
             }
+
             return parsedArguments;
         }
 
@@ -42,7 +43,7 @@ namespace Common
                 {"merged", null},
                 {"localBranchForce", false},
                 {"verbose", false},
-                {"gitDepth", null }
+                {"gitDepth", null}
             };
             var parser = new OptionSet
             {
@@ -57,10 +58,11 @@ namespace Common
             };
             var extraArgs = parser.Parse(args.Skip(1));
             ThrowIfHasExtraArgs(extraArgs);
-            if ((int) parsedArguments["force"] + (int) parsedArguments["reset"] + (int) parsedArguments["pullAnyway"] > 1)
+            if ((int)parsedArguments["force"] + (int)parsedArguments["reset"] + (int)parsedArguments["pullAnyway"] > 1)
             {
                 throw new BadArgumentException();
             }
+
             return parsedArguments;
         }
 
@@ -158,7 +160,7 @@ namespace Common
                 {"configuration", null},
                 {"merged", null},
                 {"verbose", false},
-                {"gitDepth", null }
+                {"gitDepth", null}
             };
             var parser = new OptionSet
             {
@@ -185,12 +187,15 @@ namespace Common
                 {
                     parsedArguments["treeish"] = extraArgs[1];
                 }
+
                 ThrowIfHasExtraArgs(extraArgs.Skip(2).ToList());
             }
-            if ((int) parsedArguments["force"] + (int) parsedArguments["reset"] + (int) parsedArguments["pullAnyway"] > 1)
+
+            if ((int)parsedArguments["force"] + (int)parsedArguments["reset"] + (int)parsedArguments["pullAnyway"] > 1)
             {
                 throw new BadArgumentException();
             }
+
             return parsedArguments;
         }
 
@@ -198,11 +203,13 @@ namespace Common
         {
             var parsedArguments = new Dictionary<string, object>
             {
-                {"branch", null}
+                {"branch", null},
+                {"server", null}
             };
             var parser = new OptionSet
             {
-                {"b|branch=", b => parsedArguments["branch"] = b}
+                {"b|branch=", b => parsedArguments["branch"] = b},
+                {"s|server=", s => parsedArguments["server"] = s}
             };
             var extraArgs = parser.Parse(args.Skip(1));
             ThrowIfHasExtraArgs(extraArgs);
@@ -221,7 +228,7 @@ namespace Common
                 {"progress", false},
                 {"restore", true},
                 {"quickly", false},
-                {"cleanBeforeBuild", false }
+                {"cleanBeforeBuild", false}
             };
             var parser = new OptionSet
             {
@@ -237,10 +244,11 @@ namespace Common
             };
             var extraArgs = parser.Parse(args.Skip(1));
             ThrowIfHasExtraArgs(extraArgs);
-            if ((bool) parsedArguments["verbose"] && ((bool) parsedArguments["warnings"] || (bool) parsedArguments["progress"]))
+            if ((bool)parsedArguments["verbose"] && ((bool)parsedArguments["warnings"] || (bool)parsedArguments["progress"]))
             {
                 throw new BadArgumentException();
             }
+
             return parsedArguments;
         }
 
@@ -326,7 +334,7 @@ namespace Common
                 throw new BadArgumentException("Current directory is not cement module directory, use -m to specify module name");
             }
 
-            var module = (string) parsedArguments["module"];
+            var module = (string)parsedArguments["module"];
             if (module.Contains("/"))
             {
                 parsedArguments["module"] = module.Split('/').First();
@@ -366,7 +374,7 @@ namespace Common
             var parser = new OptionSet
             {
                 {"b|branch=", b => parsedArguments["branch"] = b},
-                {"s|skip-get", b => parsedArguments["skip-get"] = true },
+                {"s|skip-get", b => parsedArguments["skip-get"] = true},
                 {"<>", b => gitArgs.Add(b)}
             };
 
@@ -421,7 +429,7 @@ namespace Common
                 {"force", 0},
                 {"pullAnyway", 0},
                 {"verbose", false},
-                {"gitDepth", null }
+                {"gitDepth", null}
             };
             var parser = new OptionSet
             {
@@ -437,10 +445,12 @@ namespace Common
                 parsedArguments["treeish"] = extraArgs[0];
                 ThrowIfHasExtraArgs(extraArgs.Skip(1).ToList());
             }
-            if ((int) parsedArguments["force"] + (int) parsedArguments["reset"] + (int) parsedArguments["pullAnyway"] > 1)
+
+            if ((int)parsedArguments["force"] + (int)parsedArguments["reset"] + (int)parsedArguments["pullAnyway"] > 1)
             {
                 throw new BadArgumentException();
             }
+
             return parsedArguments;
         }
 
@@ -456,6 +466,7 @@ namespace Common
                 parsedArgs["module"] = extraArgs[0];
                 ThrowIfHasExtraArgs(extraArgs.Skip(1).ToList());
             }
+
             return parsedArgs;
         }
     }
