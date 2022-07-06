@@ -18,9 +18,8 @@ namespace Common.Logging
 {
     public static class LogManager
     {
-        private static ILoggerFactory loggerFactory;
-
         private static readonly List<IDisposable> disposables = new List<IDisposable>();
+        private static ILoggerFactory loggerFactory;
 
         private static ILog fileLog;
         private static ILog herculesLog;
@@ -104,7 +103,7 @@ namespace Common.Logging
 
             loggerFactory.AddVostok(herculesLog);
         }
-        
+
         public static void DisposeLoggers()
         {
             disposables.Reverse();

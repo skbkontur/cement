@@ -12,6 +12,10 @@ namespace Common
     {
         private static readonly ILogger Log = LogManager.GetLogger(typeof(ModuleBuilderHelper));
 
+        private static readonly HashSet<string> PrintedObsolete = new HashSet<string>();
+
+        private static List<KeyValuePair<string, string>> msBuildsCache;
+
         public static MsBuildLikeTool FindMsBuild(string version, string moduleName)
         {
             if (Platform.IsUnix())
@@ -32,20 +36,6 @@ namespace Common
                 true);
         }
 
-        private static string FindMsBuildUnix(string version, string moduleName)
-        {
-            var monoRuntime = Type.GetType("Mono.Runtime");
-            if (monoRuntime == null)
-                throw new CementException($"Failed to find msbuild.exe {version ?? ""} for {moduleName}");
-            var monoRuntimePath = monoRuntime.Assembly.Location;
-            var monoRuntimeDir = Path.GetDirectoryName(monoRuntimePath);
-            if (monoRuntimeDir == null)
-                throw new CementException($"Failed to find msbuild.exe {version ?? ""} for {moduleName}");
-            return Path.Combine(monoRuntimeDir, "../msbuild/15.0/bin/");
-        }
-
-        private static List<KeyValuePair<string, string>> msBuildsCache;
-
         public static List<KeyValuePair<string, string>> FindMsBuildsWindows()
         {
             var result = new List<KeyValuePair<string, string>>();
@@ -58,6 +48,119 @@ namespace Common
             Log.LogDebug("MSBUILDS:\n" + string.Join("\n", result.Select(r => $"{r.Key} {r.Value}")));
 
             return msBuildsCache = result;
+        }
+
+        public static void KillMsBuild(ILogger log)
+        {
+            if (!CementSettingsRepository.Get().KillMsBuild || Rider.IsRunning)
+                return;
+
+            try
+            {
+                foreach (var process in Process.GetProcessesByName("MSBuild"))
+                    try
+                    {
+                        process.Kill();
+                    }
+                    catch (Exception)
+                    {
+                        // ignored
+                    }
+            }
+            catch (Exception e)
+            {
+                log.LogError(e, e.Message);
+            }
+        }
+
+        public static string GetBuildScriptName(Dep dep)
+        {
+            var configToBuild = dep.Configuration == "full-build" || dep.Configuration == null ? "" : "." + dep.Configuration;
+            return Path.Combine(
+                Helper.CurrentWorkspace,
+                dep.Name,
+                "build" + configToBuild + ".cmd");
+        }
+
+        public static bool IsObsoleteWarning(string line)
+        {
+            return line.Contains(": warning CS0618:") || line.Contains(": warning CS0612:");
+        }
+
+        public static bool IsWarning(string line)
+        {
+            return line.Contains(": warning");
+        }
+
+        public static bool IsError(string line)
+        {
+            return line.Contains(": error");
+        }
+
+        public static void WriteIfWarning(string line)
+        {
+            if (IsWarning(line))
+            {
+                ConsoleWriter.Shared.WriteLineBuildWarning(line);
+            }
+        }
+
+        public static void WriteIfObsoleteFull(string line)
+        {
+            if (IsObsoleteWarning(line))
+            {
+                ConsoleWriter.Shared.WriteLineBuildWarning(line);
+            }
+        }
+
+        public static void WriteIfObsoleteGrouped(string line)
+        {
+            if (IsObsoleteWarning(line))
+            {
+                line = CutObsoleteMethond(line);
+                if (PrintedObsolete.Contains(line))
+                    return;
+                PrintedObsolete.Add(line);
+                ConsoleWriter.Shared.WriteLineBuildWarning(line);
+            }
+        }
+
+        public static void WriteIfError(string line)
+        {
+            if (IsError(line))
+                ConsoleWriter.Shared.WriteBuildError(line);
+        }
+
+        public static void WriteIfErrorToStandartStream(string line)
+        {
+            if (IsError(line))
+                ConsoleWriter.Shared.PrintLn(line, ConsoleColor.Red);
+        }
+
+        public static void WriteLine(string line)
+        {
+            if (IsError(line))
+                ConsoleWriter.Shared.WriteBuildError(line);
+            else if (IsWarning(line))
+                ConsoleWriter.Shared.WriteBuildWarning(line);
+            else ConsoleWriter.Shared.WriteLine(line);
+        }
+
+        public static void WriteProgress(string line)
+        {
+            ConsoleWriter.Shared.WriteProgress(line);
+        }
+
+        private static string FindMsBuildUnix(string version, string moduleName)
+        {
+            var monoRuntime = Type.GetType("Mono.Runtime");
+            if (monoRuntime == null)
+                throw new CementException($"Failed to find msbuild.exe {version ?? ""} for {moduleName}");
+            var monoRuntimePath = monoRuntime.Assembly.Location;
+            var monoRuntimeDir = Path.GetDirectoryName(monoRuntimePath);
+            if (monoRuntimeDir == null)
+                throw new CementException($"Failed to find msbuild.exe {version ?? ""} for {moduleName}");
+            return Path.Combine(monoRuntimeDir, "../msbuild/15.0/bin/");
         }
 
         private static List<KeyValuePair<string, string>> FindAvailableMsBuildsInProgramFiles()
@@ -148,83 +251,6 @@ namespace Common
                 .ToList();
         }
 
-        public static void KillMsBuild(ILogger log)
-        {
-            if (!CementSettingsRepository.Get().KillMsBuild || Rider.IsRunning)
-                return;
-
-            try
-            {
-                foreach (var process in Process.GetProcessesByName("MSBuild"))
-                    try
-                    {
-                        process.Kill();
-                    }
-                    catch (Exception)
-                    {
-                        // ignored
-                    }
-            }
-            catch (Exception e)
-            {
-                log.LogError(e, e.Message);
-            }
-        }
-
-        public static string GetBuildScriptName(Dep dep)
-        {
-            var configToBuild = dep.Configuration == "full-build" || dep.Configuration == null ? "" : "." + dep.Configuration;
-            return Path.Combine(
-                Helper.CurrentWorkspace,
-                dep.Name,
-                "build" + configToBuild + ".cmd");
-        }
-
-        public static bool IsObsoleteWarning(string line)
-        {
-            return line.Contains(": warning CS0618:") || line.Contains(": warning CS0612:");
-        }
-
-        public static bool IsWarning(string line)
-        {
-            return line.Contains(": warning");
-        }
-
-        public static bool IsError(string line)
-        {
-            return line.Contains(": error");
-        }
-
-        public static void WriteIfWarning(string line)
-        {
-            if (IsWarning(line))
-            {
-                ConsoleWriter.Shared.WriteLineBuildWarning(line);
-            }
-        }
-
-        public static void WriteIfObsoleteFull(string line)
-        {
-            if (IsObsoleteWarning(line))
-            {
-                ConsoleWriter.Shared.WriteLineBuildWarning(line);
-            }
-        }
-
-        private static readonly HashSet<string> PrintedObsolete = new HashSet<string>();
-
-        public static void WriteIfObsoleteGrouped(string line)
-        {
-            if (IsObsoleteWarning(line))
-            {
-                line = CutObsoleteMethond(line);
-                if (PrintedObsolete.Contains(line))
-                    return;
-                PrintedObsolete.Add(line);
-                ConsoleWriter.Shared.WriteLineBuildWarning(line);
-            }
-        }
-
         private static string CutObsoleteMethond(string line)
         {
             try
@@ -238,32 +264,6 @@ namespace Common
             {
                 return line;
             }
-        }
-
-        public static void WriteIfError(string line)
-        {
-            if (IsError(line))
-                ConsoleWriter.Shared.WriteBuildError(line);
-        }
-
-        public static void WriteIfErrorToStandartStream(string line)
-        {
-            if (IsError(line))
-                ConsoleWriter.Shared.PrintLn(line, ConsoleColor.Red);
-        }
-
-        public static void WriteLine(string line)
-        {
-            if (IsError(line))
-                ConsoleWriter.Shared.WriteBuildError(line);
-            else if (IsWarning(line))
-                ConsoleWriter.Shared.WriteBuildWarning(line);
-            else ConsoleWriter.Shared.WriteLine(line);
-        }
-
-        public static void WriteProgress(string line)
-        {
-            ConsoleWriter.Shared.WriteProgress(line);
         }
     }
 }

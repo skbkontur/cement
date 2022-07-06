@@ -9,10 +9,10 @@ namespace Common.Graph
     public sealed class ParallelBuilder
     {
         private static readonly ILogger Log = LogManager.GetLogger(typeof(ParallelBuilder));
+        public bool IsFailed;
 
         private readonly Dictionary<Dep, List<Dep>> graph = new Dictionary<Dep, List<Dep>>();
         private readonly AutoResetEvent signal = new AutoResetEvent(true);
-        public bool IsFailed;
         private readonly object sync = new object();
 
         private readonly List<Dep> waiting = new List<Dep>();

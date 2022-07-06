@@ -13,39 +13,6 @@ namespace Tests.UtilsTests
     {
         private static readonly ILogger Log = LogManager.GetLogger<TestGitRepository>();
 
-        private static void CreateTempRepo(TempDirectory url)
-        {
-            using (new DirectoryJumper(url.Path))
-            {
-                File.WriteAllText(Path.Combine(url.Path, "README.txt"), "README");
-                var runner = new ShellRunner();
-                runner.Run("git init");
-                runner.Run("git add README.txt");
-                runner.Run(@"git commit -am initial");
-            }
-        }
-
-        private static void CreateNewBranchInTempRepo(TempDirectory url, string branchName)
-        {
-            using (new DirectoryJumper(url.Path))
-            {
-                var runner = new ShellRunner();
-                runner.Run("git branch " + branchName);
-            }
-        }
-
-        private static void CommitIntoTempRepo(TempDirectory url, string branch)
-        {
-            using (new DirectoryJumper(url.Path))
-            {
-                var runner = new ShellRunner();
-                runner.Run("git checkout " + branch);
-                File.WriteAllText(Path.Combine(url.Path, "content.txt"), "README");
-                runner.Run("git add content.txt");
-                runner.Run(@"git commit -am added");
-            }
-        }
-
         [Test]
         public void TestGitClone()
         {
@@ -138,7 +105,9 @@ namespace Tests.UtilsTests
                     sha1 = runner.Output.Trim();
                     runner.Run("git checkout " + sha1);
                 }
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.AreEqual(sha1, repo.CurrentLocalTreeish().Value);
                 Assert.AreEqual(TreeishType.CommitHash, repo.CurrentLocalTreeish().Type);
@@ -157,6 +126,7 @@ namespace Tests.UtilsTests
                     runner.Run("git tag testTag");
                     runner.Run("git checkout testTag");
                 }
+
                 var repo = new GitRepository(Path.GetFileName(tempRepo.Path), Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.AreEqual("testTag", repo.CurrentLocalTreeish().Value);
                 Assert.AreEqual(TreeishType.Tag, repo.CurrentLocalTreeish().Type);
@@ -169,7 +139,8 @@ namespace Tests.UtilsTests
             using (var tempRepo = new TempDirectory())
             {
                 CreateTempRepo(tempRepo);
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.Throws<GitCheckoutException>(() => repo.Checkout("unexisting_branch"));
             }
@@ -182,7 +153,8 @@ namespace Tests.UtilsTests
             {
                 CreateTempRepo(tempRepo);
                 CreateNewBranchInTempRepo(tempRepo, "new_branch");
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 repo.Checkout("new_branch");
                 Assert.AreEqual("new_branch", repo.CurrentLocalTreeish().Value);
@@ -196,7 +168,8 @@ namespace Tests.UtilsTests
             using (var tempRepo = new TempDirectory())
             {
                 CreateTempRepo(tempRepo);
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.IsFalse(repo.HasLocalChanges());
             }
@@ -209,7 +182,8 @@ namespace Tests.UtilsTests
             {
                 CreateTempRepo(tempRepo);
                 File.WriteAllText(Path.Combine(tempRepo.Path, "content.txt"), "text");
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.IsTrue(repo.HasLocalChanges());
             }
@@ -222,7 +196,8 @@ namespace Tests.UtilsTests
             {
                 CreateTempRepo(tempRepo);
                 File.WriteAllText(Path.Combine(tempRepo.Path, "content.txt"), "text");
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.AreEqual("?? content.txt\n", repo.ShowLocalChanges());
             }
@@ -235,7 +210,8 @@ namespace Tests.UtilsTests
             {
                 CreateTempRepo(tempRepo);
                 File.WriteAllText(Path.Combine(tempRepo.Path, "README.txt"), "text");
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.AreEqual(" M README.txt\n", repo.ShowLocalChanges());
             }
@@ -248,7 +224,8 @@ namespace Tests.UtilsTests
             {
                 CreateTempRepo(tempRepo);
                 File.Delete(Path.Combine(tempRepo.Path, "README.txt"));
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.AreEqual(" D README.txt\n", repo.ShowLocalChanges());
             }
@@ -261,7 +238,8 @@ namespace Tests.UtilsTests
             {
                 CreateTempRepo(tempRepo);
                 File.WriteAllText(Path.Combine(tempRepo.Path, "content.txt"), "text");
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Helper.SetWorkspace(repo.Workspace);
                 repo.Clean();
@@ -276,7 +254,8 @@ namespace Tests.UtilsTests
             {
                 CreateTempRepo(tempRepo);
                 File.WriteAllText(Path.Combine(tempRepo.Path, "README.txt"), "text");
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Helper.SetWorkspace(repo.Workspace);
 
@@ -294,7 +273,8 @@ namespace Tests.UtilsTests
             using (var tempRepo = new TempDirectory())
             {
                 CreateTempRepo(tempRepo);
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.AreEqual(40, repo.CurrentLocalCommitHash().Length);
             }
@@ -307,7 +287,8 @@ namespace Tests.UtilsTests
             {
                 CreateTempRepo(tempRepo);
                 CreateNewBranchInTempRepo(tempRepo, "newbranch");
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.AreEqual(new[] {"master", "newbranch"}, repo.LocalBranches());
             }
@@ -320,7 +301,8 @@ namespace Tests.UtilsTests
             {
                 CreateTempRepo(tempRepo);
                 CreateNewBranchInTempRepo(tempRepo, "newbranch");
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.True(repo.HasLocalBranch("newbranch"));
             }
@@ -333,7 +315,8 @@ namespace Tests.UtilsTests
             {
                 CreateTempRepo(tempRepo);
                 CreateNewBranchInTempRepo(tempRepo, "newbranch");
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 Assert.False(repo.HasLocalBranch("unexisting_branch"));
             }
@@ -347,7 +330,8 @@ namespace Tests.UtilsTests
                 CreateTempRepo(tempRepo);
                 using (var localRepo = new TempDirectory())
                 {
-                    var repo = new GitRepository(Path.GetFileName(localRepo.Path),
+                    var repo = new GitRepository(
+                        Path.GetFileName(localRepo.Path),
                         Directory.GetParent(localRepo.Path).FullName, Log);
                     repo.Clone(tempRepo.Path);
                 }
@@ -362,7 +346,8 @@ namespace Tests.UtilsTests
                 CreateTempRepo(tempRepo);
                 using (var localRepo = new TempDirectory())
                 {
-                    var repo = new GitRepository(Path.GetFileName(localRepo.Path),
+                    var repo = new GitRepository(
+                        Path.GetFileName(localRepo.Path),
                         Directory.GetParent(localRepo.Path).FullName, Log);
                     repo.Clone(tempRepo.Path);
                     Assert.AreEqual(40, repo.RemoteCommitHashAtBranch("master").Length);
@@ -376,13 +361,15 @@ namespace Tests.UtilsTests
             using (var tempRepo = new TempDirectory())
             {
                 CreateTempRepo(tempRepo);
-                var remoteRepo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var remoteRepo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 {
                     var remoteCommit = remoteRepo.CurrentLocalCommitHash();
                     using (var localRepo = new TempDirectory())
                     {
-                        var repo = new GitRepository(Path.GetFileName(localRepo.Path),
+                        var repo = new GitRepository(
+                            Path.GetFileName(localRepo.Path),
                             Directory.GetParent(localRepo.Path).FullName, Log);
                         {
                             repo.Clone(tempRepo.Path);
@@ -404,7 +391,8 @@ namespace Tests.UtilsTests
                 CreateNewBranchInTempRepo(tempRepo, "newbranch");
                 using (var localRepo = new TempDirectory())
                 {
-                    var repo = new GitRepository(Path.GetFileName(localRepo.Path),
+                    var repo = new GitRepository(
+                        Path.GetFileName(localRepo.Path),
                         Directory.GetParent(localRepo.Path).FullName, Log);
                     {
                         repo.Clone(tempRepo.Path);
@@ -423,7 +411,8 @@ namespace Tests.UtilsTests
 
                 using (var localRepo = new TempDirectory())
                 {
-                    var repo = new GitRepository(Path.GetFileName(localRepo.Path),
+                    var repo = new GitRepository(
+                        Path.GetFileName(localRepo.Path),
                         Directory.GetParent(localRepo.Path).FullName, Log);
                     {
                         repo.Clone(tempRepo.Path);
@@ -446,12 +435,14 @@ namespace Tests.UtilsTests
                 CreateTempRepo(tempRepo);
                 CreateNewBranchInTempRepo(tempRepo, "newbranch");
 
-                var remoteRepo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var remoteRepo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 {
                     using (var localRepo = new TempDirectory())
                     {
-                        var repo = new GitRepository(Path.GetFileName(localRepo.Path),
+                        var repo = new GitRepository(
+                            Path.GetFileName(localRepo.Path),
                             Directory.GetParent(localRepo.Path).FullName, Log);
                         {
                             repo.Clone(tempRepo.Path.Replace("\\", "/"));
@@ -460,7 +451,6 @@ namespace Tests.UtilsTests
                             var remoteSha = remoteRepo.CurrentLocalCommitHash();
                             repo.Pull("newbranch");
                             var localSha = repo.CurrentLocalCommitHash();
-
 
                             Assert.AreEqual(remoteSha, localSha);
                         }
@@ -474,7 +464,8 @@ namespace Tests.UtilsTests
         {
             using (var tempRepo = new TempDirectory())
             {
-                var repo = new GitRepository(Path.GetFileName(tempRepo.Path),
+                var repo = new GitRepository(
+                    Path.GetFileName(tempRepo.Path),
                     Directory.GetParent(tempRepo.Path).FullName, Log);
                 {
                     repo.Clone("https://github.com/skbkontur/cement", "master");
@@ -527,6 +518,39 @@ namespace Tests.UtilsTests
                 var repo = new GitRepository("A", env.WorkingDirectory.Path, Log);
                 repo.RemoteOriginUrls(out _, out var pushUrl);
                 Assert.AreEqual(expectedPushUrl, pushUrl);
+            }
+        }
+
+        private static void CreateTempRepo(TempDirectory url)
+        {
+            using (new DirectoryJumper(url.Path))
+            {
+                File.WriteAllText(Path.Combine(url.Path, "README.txt"), "README");
+                var runner = new ShellRunner();
+                runner.Run("git init");
+                runner.Run("git add README.txt");
+                runner.Run(@"git commit -am initial");
+            }
+        }
+
+        private static void CreateNewBranchInTempRepo(TempDirectory url, string branchName)
+        {
+            using (new DirectoryJumper(url.Path))
+            {
+                var runner = new ShellRunner();
+                runner.Run("git branch " + branchName);
+            }
+        }
+
+        private static void CommitIntoTempRepo(TempDirectory url, string branch)
+        {
+            using (new DirectoryJumper(url.Path))
+            {
+                var runner = new ShellRunner();
+                runner.Run("git checkout " + branch);
+                File.WriteAllText(Path.Combine(url.Path, "content.txt"), "README");
+                runner.Run("git add content.txt");
+                runner.Run(@"git commit -am added");
             }
         }
     }

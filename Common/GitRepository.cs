@@ -11,13 +11,7 @@ namespace Common
     {
         private readonly BuildHelper buildHelper;
         private readonly ILogger log;
-
-        public string RepoPath { get; }
-        public string Workspace { get; }
-        public string ModuleName { get; }
         private readonly ShellRunner runner;
-        public bool IsGitRepo { get; private set; }
-        private IList<Branch> RemoteBranches { get; set; }
 
         public GitRepository(string moduleName, string workspace, ILogger log)
         {
@@ -46,6 +40,11 @@ namespace Common
             return runner.Output.Contains("refs/heads");
         }
 
+        public string RepoPath { get; }
+        public string Workspace { get; }
+        public string ModuleName { get; }
+        public bool IsGitRepo { get; private set; }
+
         public void Clone(string url, string treeish = null, int? depth = null)
         {
             log.LogInformation($"{"[" + ModuleName + "]",-30}Cloning treeish {treeish ?? "master"} into {RepoPath}");
@@ -57,10 +56,12 @@ namespace Common
             {
                 throw new GitCloneException($"Failed to clone {url}:{treeish}. Error message:{runner.Output}");
             }
+
             if (!Directory.Exists(Path.Combine(RepoPath, ".git")))
             {
                 throw new GitCloneException($"Failed to clone {url}:{treeish}. Probably you don't have access to remote repository.");
             }
+
             IsGitRepo = true;
             RemoteBranches = GetRemoteBranches();
         }
@@ -74,10 +75,12 @@ namespace Common
             {
                 throw new GitInitException("Failed to init. Error message:\n" + runner.Errors);
             }
+
             if (!Directory.Exists(Path.Combine(RepoPath, ".git")))
             {
                 throw new GitInitException("Failed to init repository. Probably you don't have access to remote repository.");
             }
+
             IsGitRepo = true;
         }
 
@@ -202,18 +205,6 @@ namespace Common
             Merge("origin/" + treeish);
         }
 
-        private void Merge(string treeish)
-        {
-            log.LogInformation($"{"[" + ModuleName + "]",-30}Merge --ff-only '{treeish}'");
-            var exitCode = runner.RunInDirectory(RepoPath, "git merge --ff-only " + treeish, TimeSpan.FromMinutes(60));
-
-            if (exitCode != 0)
-            {
-                throw new GitPullException(
-                    $"Failed to fast-forward pull in {RepoPath} for branch {treeish}. Error message:\n{runner.Errors}");
-            }
-        }
-
         public bool HasRemoteBranch(string branch)
         {
             if (RemoteBranches == null)
@@ -245,7 +236,8 @@ namespace Common
             log.LogInformation($"{"[" + ModuleName + "]",-30}Rewrite file from remote {branch}:{shortPath}");
 
             shortPath = shortPath.Replace(Path.DirectorySeparatorChar.ToString(), "/");
-            var exitCode = runner.RunInDirectory(RepoPath,
+            var exitCode = runner.RunInDirectory(
+                RepoPath,
                 $"git show origin/{branch}:{shortPath} > {destination}");
 
             if (exitCode != 0)
@@ -285,17 +277,6 @@ namespace Common
 
             var lines = runner.Output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
             return lines.Select(l => l.Replace("*", "").Trim()).ToArray();
-        }
-
-        private void RemoveOrigin()
-        {
-            log.LogInformation($"{"[" + ModuleName + "]",-30}Remove origin");
-            var exitCode = runner.RunInDirectory(RepoPath, "git remote rm origin ");
-
-            if (exitCode != 0)
-            {
-                throw new GitCheckoutException($"Failed to remove in {ModuleName}. Error message:\n{runner.Errors}");
-            }
         }
 
         public void AddOrigin(string url)
@@ -405,7 +386,8 @@ namespace Common
         {
             log.LogInformation($"{"[" + ModuleName + "]",-30}Fast forward pull allowed for {treeish}");
             Fetch(treeish);
-            var exitCode = runner.RunInDirectory(RepoPath,
+            var exitCode = runner.RunInDirectory(
+                RepoPath,
                 $"git merge-base {treeish} {"origin/" + treeish}");
 
             if (exitCode != 0)
@@ -511,7 +493,8 @@ namespace Common
         {
             log.LogInformation($"{"[" + ModuleName + "]",-30}git commit {args.Aggregate("", (x, y) => x + " \"" + y + "\"")}");
 
-            var exitCode = runner.RunInDirectory(RepoPath,
+            var exitCode = runner.RunInDirectory(
+                RepoPath,
                 "git commit" + args.Aggregate("", (x, y) => x + " \"" + y + "\""));
 
             if (exitCode != 0)
@@ -524,7 +507,8 @@ namespace Common
         {
             log.LogInformation($"{"[" + ModuleName + "]",-30}Show unpushed commits");
 
-            var exitCode = runner.RunInDirectory(RepoPath,
+            var exitCode = runner.RunInDirectory(
+                RepoPath,
                 "git log --branches --not --remotes=origin --simplify-by-decoration --decorate --oneline");
 
             if (exitCode != 0)
@@ -544,6 +528,31 @@ namespace Common
             if (exitCode != 0)
             {
                 throw new GitPushException($"Failed to push {RepoPath}:{branch}. Error:\n{runner.Output + runner.Errors}");
+            }
+        }
+
+        private IList<Branch> RemoteBranches { get; set; }
+
+        private void Merge(string treeish)
+        {
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Merge --ff-only '{treeish}'");
+            var exitCode = runner.RunInDirectory(RepoPath, "git merge --ff-only " + treeish, TimeSpan.FromMinutes(60));
+
+            if (exitCode != 0)
+            {
+                throw new GitPullException(
+                    $"Failed to fast-forward pull in {RepoPath} for branch {treeish}. Error message:\n{runner.Errors}");
+            }
+        }
+
+        private void RemoveOrigin()
+        {
+            log.LogInformation($"{"[" + ModuleName + "]",-30}Remove origin");
+            var exitCode = runner.RunInDirectory(RepoPath, "git remote rm origin ");
+
+            if (exitCode != 0)
+            {
+                throw new GitCheckoutException($"Failed to remove in {ModuleName}. Error message:\n{runner.Errors}");
             }
         }
     }

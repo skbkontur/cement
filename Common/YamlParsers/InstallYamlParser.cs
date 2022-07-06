@@ -7,11 +7,13 @@ namespace Common.YamlParsers
 {
     public sealed class InstallYamlParser : ConfigurationYamlParser
     {
-        public InstallYamlParser(FileInfo moduleName) : base(moduleName)
+        public InstallYamlParser(FileInfo moduleName)
+            : base(moduleName)
         {
         }
 
-        public InstallYamlParser(string moduleName, string configFileContents) : base(moduleName, configFileContents)
+        public InstallYamlParser(string moduleName, string configFileContents)
+            : base(moduleName, configFileContents)
         {
         }
 
@@ -35,6 +37,30 @@ namespace Common.YamlParsers
             result.NuGetPackages.AddRange(defaultInstallContent.NuGetPackages.Where(r => !result.NuGetPackages.Contains(r)));
             result.NuGetPackages = result.NuGetPackages.Select(m => m.Substring("nuget ".Length)).ToList();
             return result;
+        }
+
+        public List<string> GetAllInstallFilesFromConfig(string configName)
+        {
+            return GetInstallSectionFromConfig(configName, "install")
+                .Concat(GetInstallSectionFromConfig(configName, "artifacts"))
+                .ToList();
+        }
+
+        private static List<string> GetInstallFromSection(string keyWord, Dictionary<string, object> configSection)
+        {
+            if (configSection == null)
+                return new List<string>();
+
+            if (!configSection.ContainsKey(keyWord))
+                return new List<string>();
+
+            var section = configSection[keyWord];
+            if (section == null || section is string)
+                return new List<string>();
+
+            var list = (List<object>)configSection[keyWord];
+            var strList = list.Select(e => (string)e).ToList();
+            return strList;
         }
 
         private InstallData GetInstallContent(string configuration)
@@ -62,14 +88,8 @@ namespace Common.YamlParsers
                     configQueue.Enqueue(childConfig);
                 }
             }
-            return result;
-        }
 
-        public List<string> GetAllInstallFilesFromConfig(string configName)
-        {
-            return GetInstallSectionFromConfig(configName, "install")
-                .Concat(GetInstallSectionFromConfig(configName, "artifacts"))
-                .ToList();
+            return result;
         }
 
         private List<string> GetInstallSectionFromConfig(string configName, string keyWord)
@@ -87,23 +107,6 @@ namespace Common.YamlParsers
             {
                 throw new BadYamlException(ModuleName, "install", exception.Message);
             }
-        }
-
-        private static List<string> GetInstallFromSection(string keyWord, Dictionary<string, object> configSection)
-        {
-            if (configSection == null)
-                return new List<string>();
-
-            if (!configSection.ContainsKey(keyWord))
-                return new List<string>();
-
-            var section = configSection[keyWord];
-            if (section == null || section is string)
-                return new List<string>();
-
-            var list = (List<object>) configSection[keyWord];
-            var strList = list.Select(e => (string) e).ToList();
-            return strList;
         }
 
         private bool IsBuildFileName(string line)

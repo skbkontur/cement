@@ -2,7 +2,8 @@
 {
     public sealed class GitCommitException : CementException
     {
-        public GitCommitException(string s) : base(s)
+        public GitCommitException(string s)
+            : base(s)
         {
         }
     }

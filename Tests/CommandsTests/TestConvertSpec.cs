@@ -34,55 +34,6 @@ namespace Tests.CommandsTests
             Directory.SetCurrentDirectory(startDirectory);
         }
 
-        private static void AddSpec(List<string> configurations)
-        {
-            Directory.CreateDirectory(".cm");
-            using (var writer = File.CreateText(Path.Combine(".cm", "spec.xml")))
-            {
-                writer.WriteLine("<configurations>");
-                foreach (var configuration in configurations)
-                    writer.WriteLine("<conf name = \"" + configuration + "\"/>");
-                writer.WriteLine("</configurations>");
-            }
-        }
-
-        private static void AddBuildScript(string target, string configuration)
-        {
-            File.WriteAllLines("build" + (configuration == null ? "" : "." + configuration) + ".cmd",
-                new[]
-                {
-                    "target  =  " + target,
-                    $"msbuild d ;lk  wqel k ;lkdf   /p:Configuration={configuration ?? "Release"} target  asdf"
-                });
-        }
-
-        private static void AddDeps(List<Dep> deps, string configuration = null, string force = null)
-        {
-            var depsFileName = "deps" + (configuration == null ? "" : "." + configuration);
-            WriteDeps(deps, force, depsFileName);
-
-            var readedDeps = new DepsIniParser(new FileInfo(depsFileName)).Get();
-            CollectionAssert.AreEquivalent(readedDeps.Deps, deps);
-            Assert.AreEqual(force, readedDeps.Force?.Single());
-        }
-
-        private static void WriteDeps(List<Dep> deps, string force, string depsFileName)
-        {
-            using (var writer = File.CreateText(depsFileName))
-            {
-                if (force != null)
-                    writer.WriteLine("[main]\nforce = " + force);
-                foreach (var dep in deps)
-                {
-                    writer.WriteLine("[module " + dep.Name + "]");
-                    if (dep.Configuration != null)
-                        writer.WriteLine("conf=" + dep.Configuration);
-                    if (dep.Treeish != null)
-                        writer.WriteLine("treeish=" + dep.Treeish);
-                }
-            }
-        }
-
         [Test]
         public void TestGetBuildSection()
         {
@@ -142,6 +93,56 @@ namespace Tests.CommandsTests
             var yamlDepsClient = Yaml.DepsParser("module").Get("client");
             CollectionAssert.AreEquivalent(deps, yamlDeps.Deps);
             CollectionAssert.AreEquivalent(depsClient, yamlDepsClient.Deps);
+        }
+
+        private static void AddSpec(List<string> configurations)
+        {
+            Directory.CreateDirectory(".cm");
+            using (var writer = File.CreateText(Path.Combine(".cm", "spec.xml")))
+            {
+                writer.WriteLine("<configurations>");
+                foreach (var configuration in configurations)
+                    writer.WriteLine("<conf name = \"" + configuration + "\"/>");
+                writer.WriteLine("</configurations>");
+            }
+        }
+
+        private static void AddBuildScript(string target, string configuration)
+        {
+            File.WriteAllLines(
+                "build" + (configuration == null ? "" : "." + configuration) + ".cmd",
+                new[]
+                {
+                    "target  =  " + target,
+                    $"msbuild d ;lk  wqel k ;lkdf   /p:Configuration={configuration ?? "Release"} target  asdf"
+                });
+        }
+
+        private static void AddDeps(List<Dep> deps, string configuration = null, string force = null)
+        {
+            var depsFileName = "deps" + (configuration == null ? "" : "." + configuration);
+            WriteDeps(deps, force, depsFileName);
+
+            var readedDeps = new DepsIniParser(new FileInfo(depsFileName)).Get();
+            CollectionAssert.AreEquivalent(readedDeps.Deps, deps);
+            Assert.AreEqual(force, readedDeps.Force?.Single());
+        }
+
+        private static void WriteDeps(List<Dep> deps, string force, string depsFileName)
+        {
+            using (var writer = File.CreateText(depsFileName))
+            {
+                if (force != null)
+                    writer.WriteLine("[main]\nforce = " + force);
+                foreach (var dep in deps)
+                {
+                    writer.WriteLine("[module " + dep.Name + "]");
+                    if (dep.Configuration != null)
+                        writer.WriteLine("conf=" + dep.Configuration);
+                    if (dep.Treeish != null)
+                        writer.WriteLine("treeish=" + dep.Treeish);
+                }
+            }
         }
     }
 }

@@ -6,10 +6,9 @@ namespace Common
 {
     public sealed class ConfigurationManager
     {
-        private Dictionary<string, IList<string>> configHierarchy;
         public readonly List<string> ProcessedDeps;
         private readonly IConfigurationParser parser;
-
+        private Dictionary<string, IList<string>> configHierarchy;
 
         public ConfigurationManager(string moduleName, IEnumerable<Dep> processedConfigurations)
         {
@@ -81,6 +80,7 @@ namespace Common
                 {
                     reversedHierarchy[from] = new List<string>();
                 }
+
                 foreach (var to in configurationsHierarchy[from])
                 {
                     if (!reversedHierarchy.ContainsKey(to))
@@ -88,12 +88,13 @@ namespace Common
                     reversedHierarchy[to].Add(from);
                 }
             }
+
             return reversedHierarchy;
         }
 
         private bool ProcessedParentDfs(string config)
         {
-            return ProcessedDeps.Contains(config) || config != null && configHierarchy.ContainsKey(config) && configHierarchy[config].Any(ProcessedParentDfs);
+            return ProcessedDeps.Contains(config) || (config != null && configHierarchy.ContainsKey(config) && configHierarchy[config].Any(ProcessedParentDfs));
         }
     }
 }

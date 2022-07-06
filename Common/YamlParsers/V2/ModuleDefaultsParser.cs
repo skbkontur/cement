@@ -19,7 +19,7 @@ namespace Common.YamlParsers.V2
             SettingsSectionParser settingsSectionParser,
             BuildSectionParser buildSectionParser,
             InstallSectionParser installSectionParser
-            )
+        )
         {
             this.hooksSectionParser = hooksSectionParser;
             this.depsSectionParser = depsSectionParser;

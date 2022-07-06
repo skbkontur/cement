@@ -13,14 +13,15 @@ namespace Common
 {
     public sealed class ShellRunner
     {
-        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(10);
         public static string LastOutput;
-        public string Output { get; private set; }
-        public string Errors { get; private set; }
+        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(10);
         public bool HasTimeout;
 
         private readonly ProcessStartInfo startInfo;
         private readonly ILogger log;
+
+        public event ReadLineEvent OnOutputChange;
+        public event ReadLineEvent OnErrorsChange;
 
         public ShellRunner(ILogger log = null)
         {
@@ -41,80 +42,8 @@ namespace Common
             AddUserPassword();
         }
 
-        private void AddUserPassword()
-        {
-            var settings = CementSettingsRepository.Get();
-            if (settings.UserName == null || settings.EncryptedPassword == null)
-                return;
-
-            startInfo.Domain = settings.Domain ?? Environment.MachineName;
-            startInfo.UserName = settings.UserName;
-            var decryptedPassword = Helper.Decrypt(settings.EncryptedPassword);
-
-            var password = new SecureString();
-            foreach (var c in decryptedPassword)
-                password.AppendChar(c);
-            startInfo.Password = password;
-        }
-
-        private void BeforeRun()
-        {
-            startInfo.Arguments = Platform.IsUnix() ? " -lc " : " /D /C ";
-            Output = "";
-            Errors = "";
-            HasTimeout = false;
-        }
-
-        public delegate void ReadLineEvent(string content);
-
-        public event ReadLineEvent OnOutputChange;
-        public event ReadLineEvent OnErrorsChange;
-
-        private string ReadStream(StreamReader output, ReadLineEvent evt)
-        {
-            var result = new StringBuilder();
-            while (!output.EndOfStream)
-            {
-                var line = output.ReadLine();
-                evt?.Invoke(line);
-                result.Append(line + "\n");
-            }
-            return result.ToString();
-        }
-
-        private void ReadCmdOutput(Process pr)
-        {
-            Output = ReadStream(pr.StandardOutput, OnOutputChange);
-        }
-
-        private void ReadCmdError(Process pr)
-        {
-            Errors = ReadStream(pr.StandardError, OnErrorsChange);
-        }
-
-        private int RunThreeTimes(string commandWithArguments, string workingDirectory, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
-        {
-            int exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
-            int times = 2;
-
-            while (times-- > 0 && NeedRunAgain(retryStrategy, exitCode))
-            {
-                if (HasTimeout)
-                    timeout = TimeoutHelper.IncreaseTimeout(timeout);
-                exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
-                log.LogDebug($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} with exitCode {exitCode} and retryStrategy {retryStrategy}");
-            }
-            return exitCode;
-        }
-
-        private bool NeedRunAgain(RetryStrategy retryStrategy, int exitCode)
-        {
-            if (retryStrategy == RetryStrategy.IfTimeout && HasTimeout)
-                return true;
-            if (retryStrategy == RetryStrategy.IfTimeoutOrFailed && (exitCode != 0 || HasTimeout))
-                return true;
-            return false;
-        }
+        public string Output { get; private set; }
+        public string Errors { get; private set; }
 
         public int RunOnce(string commandWithArguments, string workingDirectory, TimeSpan timeout)
         {
@@ -133,17 +62,17 @@ namespace Common
                     threadOutput.Start();
                     threadErrors.Start();
 
-                    if (!threadOutput.Join(timeout) || !threadErrors.Join(timeout) || !process.WaitForExit((int) timeout.TotalMilliseconds))
+                    if (!threadOutput.Join(timeout) || !threadErrors.Join(timeout) || !process.WaitForExit((int)timeout.TotalMilliseconds))
                     {
                         threadOutput.Join();
                         threadErrors.Join();
 
                         threadOutput.Interrupt();
                         threadErrors.Interrupt();
-                        
+
                         threadOutput.Join();
                         threadErrors.Join();
-                        
+
                         KillProcessAndChildren(process.Id, new HashSet<int>());
 
                         HasTimeout = true;
@@ -171,9 +100,107 @@ namespace Common
                         ConsoleWriter.Shared.WriteError(e.Message);
                         log?.LogError(e.Message);
                     }
+
                     return -1;
                 }
             }
+        }
+
+        public int Run(string commandWithArguments)
+        {
+            return Run(commandWithArguments, DefaultTimeout);
+        }
+
+        public int Run(string commandWithArguments, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
+        {
+            return RunThreeTimes(commandWithArguments, Directory.GetCurrentDirectory(), timeout, retryStrategy);
+        }
+
+        public int RunInDirectory(string path, string commandWithArguments)
+        {
+            return RunInDirectory(path, commandWithArguments, DefaultTimeout);
+        }
+
+        public int RunInDirectory(string path, string commandWithArguments, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
+        {
+            return RunThreeTimes(commandWithArguments, path, timeout, retryStrategy);
+        }
+
+        private static bool IsCementProcess(string process)
+        {
+            return process == "cmd" || process.StartsWith("ssh") || process.StartsWith("git");
+        }
+
+        private void AddUserPassword()
+        {
+            var settings = CementSettingsRepository.Get();
+            if (settings.UserName == null || settings.EncryptedPassword == null)
+                return;
+
+            startInfo.Domain = settings.Domain ?? Environment.MachineName;
+            startInfo.UserName = settings.UserName;
+            var decryptedPassword = Helper.Decrypt(settings.EncryptedPassword);
+
+            var password = new SecureString();
+            foreach (var c in decryptedPassword)
+                password.AppendChar(c);
+            startInfo.Password = password;
+        }
+
+        private void BeforeRun()
+        {
+            startInfo.Arguments = Platform.IsUnix() ? " -lc " : " /D /C ";
+            Output = "";
+            Errors = "";
+            HasTimeout = false;
+        }
+
+        private string ReadStream(StreamReader output, ReadLineEvent evt)
+        {
+            var result = new StringBuilder();
+            while (!output.EndOfStream)
+            {
+                var line = output.ReadLine();
+                evt?.Invoke(line);
+                result.Append(line + "\n");
+            }
+
+            return result.ToString();
+        }
+
+        private void ReadCmdOutput(Process pr)
+        {
+            Output = ReadStream(pr.StandardOutput, OnOutputChange);
+        }
+
+        private void ReadCmdError(Process pr)
+        {
+            Errors = ReadStream(pr.StandardError, OnErrorsChange);
+        }
+
+        private int RunThreeTimes(string commandWithArguments, string workingDirectory, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
+        {
+            int exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
+            int times = 2;
+
+            while (times-- > 0 && NeedRunAgain(retryStrategy, exitCode))
+            {
+                if (HasTimeout)
+                    timeout = TimeoutHelper.IncreaseTimeout(timeout);
+                exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
+                log.LogDebug($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} with exitCode {exitCode} and retryStrategy {retryStrategy}");
+            }
+
+            return exitCode;
+        }
+
+        private bool NeedRunAgain(RetryStrategy retryStrategy, int exitCode)
+        {
+            if (retryStrategy == RetryStrategy.IfTimeout && HasTimeout)
+                return true;
+            if (retryStrategy == RetryStrategy.IfTimeoutOrFailed && (exitCode != 0 || HasTimeout))
+                return true;
+            return false;
         }
 
         private void KillProcessAndChildren(int pid, HashSet<int> killed)
@@ -205,29 +232,6 @@ namespace Common
             }
         }
 
-        private static bool IsCementProcess(string process)
-        {
-            return process == "cmd" || process.StartsWith("ssh") || process.StartsWith("git");
-        }
-
-        public int Run(string commandWithArguments)
-        {
-            return Run(commandWithArguments, DefaultTimeout);
-        }
-
-        public int Run(string commandWithArguments, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
-        {
-            return RunThreeTimes(commandWithArguments, Directory.GetCurrentDirectory(), timeout, retryStrategy);
-        }
-
-        public int RunInDirectory(string path, string commandWithArguments)
-        {
-            return RunInDirectory(path, commandWithArguments, DefaultTimeout);
-        }
-
-        public int RunInDirectory(string path, string commandWithArguments, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
-        {
-            return RunThreeTimes(commandWithArguments, path, timeout, retryStrategy);
-        }
+        public delegate void ReadLineEvent(string content);
     }
 }

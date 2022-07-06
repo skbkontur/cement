@@ -13,23 +13,36 @@ namespace Commands
         private bool showShort;
 
         public CheckDeps()
-            : base(new CommandSettings
-            {
-                LogPerfix = "CHECK-DEPS",
-                LogFileName = null,
-                MeasureElapsedTime = false,
-                RequireModuleYaml = true,
-                Location = CommandSettings.CommandLocation.RootModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "CHECK-DEPS",
+                    LogFileName = null,
+                    MeasureElapsedTime = false,
+                    RequireModuleYaml = true,
+                    Location = CommandSettings.CommandLocation.RootModuleDirectory
+                })
         {
         }
+
+        public override string HelpMessage => @"
+    Checks deps in module.yaml and references in *.csproj
+
+    Usage:
+        cm check-deps [-c configName]
+
+        -c/--configuration      - check deps for specific configuration
+        -a/--all                - show csproj names which has bad references
+        -s/--short              - show only section with bad references
+        -e/--external           - check references to not cement modules or to current module
+";
 
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseCheckDeps(args);
-            configuration = (string) parsedArgs["configuration"];
-            showAll = (bool) parsedArgs["all"];
-            showShort = (bool) parsedArgs["short"];
+            configuration = (string)parsedArgs["configuration"];
+            showAll = (bool)parsedArgs["all"];
+            showShort = (bool)parsedArgs["short"];
             findExternal = (bool)parsedArgs["external"];
         }
 
@@ -90,19 +103,8 @@ namespace Commands
                 if (result.NotInDeps.Any())
                     ConsoleWriter.Shared.WriteInfo("See also 'ref fix' command.");
             }
+
             return 0;
         }
-
-        public override string HelpMessage => @"
-    Checks deps in module.yaml and references in *.csproj
-
-    Usage:
-        cm check-deps [-c configName]
-
-        -c/--configuration      - check deps for specific configuration
-        -a/--all                - show csproj names which has bad references
-        -s/--short              - show only section with bad references
-        -e/--external           - check references to not cement modules or to current module
-";
     }
 }

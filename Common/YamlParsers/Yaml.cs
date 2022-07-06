@@ -88,8 +88,9 @@ namespace Common.YamlParsers
             }
 
             var all = GetCsprojsList(moduleName);
-            var projectNameFromSln = all.FirstOrDefault(f =>
-                string.Equals(Path.GetFileName(f), project, StringComparison.CurrentCultureIgnoreCase));
+            var projectNameFromSln = all.FirstOrDefault(
+                f =>
+                    string.Equals(Path.GetFileName(f), project, StringComparison.CurrentCultureIgnoreCase));
             if (projectNameFromSln != null && File.Exists(projectNameFromSln))
                 return projectNameFromSln;
 

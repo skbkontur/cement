@@ -8,13 +8,6 @@ namespace Tests.ParsersTests.V2
     [TestFixture]
     public class TestDepSectionItemParser
     {
-        [TestCaseSource(nameof(Source))]
-        public DepSectionItem Parse(string input)
-        {
-            var parser = new DepSectionItemParser();
-            return parser.Parse(input);
-        }
-
         private static TestCaseData[] Source =
         {
             new TestCaseData("module").Returns(new DepSectionItem(new Dep("module"))),
@@ -45,5 +38,12 @@ namespace Tests.ParsersTests.V2
             new TestCaseData("module/some-cfg@branch")
                 .Returns(new DepSectionItem(new Dep("module", "branch", "some-cfg"))),
         };
+
+        [TestCaseSource(nameof(Source))]
+        public DepSectionItem Parse(string input)
+        {
+            var parser = new DepSectionItemParser();
+            return parser.Parse(input);
+        }
     }
 }

@@ -22,9 +22,9 @@
     <PackageReference Include="Vostok.Logging.Microsoft" Version="2.0.9" />
   </ItemGroup>
   <ItemGroup>
-	  <Reference Include="NuGet">
-        <!-- NuGet.dll это тот же NuGet.exe с измененным расширением, костыль придуман чтобы сформировался единый PublishSingleFile -->
-	    <HintPath>..\externals\NuGet.dll</HintPath>
+    <Reference Include="NuGet">
+      <!-- NuGet.dll это тот же NuGet.exe с измененным расширением, костыль придуман чтобы сформировался единый PublishSingleFile -->
+      <HintPath>..\externals\NuGet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

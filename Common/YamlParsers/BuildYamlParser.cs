@@ -7,11 +7,13 @@ namespace Common.YamlParsers
 {
     public sealed class BuildYamlParser : ConfigurationYamlParser
     {
-        public BuildYamlParser(FileInfo modulePath) : base(modulePath)
+        public BuildYamlParser(FileInfo modulePath)
+            : base(modulePath)
         {
         }
 
-        public BuildYamlParser(string moduleName, string content) : base(moduleName, content)
+        public BuildYamlParser(string moduleName, string content)
+            : base(moduleName, content)
         {
         }
 
@@ -31,36 +33,65 @@ namespace Common.YamlParsers
             }
         }
 
+        private static List<string> GetBuildParams(object section)
+        {
+            var list = section as List<object>;
+            if (list != null)
+                return list.Cast<string>().ToList();
+            var str = section as string;
+            if (str != null)
+                return new[] {str}.ToList();
+            return new List<string>();
+        }
+
+        private static Tool GetToolFromDict(Dictionary<object, object> dict)
+        {
+            var tool = new Tool {Name = "msbuild"};
+            foreach (var key in dict.Keys)
+            {
+                if ((string)key == "name")
+                    tool.Name = (string)dict[key];
+                if ((string)key == "version")
+                    tool.Version = (string)dict[key];
+            }
+
+            tool.Version = tool.Version ?? CementSettingsRepository.Get().DefaultMsBuildVersion;
+            return tool;
+        }
+
         private List<BuildData> GetBuildData(string configName)
         {
             configName = configName ?? GetDefaultConfigurationName();
 
             var buildSections = GetBuildSectionsFromConfig(configName);
             if (!buildSections.Any())
-                buildSections.Add(new Dictionary<string, object>
-                {
-                    {"tool", null},
-                    {"target", null},
-                    {"configuration", null},
-                    {"parameters", null}
-                });
+                buildSections.Add(
+                    new Dictionary<string, object>
+                    {
+                        {"tool", null},
+                        {"target", null},
+                        {"configuration", null},
+                        {"parameters", null}
+                    });
 
             foreach (var buildSection in buildSections)
                 ProcessBuildSection(configName, buildSection, buildSections);
 
-            return buildSections.Select(parameters =>
-                new BuildData(Helper.FixPath((string) parameters["target"]), (string) parameters["configuration"],
-                    GetToolFromSection(parameters["tool"]),
-                    GetBuildParams(parameters["parameters"]), (string) parameters["name"])).ToList();
+            return buildSections.Select(
+                parameters =>
+                    new BuildData(
+                        Helper.FixPath((string)parameters["target"]), (string)parameters["configuration"],
+                        GetToolFromSection(parameters["tool"]),
+                        GetBuildParams(parameters["parameters"]), (string)parameters["name"])).ToList();
         }
 
         private void ProcessBuildSection(string configName, Dictionary<string, object> buildSection, List<Dictionary<string, object>> buildSections)
         {
             TryUpdateWithDefaultSection(buildSection);
-            if (!buildSection.ContainsKey("target") || string.IsNullOrEmpty((string) buildSection["target"]))
+            if (!buildSection.ContainsKey("target") || string.IsNullOrEmpty((string)buildSection["target"]))
                 buildSection["target"] = "";
-            if ((!buildSection.ContainsKey("configuration") || string.IsNullOrEmpty((string) buildSection["configuration"]))
-                && ((string) buildSection["target"]).EndsWith(".sln"))
+            if ((!buildSection.ContainsKey("configuration") || string.IsNullOrEmpty((string)buildSection["configuration"]))
+                && ((string)buildSection["target"]).EndsWith(".sln"))
                 throw new BadYamlException(ModuleName, "build", "Build configuration not found in " + configName);
             if (!buildSection.ContainsKey("tool") || buildSection["tool"] == null)
                 buildSection["tool"] = "msbuild";
@@ -74,44 +105,19 @@ namespace Common.YamlParsers
                 buildSection.Add("configuration", null);
         }
 
-        private static List<string> GetBuildParams(object section)
-        {
-            var list = section as List<object>;
-            if (list != null)
-                return list.Cast<string>().ToList();
-            var str = section as string;
-            if (str != null)
-                return new[] {str}.ToList();
-            return new List<string>();
-        }
-
         private Tool GetToolFromSection(object section)
         {
             if (section is string)
             {
-                var tool = (string) section;
+                var tool = (string)section;
                 if (tool.Length == 0)
                     throw new BadYamlException(ModuleName, "tool", "empty tool");
                 return new Tool {Name = tool};
             }
+
             if (section is IDictionary<object, object>)
-                return GetToolFromDict((Dictionary<object, object>) section);
+                return GetToolFromDict((Dictionary<object, object>)section);
             throw new BadYamlException(ModuleName, "tool", "not dict format");
-        }
-
-        private static Tool GetToolFromDict(Dictionary<object, object> dict)
-        {
-            var tool = new Tool {Name = "msbuild"};
-            foreach (var key in dict.Keys)
-            {
-                if ((string) key == "name")
-                    tool.Name = (string) dict[key];
-                if ((string) key == "version")
-                    tool.Version = (string) dict[key];
-            }
-
-            tool.Version = tool.Version ?? CementSettingsRepository.Get().DefaultMsBuildVersion;
-            return tool;
         }
 
         private void TryUpdateWithDefaultSection(Dictionary<string, object> parameters)
@@ -142,13 +148,14 @@ namespace Common.YamlParsers
             if (configSection["build"] is Dictionary<object, object>)
             {
                 var dict = configSection["build"] as Dictionary<object, object>;
-                var stringDict = dict.ToDictionary(kvp => (string) kvp.Key, kvp => kvp.Value);
+                var stringDict = dict.ToDictionary(kvp => (string)kvp.Key, kvp => kvp.Value);
                 return new[] {stringDict}.ToList();
             }
+
             var list = configSection["build"] as List<object>;
             if (list == null)
                 return new List<Dictionary<string, object>>();
-            return list.Cast<Dictionary<object, object>>().Select(d => d.ToDictionary(kvp => (string) kvp.Key, kvp => kvp.Value)).ToList();
+            return list.Cast<Dictionary<object, object>>().Select(d => d.ToDictionary(kvp => (string)kvp.Key, kvp => kvp.Value)).ToList();
         }
     }
 }

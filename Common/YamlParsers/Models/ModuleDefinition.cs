@@ -7,6 +7,8 @@ namespace Common.YamlParsers.Models
 {
     public sealed class ModuleDefinition
     {
+        private readonly ModuleConfig defaultConfig;
+
         public ModuleDefinition(
             [NotNull] IReadOnlyDictionary<string, ModuleConfig> allConfigurations,
             [NotNull] ModuleDefaults defaults)
@@ -18,6 +20,9 @@ namespace Common.YamlParsers.Models
 
         [NotNull]
         public IReadOnlyDictionary<string, ModuleConfig> AllConfigurations { get; }
+
+        [NotNull]
+        public ModuleDefaults Defaults { get; }
 
         [CanBeNull]
         public ModuleConfig FindDefaultConfiguration() => defaultConfig;
@@ -31,11 +36,6 @@ namespace Common.YamlParsers.Models
             return defaultConfig;
         }
 
-        [NotNull]
-        public ModuleDefaults Defaults { get; }
-
         public ModuleConfig this[string configName] => AllConfigurations[configName];
-
-        private readonly ModuleConfig defaultConfig;
     }
 }

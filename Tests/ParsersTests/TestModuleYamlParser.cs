@@ -9,7 +9,9 @@ using NUnit.Framework;
 
 namespace Tests.ParsersTests
 {
-    [Explicit, TestFixture, Parallelizable(ParallelScope.All)]
+    [Explicit]
+    [TestFixture]
+    [Parallelizable(ParallelScope.All)]
     public class TestModuleYamlParser
     {
         private const string LocalCementDirectory = @"D:\Projects\";
@@ -54,12 +56,13 @@ namespace Tests.ParsersTests
 
             foreach (var config in configs)
             {
-                Assert.DoesNotThrow(() =>
-                {
-                    depsSectionParser.Get(config);
-                    installSectionParser.Get(config);
-                    buildSectionParser.Get(config);
-                });
+                Assert.DoesNotThrow(
+                    () =>
+                    {
+                        depsSectionParser.Get(config);
+                        installSectionParser.Get(config);
+                        buildSectionParser.Get(config);
+                    });
             }
         }
 
@@ -179,13 +182,7 @@ namespace Tests.ParsersTests
 
         private static TestCaseData[] Source
         {
-            [UsedImplicitly]
-            get
-            {
-                return pathToContentMap.Keys.Select(p => new TestCaseData(p)).ToArray();
-            }
+            [UsedImplicitly] get { return pathToContentMap.Keys.Select(p => new TestCaseData(p)).ToArray(); }
         }
-
-
     }
 }

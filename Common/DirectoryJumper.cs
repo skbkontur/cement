@@ -14,6 +14,7 @@ namespace Common
             {
                 Directory.CreateDirectory(path);
             }
+
             Directory.SetCurrentDirectory(path);
         }
 

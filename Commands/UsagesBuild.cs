@@ -16,21 +16,24 @@ namespace Commands
         private bool pause;
 
         public UsagesBuild()
-            : base(new CommandSettings
-            {
-                LogPerfix = "USAGES-BUILD",
-                LogFileName = "usages-build",
-                MeasureElapsedTime = true,
-                Location = CommandSettings.CommandLocation.RootModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "USAGES-BUILD",
+                    LogFileName = "usages-build",
+                    MeasureElapsedTime = true,
+                    Location = CommandSettings.CommandLocation.RootModuleDirectory
+                })
         {
         }
+
+        public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseBuildParents(args);
-            checkingBranch = (string) parsedArgs["branch"];
-            pause = (bool) parsedArgs["pause"];
+            checkingBranch = (string)parsedArgs["branch"];
+            pause = (bool)parsedArgs["pause"];
         }
 
         protected override int Execute()
@@ -53,38 +56,6 @@ namespace Commands
             return 0;
         }
 
-        private void BuildDeps(List<Dep> toBuilt)
-        {
-            var badParents = new List<KeyValuePair<Dep, string>>();
-            var goodParents = new List<Dep>();
-
-            using (new DirectoryJumper(workspace))
-            {
-                foreach (var depParent in toBuilt)
-                {
-                    try
-                    {
-                        BuildParent(depParent);
-                        goodParents.Add(depParent);
-                    }
-                    catch (CementException exception)
-                    {
-                        ConsoleWriter.Shared.WriteError(exception.ToString());
-                        badParents.Add(new KeyValuePair<Dep, string>(depParent,
-                            exception.Message +
-                            "\nLast command output:\n" +
-                            ShellRunner.LastOutput));
-                        if (pause)
-                            WaitKey();
-                    }
-                    Console.WriteLine();
-                    Console.WriteLine();
-                }
-            }
-
-            WriteStat(badParents, goodParents);
-        }
-
         private static void WriteStat(List<KeyValuePair<Dep, string>> badParents, List<Dep> goodParents)
         {
             if (!badParents.Any())
@@ -105,6 +76,41 @@ namespace Commands
                     Console.WriteLine(pair.Value);
                 }
             }
+        }
+
+        private void BuildDeps(List<Dep> toBuilt)
+        {
+            var badParents = new List<KeyValuePair<Dep, string>>();
+            var goodParents = new List<Dep>();
+
+            using (new DirectoryJumper(workspace))
+            {
+                foreach (var depParent in toBuilt)
+                {
+                    try
+                    {
+                        BuildParent(depParent);
+                        goodParents.Add(depParent);
+                    }
+                    catch (CementException exception)
+                    {
+                        ConsoleWriter.Shared.WriteError(exception.ToString());
+                        badParents.Add(
+                            new KeyValuePair<Dep, string>(
+                                depParent,
+                                exception.Message +
+                                "\nLast command output:\n" +
+                                ShellRunner.LastOutput));
+                        if (pause)
+                            WaitKey();
+                    }
+
+                    Console.WriteLine();
+                    Console.WriteLine();
+                }
+            }
+
+            WriteStat(badParents, goodParents);
         }
 
         private void WaitKey()
@@ -132,10 +138,9 @@ namespace Commands
                     throw new CementException("Failed to build " + depParent.Name);
                 ConsoleWriter.Shared.ResetProgress();
             }
+
             ConsoleWriter.Shared.WriteOk($"{depParent} build fine");
             Console.WriteLine();
         }
-
-        public override string HelpMessage => @"";
     }
 }

@@ -9,15 +9,6 @@ namespace Tests.ParsersTests.V2
     [TestFixture]
     public class TestInstallSectionParser
     {
-        [TestCaseSource(nameof(ArtifactsSource))]
-        [TestCaseSource(nameof(BuildFilesSource))]
-        public void Parse(InstallSection installSection, InstallData expected)
-        {
-            var parser = new InstallSectionParser();
-            var actual = parser.Parse(installSection);
-            actual.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
-        }
-
         private static TestCaseData[] ArtifactsSource =
         {
             new TestCaseData(
@@ -120,5 +111,14 @@ namespace Tests.ParsersTests.V2
                     })
                 .SetName("Install section: install files. Nuget and external modules are not considered install files."),
         };
+
+        [TestCaseSource(nameof(ArtifactsSource))]
+        [TestCaseSource(nameof(BuildFilesSource))]
+        public void Parse(InstallSection installSection, InstallData expected)
+        {
+            var parser = new InstallSectionParser();
+            var actual = parser.Parse(installSection);
+            actual.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
+        }
     }
 }

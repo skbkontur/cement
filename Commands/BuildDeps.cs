@@ -19,30 +19,81 @@ namespace Commands
         private BuildSettings buildSettings;
 
         public BuildDeps()
-            : base(new CommandSettings
-            {
-                LogPerfix = "BUILD-DEPS",
-                LogFileName = "build-deps",
-                MeasureElapsedTime = true,
-                Location = CommandSettings.CommandLocation.RootModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "BUILD-DEPS",
+                    LogFileName = "build-deps",
+                    MeasureElapsedTime = true,
+                    Location = CommandSettings.CommandLocation.RootModuleDirectory
+                })
         {
         }
+
+        public static void TryNugetRestore(List<Dep> modulesToUpdate, ModuleBuilder builder)
+        {
+            Log.LogDebug("Restoring NuGet packages");
+            ConsoleWriter.Shared.ResetProgress();
+            try
+            {
+                var nugetRunCommand = NuGetHelper.GetNugetRunCommand();
+                if (nugetRunCommand == null)
+                    return;
+
+                var deps = modulesToUpdate.GroupBy(d => d.Name).ToList();
+                Parallel.ForEach(
+                    deps, Helper.ParallelOptions, group =>
+                    {
+                        ConsoleWriter.Shared.WriteProgress($"{group.Key,-30} nuget restoring");
+                        builder.NugetRestore(group.Key, group.Select(d => d.Configuration).ToList(), nugetRunCommand);
+                        ConsoleWriter.Shared.SaveToProcessedModules(group.Key);
+                    });
+            }
+            catch (AggregateException ae)
+            {
+                Log.LogError(ae.Flatten().InnerExceptions.First(), ae.Flatten().InnerExceptions.First().Message);
+            }
+            catch (Exception e)
+            {
+                Log.LogError(e, e.Message);
+            }
+
+            Log.LogDebug("OK NuGet packages restored");
+            ConsoleWriter.Shared.ResetProgress();
+        }
+
+        public override string HelpMessage => @"
+    Performs build for current module dependencies
+
+    Usage:
+        cm build-deps [-r|--rebuild] [-q|--quickly] [-v|--verbose|-w|--warnings] [-p|--progress] [-c|--configuration <config-name>]
+
+        -r/--rebuild              - rebuild all deps (default skip module if it was already built,
+                                    according to its commit-hash)
+        -q/--quickly              - build deps in parallel
+        -c/--configuration        - build deps for corresponding configuration
+
+        -v/--verbose              - show full msbuild output
+        -w/--warnings             - show warnings
+
+        -p/--progress             - show msbuild output in one line
+        --cleanBeforeBuild        - delete all local changes if project's TargetFramework is 'netstandardXX'
+";
 
         protected override void ParseArgs(string[] args)
         {
             Helper.RemoveOldKey(ref args, "-t", Log);
 
             var parsedArgs = ArgumentParser.ParseBuildDeps(args);
-            configuration = (string) parsedArgs["configuration"];
-            rebuild = (bool) parsedArgs["rebuild"];
+            configuration = (string)parsedArgs["configuration"];
+            rebuild = (bool)parsedArgs["rebuild"];
             parallel = (bool)parsedArgs["quickly"];
             buildSettings = new BuildSettings
             {
-                ShowAllWarnings = (bool) parsedArgs["warnings"],
-                ShowOutput = (bool) parsedArgs["verbose"],
-                ShowProgress = (bool) parsedArgs["progress"],
-                CleanBeforeBuild = (bool) parsedArgs["cleanBeforeBuild"]
+                ShowAllWarnings = (bool)parsedArgs["warnings"],
+                ShowOutput = (bool)parsedArgs["verbose"],
+                ShowProgress = (bool)parsedArgs["progress"],
+                CleanBeforeBuild = (bool)parsedArgs["cleanBeforeBuild"]
             };
         }
 
@@ -82,19 +133,8 @@ namespace Commands
 
             TryNugetRestore(modulesToBuild, builder);
 
-            var isSuccessful = parallel ?
-                BuildDepsParallel(modulesOrder, builtStorage, modulesToBuild, builder) :
-                BuildDepsSequential(modulesOrder, builtStorage, modulesToBuild, builder);
+            var isSuccessful = parallel ? BuildDepsParallel(modulesOrder, builtStorage, modulesToBuild, builder) : BuildDepsSequential(modulesOrder, builtStorage, modulesToBuild, builder);
             return isSuccessful ? 0 : -1;
-        }
-
-        private void TryCleanModules(List<Dep> modules, Cleaner cleaner)
-        {
-            foreach (var module in modules)
-            {
-                if (cleaner.IsNetStandard(module))
-                    cleaner.Clean(module);
-            }
         }
 
         private static bool BuildDepsSequential(ModulesOrder modulesOrder, BuildInfoStorage buildStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
@@ -128,6 +168,7 @@ namespace Commands
                 buildStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
                 built++;
             }
+
             buildStorage.Save();
             Log.LogDebug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
             return true;
@@ -141,42 +182,44 @@ namespace Commands
 
             for (int i = 0; i < Helper.MaxDegreeOfParallelism; i++)
             {
-                tasks.Add(Task.Run(() =>
-                {
-                    while (true)
-                    {
-                        var dep = parallelBuilder.TryStartBuild();
-                        if (dep == null)
-                            return;
-
-                        if (dep.Equals(modulesOrder.BuildOrder.LastOrDefault()))
+                tasks.Add(
+                    Task.Run(
+                        () =>
                         {
-                            parallelBuilder.EndBuild(dep);
-                            continue;
-                        }
-
-                        if (NoNeedToBuild(dep, modulesToBuild))
-                        {
-                            parallelBuilder.EndBuild(dep);
-
-                            lock (buildStorage)
-                                buildStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
-                            continue;
-                        }
-
-                        ConsoleWriter.Shared.WriteProgress($"{dep.ToBuildString(),-49} {$"{builtCount}/{modulesToBuild.Count}",10}");
-                        var success = builder.Build(dep);
-
-                        parallelBuilder.EndBuild(dep, !success);
-
-                        if (success)
-                            lock (buildStorage)
+                            while (true)
                             {
-                                buildStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
-                                builtCount++;
+                                var dep = parallelBuilder.TryStartBuild();
+                                if (dep == null)
+                                    return;
+
+                                if (dep.Equals(modulesOrder.BuildOrder.LastOrDefault()))
+                                {
+                                    parallelBuilder.EndBuild(dep);
+                                    continue;
+                                }
+
+                                if (NoNeedToBuild(dep, modulesToBuild))
+                                {
+                                    parallelBuilder.EndBuild(dep);
+
+                                    lock (buildStorage)
+                                        buildStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
+                                    continue;
+                                }
+
+                                ConsoleWriter.Shared.WriteProgress($"{dep.ToBuildString(),-49} {$"{builtCount}/{modulesToBuild.Count}",10}");
+                                var success = builder.Build(dep);
+
+                                parallelBuilder.EndBuild(dep, !success);
+
+                                if (success)
+                                    lock (buildStorage)
+                                    {
+                                        buildStorage.AddBuiltModule(dep, modulesOrder.CurrentCommitHashes);
+                                        builtCount++;
+                                    }
                             }
-                    }
-                }));
+                        }));
             }
 
             Task.WaitAll(tasks.ToArray());
@@ -184,36 +227,6 @@ namespace Commands
             buildStorage.Save();
             Log.LogDebug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
             return !parallelBuilder.IsFailed;
-        }
-
-        public static void TryNugetRestore(List<Dep> modulesToUpdate, ModuleBuilder builder)
-        {
-            Log.LogDebug("Restoring NuGet packages");
-            ConsoleWriter.Shared.ResetProgress();
-            try
-            {
-                var nugetRunCommand = NuGetHelper.GetNugetRunCommand();
-                if (nugetRunCommand == null)
-                    return;
-
-                var deps = modulesToUpdate.GroupBy(d => d.Name).ToList();
-                Parallel.ForEach(deps, Helper.ParallelOptions, group =>
-                {
-                    ConsoleWriter.Shared.WriteProgress($"{group.Key,-30} nuget restoring");
-                    builder.NugetRestore(group.Key, group.Select(d => d.Configuration).ToList(), nugetRunCommand);
-                    ConsoleWriter.Shared.SaveToProcessedModules(group.Key);
-                });
-            }
-            catch (AggregateException ae)
-            {
-                Log.LogError(ae.Flatten().InnerExceptions.First(), ae.Flatten().InnerExceptions.First().Message);
-            }
-            catch (Exception e)
-            {
-                Log.LogError(e, e.Message);
-            }
-            Log.LogDebug("OK NuGet packages restored");
-            ConsoleWriter.Shared.ResetProgress();
         }
 
         private static bool NoNeedToBuild(Dep dep, List<Dep> modulesToBuild)
@@ -224,25 +237,17 @@ namespace Commands
                 ConsoleWriter.Shared.WriteSkip($"{dep.ToBuildString(),-40}");
                 return true;
             }
+
             return false;
         }
 
-        public override string HelpMessage => @"
-    Performs build for current module dependencies
-
-    Usage:
-        cm build-deps [-r|--rebuild] [-q|--quickly] [-v|--verbose|-w|--warnings] [-p|--progress] [-c|--configuration <config-name>]
-
-        -r/--rebuild              - rebuild all deps (default skip module if it was already built,
-                                    according to its commit-hash)
-        -q/--quickly              - build deps in parallel
-        -c/--configuration        - build deps for corresponding configuration
-
-        -v/--verbose              - show full msbuild output
-        -w/--warnings             - show warnings
-
-        -p/--progress             - show msbuild output in one line
-        --cleanBeforeBuild        - delete all local changes if project's TargetFramework is 'netstandardXX'
-";
+        private void TryCleanModules(List<Dep> modules, Cleaner cleaner)
+        {
+            foreach (var module in modules)
+            {
+                if (cleaner.IsNetStandard(module))
+                    cleaner.Clean(module);
+            }
+        }
     }
 }

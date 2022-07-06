@@ -7,7 +7,7 @@ namespace Common
 {
     public sealed class ConfigurationXmlParser : IConfigurationParser
     {
-        private XmlDocument document;
+        private readonly XmlDocument document;
 
         public ConfigurationXmlParser(string content)
         {
@@ -21,7 +21,6 @@ namespace Common
             document.Load(Path.Combine(modulePath.FullName, ".cm", "spec.xml"));
         }
 
-
         public IList<string> GetConfigurations()
         {
             var configurations = new List<string>();
@@ -31,6 +30,7 @@ namespace Common
                 if (node.Attributes != null)
                     configurations.Add(node.Attributes["name"].Value);
             }
+
             return configurations;
         }
 
@@ -47,6 +47,7 @@ namespace Common
             {
                 defaultConfiguration = node.Attributes["name"].Value;
             }
+
             return defaultConfiguration;
         }
 
@@ -60,6 +61,7 @@ namespace Common
                     if (node.Attributes["parents"] != null)
                         return node.Attributes["parents"].Value.Split(',').Select(par => par.Trim()).ToList();
             }
+
             return parents;
         }
 
@@ -80,11 +82,13 @@ namespace Common
                     result[config].Add(parent);
                 }
             }
+
             foreach (var config in configurationsList.Where(c => !c.Equals("full-build")))
             {
                 if (!result[config].Contains("full-build"))
                     result[config].Add("full-build");
             }
+
             return result;
         }
     }

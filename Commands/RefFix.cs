@@ -12,24 +12,27 @@ namespace Commands
 {
     public class RefFix : Command
     {
+        private readonly FixReferenceResult fixReferenceResult = new FixReferenceResult();
+        private readonly HashSet<string> missingModules = new HashSet<string>();
         private bool hasFixedReferences;
         private bool fixExternal;
-        private readonly FixReferenceResult fixReferenceResult = new FixReferenceResult();
         private string rootModuleName;
         private string oldYamlContent;
-        private readonly HashSet<string> missingModules = new HashSet<string>();
 
         public RefFix()
-            : base(new CommandSettings
-            {
-                LogPerfix = "REF-FIX",
-                LogFileName = "fixing-refs",
-                MeasureElapsedTime = false,
-                RequireModuleYaml = true,
-                Location = CommandSettings.CommandLocation.RootModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "REF-FIX",
+                    LogFileName = "fixing-refs",
+                    MeasureElapsedTime = false,
+                    RequireModuleYaml = true,
+                    Location = CommandSettings.CommandLocation.RootModuleDirectory
+                })
         {
         }
+
+        public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)
         {
@@ -37,7 +40,7 @@ namespace Commands
                 throw new BadArgumentException("Wrong usage of command.\nUsage: cm ref fix [-e]");
 
             var parsedArgs = ArgumentParser.ParseFixRefs(args);
-            fixExternal = (bool) parsedArgs["external"];
+            fixExternal = (bool)parsedArgs["external"];
         }
 
         protected override int Execute()
@@ -105,8 +108,10 @@ namespace Commands
                     ConsoleWriter.Shared.WriteError($"Can't find module '{moduleName}'");
                     missingModules.Add(moduleName);
                 }
+
                 return;
             }
+
             if (!File.Exists(Path.Combine(Helper.CurrentWorkspace, moduleName, Helper.YamlSpecFile)))
             {
                 fixReferenceResult.NoYamlModules.Add(moduleName);
@@ -150,6 +155,7 @@ namespace Commands
             {
                 ConsoleWriter.Shared.WriteLine($"\t{i}. {withSameName[i].Replace("/", "\\")}");
             }
+
             ConsoleWriter.Shared.WriteLine($"Print 0-{withSameName.Count - 1} for choose");
 
             var answer = Console.ReadLine();
@@ -161,15 +167,14 @@ namespace Commands
             return answer;
         }
 
-
-
         private void UpdateReference(string reference, string project)
         {
             var projectPath = Path.GetFullPath(project);
             var csproj = new ProjectFile(projectPath);
 
             var refName = Path.GetFileNameWithoutExtension(reference);
-            var hintPath = Helper.GetRelativePath(Path.Combine(Helper.CurrentWorkspace, reference),
+            var hintPath = Helper.GetRelativePath(
+                Path.Combine(Helper.CurrentWorkspace, reference),
                 Directory.GetParent(projectPath).FullName);
             XmlNode refXml;
             if (csproj.ContainsRef(refName, out refXml))
@@ -179,6 +184,7 @@ namespace Commands
                 fixReferenceResult.Replaced[project].Add(
                     $"{refName}\n\t\t{GetHintPath(refXml)} ->\n\t\t{hintPath}");
             }
+
             csproj.Save();
         }
 
@@ -190,9 +196,10 @@ namespace Commands
 
             var configs = Yaml.ConfigurationParser(moduleDep).GetConfigurations();
             var configsWithArtifact =
-                configs.Where(c =>
-                    Yaml.InstallParser(moduleDep).Get(c).Artifacts
-                        .Select(file => Path.Combine(moduleDep, file)).Any(file => Path.GetFullPath(file) == Path.GetFullPath(reference))).ToList();
+                configs.Where(
+                    c =>
+                        Yaml.InstallParser(moduleDep).Get(c).Artifacts
+                            .Select(file => Path.Combine(moduleDep, file)).Any(file => Path.GetFullPath(file) == Path.GetFullPath(reference))).ToList();
 
             var toAdd = DepsPatcherProject.GetSmallerCementConfigs(Path.Combine(Helper.CurrentWorkspace, moduleDep), configsWithArtifact);
             foreach (var configDep in toAdd)
@@ -200,7 +207,6 @@ namespace Commands
                 DepsPatcherProject.PatchDepsForProject(Directory.GetCurrentDirectory(), new Dep(moduleDep, null, configDep), project);
             }
         }
-
 
         private string GetHintPath(XmlNode xmlNode)
         {
@@ -210,13 +216,12 @@ namespace Commands
                 if (xmlChild.Name == "HintPath")
                     return xmlChild.InnerText;
             }
+
             return "";
         }
-
-        public override string HelpMessage => @"";
     }
 
-    class FixReferenceResult
+    internal class FixReferenceResult
     {
         public readonly Dictionary<string, List<string>> NotFound = new Dictionary<string, List<string>>();
         public readonly Dictionary<string, List<string>> Replaced = new Dictionary<string, List<string>>();

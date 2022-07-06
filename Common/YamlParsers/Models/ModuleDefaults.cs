@@ -14,7 +14,7 @@ namespace Common.YamlParsers.Models
         public string[] HooksSection { get; set; }
 
         [NotNull]
-        public ModuleSettings SettingsSection { get; set;}
+        public ModuleSettings SettingsSection { get; set; }
 
         [CanBeNull]
         public DepsSection DepsSection { get; set; }

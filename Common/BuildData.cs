@@ -4,12 +4,6 @@ namespace Common
 {
     public sealed class BuildData
     {
-        public string Target { get; }
-        public Tool Tool { get; }
-        public string Configuration { get; }
-        public List<string> Parameters { get; }
-        public string Name { get; }
-
         public BuildData(string target, string configuration)
         {
             Target = target;
@@ -24,5 +18,11 @@ namespace Common
             Parameters = parameters;
             Name = name;
         }
+
+        public string Target { get; }
+        public Tool Tool { get; }
+        public string Configuration { get; }
+        public List<string> Parameters { get; }
+        public string Name { get; }
     }
 }

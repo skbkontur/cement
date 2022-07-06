@@ -14,14 +14,15 @@ namespace Tests.BuildTests
         public void SetUp()
         {
             var fakeParser = Substitute.For<IConfigurationParser>();
-            fakeParser.GetConfigurationsHierarchy().Returns(new Dictionary<string, IList<string>>
-            {
-                {"client", new[] {"sdk", "full-build"}},
-                {"subclient", new[] {"client"}},
-                {"sdk", new[] {"full-build"}},
-                {"notests", new[] {"full-build"}},
-                {"full-build", new List<string>()}
-            });
+            fakeParser.GetConfigurationsHierarchy().Returns(
+                new Dictionary<string, IList<string>>
+                {
+                    {"client", new[] {"sdk", "full-build"}},
+                    {"subclient", new[] {"client"}},
+                    {"sdk", new[] {"full-build"}},
+                    {"notests", new[] {"full-build"}},
+                    {"full-build", new List<string>()}
+                });
 
             fakeParser.GetDefaultConfigurationName().Returns("full-build");
 
@@ -74,43 +75,50 @@ namespace Tests.BuildTests
         [Test]
         public void TestTreeishProceeded()
         {
-            Assert.IsTrue(treeishManager.TreeishAlreadyProcessed(new Dep("", "treeish"), new List<Dep>
-            {
-                new Dep("", "A"),
-                new Dep("", "treeish"),
-                new Dep("", "C")
-            }));
+            Assert.IsTrue(
+                treeishManager.TreeishAlreadyProcessed(
+                    new Dep("", "treeish"), new List<Dep>
+                    {
+                        new Dep("", "A"),
+                        new Dep("", "treeish"),
+                        new Dep("", "C")
+                    }));
         }
 
         [Test]
         public void TestThrowsOnTreeishConflict()
         {
-            Assert.Throws<TreeishConflictException>(() => treeishManager.ThrowOnTreeishConflict(
-                new DepWithParent(new Dep("", "treeish1"), "A"), new List<DepWithParent>
-                {
-                    new DepWithParent(new Dep("", "treeish1"), "B"),
-                    new DepWithParent(new Dep("", "treeish2"), "C")
-                }));
+            Assert.Throws<TreeishConflictException>(
+                () => treeishManager.ThrowOnTreeishConflict(
+                    new DepWithParent(new Dep("", "treeish1"), "A"), new List<DepWithParent>
+                    {
+                        new DepWithParent(new Dep("", "treeish1"), "B"),
+                        new DepWithParent(new Dep("", "treeish2"), "C")
+                    }));
         }
 
         [Test]
         public void TestThreeishNotProcceded()
         {
-            Assert.IsFalse(treeishManager.TreeishAlreadyProcessed(new Dep("", "treeish"), new List<Dep>
-            {
-                new Dep("", "A"),
-                new Dep("", "B")
-            }));
+            Assert.IsFalse(
+                treeishManager.TreeishAlreadyProcessed(
+                    new Dep("", "treeish"), new List<Dep>
+                    {
+                        new Dep("", "A"),
+                        new Dep("", "B")
+                    }));
         }
 
         [Test]
         public void TestNotThrowsWithoutConflict()
         {
-            Assert.DoesNotThrow(() => treeishManager.ThrowOnTreeishConflict(new DepWithParent(new Dep("", "treeish"), "A"), new List<DepWithParent>
-            {
-                new DepWithParent(new Dep(""), "B"),
-                new DepWithParent(new Dep("", "treeish"), "C")
-            }));
+            Assert.DoesNotThrow(
+                () => treeishManager.ThrowOnTreeishConflict(
+                    new DepWithParent(new Dep("", "treeish"), "A"), new List<DepWithParent>
+                    {
+                        new DepWithParent(new Dep(""), "B"),
+                        new DepWithParent(new Dep("", "treeish"), "C")
+                    }));
         }
     }
 }

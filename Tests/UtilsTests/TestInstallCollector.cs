@@ -104,7 +104,8 @@ full-build:
                 CreateModule("ext", externalModuleText);
                 CreateModule("cur", moduleText);
                 var result = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
-                Assert.AreEqual(new[] {@"cur\current", @"ext\external", @"q\q.sdk", @"ext\external.client"},
+                Assert.AreEqual(
+                    new[] {@"cur\current", @"ext\external", @"q\q.sdk", @"ext\external.client"},
                     result.InstallFiles.ToArray());
             }
         }
@@ -157,7 +158,7 @@ client:
                     new[] {@"cur\current", @"cur\current.client", @"ext\external", @"ext\external.client", @"q\q.sdk"},
                     installData.InstallFiles.ToArray());
                 Assert.AreEqual(
-                    new[] { "current", "client", "external", "external.client", "q.sdk" },
+                    new[] {"current", "client", "external", "external.client", "q.sdk"},
                     installData.NuGetPackages.ToArray());
             }
         }
@@ -168,6 +169,7 @@ client:
             {
                 Directory.CreateDirectory(moduleName);
             }
+
             var filePath = Path.Combine(moduleName, "module.yaml");
             File.WriteAllText(filePath, content);
         }

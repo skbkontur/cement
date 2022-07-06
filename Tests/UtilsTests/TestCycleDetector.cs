@@ -10,22 +10,24 @@ namespace Tests.UtilsTests
     public class TestCycleDetector
     {
         private readonly CycleDetector cycleDetector = new();
-        
+
         [Test]
         public void TestSimpleCycle()
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
-                });
-                env.CreateRepo("B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("A")})}
-                });
+                env.CreateRepo(
+                    "A", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                    });
+                env.CreateRepo(
+                    "B", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A")})}
+                    });
                 Helper.SetWorkspace(env.RemoteWorkspace);
-                
+
                 var cycle = cycleDetector.TryFindCycle("A");
                 Assert.AreEqual(new[] {"A/full-build", "B/full-build", "A/full-build"}, cycle.ToArray());
             }
@@ -36,26 +38,31 @@ namespace Tests.UtilsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
-                });
-                env.CreateRepo("B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
-                });
-                env.CreateRepo("C", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
-                });
-                env.CreateRepo("D", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("E")})}
-                });
-                env.CreateRepo("E", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("A")})}
-                });
+                env.CreateRepo(
+                    "A", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                    });
+                env.CreateRepo(
+                    "B", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
+                    });
+                env.CreateRepo(
+                    "C", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                    });
+                env.CreateRepo(
+                    "D", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("E")})}
+                    });
+                env.CreateRepo(
+                    "E", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A")})}
+                    });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
                 Assert.AreEqual(new[] {"A/full-build", "B/full-build", "C/full-build", "D/full-build", "E/full-build", "A/full-build"}, cycle.ToArray());
@@ -67,22 +74,26 @@ namespace Tests.UtilsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
-                });
-                env.CreateRepo("B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
-                });
-                env.CreateRepo("C", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
-                });
-                env.CreateRepo("D", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep>())}
-                });
+                env.CreateRepo(
+                    "A", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                    });
+                env.CreateRepo(
+                    "B", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                    });
+                env.CreateRepo(
+                    "C", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                    });
+                env.CreateRepo(
+                    "D", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep>())}
+                    });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
                 Assert.IsNull(cycle);
@@ -94,22 +105,26 @@ namespace Tests.UtilsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
-                });
-                env.CreateRepo("B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
-                });
-                env.CreateRepo("C", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
-                });
-                env.CreateRepo("D", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
-                });
+                env.CreateRepo(
+                    "A", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                    });
+                env.CreateRepo(
+                    "B", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
+                    });
+                env.CreateRepo(
+                    "C", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                    });
+                env.CreateRepo(
+                    "D", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                    });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
                 Assert.AreEqual(new[] {"A/full-build", "B/full-build", "C/full-build", "D/full-build", "B/full-build"}, cycle.ToArray());
@@ -121,22 +136,26 @@ namespace Tests.UtilsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
-                });
-                env.CreateRepo("B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
-                });
-                env.CreateRepo("C", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
-                });
-                env.CreateRepo("D", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("A")})}
-                });
+                env.CreateRepo(
+                    "A", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                    });
+                env.CreateRepo(
+                    "B", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                    });
+                env.CreateRepo(
+                    "C", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                    });
+                env.CreateRepo(
+                    "D", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A")})}
+                    });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
                 Assert.IsNotNull(cycle);
@@ -148,15 +167,17 @@ namespace Tests.UtilsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
-                    {"client", new DepsData(null, new List<Dep>())}
-                });
-                env.CreateRepo("B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "client")})}
-                });
+                env.CreateRepo(
+                    "A", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
+                        {"client", new DepsData(null, new List<Dep>())}
+                    });
+                env.CreateRepo(
+                    "B", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "client")})}
+                    });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A/full-build");
                 Assert.IsNull(cycle);
@@ -168,15 +189,17 @@ namespace Tests.UtilsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
-                    {"client", new DepsData(null, new List<Dep> {new Dep("B")})}
-                });
-                env.CreateRepo("B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "client")})}
-                });
+                env.CreateRepo(
+                    "A", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
+                        {"client", new DepsData(null, new List<Dep> {new Dep("B")})}
+                    });
+                env.CreateRepo(
+                    "B", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "client")})}
+                    });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A/client");
                 Assert.AreEqual(new[] {"A/client", "B/full-build", "A/client"}, cycle);
@@ -188,15 +211,17 @@ namespace Tests.UtilsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
-                    {"client *default", new DepsData(null, new List<Dep> {new Dep("B")})}
-                });
-                env.CreateRepo("B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "full-build")})}
-                });
+                env.CreateRepo(
+                    "A", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
+                        {"client *default", new DepsData(null, new List<Dep> {new Dep("B")})}
+                    });
+                env.CreateRepo(
+                    "B", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "full-build")})}
+                    });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
                 Assert.AreEqual(new[] {"A/client", "B/full-build", "A/full-build", "B/full-build"}, cycle);
@@ -208,18 +233,21 @@ namespace Tests.UtilsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
-                });
-                env.CreateRepo("B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
-                });
-                env.CreateRepo("C", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
-                });
+                env.CreateRepo(
+                    "A", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                    });
+                env.CreateRepo(
+                    "B", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
+                    });
+                env.CreateRepo(
+                    "C", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                    });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
                 Assert.AreEqual(new[] {"A/full-build", "B/full-build", "C/full-build", "B/full-build"}, cycle.ToArray());
@@ -231,18 +259,21 @@ namespace Tests.UtilsTests
         {
             using (var env = new TestEnvironment())
             {
-                env.CreateRepo("A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
-                });
-                env.CreateRepo("C", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
-                });
-                env.CreateRepo("D", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
-                });
+                env.CreateRepo(
+                    "A", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                    });
+                env.CreateRepo(
+                    "C", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                    });
+                env.CreateRepo(
+                    "D", new Dictionary<string, DepsData>
+                    {
+                        {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
+                    });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
                 Assert.AreEqual(new[] {"A/full-build", "C/full-build", "D/full-build", "C/full-build"}, cycle.ToArray());

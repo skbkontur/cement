@@ -8,25 +8,46 @@ namespace Commands
 {
     public class ShowDeps : Command
     {
+        private static readonly Dictionary<Dep, List<string>> overheadCache = new Dictionary<Dep, List<string>>();
         private readonly ArborJs arborJs;
         private string configuration;
 
         public ShowDeps()
-            : base(new CommandSettings
-            {
-                LogPerfix = "SHOW-DEPS",
-                LogFileName = null,
-                MeasureElapsedTime = false,
-                Location = CommandSettings.CommandLocation.RootModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "SHOW-DEPS",
+                    LogFileName = null,
+                    MeasureElapsedTime = false,
+                    Location = CommandSettings.CommandLocation.RootModuleDirectory
+                })
         {
             arborJs = new ArborJs();
+        }
+
+        public override string HelpMessage => @"
+    Shows module deps in arbor.js
+
+    Usage:
+        cm show-deps [-c <config-name>]
+";
+
+        public List<string> GetDepsGraph(Dep dep)
+        {
+            var tree = new List<string>();
+            dep.Configuration = dep.Configuration ?? "full-build";
+            Bfs(dep, tree);
+
+            tree.Insert(0, $"{dep} {{color:red}}");
+            tree.Insert(0, "{color:DimGrey}");
+            tree.Insert(0, ";Copy paste this text to http://arborjs.org/halfviz/#");
+            return tree;
         }
 
         protected override void ParseArgs(string[] args)
         {
             var parsed = ArgumentParser.ParseDepsGraph(args);
-            configuration = (string) parsed["configuration"];
+            configuration = (string)parsed["configuration"];
         }
 
         protected override int Execute()
@@ -42,18 +63,6 @@ namespace Commands
 
             arborJs.Show(full, result);
             return 0;
-        }
-
-        public List<string> GetDepsGraph(Dep dep)
-        {
-            var tree = new List<string>();
-            dep.Configuration = dep.Configuration ?? "full-build";
-            Bfs(dep, tree);
-
-            tree.Insert(0, $"{dep} {{color:red}}");
-            tree.Insert(0, "{color:DimGrey}");
-            tree.Insert(0, ";Copy paste this text to http://arborjs.org/halfviz/#");
-            return tree;
         }
 
         private static void Bfs(Dep root, List<string> tree)
@@ -120,8 +129,6 @@ namespace Commands
             result.Add(edge);
         }
 
-        private static readonly Dictionary<Dep, List<string>> overheadCache = new Dictionary<Dep, List<string>>();
-
         private static List<string> GetOverhead(Dep dep)
         {
             if (overheadCache.ContainsKey(dep))
@@ -140,21 +147,15 @@ namespace Commands
         private static List<Dep> GetDeps(Dep root)
         {
             var deps = new DepsParser(
-                               Path.Combine(Helper.CurrentWorkspace, root.Name))
-                           .Get(root.Configuration).Deps ?? new List<Dep>();
+                    Path.Combine(Helper.CurrentWorkspace, root.Name))
+                .Get(root.Configuration).Deps ?? new List<Dep>();
             foreach (var dep in deps)
             {
                 dep.UpdateConfigurationIfNull();
                 dep.Treeish = null;
             }
+
             return deps;
         }
-
-        public override string HelpMessage => @"
-    Shows module deps in arbor.js
-
-    Usage:
-        cm show-deps [-c <config-name>]
-";
     }
 }

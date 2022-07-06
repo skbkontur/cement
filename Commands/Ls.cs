@@ -12,6 +12,27 @@ namespace Commands
         private Dictionary<string, object> parsedArgs;
         private bool simple;
 
+        public string HelpMessage => @"
+    Lists all available modules
+
+    Usage:
+        cm ls [-l|-a] [-b=<branch>] [-u] [-p]
+
+        -l/--local                   lists modules in current directory
+        -a/--all                     lists all cement-known modules (default)
+
+        -b/--has-branch<=branch>     lists all modules which have such branch
+                                     --local key by default
+
+        -u/--url                     shows module fetch url
+        -p/--pushurl                 shows module pushurl
+
+    Example:
+        cm ls --all --has-branch=temp --url
+";
+
+        public bool IsHiddenCommand => false;
+
         public int Run(string[] args)
         {
             ParseArgs(args);
@@ -53,16 +74,16 @@ namespace Commands
             ConsoleWriter.Shared.WriteProgress(module.Name);
             var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
 
-            if ((bool) parsedArgs["all"] || (bool) parsedArgs["local"] &&
-                Helper.DirectoryContainsModule(workspace, module.Name))
+            if ((bool)parsedArgs["all"] || ((bool)parsedArgs["local"] &&
+                                            Helper.DirectoryContainsModule(workspace, module.Name)))
             {
-                if (parsedArgs["branch"] != null && !GitRepository.HasRemoteBranch(module.Url, (string) parsedArgs["branch"]))
+                if (parsedArgs["branch"] != null && !GitRepository.HasRemoteBranch(module.Url, (string)parsedArgs["branch"]))
                     return;
                 ConsoleWriter.Shared.ClearLine();
                 Console.Write("{0, -30}", module.Name);
-                if ((bool) parsedArgs["url"])
+                if ((bool)parsedArgs["url"])
                     Console.Write("{0, -60}", module.Url);
-                if ((bool) parsedArgs["pushurl"])
+                if ((bool)parsedArgs["pushurl"])
                     Console.Write(module.Url);
                 Console.WriteLine();
             }
@@ -76,9 +97,10 @@ namespace Commands
                 if (!parsedArgs.ContainsKey(key))
                     parsedArgs[key] = false;
             }
+
             if (!parsedArgs.ContainsKey("branch"))
                 parsedArgs["branch"] = null;
-            if (!(bool) parsedArgs["local"] && !(bool) parsedArgs["all"])
+            if (!(bool)parsedArgs["local"] && !(bool)parsedArgs["all"])
             {
                 if (parsedArgs["branch"] == null)
                 {
@@ -93,26 +115,5 @@ namespace Commands
             if (parsedArgs.ContainsKey("simple"))
                 simple = true;
         }
-
-        public string HelpMessage => @"
-    Lists all available modules
-
-    Usage:
-        cm ls [-l|-a] [-b=<branch>] [-u] [-p]
-
-        -l/--local                   lists modules in current directory
-        -a/--all                     lists all cement-known modules (default)
-
-        -b/--has-branch<=branch>     lists all modules which have such branch
-                                     --local key by default
-
-        -u/--url                     shows module fetch url
-        -p/--pushurl                 shows module pushurl
-
-    Example:
-        cm ls --all --has-branch=temp --url
-";
-
-        public bool IsHiddenCommand => false;
     }
 }

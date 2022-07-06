@@ -10,15 +10,18 @@ namespace Commands
         private string[] arguments;
 
         public UserCommand()
-            : base(new CommandSettings
-            {
-                LogPerfix = "USER-COMMAND",
-                LogFileName = null,
-                MeasureElapsedTime = false,
-                Location = CommandSettings.CommandLocation.Any
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "USER-COMMAND",
+                    LogFileName = null,
+                    MeasureElapsedTime = false,
+                    Location = CommandSettings.CommandLocation.Any
+                })
         {
         }
+
+        public override string HelpMessage => @"";
 
         protected override int Execute()
         {
@@ -54,7 +57,5 @@ namespace Commands
             process.WaitForExit();
             return process.ExitCode;
         }
-
-        public override string HelpMessage => @"";
     }
 }

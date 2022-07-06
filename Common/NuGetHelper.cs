@@ -15,9 +15,9 @@ namespace Common
             ConsoleWriter.Shared.WriteProgressWithoutSave("Get package version for " + packageName);
 
             shellRunner.Run($"{nugetRunCommand} list {packageName} -NonInteractive" + (preRelease ? " -PreRelease" : ""));
-            foreach (var line in shellRunner.Output.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var line in shellRunner.Output.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries))
             {
-                var lineTokens = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var lineTokens = line.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
                 if (lineTokens.Length == 2 && lineTokens[0].Equals(packageName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var msg = $"Got package version: {lineTokens[1]} for {packageName}";

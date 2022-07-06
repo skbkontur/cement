@@ -8,8 +8,8 @@ namespace Common.YamlParsers
 {
     public class ConfigurationYamlParser : IConfigurationParser
     {
-        private readonly Dictionary<string, object> configurationsDescription = new Dictionary<string, object>();
         protected readonly string ModuleName;
+        private readonly Dictionary<string, object> configurationsDescription = new Dictionary<string, object>();
 
         public ConfigurationYamlParser(FileSystemInfo moduleName)
         {
@@ -26,22 +26,6 @@ namespace Common.YamlParsers
             TryParseYaml(configFileContents);
         }
 
-        private void TryParseYaml(string text)
-        {
-            try
-            {
-                var serializer = new Serializer();
-                var content = serializer.Deserialize(text);
-                var dict = (Dictionary<object, object>) content;
-                foreach (var key in dict.Keys)
-                    configurationsDescription.Add((string) key, dict[key]);
-            }
-            catch (Exception)
-            {
-                throw new CementException("Fail to parse module.yaml file in " + ModuleName + ". Check that yaml is correct dictionary <string, object>");
-            }
-        }
-
         public IList<string> GetConfigurations()
         {
             return
@@ -50,41 +34,9 @@ namespace Common.YamlParsers
                     .ToList();
         }
 
-        private static string GetRealConfigurationName(string configNameNode)
-        {
-            return configNameNode.Split('>', '*').First().Trim();
-        }
-
         public bool ConfigurationExists(string configName)
         {
             return configurationsDescription.Keys.Select(GetRealConfigurationName).Contains(configName);
-        }
-
-        protected Dictionary<string, object> GetConfigurationSection(string configName)
-        {
-            try
-            {
-                var withSameName =
-                    configurationsDescription.Keys.Where(config => configName.Equals(GetRealConfigurationName(config))).ToList();
-                if (withSameName.Count == 0)
-                    return new Dictionary<string, object>();
-                if (withSameName.Count > 1)
-                    throw new BadYamlException(ModuleName, "configurations", "duplicate configuration name " + configName);
-
-                var section = configurationsDescription[withSameName.First()];
-                if (section == null || section is string)
-                    return new Dictionary<string, object>();
-                var dict = (Dictionary<object, object>) section;
-                return dict.Keys.ToDictionary(key => (string) key, key => dict[key]);
-            }
-            catch (BadYamlException)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                throw new BadYamlException(ModuleName, "configurations", exception.Message);
-            }
         }
 
         public string GetDefaultConfigurationName()
@@ -112,15 +64,8 @@ namespace Common.YamlParsers
                             .ToList()
                         : null;
             }
-            return null;
-        }
 
-        protected bool IsInherited(string configName)
-        {
-            return
-                configurationsDescription.Keys.Any(
-                    config =>
-                        configName.Equals(GetRealConfigurationName(config)) && config.Contains('>'));
+            return null;
         }
 
         public Dictionary<string, IList<string>> GetConfigurationsHierarchy()
@@ -141,7 +86,64 @@ namespace Common.YamlParsers
                     result[child].Add(config);
                 }
             }
+
             return result;
+        }
+
+        protected Dictionary<string, object> GetConfigurationSection(string configName)
+        {
+            try
+            {
+                var withSameName =
+                    configurationsDescription.Keys.Where(config => configName.Equals(GetRealConfigurationName(config))).ToList();
+                if (withSameName.Count == 0)
+                    return new Dictionary<string, object>();
+                if (withSameName.Count > 1)
+                    throw new BadYamlException(ModuleName, "configurations", "duplicate configuration name " + configName);
+
+                var section = configurationsDescription[withSameName.First()];
+                if (section == null || section is string)
+                    return new Dictionary<string, object>();
+                var dict = (Dictionary<object, object>)section;
+                return dict.Keys.ToDictionary(key => (string)key, key => dict[key]);
+            }
+            catch (BadYamlException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw new BadYamlException(ModuleName, "configurations", exception.Message);
+            }
+        }
+
+        protected bool IsInherited(string configName)
+        {
+            return
+                configurationsDescription.Keys.Any(
+                    config =>
+                        configName.Equals(GetRealConfigurationName(config)) && config.Contains('>'));
+        }
+
+        private static string GetRealConfigurationName(string configNameNode)
+        {
+            return configNameNode.Split('>', '*').First().Trim();
+        }
+
+        private void TryParseYaml(string text)
+        {
+            try
+            {
+                var serializer = new Serializer();
+                var content = serializer.Deserialize(text);
+                var dict = (Dictionary<object, object>)content;
+                foreach (var key in dict.Keys)
+                    configurationsDescription.Add((string)key, dict[key]);
+            }
+            catch (Exception)
+            {
+                throw new CementException("Fail to parse module.yaml file in " + ModuleName + ". Check that yaml is correct dictionary <string, object>");
+            }
         }
     }
 }

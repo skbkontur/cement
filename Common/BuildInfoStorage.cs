@@ -18,11 +18,6 @@ namespace Common
             buildHelper = BuildHelper.Shared;
         }
 
-        private static string SerializePath()
-        {
-            return Path.Combine(Helper.CurrentWorkspace, ".cement", "builtCache");
-        }
-
         public static BuildInfoStorage Deserialize()
         {
             try
@@ -77,6 +72,11 @@ namespace Common
         public List<Dep> GetUpdatedModules(List<Dep> modules, Dictionary<string, string> currentCommitHashes)
         {
             return modules.AsParallel().Where(module => IsModuleUpdate(currentCommitHashes, module)).ToList();
+        }
+
+        private static string SerializePath()
+        {
+            return Path.Combine(Helper.CurrentWorkspace, ".cement", "builtCache");
         }
 
         private bool IsModuleUpdate(Dictionary<string, string> currentCommitHashes, Dep module)

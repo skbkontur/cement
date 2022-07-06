@@ -6,7 +6,8 @@
         {
         }
 
-        public BadArgumentException(string message) : base(message)
+        public BadArgumentException(string message)
+            : base(message)
         {
         }
     }

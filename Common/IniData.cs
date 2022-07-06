@@ -17,17 +17,6 @@ namespace Common
             return GetValue(key, section, "");
         }
 
-        private string GetValue(string key, string section, string @default)
-        {
-            if (!data.ContainsKey(section))
-                return @default;
-
-            if (!data[section].ContainsKey(key))
-                return @default;
-
-            return data[section][key];
-        }
-
         public string[] GetKeys(string section)
         {
             if (!data.ContainsKey(section))
@@ -39,6 +28,17 @@ namespace Common
         public string[] GetSections()
         {
             return data.Keys.Where(t => t != "").ToArray();
+        }
+
+        private string GetValue(string key, string section, string @default)
+        {
+            if (!data.ContainsKey(section))
+                return @default;
+
+            if (!data[section].ContainsKey(key))
+                return @default;
+
+            return data[section][key];
         }
     }
 }

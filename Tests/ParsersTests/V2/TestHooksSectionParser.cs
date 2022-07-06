@@ -10,6 +10,27 @@ namespace Tests.ParsersTests.V2
     [TestFixture]
     public class TestHooksSectionParser
     {
+        private static TestCaseData[] Source =
+        {
+            new TestCaseData(
+                    @"
+default:
+  hooks:
+",
+                    new string[0])
+                .SetName("Empty hooks section"),
+
+            new TestCaseData(
+                    @"
+default:
+  hooks:
+    - a
+    - b/c
+",
+                    new[] {"a", "b/c"})
+                .SetName("Two hooks in defaults section"),
+        };
+
         [TestCaseSource(nameof(Source))]
         public void TestParse(string input, string[] expectedResult)
         {
@@ -29,30 +50,10 @@ namespace Tests.ParsersTests.V2
             actual.Should().BeEquivalentTo(expectedResult, o => o.WithStrictOrdering());
         }
 
-        private static TestCaseData[] Source =
-        {
-            new TestCaseData(@"
-default:
-  hooks:
-",
-                    new string[0])
-                .SetName("Empty hooks section"),
-
-            new TestCaseData(@"
-default:
-  hooks:
-    - a
-    - b/c
-",
-                new[] { "a", "b/c" })
-                .SetName("Two hooks in defaults section"),
-
-        };
-
         private object GetHooksSections(string text)
         {
             var serializer = new Serializer();
-            var yaml = (Dictionary<object, object>) serializer.Deserialize(text);
+            var yaml = (Dictionary<object, object>)serializer.Deserialize(text);
 
             var defaultSection = yaml["default"] as Dictionary<object, object>;
 

@@ -5,6 +5,24 @@ namespace Common
 {
     public sealed class InstallData
     {
+        public InstallData(List<string> installFiles, List<string> externalModules, List<string> nuGetPackages = null, List<string> artifacts = null)
+        {
+            CurrentConfigurationInstallFiles = installFiles;
+            InstallFiles = installFiles;
+            ExternalModules = externalModules;
+            NuGetPackages = nuGetPackages;
+            Artifacts = artifacts;
+        }
+
+        public InstallData()
+        {
+            CurrentConfigurationInstallFiles = new List<string>();
+            InstallFiles = new List<string>();
+            ExternalModules = new List<string>();
+            NuGetPackages = new List<string>();
+            Artifacts = new List<string>();
+        }
+
         public string ModuleName { get; set; }
 
         /// <summary>
@@ -42,23 +60,5 @@ namespace Common
         /// </summary>
         [CanBeNull]
         public List<string> Artifacts { get; set; }
-
-        public InstallData(List<string> installFiles, List<string> externalModules, List<string> nuGetPackages = null, List < string> artifacts = null)
-        {
-            CurrentConfigurationInstallFiles = installFiles;
-            InstallFiles = installFiles;
-            ExternalModules = externalModules;
-            NuGetPackages = nuGetPackages;
-            Artifacts = artifacts;
-        }
-
-        public InstallData()
-        {
-            CurrentConfigurationInstallFiles = new List<string>();
-            InstallFiles = new List<string>();
-            ExternalModules = new List<string>();
-            NuGetPackages = new List<string>();
-            Artifacts = new List<string>();
-        }
     }
 }

@@ -20,18 +20,21 @@ namespace Common
                 {
                     UpdateGitPackage(package);
                 }
+
                 if (package.Type.Equals("file"))
                 {
                     UpdateFilePackage(package);
                 }
             }
+
             ConsoleWriter.Shared.ResetProgress();
         }
 
         private static void UpdateFilePackage(Package package)
         {
             lock (Helper.PackageLockObject)
-                File.Copy(Path.Combine(package.Url),
+                File.Copy(
+                    Path.Combine(package.Url),
                     Helper.GetPackagePath(package.Name), true);
         }
 
@@ -65,14 +68,17 @@ namespace Common
                             $"Failed to update package {package.Name}:\n{runner.Output}\nError message:\n{runner.Errors}\n" +
                             $"Ensure that command 'git clone {package.Url}' works in cmd");
                     }
+
                     lock (Helper.PackageLockObject)
                     {
                         if (!Directory.Exists(Helper.GetGlobalCementDirectory()))
                             Directory.CreateDirectory(Helper.GetGlobalCementDirectory());
-                        File.Copy(Path.Combine(tempDir.Path, package.Name, "modules"),
+                        File.Copy(
+                            Path.Combine(tempDir.Path, package.Name, "modules"),
                             Helper.GetPackagePath(package.Name), true);
                         Helper.WritePackageCommitHash(package.Name, remoteHash);
                     }
+
                     break;
                 }
             }

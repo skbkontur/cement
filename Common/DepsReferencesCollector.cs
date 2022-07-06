@@ -47,6 +47,7 @@ namespace Common
                     resultInstallData.Add(depInstall);
                 }
             }
+
             return new DepsReferenceSearchModel(resultInstallData, notFoundInstall);
         }
 

@@ -15,25 +15,51 @@ namespace Commands
         private int? gitDepth;
 
         public UpdateDeps()
-            : base(new CommandSettings
-            {
-                LogPerfix = "UPDATE",
-                LogFileName = "update-deps",
-                MeasureElapsedTime = true,
-                Location = CommandSettings.CommandLocation.RootModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "UPDATE",
+                    LogFileName = "update-deps",
+                    MeasureElapsedTime = true,
+                    Location = CommandSettings.CommandLocation.RootModuleDirectory
+                })
         {
         }
+
+        public override string HelpMessage => @"
+    Updates deps for current directory
+
+    Usage:
+        cm update-deps [-f/-p/-r] [--bin] [-m] [-c <config-name>] [--allow-local-branch-force] [-v]
+
+        -c/--configuration          updates deps for corresponding configuration
+
+        -f/--force                  forcing local changes(not pulling from remote)
+        -r/--reset                  resetting all local changes
+        -p/--pull-anyway            try to fast-forward pull if local changes are found
+
+        -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state.
+                                    Checks for 'master' by default
+
+        --allow-local-branch-force  allows forcing local-only branches
+
+        -v/--verbose                show commit info for deps
+
+        --git-depth <depth>         adds '--depth <depth>' flag to git commands
+
+    Example:
+        cm update-deps -r --progress
+";
 
         protected override void ParseArgs(string[] args)
         {
             Helper.RemoveOldKey(ref args, "-n", Log);
 
             var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
-            configuration = (string) parsedArgs["configuration"];
-            mergedBranch = (string) parsedArgs["merged"];
-            localBranchForce = (bool) parsedArgs["localBranchForce"];
-            verbose = (bool) parsedArgs["verbose"];
+            configuration = (string)parsedArgs["configuration"];
+            mergedBranch = (string)parsedArgs["merged"];
+            localBranchForce = (bool)parsedArgs["localBranchForce"];
+            verbose = (bool)parsedArgs["verbose"];
             policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
             gitDepth = (int?)parsedArgs["gitDepth"];
         }
@@ -66,34 +92,8 @@ namespace Commands
 
             getter.GetDeps();
 
-
             Log.LogInformation("SUCCESS UPDATE DEPS");
             return 0;
         }
-
-        public override string HelpMessage => @"
-    Updates deps for current directory
-
-    Usage:
-        cm update-deps [-f/-p/-r] [--bin] [-m] [-c <config-name>] [--allow-local-branch-force] [-v]
-
-        -c/--configuration          updates deps for corresponding configuration
-
-        -f/--force                  forcing local changes(not pulling from remote)
-        -r/--reset                  resetting all local changes
-        -p/--pull-anyway            try to fast-forward pull if local changes are found
-
-        -m/--merged[=some_branch]   checks if <some_branch> was merged into current dependency repo state.
-                                    Checks for 'master' by default
-
-        --allow-local-branch-force  allows forcing local-only branches
-
-        -v/--verbose                show commit info for deps
-
-        --git-depth <depth>         adds '--depth <depth>' flag to git commands
-
-    Example:
-        cm update-deps -r --progress
-";
     }
 }

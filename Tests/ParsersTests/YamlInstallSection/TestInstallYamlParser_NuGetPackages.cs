@@ -7,30 +7,22 @@ namespace Tests.ParsersTests.YamlInstallSection
     [TestFixture]
     public class TestInstallYamlParser_NuGetPackages
     {
-        [TestCaseSource(nameof(testCases))]
-        public void TestGetNuGet(string moduleYamlText, string[] expected)
-        {
-            var parser = YamlFromText.InstallParser(moduleYamlText);
-            var parsed = parser.Get();
-
-            var actual = parsed.NuGetPackages;
-            actual.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
-        }
-
         private static TestCaseData[] testCases =
         {
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 full-build:
   install:
     - nuget NugetDep1
 ",
-                new[]
-                {
-                    "NugetDep1"
-                })
+                    new[]
+                    {
+                        "NugetDep1"
+                    })
                 .SetName("Install section: nuget, single configuration, single nuget"),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 full-build:
   install:
     - current.dll
@@ -46,7 +38,8 @@ full-build:
                     })
                 .SetName("Install section: nuget, single configuration, multiple nugets"),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 config1:
   install:
     - nuget NugetDep4
@@ -69,7 +62,8 @@ full-build > config1:
                     })
                 .SetName("Install section: nuget, two-leveled configuration, multiple nugets"),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 config0:
   install:
     - nuget NugetDep8
@@ -104,7 +98,8 @@ full-build > config1,config2:
                     })
                 .SetName("Install section: nuget, three-leveled multiple-ancestors configuration, multiple nugets"),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 default:
   install:
     - nuget NugetDep9
@@ -144,7 +139,8 @@ full-build > config1,config2:
                     })
                 .SetName("Install section: nuget, three-leveled multiple-ancestors configuration with 'default' section, multiple nugets"),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 default:
   install:
     - nuget DuplicateNuget
@@ -174,5 +170,15 @@ full-build > config1,config2:
                     })
                 .SetName("Install section: nuget, two-leveled multiple-ancestors configuration with 'default' section. Nugets do duplicate."),
         };
+
+        [TestCaseSource(nameof(testCases))]
+        public void TestGetNuGet(string moduleYamlText, string[] expected)
+        {
+            var parser = YamlFromText.InstallParser(moduleYamlText);
+            var parsed = parser.Get();
+
+            var actual = parsed.NuGetPackages;
+            actual.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        }
     }
 }

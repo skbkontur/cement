@@ -12,26 +12,29 @@ namespace Commands
         private bool printEdges;
 
         public UsagesShow()
-            : base(new CommandSettings
-            {
-                LogPerfix = "USAGES-SHOW",
-                LogFileName = null,
-                MeasureElapsedTime = false,
-                Location = CommandSettings.CommandLocation.Any
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "USAGES-SHOW",
+                    LogFileName = null,
+                    MeasureElapsedTime = false,
+                    Location = CommandSettings.CommandLocation.Any
+                })
         {
         }
+
+        public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseShowParents(args);
-            module = (string) parsedArgs["module"];
+            module = (string)parsedArgs["module"];
             if (Helper.GetModules().All(m => m.Name.ToLower() != module.ToLower()))
                 ConsoleWriter.Shared.WriteWarning("Module " + module + " not found");
-            branch = (string) parsedArgs["branch"];
-            configuration = (string) parsedArgs["configuration"];
-            showAll = (bool) parsedArgs["all"];
-            printEdges = (bool) parsedArgs["edges"];
+            branch = (string)parsedArgs["branch"];
+            configuration = (string)parsedArgs["configuration"];
+            showAll = (bool)parsedArgs["all"];
+            printEdges = (bool)parsedArgs["edges"];
         }
 
         protected override int Execute()
@@ -83,7 +86,7 @@ namespace Commands
                 {
                     Console.WriteLine("    " + config.Key);
                     if (config.Any() && showAll)
-                        Console.WriteLine(String.Join("\n", config.Select(c => "      " + c.Treeish).OrderBy(x => x)));
+                        Console.WriteLine(string.Join("\n", config.Select(c => "      " + c.Treeish).OrderBy(x => x)));
                 }
             }
 
@@ -94,7 +97,5 @@ namespace Commands
         {
             ConsoleWriter.Shared.WriteInfo("Data from cache relevant to the " + updTime);
         }
-
-        public override string HelpMessage => @"";
     }
 }

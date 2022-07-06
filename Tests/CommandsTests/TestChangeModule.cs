@@ -8,28 +8,6 @@ namespace Tests.CommandsTests
 {
     public class TestChangeModule
     {
-        private static void TestChangeGit(string oldContent, string moduleName, string push, string fetch, string answer)
-        {
-            using (var env = new TestEnvironment())
-            {
-                env.CreateRepo("modulesRepo");
-                env.CommitIntoRemote("modulesRepo", "modules", oldContent);
-
-                env.AddBranch("modulesRepo", "tmp");
-                env.Checkout("modulesRepo", "tmp");
-                var package = new Package("test_package", Path.Combine(env.RemoteWorkspace, "modulesRepo"));
-                if (ModuleCommand.ChangeModule(package, moduleName, push, fetch) != 0)
-                    throw new CementException("");
-                env.Checkout("modulesRepo", "master");
-
-                var path = Path.Combine(env.RemoteWorkspace, "modulesRepo", "modules");
-                var text = File.ReadAllText(path);
-                text = Helper.FixLineEndings(text);
-                answer = Helper.FixLineEndings(answer);
-                Assert.AreEqual(answer, text);
-            }
-        }
-
         [Test]
         public void TestChangeUnexisting()
         {
@@ -85,6 +63,28 @@ url = new_url
 ";
 
             TestChangeGit(oldModules, "hello", null, "new_url", answer);
+        }
+
+        private static void TestChangeGit(string oldContent, string moduleName, string push, string fetch, string answer)
+        {
+            using (var env = new TestEnvironment())
+            {
+                env.CreateRepo("modulesRepo");
+                env.CommitIntoRemote("modulesRepo", "modules", oldContent);
+
+                env.AddBranch("modulesRepo", "tmp");
+                env.Checkout("modulesRepo", "tmp");
+                var package = new Package("test_package", Path.Combine(env.RemoteWorkspace, "modulesRepo"));
+                if (ModuleCommand.ChangeModule(package, moduleName, push, fetch) != 0)
+                    throw new CementException("");
+                env.Checkout("modulesRepo", "master");
+
+                var path = Path.Combine(env.RemoteWorkspace, "modulesRepo", "modules");
+                var text = File.ReadAllText(path);
+                text = Helper.FixLineEndings(text);
+                answer = Helper.FixLineEndings(answer);
+                Assert.AreEqual(answer, text);
+            }
         }
     }
 }

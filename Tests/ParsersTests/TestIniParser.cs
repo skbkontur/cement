@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Tests.ParsersTests
 {
     [TestFixture]
-    class TestIniParser
+    internal class TestIniParser
     {
         [Test]
         public void TestOneSectionsManyValues()

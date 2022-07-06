@@ -10,10 +10,10 @@ namespace Common
     public sealed class CompleteCommandAutomata
     {
         private readonly ILogger log;
-        private TokensList root;
 
         private readonly List<string> modules =
             Helper.GetModules().Select(m => m.Name).ToList();
+        private TokensList root;
 
         private string lastToken;
 
@@ -39,6 +39,26 @@ namespace Common
             InitAutomata();
 
             return Complete(parts);
+        }
+
+        private static TokensList ModuleConfigs(string moduleName)
+        {
+            return TokensList.Create(
+                Yaml.ConfigurationParser(moduleName).GetConfigurations());
+        }
+
+        private static IEnumerable<string> CsprojsToShortFormat(List<string> files)
+        {
+            files = files.Distinct().ToList();
+            var fileNames = files.Select(Path.GetFileName).Distinct().ToList();
+            var lowerFileNames = fileNames.Select(n => n.ToLower()).Distinct().ToList();
+
+            if (files.Count == lowerFileNames.Count)
+                return fileNames;
+
+            return files
+                .Select(f => Helper.GetRelativePath(f, Directory.GetCurrentDirectory()))
+                .Select(f => f.Replace('\\', '/'));
         }
 
         private List<string> Complete(List<string> parts)
@@ -83,12 +103,6 @@ namespace Common
             return configKey;
         }
 
-        private static TokensList ModuleConfigs(string moduleName)
-        {
-            return TokensList.Create(
-                Yaml.ConfigurationParser(moduleName).GetConfigurations());
-        }
-
         private TokensList AllModules()
         {
             return TokensList.Create(modules);
@@ -103,6 +117,7 @@ namespace Common
                 Helper.SetWorkspace(workspace);
                 local = modules.Where(Yaml.Exists).ToList();
             }
+
             return TokensList.Create(local);
         }
 
@@ -158,20 +173,6 @@ namespace Common
             return TokensList.Create(CsprojsToShortFormat(files));
         }
 
-        private static IEnumerable<string> CsprojsToShortFormat(List<string> files)
-        {
-            files = files.Distinct().ToList();
-            var fileNames = files.Select(Path.GetFileName).Distinct().ToList();
-            var lowerFileNames = fileNames.Select(n => n.ToLower()).Distinct().ToList();
-
-            if (files.Count == lowerFileNames.Count)
-                return fileNames;
-
-            return files
-                .Select(f => Helper.GetRelativePath(f, Directory.GetCurrentDirectory()))
-                .Select(f => f.Replace('\\', '/'));
-        }
-
         private TokensList ModuleKeyWithModules()
         {
             return new TokensList {{"-m", AllModules}};
@@ -217,7 +218,7 @@ namespace Common
                         {"show", ModuleKeyWithModules}
                     }
                 },
-                {"pack", MoudleCsprojs },
+                {"pack", MoudleCsprojs},
                 "--version"
             };
 

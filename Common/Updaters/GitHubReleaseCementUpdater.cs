@@ -14,10 +14,9 @@ namespace Common.Updaters
     [PublicAPI]
     public sealed class GitHubReleaseCementUpdater : ICementUpdater
     {
-        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
-
         private const string Owner = "skbkontur";
         private const string Repository = "cement";
+        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
 
         private readonly ILogger log;
 
@@ -25,6 +24,8 @@ namespace Common.Updaters
         {
             this.log = log;
         }
+
+        public string Name => "GitHub";
 
         public string GetNewCommitHash()
         {
@@ -119,7 +120,5 @@ namespace Common.Updaters
             using var stream = httpResponseMessage.Content.ReadAsStream(cts.Token);
             return stream.ReadAllBytes();
         }
-
-        public string Name => "GitHub";
     }
 }

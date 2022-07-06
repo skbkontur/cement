@@ -7,10 +7,11 @@ namespace Common.YamlParsers.V2
 {
     public sealed class BuildSectionParser
     {
-        private readonly CementSettings settings;
         private const string DefaultToolName = "msbuild";
+        private readonly CementSettings settings;
 
-        public BuildSectionParser() : this(CementSettingsRepository.Get())
+        public BuildSectionParser()
+            : this(CementSettingsRepository.Get())
         {
         }
 
@@ -43,7 +44,7 @@ namespace Common.YamlParsers.V2
         {
             var buildSections = CastContent(contents);
             if (buildSections == null || buildSections.Length == 0)
-                return defaults == null ? new BuildData[0] : new [] { defaults };
+                return defaults == null ? new BuildData[0] : new[] {defaults};
 
             var result = new List<BuildData>();
 
@@ -91,7 +92,7 @@ namespace Common.YamlParsers.V2
                         : versionFromDefault;
 
                     var version = FindValue(toolDict, "version", defaultVersion);
-                    return new Tool(name,version);
+                    return new Tool(name, version);
 
                 default:
                     throw new BadYamlException("tool", "not dict format");
@@ -107,7 +108,7 @@ namespace Common.YamlParsers.V2
                 case List<object> list:
                     return list.Cast<string>().ToList();
                 case string str:
-                    return new List<string> { str };
+                    return new List<string> {str};
                 default:
                     return null;
             }
@@ -124,7 +125,7 @@ namespace Common.YamlParsers.V2
                 case List<object> t1:
                     return t1.Cast<IDictionary<object, object>>().ToArray();
                 case IDictionary<object, object> t2:
-                    return new[] { t2 };
+                    return new[] {t2};
                 default:
                     throw new Exception("Internal error: unexpected build-section contents");
             }

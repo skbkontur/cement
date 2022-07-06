@@ -5,14 +5,6 @@ namespace Commands
 {
     public class CementVersion : ICommand
     {
-        public int Run(string[] args)
-        {
-            var lines = Helper.GetAssemblyTitle().Split('\n');
-            var version = string.Join("\n", lines.Skip(1).Take(4));
-            ConsoleWriter.Shared.WriteInfo(version);
-            return 0;
-        }
-
         public string HelpMessage => @"
     Shows cement's version
 
@@ -21,5 +13,13 @@ namespace Commands
 ";
 
         public bool IsHiddenCommand => false;
+
+        public int Run(string[] args)
+        {
+            var lines = Helper.GetAssemblyTitle().Split('\n');
+            var version = string.Join("\n", lines.Skip(1).Take(4));
+            ConsoleWriter.Shared.WriteInfo(version);
+            return 0;
+        }
     }
 }

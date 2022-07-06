@@ -15,24 +15,27 @@ namespace Commands
         private Dep analyzerModule;
 
         public AnalyzerAdd()
-            : base(new CommandSettings
-            {
-                LogPerfix = "ANALYZER-ADD",
-                LogFileName = "analyzer-add",
-                MeasureElapsedTime = false,
-                Location = CommandSettings.CommandLocation.InsideModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "ANALYZER-ADD",
+                    LogFileName = "analyzer-add",
+                    MeasureElapsedTime = false,
+                    Location = CommandSettings.CommandLocation.InsideModuleDirectory
+                })
         {
         }
+
+        public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseAnalyzerAdd(args);
 
-            analyzerModule = new Dep((string) parsedArgs["module"]);
+            analyzerModule = new Dep((string)parsedArgs["module"]);
             if (parsedArgs["configuration"] != null)
-                analyzerModule.Configuration = (string) parsedArgs["configuration"];
-            moduleSolutionName = (string) parsedArgs["solution"];
+                analyzerModule.Configuration = (string)parsedArgs["configuration"];
+            moduleSolutionName = (string)parsedArgs["solution"];
         }
 
         protected override int Execute()
@@ -45,6 +48,7 @@ namespace Commands
                     throw new BadArgumentException("Unable to resolve sln-file, please specify path to one");
                 moduleSolutionName = possibleModuleSolutions[0];
             }
+
             var moduleSolutionPath = Path.GetFullPath(moduleSolutionName);
             if (!moduleSolutionPath.EndsWith(".sln"))
                 throw new BadArgumentException(moduleSolutionPath + " is not sln-file");
@@ -72,11 +76,12 @@ namespace Commands
 
             var csprojFiles = GetCsprojFiles(moduleSolutionPath);
             var csprojAndRulesetPairs = csprojFiles
-                .Select(projectFile => new
-                {
-                    Csproj = projectFile,
-                    Ruleset = new RulesetFile(Path.ChangeExtension(projectFile.FilePath, "ruleset"))
-                })
+                .Select(
+                    projectFile => new
+                    {
+                        Csproj = projectFile,
+                        Ruleset = new RulesetFile(Path.ChangeExtension(projectFile.FilePath, "ruleset"))
+                    })
                 .ToList();
 
             foreach (var pair in csprojAndRulesetPairs)
@@ -143,7 +148,5 @@ namespace Commands
                 .ToList();
             return csprojFiles;
         }
-
-        public override string HelpMessage => @"";
     }
 }

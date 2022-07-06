@@ -16,14 +16,6 @@ namespace Common
             moduleName = Path.GetFileName(path);
         }
 
-        private static void EnqueueRange<T>(Queue<T> queue, IEnumerable<T> items)
-        {
-            foreach (var item in items)
-            {
-                queue.Enqueue(item);
-            }
-        }
-
         public InstallData Get(string configName = null)
         {
             var proceededModules = new HashSet<string>();
@@ -49,7 +41,16 @@ namespace Common
                 proceededExternal.NuGetPackages.ForEach(m => proceededNuGetPackages.Add(m));
                 EnqueueRange(queue, proceededExternal.ExternalModules);
             }
+
             return result;
+        }
+
+        private static void EnqueueRange<T>(Queue<T> queue, IEnumerable<T> items)
+        {
+            foreach (var item in items)
+            {
+                queue.Enqueue(item);
+            }
         }
 
         private InstallData ProceedExternalModule(string moduleNameWithConfiguration, HashSet<string> proceededModules, HashSet<string> proceededNuGetPackages)

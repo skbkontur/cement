@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Common.YamlParsers.Models
 {
-    public sealed class ConfigSectionTitle: IEquatable<ConfigSectionTitle>
+    public sealed class ConfigSectionTitle : IEquatable<ConfigSectionTitle>
     {
         public string Name { get; set; }
 

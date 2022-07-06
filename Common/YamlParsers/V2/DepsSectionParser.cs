@@ -14,6 +14,7 @@ namespace Common.YamlParsers.V2
         {
             this.depSectionItemParser = depSectionItemParser;
         }
+
         public DepsSection Parse([CanBeNull] object depLines, [CanBeNull] ModuleDefaults yamlDefaults = null)
         {
             var depLinesAsList = CastContent(depLines);
@@ -53,7 +54,6 @@ namespace Common.YamlParsers.V2
                         }
                         else
                         {
-
                             var rawName = mapping.First(c => string.IsNullOrWhiteSpace(c.Value)).Key;
                             var parsedName = depSectionItemParser.Parse(rawName);
                             var treeish = FindValue(mapping, "treeish", parsedName.Dependency.Treeish);

@@ -4,7 +4,7 @@ namespace Common
 {
     public sealed class MsBuildLikeTool
     {
-        public MsBuildLikeTool(string path, string version=null, bool isWindowsMsBuild=false)
+        public MsBuildLikeTool(string path, string version = null, bool isWindowsMsBuild = false)
         {
             Path = path;
             Version = Version.TryParse(version ?? string.Empty, out var v)

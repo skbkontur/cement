@@ -34,10 +34,12 @@ namespace Common
                     continue;
                 var vsParser = new VisualStudioProjectParser(Path.Combine(moduleDirectory, bulid.Target), modules);
                 var files = vsParser.GetCsprojList(bulid);
-                var refs = files.SelectMany(file =>
-                    vsParser.GetReferencesFromCsproj(file, bulid.Configuration, notOnlyCement).Select(reference => reference.Replace('/', '\\')).Select(r => new ReferenceWithCsproj(r, file)));
+                var refs = files.SelectMany(
+                    file =>
+                        vsParser.GetReferencesFromCsproj(file, bulid.Configuration, notOnlyCement).Select(reference => reference.Replace('/', '\\')).Select(r => new ReferenceWithCsproj(r, file)));
                 refsList.AddRange(refs);
             }
+
             return GetCheckDepsResult(refsList);
         }
 
@@ -56,12 +58,14 @@ namespace Common
                 {
                     inDeps.Add(d);
                 }
+
                 bool isOverhead = true;
                 foreach (var d in installData.CurrentConfigurationInstallFiles)
                 {
                     if (csprojRefs.Any(r => r.Reference.ToLower() == d.ToLower()))
                         isOverhead = false;
                 }
+
                 if (isOverhead)
                     configOverhead.Add(installData.ModuleName);
             }

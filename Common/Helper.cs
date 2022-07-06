@@ -20,10 +20,22 @@ namespace Common
         public const string ConfigurationDelimiter = "/";
         public static readonly object LockObject = new object();
         public static readonly int MaxDegreeOfParallelism = CementSettingsRepository.Get().MaxDegreeOfParallelism ?? 2 * Environment.ProcessorCount;
-        public static ParallelOptions ParallelOptions => new ParallelOptions {MaxDegreeOfParallelism = MaxDegreeOfParallelism};
-        public static string CurrentWorkspace { get; private set; }
         public static readonly object PackageLockObject = new object();
         private static readonly ILogger Log = LogManager.GetLogger(typeof(Helper));
+        public static ParallelOptions ParallelOptions => new ParallelOptions {MaxDegreeOfParallelism = MaxDegreeOfParallelism};
+        public static string CurrentWorkspace { get; private set; }
+
+        public static IReadOnlyList<string> VisualStudioEditions { get; } =
+            new List<string>
+            {
+                "Community",
+                "Professional",
+                "Enterprise",
+                "BuildTools",
+            }.AsReadOnly();
+
+        public static IReadOnlyList<string> VisualStudioVersions { get; } =
+            new List<string> {"2017", "2019", "2022"}.AsReadOnly();
 
         public static void SetWorkspace(string workspace)
         {
@@ -142,7 +154,7 @@ namespace Common
 
         public static string DefineForce(string force, GitRepository rootRepo)
         {
-            if (force == null || !force.Contains("->") && !force.Contains("CURRENT_BRANCH"))
+            if (force == null || (!force.Contains("->") && !force.Contains("CURRENT_BRANCH")))
                 return force;
             if (force.Equals("%CURRENT_BRANCH%") || force.Equals("$CURRENT_BRANCH"))
                 return rootRepo.CurrentLocalTreeish().Value;
@@ -152,7 +164,7 @@ namespace Common
 
         public static string DefineForce(string force, string branch)
         {
-            if (force == null || !force.Contains("->") && !force.Contains("CURRENT_BRANCH"))
+            if (force == null || (!force.Contains("->") && !force.Contains("CURRENT_BRANCH")))
                 return force;
             if (force.Equals("%CURRENT_BRANCH%") || force.Equals("$CURRENT_BRANCH"))
                 return branch;
@@ -163,7 +175,7 @@ namespace Common
         public static string GetCurrentBuildCommitHash()
         {
             var gitInfo = GetAssemblyTitle();
-            var commitHash = gitInfo.Split('\n').Skip(1).First().Replace("Commit: ", String.Empty).Trim();
+            var commitHash = gitInfo.Split('\n').Skip(1).First().Replace("Commit: ", string.Empty).Trim();
             return commitHash;
         }
 
@@ -245,11 +257,6 @@ namespace Common
             return path;
         }
 
-        private static string GetLastUpdateFilePath()
-        {
-            return Path.Combine(GetGlobalCementDirectory(), "last-update2");
-        }
-
         public static DateTime GetLastUpdateTime()
         {
             var file = GetLastUpdateFilePath();
@@ -269,15 +276,6 @@ namespace Common
         {
             CreateFileAndDirectory(filePath);
             File.WriteAllText(filePath, content);
-        }
-
-        private static void CreateFileAndDirectory(string filePath)
-        {
-            var dir = Directory.GetParent(filePath)?.FullName;
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-            if (!File.Exists(filePath))
-                File.Create(filePath).Close();
         }
 
         public static void RemoveOldKey(ref string[] args, string oldKey, ILogger log)
@@ -304,18 +302,6 @@ namespace Common
 
             return new ProgramFilesInfo {x64 = x64, x86 = x86};
         }
-
-        public static IReadOnlyList<string> VisualStudioEditions { get; } =
-            new List<string>
-            {
-                "Community",
-                "Professional",
-                "Enterprise",
-                "BuildTools",
-            }.AsReadOnly();
-
-        public static IReadOnlyList<string> VisualStudioVersions { get; } =
-            new List<string> {"2017", "2019", "2022"}.AsReadOnly();
 
         public static string GetEnvVariableByVisualStudioVersion(string version)
         {
@@ -393,6 +379,20 @@ namespace Common
             }
 
             return null;
+        }
+
+        private static string GetLastUpdateFilePath()
+        {
+            return Path.Combine(GetGlobalCementDirectory(), "last-update2");
+        }
+
+        private static void CreateFileAndDirectory(string filePath)
+        {
+            var dir = Directory.GetParent(filePath)?.FullName;
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            if (!File.Exists(filePath))
+                File.Create(filePath).Close();
         }
     }
 }

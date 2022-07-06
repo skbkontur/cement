@@ -6,12 +6,12 @@ namespace Common
 {
     public sealed class IniParser
     {
+        private readonly Dictionary<string, Dictionary<string, string>> ini;
+
         public IniParser()
         {
             ini = new Dictionary<string, Dictionary<string, string>>(StringComparer.InvariantCultureIgnoreCase);
         }
-
-        private readonly Dictionary<string, Dictionary<string, string>> ini;
 
         public IniData ParseString(string txt)
         {
@@ -22,8 +22,8 @@ namespace Common
             string currentOption = "";
 
             foreach (var line in txt.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries)
-                .Where(t => !string.IsNullOrWhiteSpace(t))
-                .Select(t => t.Trim()))
+                         .Where(t => !string.IsNullOrWhiteSpace(t))
+                         .Select(t => t.Trim()))
             {
                 if (line.StartsWith(";") || line.StartsWith("#"))
                     continue;
@@ -48,6 +48,7 @@ namespace Common
                     currentOption = line.Substring(0, idx).Trim();
                 }
             }
+
             return new IniData(ini);
         }
     }

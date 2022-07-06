@@ -34,6 +34,7 @@ namespace Common
             {
                 throw new NoSuchConfigurationException(moduleName, configuration);
             }
+
             result.CurrentConfigurationInstallFiles = config.Elements("add-ref")
                 .Select(e => e.FirstAttribute.Value).ToList();
             return result;

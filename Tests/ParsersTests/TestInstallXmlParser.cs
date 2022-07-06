@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Tests.ParsersTests
 {
     [TestFixture]
-    class TestInstallXmlParser
+    internal class TestInstallXmlParser
     {
         [Test]
         public void TestGetDefaultConfig()
@@ -82,11 +82,12 @@ namespace Tests.ParsersTests
 	</configurations>
 </spec>";
             var result = new InstallXmlParser(content, "module").Get("client");
-            Assert.AreEqual(new[]
-            {
-                "Kontur.Drive.Client/bin/Release/Kontur.Drive.Client.dll",
-                "Kontur.Drive.ServiceModel/bin/Release/Kontur.Drive.ServiceModel.dll"
-            }, result.CurrentConfigurationInstallFiles.ToArray());
+            Assert.AreEqual(
+                new[]
+                {
+                    "Kontur.Drive.Client/bin/Release/Kontur.Drive.Client.dll",
+                    "Kontur.Drive.ServiceModel/bin/Release/Kontur.Drive.ServiceModel.dll"
+                }, result.CurrentConfigurationInstallFiles.ToArray());
         }
     }
 }

@@ -11,8 +11,8 @@ namespace Common
 {
     public sealed class ModuleBuilder
     {
-        private readonly ILogger log;
         public static long TotalMsbuildTime;
+        private readonly ILogger log;
         private readonly BuildSettings buildSettings;
         private readonly BuildYamlScriptsMaker buildYamlScriptsMaker;
 
@@ -70,21 +70,6 @@ namespace Common
                 RunNugetRestore(Path.Combine(Helper.CurrentWorkspace, moduleName, "build.cmd"), nugetRunCommand);
         }
 
-        private void RunNugetRestore(string buildFile, string nugetRunCommand)
-        {
-            var buildFolder = Directory.GetParent(buildFile).FullName;
-            var target = buildFile.EndsWith(".sln") ? Path.GetFileName(buildFile) : "";
-            var command = $"{nugetRunCommand} restore {target} -Verbosity {(buildSettings.ShowOutput ? "normal" : "quiet")}";
-            log.LogInformation(command);
-
-            var runner = PrepareShellRunner();
-            var exitCode = runner.RunInDirectory(buildFolder, command);
-            if (exitCode != 0)
-            {
-                log.LogWarning($"Failed to nuget restore {buildFile}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
-            }
-        }
-
         public bool Build(Dep dep)
         {
             try
@@ -100,6 +85,36 @@ namespace Common
                 log.LogError(e, e.Message);
                 ConsoleWriter.Shared.WriteError($"Failed to buid {dep}.\n{e}");
                 return false;
+            }
+        }
+
+        private static void PrintBuildFailResult(Dep dep, string buildName, BuildScriptWithBuildData script, ShellRunner runner)
+        {
+            ConsoleWriter.Shared.WriteBuildError(
+                $"Failed to build {dep.Name}{(dep.Configuration == null ? "" : "/" + dep.Configuration)} {buildName}");
+            foreach (var line in runner.Output.Split('\n'))
+                ModuleBuilderHelper.WriteLine(line);
+
+            ConsoleWriter.Shared.WriteLine();
+            ConsoleWriter.Shared.WriteInfo("Errors summary:");
+            foreach (var line in runner.Output.Split('\n'))
+                ModuleBuilderHelper.WriteIfErrorToStandartStream(line);
+
+            ConsoleWriter.Shared.WriteLine($"({script.Script})");
+        }
+
+        private void RunNugetRestore(string buildFile, string nugetRunCommand)
+        {
+            var buildFolder = Directory.GetParent(buildFile).FullName;
+            var target = buildFile.EndsWith(".sln") ? Path.GetFileName(buildFile) : "";
+            var command = $"{nugetRunCommand} restore {target} -Verbosity {(buildSettings.ShowOutput ? "normal" : "quiet")}";
+            log.LogInformation(command);
+
+            var runner = PrepareShellRunner();
+            var exitCode = runner.RunInDirectory(buildFolder, command);
+            if (exitCode != 0)
+            {
+                log.LogWarning($"Failed to nuget restore {buildFile}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
             }
         }
 
@@ -140,10 +155,12 @@ namespace Common
                 if (scripts.Any(script => script != null))
                     return scripts.All(script => RunBuildScript(dep, script));
             }
+
             if (File.Exists(cmdFile))
             {
                 return BuildByCmd(dep, cmdFile);
             }
+
             ConsoleWriter.Shared.WriteSkip($"{dep.ToBuildString(),-40}*content");
             return true;
         }
@@ -184,21 +201,6 @@ namespace Common
 
             PrintBuildResult(dep, buildName, warnCount, elapsedTime, obsoleteUsages);
             return true;
-        }
-
-        private static void PrintBuildFailResult(Dep dep, string buildName, BuildScriptWithBuildData script, ShellRunner runner)
-        {
-            ConsoleWriter.Shared.WriteBuildError(
-                $"Failed to build {dep.Name}{(dep.Configuration == null ? "" : "/" + dep.Configuration)} {buildName}");
-            foreach (var line in runner.Output.Split('\n'))
-                ModuleBuilderHelper.WriteLine(line);
-
-            ConsoleWriter.Shared.WriteLine();
-            ConsoleWriter.Shared.WriteInfo("Errors summary:");
-            foreach (var line in runner.Output.Split('\n'))
-                ModuleBuilderHelper.WriteIfErrorToStandartStream(line);
-
-            ConsoleWriter.Shared.WriteLine($"({script.Script})");
         }
 
         private void PrintBuildResult(Dep dep, string buildName, int warnCount, string elapsedTime, List<string> obsoleteUsages)

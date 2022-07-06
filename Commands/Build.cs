@@ -13,30 +13,47 @@ namespace Commands
         private bool restore;
 
         public Build()
-            : base(new CommandSettings
-            {
-                LogPerfix = "BUILD",
-                LogFileName = "build",
-                MeasureElapsedTime = false,
-                Location = CommandSettings.CommandLocation.RootModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "BUILD",
+                    LogFileName = "build",
+                    MeasureElapsedTime = false,
+                    Location = CommandSettings.CommandLocation.RootModuleDirectory
+                })
         {
         }
+
+        public override string HelpMessage => @"
+    Performs build for the current module
+
+    Usage:
+        cm build [-v|--verbose|-w|-W|--warnings] [-p|--progress] [-c|--configuration <config-name>]
+
+        -c/--configuration      - build corresponding configuration
+
+        -v/--verbose            - show full msbuild output
+        -w/--warnings           - show warnings
+        -W                      - show only obsolete warnings
+
+        -p/--progress           - show msbuild output in one line
+        --cleanBeforeBuild      - delete all local changes if project's TargetFramework is 'netstandardXX'
+";
 
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseBuildDeps(args);
-            configuration = (string) parsedArgs["configuration"];
+            configuration = (string)parsedArgs["configuration"];
             buildSettings = new BuildSettings
             {
-                ShowAllWarnings = (bool) parsedArgs["warnings"],
-                ShowObsoleteWarnings = (bool) parsedArgs["obsolete"],
-                ShowOutput = (bool) parsedArgs["verbose"],
-                ShowProgress = (bool) parsedArgs["progress"],
+                ShowAllWarnings = (bool)parsedArgs["warnings"],
+                ShowObsoleteWarnings = (bool)parsedArgs["obsolete"],
+                ShowOutput = (bool)parsedArgs["verbose"],
+                ShowProgress = (bool)parsedArgs["progress"],
                 ShowWarningsSummary = true,
-                CleanBeforeBuild = (bool) parsedArgs["cleanBeforeBuild"]
+                CleanBeforeBuild = (bool)parsedArgs["cleanBeforeBuild"]
             };
-            restore = (bool) parsedArgs["restore"];
+            restore = (bool)parsedArgs["restore"];
         }
 
         protected override int Execute()
@@ -78,25 +95,10 @@ namespace Commands
                 builtStorage.Save();
                 return -1;
             }
+
             builtStorage.AddBuiltModule(module, modulesOrder.CurrentCommitHashes);
             builtStorage.Save();
             return 0;
         }
-
-        public override string HelpMessage => @"
-    Performs build for the current module
-
-    Usage:
-        cm build [-v|--verbose|-w|-W|--warnings] [-p|--progress] [-c|--configuration <config-name>]
-
-        -c/--configuration      - build corresponding configuration
-
-        -v/--verbose            - show full msbuild output
-        -w/--warnings           - show warnings
-        -W                      - show only obsolete warnings
-
-        -p/--progress           - show msbuild output in one line
-        --cleanBeforeBuild      - delete all local changes if project's TargetFramework is 'netstandardXX'
-";
     }
 }

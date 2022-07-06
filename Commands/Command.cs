@@ -19,6 +19,10 @@ namespace Commands
             CommandSettings = settings;
         }
 
+        public abstract string HelpMessage { get; }
+
+        public bool IsHiddenCommand => CommandSettings.IsHiddenCommand;
+
         public int Run(string[] args)
         {
             try
@@ -41,6 +45,7 @@ namespace Commands
                     ConsoleWriter.Shared.WriteInfo("Total time: " + sw.Elapsed);
                     Log.LogDebug("Total time: " + sw.Elapsed);
                 }
+
                 return exitCode;
             }
             catch (GitLocalChangesException e)
@@ -63,6 +68,9 @@ namespace Commands
                 return -1;
             }
         }
+
+        protected abstract int Execute();
+        protected abstract void ParseArgs(string[] args);
 
         private void ReadFeatureFlags()
         {
@@ -96,12 +104,14 @@ namespace Commands
                     throw new CementTrackException(cwd + " is not cement workspace directory.");
                 Helper.SetWorkspace(cwd);
             }
+
             if (CommandSettings.Location == CommandSettings.CommandLocation.RootModuleDirectory)
             {
                 if (!Helper.IsCurrentDirectoryModule(cwd))
                     throw new CementTrackException(cwd + " is not cement module directory.");
                 Helper.SetWorkspace(Directory.GetParent(cwd).FullName);
             }
+
             if (CommandSettings.Location == CommandSettings.CommandLocation.InsideModuleDirectory)
             {
                 var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
@@ -136,12 +146,6 @@ namespace Commands
             ParseArgs(args);
             Log.LogDebug("OK parsing args");
         }
-
-        protected abstract int Execute();
-        protected abstract void ParseArgs(string[] args);
-        public abstract string HelpMessage { get; }
-
-        public bool IsHiddenCommand => CommandSettings.IsHiddenCommand;
     }
 
     public class CommandSettings

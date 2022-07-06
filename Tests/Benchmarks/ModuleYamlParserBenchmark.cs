@@ -19,31 +19,6 @@ namespace Tests.Benchmarks
 
     public class ModuleYamlParserBenchmark
     {
-        [ParamsSource(nameof(Yamls))]
-        public string Content;
-
-        [Benchmark]
-        public ModuleDefinition NewModuleYamlParser()
-        {
-            var parser = ModuleYamlParserFactory.Get();
-            return parser.Parse(Content);
-        }
-
-        [Benchmark]
-        public Dictionary<string, DepsData> OldDepsParser()
-        {
-            var parser = new DepsYamlParser("fakename", Content);
-            var configs = parser.GetConfigurations();
-
-            return configs.ToDictionary(c => c, c => parser.Get(c));
-        }
-
-        public IEnumerable<string> Yamls => new[]
-        {
-            SmallModuleYaml,
-            FatModuleYaml,
-        };
-
         private const string SmallModuleYaml = @"notests *default:
   build:
     target: Vostok.Configuration.Sources.ClusterConfig.sln
@@ -262,5 +237,29 @@ full-build > webapi-service-local, jobs-service-local, webapi-plugin, jobs-plugi
     target: Forms.Core.sln
     configuration: Release
 ";
+        [ParamsSource(nameof(Yamls))]
+        public string Content;
+
+        public IEnumerable<string> Yamls => new[]
+        {
+            SmallModuleYaml,
+            FatModuleYaml,
+        };
+
+        [Benchmark]
+        public ModuleDefinition NewModuleYamlParser()
+        {
+            var parser = ModuleYamlParserFactory.Get();
+            return parser.Parse(Content);
+        }
+
+        [Benchmark]
+        public Dictionary<string, DepsData> OldDepsParser()
+        {
+            var parser = new DepsYamlParser("fakename", Content);
+            var configs = parser.GetConfigurations();
+
+            return configs.ToDictionary(c => c, c => parser.Get(c));
+        }
     }
 }

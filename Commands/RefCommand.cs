@@ -11,16 +11,6 @@ namespace Commands
             {"fix", new RefFix()}
         };
 
-        public int Run(string[] args)
-        {
-            if (args.Length < 2 || !commands.ContainsKey(args[1]))
-            {
-                ConsoleWriter.Shared.WriteError("Bad arguments");
-                return -1;
-            }
-            return commands[args[1]].Run(args);
-        }
-
         public string HelpMessage => @"
     Adds or fixes references in *.csproj
 
@@ -47,5 +37,16 @@ namespace Commands
 ";
 
         public bool IsHiddenCommand => false;
+
+        public int Run(string[] args)
+        {
+            if (args.Length < 2 || !commands.ContainsKey(args[1]))
+            {
+                ConsoleWriter.Shared.WriteError("Bad arguments");
+                return -1;
+            }
+
+            return commands[args[1]].Run(args);
+        }
     }
 }

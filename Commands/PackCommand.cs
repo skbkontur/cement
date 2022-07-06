@@ -15,16 +15,35 @@ namespace Commands
         private BuildSettings buildSettings;
         private bool preRelease = false;
 
-        public PackCommand() : base(new CommandSettings
-        {
-            LogPerfix = "PACK",
-            LogFileName = null,
-            MeasureElapsedTime = false,
-            RequireModuleYaml = true,
-            Location = CommandSettings.CommandLocation.InsideModuleDirectory
-        })
+        public PackCommand()
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "PACK",
+                    LogFileName = null,
+                    MeasureElapsedTime = false,
+                    RequireModuleYaml = true,
+                    Location = CommandSettings.CommandLocation.InsideModuleDirectory
+                })
         {
         }
+
+        public override string HelpMessage => @"
+    Packs project to nuget package.
+    Replaces file references to package references in csproj file and runs 'dotnet pack' command.
+    Allows to publish nuget package to use outside of cement.
+    Searches cement deps in nuget by module name.
+
+    Usage:
+        cm pack [-v|--verbose|-w|-W|--warnings] [-p|--progress] [-c configName] <project-file>
+        -c/--configuration      - build package for specific configuration
+
+        -v/--verbose            - show full msbuild output
+        -w/--warnings           - show warnings
+        -W                      - show only obsolete warnings
+
+        -p/--progress           - show msbuild output in one line
+";
 
         protected override int Execute()
         {
@@ -60,6 +79,7 @@ namespace Commands
                     File.Delete(projectPath);
                 File.Move(backupFileName, projectPath);
             }
+
             return 0;
         }
 
@@ -85,22 +105,5 @@ namespace Commands
             if (!project.EndsWith(".csproj"))
                 throw new BadArgumentException(project + " is not csproj file");
         }
-
-        public override string HelpMessage => @"
-    Packs project to nuget package.
-    Replaces file references to package references in csproj file and runs 'dotnet pack' command.
-    Allows to publish nuget package to use outside of cement.
-    Searches cement deps in nuget by module name.
-
-    Usage:
-        cm pack [-v|--verbose|-w|-W|--warnings] [-p|--progress] [-c configName] <project-file>
-        -c/--configuration      - build package for specific configuration
-
-        -v/--verbose            - show full msbuild output
-        -w/--warnings           - show warnings
-        -W                      - show only obsolete warnings
-
-        -p/--progress           - show msbuild output in one line
-";
     }
 }

@@ -7,11 +7,13 @@ namespace Common.YamlParsers
 {
     public sealed class HooksYamlParser : ConfigurationYamlParser
     {
-        public HooksYamlParser(FileInfo moduleName) : base(moduleName)
+        public HooksYamlParser(FileInfo moduleName)
+            : base(moduleName)
         {
         }
 
-        public HooksYamlParser(string moduleName, string text) : base(moduleName, text)
+        public HooksYamlParser(string moduleName, string text)
+            : base(moduleName, text)
         {
         }
 

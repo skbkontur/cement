@@ -10,8 +10,8 @@ namespace Common
 {
     public static class HooksHelper
     {
-        private static readonly ILogger Log = LogManager.GetLogger(typeof(HooksHelper));
         private const string CementPreCommitHookName = "pre-commit.cement";
+        private static readonly ILogger Log = LogManager.GetLogger(typeof(HooksHelper));
 
         public static bool InstallHooks(string moduleName)
         {
@@ -43,7 +43,8 @@ namespace Common
             if (hooks.Contains(CementPreCommitHookName) && hooks.Contains("pre-commit"))
             {
                 ConsoleWriter.Shared.WriteError($"You can't use {CementPreCommitHookName} with custom pre-commit hook in {moduleName}");
-                ConsoleWriter.Shared.WriteLine(@"if you want to use cement hook, add this to your bash hook:
+                ConsoleWriter.Shared.WriteLine(
+                    @"if you want to use cement hook, add this to your bash hook:
 .git/hooks/pre-commit.cement
 if [ $? -ne 0 ]; then
   exit 1

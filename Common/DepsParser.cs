@@ -18,16 +18,22 @@ namespace Common
             if (File.Exists(Path.Combine(modulePath, Helper.YamlSpecFile)))
                 return new DepsYamlParser(new FileInfo(modulePath)).Get(config);
 
-            if (File.Exists(Path.Combine(modulePath,
-                $"deps{(config == null || config.Equals("full-build") ? "" : "." + config)}")))
-                return new DepsIniParser(new FileInfo(Path.Combine(modulePath,
-                    $"deps{(config == null || config.Equals("full-build") ? "" : "." + config)}"))).Get();
+            if (File.Exists(
+                    Path.Combine(
+                        modulePath,
+                        $"deps{(config == null || config.Equals("full-build") ? "" : "." + config)}")))
+                return new DepsIniParser(
+                    new FileInfo(
+                        Path.Combine(
+                            modulePath,
+                            $"deps{(config == null || config.Equals("full-build") ? "" : "." + config)}"))).Get();
 
             if (File.Exists(Path.Combine(modulePath, "deps")))
             {
                 ConsoleWriter.Shared.WriteWarning("Configuration '" + config + "' was not found in " + modulePath + ". Will take full-build config");
                 return new DepsIniParser(Path.Combine(modulePath, "deps")).Get();
             }
+
             return new DepsData(null, new List<Dep>());
         }
     }

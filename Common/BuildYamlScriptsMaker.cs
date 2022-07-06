@@ -8,6 +8,25 @@ namespace Common
 {
     public sealed class BuildYamlScriptsMaker
     {
+        private static readonly string[] DefaultMsbuildParameters =
+        {
+            @"/t:Rebuild",
+            @"/nodeReuse:false",
+            @"/maxcpucount",
+            @"/v:m",
+        };
+
+        private static readonly string[] DefaultXbuildParameters =
+        {
+            @"/t:Rebuild",
+            @"/v:m"
+        };
+
+        private static readonly string[] DefaultDotnetParameters =
+        {
+            @"build"
+        };
+
         public List<BuildScriptWithBuildData> PrepareBuildScriptsFromYaml(Dep dep)
         {
             var buildSections = Yaml.BuildParser(dep.Name).Get(dep.Configuration);
@@ -20,11 +39,13 @@ namespace Common
                 else
                 {
                     var script = MakeScript(dep, buildSection);
-                    result.Add(new BuildScriptWithBuildData(
-                        script,
-                        buildSection));
+                    result.Add(
+                        new BuildScriptWithBuildData(
+                            script,
+                            buildSection));
                 }
             }
+
             return result;
         }
 
@@ -80,25 +101,6 @@ namespace Common
 
             return tool;
         }
-
-        private static readonly string[] DefaultMsbuildParameters =
-        {
-            @"/t:Rebuild",
-            @"/nodeReuse:false",
-            @"/maxcpucount",
-            @"/v:m",
-        };
-
-        private static readonly string[] DefaultXbuildParameters =
-        {
-            @"/t:Rebuild",
-            @"/v:m"
-        };
-
-        private static readonly string[] DefaultDotnetParameters =
-        {
-            @"build"
-        };
 
         private static List<string> GetDefaultMsbuildParameters(Tool tool)
         {

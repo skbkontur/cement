@@ -25,6 +25,7 @@ namespace Tests.UtilsTests
             using (new DirectoryJumper(tempDir.Path))
             {
             }
+
             Assert.AreEqual(startCwd, Directory.GetCurrentDirectory());
         }
     }

@@ -26,13 +26,13 @@ namespace cm
 
             var command = args[0];
             if (command != "complete" && command != "check-pre-commit"
-                && (command != "help" || !args.Contains("--gen")))
+                                      && (command != "help" || !args.Contains("--gen")))
                 SelfUpdate.UpdateIfOld();
 
             logger.LogInformation($"Exit code: {exitCode}");
 
             LogManager.DisposeLoggers();
-            
+
             return exitCode == 0 ? 0 : 13;
         }
 
@@ -72,7 +72,7 @@ namespace cm
                     ConsoleWriter.Shared.WriteError(e.StackTrace);
                     logger.LogError(e, e.Message);
                 }
-                
+
                 return -1;
             }
         }

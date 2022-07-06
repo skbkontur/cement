@@ -14,6 +14,20 @@ namespace Commands
             readmeGenerator = new ReadmeGenerator();
         }
 
+        public string HelpMessage => @"
+    Prints help for command
+
+    Usage:
+        cm help <command-name>
+        cm <command-name> /?
+        cm <command-name> --help
+
+    Example:
+        cm help init
+";
+
+        public bool IsHiddenCommand => false;
+
         public int Run(string[] args)
         {
             if (args.Contains("--gen"))
@@ -49,29 +63,15 @@ namespace Commands
             return -1;
         }
 
-        private void GenerateReadme(string file)
-        {
-            var text = readmeGenerator.Generate();
-            File.WriteAllText(file, text);
-        }
-
         private static void PrintHelpFooter()
         {
             ConsoleWriter.Shared.WriteLine($"Cement. {DateTime.Now.Year}.");
         }
 
-        public string HelpMessage => @"
-    Prints help for command
-
-    Usage:
-        cm help <command-name>
-        cm <command-name> /?
-        cm <command-name> --help
-
-    Example:
-        cm help init
-";
-
-        public bool IsHiddenCommand => false;
+        private void GenerateReadme(string file)
+        {
+            var text = readmeGenerator.Generate();
+            File.WriteAllText(file, text);
+        }
     }
 }

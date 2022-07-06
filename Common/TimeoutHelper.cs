@@ -4,9 +4,9 @@ namespace Common
 {
     public static class TimeoutHelper
     {
+        private const int TimesForUseBigDefault = 1;
         private static readonly TimeSpan SmallTimeout = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan BigTimeout = TimeSpan.FromMinutes(10);
-        private const int TimesForUseBigDefault = 1;
 
         private static int badTimes;
 

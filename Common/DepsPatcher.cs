@@ -41,6 +41,7 @@ namespace Common
                 PatchConfiguration(child);
                 processed.Add(child);
             }
+
             foreach (var child in childConfigurations)
                 PatchDfs(child, processed);
         }
@@ -140,8 +141,9 @@ namespace Common
                     commonAncestorsList.Add(parent);
             }
 
-            var lowestAncestor = commonAncestorsList.Where(c =>
-                !new ConfigurationManager(commonAncestorsList.Select(cc => new Dep(null, null, cc)), configParser).ProcessedChildrenConfigurations(new Dep(null, null, c)).Any()).ToList();
+            var lowestAncestor = commonAncestorsList.Where(
+                c =>
+                    !new ConfigurationManager(commonAncestorsList.Select(cc => new Dep(null, null, cc)), configParser).ProcessedChildrenConfigurations(new Dep(null, null, c)).Any()).ToList();
 
             if (!commonAncestorsList.Any() || !lowestAncestor.Any())
                 throw new CementException("failed get common ancestor for configurations '" + dep1 + "' and '" + dep2 + "'");
@@ -162,8 +164,9 @@ namespace Common
             var path = Path.Combine(workspace, patchModule, Helper.YamlSpecFile);
             var moduleYamlFile = new ModuleYamlFile(new FileInfo(path));
             var lines = moduleYamlFile.Lines;
-            var configIndex = lines.FindIndex(l => l.StartsWith(configuration + ":")
-                                                   || l.StartsWith(configuration + " "));
+            var configIndex = lines.FindIndex(
+                l => l.StartsWith(configuration + ":")
+                     || l.StartsWith(configuration + " "));
             var depsIndex = -1;
 
             for (int index = configIndex + 1; index < lines.Count && lines[index].StartsWith(" "); index++)
@@ -172,6 +175,7 @@ namespace Common
                     depsIndex = index;
                     break;
                 }
+
             if (depsIndex == -1)
                 return;
             for (int index = depsIndex + 1; index < lines.Count && lines[index].StartsWith(GetSpacesStart(lines, depsIndex)); index++)
@@ -183,6 +187,7 @@ namespace Common
                     break;
                 }
             }
+
             moduleYamlFile.Save(path, lines);
         }
 
@@ -191,8 +196,9 @@ namespace Common
             var path = Path.Combine(workspace, patchModule, Helper.YamlSpecFile);
             var moduleYamlFile = new ModuleYamlFile(new FileInfo(path));
             var lines = moduleYamlFile.Lines;
-            var configIndex = lines.FindIndex(l => l.StartsWith(configuration + ":")
-                                                   || l.StartsWith(configuration + " "));
+            var configIndex = lines.FindIndex(
+                l => l.StartsWith(configuration + ":")
+                     || l.StartsWith(configuration + " "));
             var depsIndex = -1;
 
             for (int index = configIndex + 1; index < lines.Count && (lines[index].Length == 0 || lines[index].StartsWith(" ")); index++)
@@ -201,11 +207,13 @@ namespace Common
                     depsIndex = index;
                     break;
                 }
+
             if (depsIndex == -1)
             {
                 lines.Insert(configIndex + 1, GetSpacesStart(lines, configIndex) + "deps:");
                 depsIndex = configIndex + 1;
             }
+
             var prefix = GetSpacesStart(lines, depsIndex) + (isOn ? "- " : "- -");
             lines.Insert(depsIndex + 1, prefix + GetDepLine(dep));
             moduleYamlFile.Save(path, lines);
@@ -216,15 +224,17 @@ namespace Common
             var path = Path.Combine(workspace, patchModule, Helper.YamlSpecFile);
             var moduleYamlFile = new ModuleYamlFile(new FileInfo(path));
             var lines = moduleYamlFile.Lines;
-            var configIndex = lines.FindIndex(l => l.StartsWith(patchConfiguration + ":")
-                                                   || l.StartsWith(patchConfiguration + " "));
+            var configIndex = lines.FindIndex(
+                l => l.StartsWith(patchConfiguration + ":")
+                     || l.StartsWith(patchConfiguration + " "));
 
             var depsIndex = lines.FindIndex(configIndex, line => line.EndsWith("deps:"));
-            var removeIndex = lines.FindIndex(depsIndex, line =>
-                line.Contains(" " + was.Name + "/") ||
-                line.Contains(" " + was.Name + "@") ||
-                line.Contains(" " + was.Name + ":") ||
-                line.EndsWith(" " + was.Name));
+            var removeIndex = lines.FindIndex(
+                depsIndex, line =>
+                    line.Contains(" " + was.Name + "/") ||
+                    line.Contains(" " + was.Name + "@") ||
+                    line.Contains(" " + was.Name + ":") ||
+                    line.EndsWith(" " + was.Name));
             ReplaceDepLine(was, shouldBe, removeIndex, lines, depsIndex);
             moduleYamlFile.Save(path, lines);
         }
@@ -236,6 +246,7 @@ namespace Common
                 ConsoleWriter.Shared.WriteWarning("Fail to replace " + was + ", not found in module.yaml.");
                 return;
             }
+
             var suffix = lines[removeIndex].EndsWith(":") ? ":" : "";
             lines[removeIndex] = GetSpacesStart(lines, depsIndex) + "- " + GetDepLine(shouldBe) + suffix;
         }

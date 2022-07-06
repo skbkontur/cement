@@ -6,23 +6,6 @@ namespace Tests.UtilsTests
 {
     public class TestDepsPatcher
     {
-        private TempDirectory MakeTestFolder(string yamlA, string yamlB)
-        {
-            var dir = new TempDirectory();
-            Directory.CreateDirectory(Path.Combine(dir.Path, "A"));
-            File.WriteAllText(Path.Combine(dir.Path, "A", Helper.YamlSpecFile), yamlA);
-            Directory.CreateDirectory(Path.Combine(dir.Path, "B"));
-            File.WriteAllText(Path.Combine(dir.Path, "B", Helper.YamlSpecFile), yamlB);
-            return dir;
-        }
-
-        private string Patch(TempDirectory workspace, string configuration, Dep dep)
-        {
-            new DepsPatcher(workspace.Path, "A", dep).Patch(configuration);
-            var result = File.ReadAllText(Path.Combine(workspace.Path, "A", Helper.YamlSpecFile));
-            return result;
-        }
-
         [Test]
         public void SimpleTest()
         {
@@ -45,7 +28,8 @@ full-build:
 ";
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -72,7 +56,8 @@ client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -100,7 +85,8 @@ full-build:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "client")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "client")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -128,7 +114,8 @@ full-build:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -156,7 +143,8 @@ full-build:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -185,7 +173,8 @@ full-build:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "full-build")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -214,7 +203,8 @@ full-build:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "client")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "client")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -243,7 +233,8 @@ full-build:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "client")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "client")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -273,7 +264,8 @@ full-build > client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "full-build")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -300,7 +292,8 @@ full-build > client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "full-build")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -329,7 +322,8 @@ full-build:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "client")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "client")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -359,7 +353,8 @@ full-build > client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "full-build")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -389,7 +384,8 @@ full-build > client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "full-build")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -415,7 +411,8 @@ full-build:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "client2")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "client2")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -442,7 +439,8 @@ client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "client", new Dep("B", null, "client2")),
+                Assert.That(
+                    Patch(dir, "client", new Dep("B", null, "client2")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -496,7 +494,8 @@ full-build > client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "full-build")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -525,7 +524,8 @@ full-build > client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "client", new Dep("B", null, "full-build")),
+                Assert.That(
+                    Patch(dir, "client", new Dep("B", null, "full-build")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -557,7 +557,8 @@ full-build > client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "client", new Dep("B", null, "full-build")),
+                Assert.That(
+                    Patch(dir, "client", new Dep("B", null, "full-build")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -589,7 +590,8 @@ full-build > client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "client", new Dep("B", null, "client")),
+                Assert.That(
+                    Patch(dir, "client", new Dep("B", null, "client")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -619,7 +621,8 @@ full-build > client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "client", new Dep("B")),
+                Assert.That(
+                    Patch(dir, "client", new Dep("B")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -657,7 +660,8 @@ full-build > client:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "client", new Dep("B", null, "sdk")),
+                Assert.That(
+                    Patch(dir, "client", new Dep("B", null, "sdk")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -697,7 +701,8 @@ client4 > client3:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "client1", new Dep("B", null, "client4")),
+                Assert.That(
+                    Patch(dir, "client1", new Dep("B", null, "client4")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -737,7 +742,8 @@ client4 > client3:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "client1", new Dep("B", null, "client4")),
+                Assert.That(
+                    Patch(dir, "client1", new Dep("B", null, "client4")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -768,7 +774,8 @@ full-build:
 
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B", null, "full-build")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B", null, "full-build")),
                     Is.EqualTo(yamlAExpected));
             }
         }
@@ -801,9 +808,27 @@ full-build:
 ";
             using (var dir = MakeTestFolder(yamlA, yamlB))
             {
-                Assert.That(Patch(dir, "full-build", new Dep("B")),
+                Assert.That(
+                    Patch(dir, "full-build", new Dep("B")),
                     Is.EqualTo(yamlAExpected));
             }
+        }
+
+        private TempDirectory MakeTestFolder(string yamlA, string yamlB)
+        {
+            var dir = new TempDirectory();
+            Directory.CreateDirectory(Path.Combine(dir.Path, "A"));
+            File.WriteAllText(Path.Combine(dir.Path, "A", Helper.YamlSpecFile), yamlA);
+            Directory.CreateDirectory(Path.Combine(dir.Path, "B"));
+            File.WriteAllText(Path.Combine(dir.Path, "B", Helper.YamlSpecFile), yamlB);
+            return dir;
+        }
+
+        private string Patch(TempDirectory workspace, string configuration, Dep dep)
+        {
+            new DepsPatcher(workspace.Path, "A", dep).Patch(configuration);
+            var result = File.ReadAllText(Path.Combine(workspace.Path, "A", Helper.YamlSpecFile));
+            return result;
         }
     }
 }

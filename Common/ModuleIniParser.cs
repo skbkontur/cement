@@ -19,6 +19,7 @@ namespace Common
                 {
                 }
             }
+
             return result.ToArray();
         }
     }

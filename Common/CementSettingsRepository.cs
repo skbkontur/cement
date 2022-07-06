@@ -7,21 +7,13 @@ namespace Common
 {
     public static class CementSettingsRepository
     {
-        private static CementSettings GetDefaultSettings()
-        {
-            var path = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "defaultSettings.json");
-            if (!File.Exists(path))
-                ConsoleWriter.Shared.WriteError($"{path} not found");
-            return ReadSettings(path);
-        }
-
         public static void Save(CementSettings settings)
         {
             var text = JsonConvert.SerializeObject(settings, Formatting.Indented);
             var path = Path.Combine(Helper.GetGlobalCementDirectory(), "settings");
             Helper.CreateFileAndDirectory(path, text);
         }
-        
+
         public static CementSettings Get()
         {
             var path = Path.Combine(Helper.GetGlobalCementDirectory(), "settings");
@@ -48,6 +40,14 @@ namespace Common
             }
 
             return settings;
+        }
+
+        private static CementSettings GetDefaultSettings()
+        {
+            var path = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "defaultSettings.json");
+            if (!File.Exists(path))
+                ConsoleWriter.Shared.WriteError($"{path} not found");
+            return ReadSettings(path);
         }
 
         private static CementSettings ReadSettings(string path)

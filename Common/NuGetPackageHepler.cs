@@ -30,6 +30,11 @@ namespace Common
             this.log = log;
         }
 
+        public void InstallPackages(List<string> packagesList, string packagesPath, ProjectFile projectFilePath)
+        {
+            new NuGetProject(packagesList, packagesPath, projectFilePath, log).Install();
+        }
+
         private class NuGetProject
         {
             private readonly List<string> packagesList;
@@ -78,6 +83,7 @@ namespace Common
                         InstallPackageWithDependencies(package, packageDownloadContext);
                     }
                 }
+
                 projectSystem.Save();
 
                 var projectFileContent = File.ReadAllText(projectSystem.ProjectFileFullPath);
@@ -90,8 +96,18 @@ namespace Common
                     new UTF8Encoding(true));
             }
 
+            private static PackageIdentity ParsePackage(string packageName)
+            {
+                var splitted = packageName.Split('/');
+                if (splitted.Length != 2)
+                    throw new BadNuGetPackageException(packageName);
+                var packageId = splitted[0];
+                var version = NuGetVersion.Parse(splitted[1]);
+                return new PackageIdentity(packageId, version);
+            }
+
             private void InstallPackageWithDependencies(PackageIdentity package,
-                PackageDownloadContext packageDownloadContext)
+                                                        PackageDownloadContext packageDownloadContext)
             {
                 log.LogInformation($"Loading package {package}");
                 var downloadResourceResult = LoadPackage(package, packageDownloadContext);
@@ -99,13 +115,15 @@ namespace Common
                 var mostCompatibleFramework = new FrameworkReducer().GetNearest(
                     projectSystem.TargetFramework,
                     dependencyGroups.Select(dg => dg.TargetFramework));
-                var dependencyGroup = dependencyGroups.FirstOrDefault(ds =>
-                    ds.TargetFramework.Equals(mostCompatibleFramework));
+                var dependencyGroup = dependencyGroups.FirstOrDefault(
+                    ds =>
+                        ds.TargetFramework.Equals(mostCompatibleFramework));
                 if (dependencyGroup != null)
                 {
                     foreach (var dependency in dependencyGroup.Packages)
                     {
-                        var dependencyIdentity = new PackageIdentity(dependency.Id,
+                        var dependencyIdentity = new PackageIdentity(
+                            dependency.Id,
                             NuGetVersion.Parse(dependency.VersionRange.MinVersion.ToFullString()));
                         log.LogInformation($"Resolved dependency of {package}: {dependencyIdentity}");
                         if (installedPackages.Contains(dependencyIdentity)) continue;
@@ -116,7 +134,8 @@ namespace Common
 
                 var packageIdentity = new PackageIdentity(package.Id, new NuGetVersion(package.Version.Version));
                 var installSuccess = project
-                    .InstallPackageAsync(packageIdentity, downloadResourceResult, projectContext,
+                    .InstallPackageAsync(
+                        packageIdentity, downloadResourceResult, projectContext,
                         CancellationToken.None)
                     .Result;
                 if (installSuccess)
@@ -131,7 +150,7 @@ namespace Common
             }
 
             private DownloadResourceResult LoadPackage(PackageIdentity package,
-                PackageDownloadContext packageDownloadContext)
+                                                       PackageDownloadContext packageDownloadContext)
             {
                 var downloadResourceResult = PackageDownloader.GetDownloadResourceResultAsync(
                     repositories,
@@ -143,21 +162,6 @@ namespace Common
                 ).Result;
                 return downloadResourceResult;
             }
-
-            private static PackageIdentity ParsePackage(string packageName)
-            {
-                var splitted = packageName.Split('/');
-                if (splitted.Length != 2)
-                    throw new BadNuGetPackageException(packageName);
-                var packageId = splitted[0];
-                var version = NuGetVersion.Parse(splitted[1]);
-                return new PackageIdentity(packageId, version);
-            }
-        }
-
-        public void InstallPackages(List<string> packagesList, string packagesPath, ProjectFile projectFilePath)
-        {
-            new NuGetProject(packagesList, packagesPath, projectFilePath, log).Install();
         }
     }
 }

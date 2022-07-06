@@ -8,20 +8,23 @@ namespace Commands
 {
     public class CompleteCommand : Command
     {
+        private string[] otherArgs;
+
         public CompleteCommand()
-            : base(new CommandSettings
-            {
-                LogPerfix = "COMPLETE",
-                LogFileName = null,
-                MeasureElapsedTime = false,
-                Location = CommandSettings.CommandLocation.Any,
-                IsHiddenCommand = true,
-                NoElkLog = true
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "COMPLETE",
+                    LogFileName = null,
+                    MeasureElapsedTime = false,
+                    Location = CommandSettings.CommandLocation.Any,
+                    IsHiddenCommand = true,
+                    NoElkLog = true
+                })
         {
         }
 
-        private string[] otherArgs;
+        public override string HelpMessage => "";
 
         protected override int Execute()
         {
@@ -43,16 +46,14 @@ namespace Commands
             return 0;
         }
 
-        private static void PrintList(IEnumerable<string> list)
-        {
-            Console.WriteLine(string.Join("\n", list.OrderBy(x => x)));
-        }
-
         protected override void ParseArgs(string[] args)
         {
             otherArgs = args.Skip(1).ToArray();
         }
 
-        public override string HelpMessage => "";
+        private static void PrintList(IEnumerable<string> list)
+        {
+            Console.WriteLine(string.Join("\n", list.OrderBy(x => x)));
+        }
     }
 }

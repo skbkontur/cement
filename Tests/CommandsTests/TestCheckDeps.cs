@@ -7,14 +7,8 @@ using NUnit.Framework;
 namespace Tests.CommandsTests
 {
     [TestFixture]
-    class TestCheckDeps
+    internal class TestCheckDeps
     {
-        private void MakeDirectoryAndWriteYaml(string path, string content)
-        {
-            Directory.CreateDirectory(path);
-            File.WriteAllText(Path.Combine(path, Helper.YamlSpecFile), content);
-        }
-
         [Test]
         public void TestCollectReferences()
         {
@@ -38,21 +32,24 @@ Project(""C"") = ""CName"", ""CName\CName.csproj"", ""{CCC}""
 
 ";
                 Directory.CreateDirectory(Path.Combine(tempDir.Path, "AName"));
-                File.WriteAllText(Path.Combine(tempDir.Path, "AName", "AName.csproj"), @"
+                File.WriteAllText(
+                    Path.Combine(tempDir.Path, "AName", "AName.csproj"), @"
 <root>
 <HintPath>..\Dep2\src\bin\Kontur.Logging.dll</HintPath>
 <HintPath>..\logging\src\bin\Kontur.Logging.dll</HintPath>
 </root>");
 
                 Directory.CreateDirectory(Path.Combine(tempDir.Path, "BName"));
-                File.WriteAllText(Path.Combine(tempDir.Path, "BName", "BName.csproj"), @"
+                File.WriteAllText(
+                    Path.Combine(tempDir.Path, "BName", "BName.csproj"), @"
 <root>
 <HintPath>..\Dep1\src\bin\Kontur.Logging.dll</HintPath>
 <HintPath>..\logging\src\bin\Kontur.Logging.dll</HintPath>
 </root>");
 
                 Directory.CreateDirectory(Path.Combine(tempDir.Path, "CName"));
-                File.WriteAllText(Path.Combine(tempDir.Path, "CName", "CName.csproj"), @"
+                File.WriteAllText(
+                    Path.Combine(tempDir.Path, "CName", "CName.csproj"), @"
 <root>
 <HintPath>..\Dep10\src\bin\Kontur.Logging.dll</HintPath>
 <HintPath>..\logging\src\bin\Kontur.Logging.dll</HintPath>
@@ -71,7 +68,8 @@ Project(""C"") = ""CName"", ""CName\CName.csproj"", ""{CCC}""
         {
             using (var tempDir = new TempDirectory())
             {
-                MakeDirectoryAndWriteYaml(Path.Combine(tempDir.Path, "A"), @"
+                MakeDirectoryAndWriteYaml(
+                    Path.Combine(tempDir.Path, "A"), @"
 full-build:
   build:
     target: 1.sln
@@ -79,7 +77,8 @@ full-build:
   deps:
     - B
     - C");
-                MakeDirectoryAndWriteYaml(Path.Combine(tempDir.Path, "B"), @"
+                MakeDirectoryAndWriteYaml(
+                    Path.Combine(tempDir.Path, "B"), @"
 full-build:
   build:
     target: 1.sln
@@ -87,7 +86,8 @@ full-build:
   install:
     - bin/Release/B.dll");
 
-                MakeDirectoryAndWriteYaml(Path.Combine(tempDir.Path, "C"), @"
+                MakeDirectoryAndWriteYaml(
+                    Path.Combine(tempDir.Path, "C"), @"
 full-build:
   build:
     target: 1.sln
@@ -108,7 +108,8 @@ full-build:
         {
             using (var tempDir = new TempDirectory())
             {
-                MakeDirectoryAndWriteYaml(Path.Combine(tempDir.Path, "A"), @"
+                MakeDirectoryAndWriteYaml(
+                    Path.Combine(tempDir.Path, "A"), @"
 full-build:
   build:
     target: 1.sln
@@ -117,7 +118,8 @@ full-build:
   deps:
     - B
     - C");
-                MakeDirectoryAndWriteYaml(Path.Combine(tempDir.Path, "B"), @"
+                MakeDirectoryAndWriteYaml(
+                    Path.Combine(tempDir.Path, "B"), @"
 client:
   build:
     target: 1.sln
@@ -130,7 +132,8 @@ full-build > client:
   install:
     - bin/Release/B.dll");
 
-                MakeDirectoryAndWriteYaml(Path.Combine(tempDir.Path, "C"), @"
+                MakeDirectoryAndWriteYaml(
+                    Path.Combine(tempDir.Path, "C"), @"
 full-build:
   build:
     target: 1.sln
@@ -145,6 +148,12 @@ full-build:
                 Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll", "B\\bin\\Release\\B.Client.dll"}, depsReferences.FoundReferences.First().InstallFiles);
                 Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().CurrentConfigurationInstallFiles);
             }
+        }
+
+        private void MakeDirectoryAndWriteYaml(string path, string content)
+        {
+            Directory.CreateDirectory(path);
+            File.WriteAllText(Path.Combine(path, Helper.YamlSpecFile), content);
         }
     }
 }

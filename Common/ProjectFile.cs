@@ -15,7 +15,7 @@ namespace Common
         public readonly string FilePath;
         public readonly XmlDocument Document;
         private readonly bool newFormat;
-        private ILogger log;
+        private readonly ILogger log;
 
         public ProjectFile(string csprojFilePath)
         {
@@ -101,6 +101,7 @@ namespace Common
 
             return elementToInsert;
         }
+
         public XmlNode CreateNuGetReference(string refName, string version)
         {
             var elementToInsert = Document.CreateElement("PackageReference", Document.DocumentElement.NamespaceURI);
@@ -182,13 +183,15 @@ namespace Common
                 var refNodes = patchedProjDoc.SelectNodes("//Reference");
                 if (refNodes != null)
                 {
-                    var node = refNodes.Cast<XmlNode>().FirstOrDefault(x =>
-                    {
-                        var moduleName = x.Attributes?["Include"]?.Value;
-                        return moduleName != null && moduleName.Equals(dep.Name, StringComparison.InvariantCultureIgnoreCase);
-                    });
+                    var node = refNodes.Cast<XmlNode>().FirstOrDefault(
+                        x =>
+                        {
+                            var moduleName = x.Attributes?["Include"]?.Value;
+                            return moduleName != null && moduleName.Equals(dep.Name, StringComparison.InvariantCultureIgnoreCase);
+                        });
                     node?.ParentNode?.RemoveChild(node);
                 }
+
                 var refElement = patchedProjDoc.CreateElement("PackageReference");
                 var includeAttr = patchedProjDoc.CreateAttribute("Include");
                 includeAttr.Value = dep.Name;
@@ -200,58 +203,16 @@ namespace Common
                     versionAttr.Value = packageVersion;
                     refElement.Attributes.Append(versionAttr);
                 }
+
                 itemGroup.AppendChild(refElement);
             }
 
             return patchedProjDoc;
         }
-        
+
         public void Save()
         {
             XmlDocumentHelper.Save(Document, FilePath, LineEndings);
-        }
-
-        private XmlNode CreateAnalyzerGroup()
-        {
-            var namespaceUri = Document.DocumentElement.NamespaceURI;
-            var namespaceManager = new XmlNamespaceManager(Document.NameTable);
-            namespaceManager.AddNamespace("a", namespaceUri);
-            var analyzerGroupParent = Document.SelectSingleNode("/a:Project", namespaceManager);
-            var analyzerGroupNeighbor = analyzerGroupParent.SelectSingleNode("a:ItemGroup", namespaceManager);
-            var analyzerGroup = Document.CreateElement("ItemGroup", namespaceUri);
-            analyzerGroupParent.InsertBefore(analyzerGroup, analyzerGroupNeighbor);
-            return analyzerGroup;
-        }
-
-        private bool IsReferenceGroup(XmlNode xmlNode)
-        {
-            return xmlNode.ChildNodes
-                .Cast<XmlNode>()
-                .Any(childNode => childNode.Name == "Reference");
-        }
-        private bool IsPackageReferenceGroup(XmlNode xmlNode)
-        {
-            return xmlNode.ChildNodes
-                .Cast<XmlNode>()
-                .Any(childNode => childNode.Name == "PackageReference");
-        }
-
-        private XmlNode CreateItemGroup()
-        {
-            var rootNode = Document
-                .GetElementsByTagName("Project")
-                .Cast<XmlNode>()
-                .FirstOrDefault();
-            if (rootNode == null)
-            {
-                ConsoleWriter.Shared.WriteError("Really bad cspoj :(");
-                return null;
-            }
-
-            var itemGroup = Document.CreateElement("ItemGroup", Document.DocumentElement.NamespaceURI);
-            rootNode.AppendChild(itemGroup);
-
-            return itemGroup;
         }
 
         public void InstallNuGetPackages(List<string> nuGetPackages)
@@ -279,14 +240,58 @@ namespace Common
             }
         }
 
+        private XmlNode CreateAnalyzerGroup()
+        {
+            var namespaceUri = Document.DocumentElement.NamespaceURI;
+            var namespaceManager = new XmlNamespaceManager(Document.NameTable);
+            namespaceManager.AddNamespace("a", namespaceUri);
+            var analyzerGroupParent = Document.SelectSingleNode("/a:Project", namespaceManager);
+            var analyzerGroupNeighbor = analyzerGroupParent.SelectSingleNode("a:ItemGroup", namespaceManager);
+            var analyzerGroup = Document.CreateElement("ItemGroup", namespaceUri);
+            analyzerGroupParent.InsertBefore(analyzerGroup, analyzerGroupNeighbor);
+            return analyzerGroup;
+        }
+
+        private bool IsReferenceGroup(XmlNode xmlNode)
+        {
+            return xmlNode.ChildNodes
+                .Cast<XmlNode>()
+                .Any(childNode => childNode.Name == "Reference");
+        }
+
+        private bool IsPackageReferenceGroup(XmlNode xmlNode)
+        {
+            return xmlNode.ChildNodes
+                .Cast<XmlNode>()
+                .Any(childNode => childNode.Name == "PackageReference");
+        }
+
+        private XmlNode CreateItemGroup()
+        {
+            var rootNode = Document
+                .GetElementsByTagName("Project")
+                .Cast<XmlNode>()
+                .FirstOrDefault();
+            if (rootNode == null)
+            {
+                ConsoleWriter.Shared.WriteError("Really bad cspoj :(");
+                return null;
+            }
+
+            var itemGroup = Document.CreateElement("ItemGroup", Document.DocumentElement.NamespaceURI);
+            rootNode.AppendChild(itemGroup);
+
+            return itemGroup;
+        }
+
         private void InstallNuGetPackage(string packageName, string packageVersion)
         {
             try
             {
                 var referenceGroup = Document
-                                         .GetElementsByTagName("ItemGroup")
-                                         .Cast<XmlNode>()
-                                         .FirstOrDefault(IsPackageReferenceGroup) ?? CreateItemGroup();
+                    .GetElementsByTagName("ItemGroup")
+                    .Cast<XmlNode>()
+                    .FirstOrDefault(IsPackageReferenceGroup) ?? CreateItemGroup();
                 var packageNode = Document.SelectNodes("*/ItemGroup/PackageReference")?.Cast<XmlElement>()
                     .FirstOrDefault(el => el.Attributes["Include", Document.DocumentElement.NamespaceURI].Value.Equals(packageName, StringComparison.InvariantCultureIgnoreCase));
                 if (packageNode == null)

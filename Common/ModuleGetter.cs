@@ -11,22 +11,22 @@ namespace Common
 {
     public sealed class ModuleGetter
     {
+        private static readonly ILogger Log = LogManager.GetLogger(typeof(ModuleGetter));
         private readonly List<Module> modules;
         private readonly Dep rootModule;
         private readonly LocalChangesPolicy userLocalChangesPolicy;
-        private bool errorOnMerge;
         private readonly bool localBranchForce;
         private readonly int? gitDepth;
         private readonly bool verbose;
-        private static readonly ILogger Log = LogManager.GetLogger(typeof(ModuleGetter));
         private readonly string mergedBranch;
+        private readonly CycleDetector cycleDetector;
+        private bool errorOnMerge;
         private GitRepository rootRepo;
         private string rootRepoTreeish;
-        private readonly CycleDetector cycleDetector;
 
         public ModuleGetter(List<Module> modules, Dep rootModule,
-            LocalChangesPolicy userLocalChangesPolicy,
-            string mergedBranch, bool verbose = false, bool localBranchForce = false, int? gitDepth = null)
+                            LocalChangesPolicy userLocalChangesPolicy,
+                            string mergedBranch, bool verbose = false, bool localBranchForce = false, int? gitDepth = null)
         {
             this.modules = modules;
             this.rootModule = rootModule;
@@ -61,8 +61,95 @@ namespace Common
             cycleDetector.WarnIfCycle(rootModule.Name, rootModule.Configuration, Log);
         }
 
+        private static void AddNewDeps(DepsQueue queue, ModulesContainer processed, List<DepWithParent> depsPool)
+        {
+            foreach (var dep in depsPool)
+            {
+                var currentModuleDeps = GetCurrentModuleDeps(dep.Dep);
+
+                if (currentModuleDeps.Deps == null)
+                    continue;
+
+                queue.AddRange(
+                    currentModuleDeps.Deps.Where(d => !processed.IsProcessed(d))
+                        .Select(d => new DepWithParent(d, dep.Dep.Name)).ToList());
+            }
+        }
+
+        private static void MarkProcessedDeps(DepsQueue queue, ModulesContainer processed, List<DepWithParent> depsPool)
+        {
+            foreach (var dep in depsPool)
+            {
+                dep.Dep.UpdateConfigurationIfNull();
+                if (dep.Dep.Treeish != null && processed.GetDepsByName(dep.Dep.Name).All(d => d.Treeish == null))
+                {
+                    processed.ChangeTreeish(dep.Dep.Name, dep.Dep.Treeish);
+                    Log.LogInformation("Need get " + dep.Dep.Name + " again");
+                    queue.AddRange(
+                        processed.GetConfigsByName(dep.Dep.Name).Select(
+                            c =>
+                                new DepWithParent(new Dep(dep.Dep.Name, null, c), dep.ParentModule)).ToList());
+                }
+
+                processed.Add(dep);
+            }
+        }
+
+        private static DepsData GetCurrentModuleDeps(Dep dep)
+        {
+            Log.LogInformation($"{"[" + dep.Name + "]",-30}Getting deps for configuration {dep.Configuration ?? "full-build"}");
+            var deps = new DepsParser(Path.Combine(Helper.CurrentWorkspace, dep.Name)).Get(dep.Configuration);
+            return deps;
+        }
+
+        private static void Reset(GitRepository repo, Dep dep)
+        {
+            int times = 3;
+            for (int i = 0; i < times; i++)
+            {
+                try
+                {
+                    ConsoleWriter.Shared.WriteProgress(dep.Name + " cleaning");
+                    repo.Clean();
+                    ConsoleWriter.Shared.WriteProgress(dep.Name + " resetting");
+                    repo.ResetHard();
+                    Log.LogInformation($"{"[" + dep.Name + "]",-30}Reseted in {i + 1} times");
+                    return;
+                }
+                catch (Exception)
+                {
+                    if (i + 1 == times)
+                        throw;
+                }
+            }
+        }
+
+        private static LocalChangesAction GetUserAnswer()
+        {
+            var userActions = new Dictionary<string, LocalChangesAction>
+            {
+                {"r", LocalChangesAction.Reset},
+                {"f", LocalChangesAction.ForceLocal},
+                {"p", LocalChangesAction.Pull}
+            };
+            while (true)
+            {
+                var answer = Console.ReadLine();
+                if (answer == null)
+                {
+                    Console.WriteLine("Unknown choice. Try again");
+                    continue;
+                }
+
+                answer = answer.Trim().ToLower();
+                if (userActions.ContainsKey(answer))
+                    return userActions[answer];
+                Console.WriteLine("Unknown choice. Try again");
+            }
+        }
+
         private void TakeDepsToProcessFromQueue(DepsQueue queue, IList<DepWithParent> depsPool,
-            IList<DepWithParent> backToQueue, ModulesContainer processed)
+                                                IList<DepWithParent> backToQueue, ModulesContainer processed)
         {
             while (!queue.IsEmpty())
             {
@@ -114,43 +201,6 @@ namespace Common
             }
         }
 
-        private static void AddNewDeps(DepsQueue queue, ModulesContainer processed, List<DepWithParent> depsPool)
-        {
-            foreach (var dep in depsPool)
-            {
-                var currentModuleDeps = GetCurrentModuleDeps(dep.Dep);
-
-                if (currentModuleDeps.Deps == null)
-                    continue;
-
-                queue.AddRange(currentModuleDeps.Deps.Where(d => !processed.IsProcessed(d))
-                    .Select(d => new DepWithParent(d, dep.Dep.Name)).ToList());
-            }
-        }
-
-        private static void MarkProcessedDeps(DepsQueue queue, ModulesContainer processed, List<DepWithParent> depsPool)
-        {
-            foreach (var dep in depsPool)
-            {
-                dep.Dep.UpdateConfigurationIfNull();
-                if (dep.Dep.Treeish != null && processed.GetDepsByName(dep.Dep.Name).All(d => d.Treeish == null))
-                {
-                    processed.ChangeTreeish(dep.Dep.Name, dep.Dep.Treeish);
-                    Log.LogInformation("Need get " + dep.Dep.Name + " again");
-                    queue.AddRange(processed.GetConfigsByName(dep.Dep.Name).Select(c =>
-                        new DepWithParent(new Dep(dep.Dep.Name, null, c), dep.ParentModule)).ToList());
-                }
-                processed.Add(dep);
-            }
-        }
-
-        private static DepsData GetCurrentModuleDeps(Dep dep)
-        {
-            Log.LogInformation($"{"[" + dep.Name + "]",-30}Getting deps for configuration {dep.Configuration ?? "full-build"}");
-            var deps = new DepsParser(Path.Combine(Helper.CurrentWorkspace, dep.Name)).Get(dep.Configuration);
-            return deps;
-        }
-
         private void GetModule(Dep dep, string[] force)
         {
             Log.LogInformation($"{"[" + dep.Name + "]",-30}Update '{dep.Treeish ?? "master"}'");
@@ -159,6 +209,7 @@ namespace Common
                 force = new[] {Helper.DefineForce(dep.Treeish, rootRepoTreeish)};
                 dep.Treeish = null;
             }
+
             ConsoleWriter.Shared.WriteProgress(dep.Name + "   " + dep.Treeish);
 
             var module = modules.FirstOrDefault(m => m.Name.Equals(dep.Name));
@@ -185,6 +236,7 @@ namespace Common
                     CloneInEmptyFolder(dep, module, repo);
                 getInfo.Cloned = true;
             }
+
             repo.TryUpdateUrl(modules.FirstOrDefault(m => m.Name.Equals(dep.Name)));
             repo.SubmoduleUpdate();
             GetTreeish(repo, dep, force, dep.Treeish, getInfo);
@@ -215,7 +267,7 @@ namespace Common
             }
             else
             {
-                repo.Clone(module.Url, depth:gitDepth);
+                repo.Clone(module.Url, depth: gitDepth);
             }
 
             if (module.Pushurl != null)
@@ -242,7 +294,8 @@ namespace Common
 
         private string GetPrintString(int longestModuleNameLength, string moduleName, string treeishInfo, string commitInfo)
         {
-            return string.Format(@"   {0, -" + longestModuleNameLength + "}    {1, -18}    {2}", moduleName,
+            return string.Format(
+                @"   {0, -" + longestModuleNameLength + "}    {1, -18}    {2}", moduleName,
                 treeishInfo, commitInfo);
         }
 
@@ -251,7 +304,7 @@ namespace Common
             var longestModuleName = modules.Select(m => m.Name.Length).Max() + 5;
             dep.UpdateConfigurationIfNull();
             var name = dep.Name + (dep.Configuration == null || dep.Configuration.Equals("full-build") ? "" : Helper.ConfigurationDelimiter + dep.Configuration);
-            var outputTreeish = getInfo.Forced && !treeish.Equals("master") ? treeish + " *forced" : (dep.Treeish ?? "master");
+            var outputTreeish = getInfo.Forced && !treeish.Equals("master") ? treeish + " *forced" : dep.Treeish ?? "master";
 
             if (getInfo.HookUpdated)
                 outputTreeish += " (hook updated) ";
@@ -263,6 +316,7 @@ namespace Common
                 Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
                 return;
             }
+
             if (getInfo.ForcedLocal)
             {
                 outputTreeish += " *forced local";
@@ -270,6 +324,7 @@ namespace Common
                 Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
                 return;
             }
+
             if (getInfo.Reset)
             {
                 outputTreeish += " *reset";
@@ -277,6 +332,7 @@ namespace Common
                 Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish,-18}    {getInfo.CommitInfo}");
                 return;
             }
+
             if (getInfo.Changed || getInfo.Cloned)
             {
                 Log.LogDebug($"{"[" + dep.Name + "]",-30}{outputTreeish + (getInfo.Cloned ? " *cloned" : " *changed"),-18}    {getInfo.CommitInfo}");
@@ -363,30 +419,9 @@ namespace Common
                 repo.ResetHard(treeish);
                 getInfo.Reset = true;
             }
+
             getInfo.Changed = !oldSha.Equals(newSha);
             getInfo.Pulled = localChangesAction == LocalChangesAction.Pull;
-        }
-
-        private static void Reset(GitRepository repo, Dep dep)
-        {
-            int times = 3;
-            for (int i = 0; i < times; i++)
-            {
-                try
-                {
-                    ConsoleWriter.Shared.WriteProgress(dep.Name + " cleaning");
-                    repo.Clean();
-                    ConsoleWriter.Shared.WriteProgress(dep.Name + " resetting");
-                    repo.ResetHard();
-                    Log.LogInformation($"{"[" + dep.Name + "]",-30}Reseted in {i + 1} times");
-                    return;
-                }
-                catch (Exception)
-                {
-                    if (i + 1 == times)
-                        throw;
-                }
-            }
         }
 
         private string HaveToForce(Dep dep, string[] force, GitRepository repo)
@@ -404,6 +439,7 @@ namespace Common
                     if (dep.Treeish == null && repo.HasRemoteBranch(f))
                         return f;
                 }
+
             return null;
         }
 
@@ -416,6 +452,7 @@ namespace Common
             {
                 return LocalChangesAction.Nothing;
             }
+
             ConsoleWriter.Shared.WriteWarning($"Local changes found in '{repo.RepoPath}'\n{repo.ShowLocalChanges()}");
             switch (userLocalChangesPolicy)
             {
@@ -431,30 +468,8 @@ namespace Common
                     Console.WriteLine("What do you want to do? enter 'f' for saving local changes / 'r' for resetting local changes(git clean & git reset) / 'p' for pull anyway :\n");
                     return GetUserAnswer();
             }
-            return LocalChangesAction.Nothing;
-        }
 
-        private static LocalChangesAction GetUserAnswer()
-        {
-            var userActions = new Dictionary<string, LocalChangesAction>
-            {
-                {"r", LocalChangesAction.Reset},
-                {"f", LocalChangesAction.ForceLocal},
-                {"p", LocalChangesAction.Pull}
-            };
-            while (true)
-            {
-                var answer = Console.ReadLine();
-                if (answer == null)
-                {
-                    Console.WriteLine("Unknown choice. Try again");
-                    continue;
-                }
-                answer = answer.Trim().ToLower();
-                if (userActions.ContainsKey(answer))
-                    return userActions[answer];
-                Console.WriteLine("Unknown choice. Try again");
-            }
+            return LocalChangesAction.Nothing;
         }
     }
 }

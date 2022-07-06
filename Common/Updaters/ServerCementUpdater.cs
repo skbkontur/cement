@@ -31,6 +31,8 @@ namespace Common.Updaters
             this.consoleWriter = consoleWriter;
         }
 
+        public string Name => server;
+
         public string GetNewCommitHash()
         {
             try
@@ -116,7 +118,5 @@ namespace Common.Updaters
                 return null;
             }
         }
-
-        public string Name => server;
     }
 }

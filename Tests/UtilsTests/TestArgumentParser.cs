@@ -118,7 +118,7 @@ namespace Tests.UtilsTests
                 "update-deps"
             };
             var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
-            Assert.IsFalse((bool) parsedArgs["localBranchForce"]);
+            Assert.IsFalse((bool)parsedArgs["localBranchForce"]);
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace Tests.UtilsTests
                 "--allow-local-branch-force"
             };
             var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
-            Assert.IsTrue((bool) parsedArgs["localBranchForce"]);
+            Assert.IsTrue((bool)parsedArgs["localBranchForce"]);
         }
 
         [Test]
@@ -142,7 +142,7 @@ namespace Tests.UtilsTests
                 "--verbose"
             };
             var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
-            Assert.IsTrue((bool) parsedArgs["verbose"]);
+            Assert.IsTrue((bool)parsedArgs["verbose"]);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace Tests.UtilsTests
                 "update-deps"
             };
             var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
-            Assert.IsFalse((bool) parsedArgs["verbose"]);
+            Assert.IsFalse((bool)parsedArgs["verbose"]);
         }
     }
 

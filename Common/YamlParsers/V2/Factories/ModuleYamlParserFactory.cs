@@ -32,7 +32,7 @@ namespace Common.YamlParsers.V2.Factories
                 configSectionParser,
                 installSectionMerger,
                 depsSectionMerger
-                );
+            );
         }
     }
 }

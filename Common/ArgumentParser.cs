@@ -414,12 +414,6 @@ namespace Common
             return parsedArguments;
         }
 
-        private static void ThrowIfHasExtraArgs(List<string> extraArgs)
-        {
-            if (extraArgs.Count > 0)
-                throw new BadArgumentException("Extra arguments: " + string.Join(", ", extraArgs));
-        }
-
         public static Dictionary<string, object> ParseUpdate(string[] args)
         {
             var parsedArguments = new Dictionary<string, object>
@@ -468,6 +462,12 @@ namespace Common
             }
 
             return parsedArgs;
+        }
+
+        private static void ThrowIfHasExtraArgs(List<string> extraArgs)
+        {
+            if (extraArgs.Count > 0)
+                throw new BadArgumentException("Extra arguments: " + string.Join(", ", extraArgs));
         }
     }
 }

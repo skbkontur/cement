@@ -12,16 +12,6 @@ namespace Commands
             {"grep", new UsagesGrep()}
         };
 
-        public int Run(string[] args)
-        {
-            if (args.Length < 2 || !commands.ContainsKey(args[1]))
-            {
-                ConsoleWriter.Shared.WriteError("Bad arguments");
-                return -1;
-            }
-            return commands[args[1]].Run(args);
-        }
-
         public string HelpMessage => @"
     Performs operations with module usages
 
@@ -34,7 +24,7 @@ namespace Commands
             -c/--configuration     - configuration name (* by default)
             -b/--branch            - branch name (* by default)
             -a/--all               - show every branch of each parent
-            -e/--edges             - prints graph in proper format 
+            -e/--edges             - prints graph in proper format
                                      for graph visualizers(i.e. arborjs.org/halfviz/)
 
         Example:
@@ -50,11 +40,11 @@ namespace Commands
             -p/--pause             - pause on errors
 
     usages grep
-        search for given pattern in modules (in masters) 
+        search for given pattern in modules (in masters)
         linked to the current (<branch>, master by default)
 
         Usage:
-            cm usages grep [-b=<branch>] [-i/--ignore-case] [-s/--skip-get] <patterns> 
+            cm usages grep [-b=<branch>] [-i/--ignore-case] [-s/--skip-get] <patterns>
                 [-f <patternFile>] [-- <fileMask>]
             -i/--ignore-case
             -s/--skip-get           - skip cloning modules
@@ -70,5 +60,16 @@ namespace Commands
 ";
 
         public bool IsHiddenCommand => CementSettingsRepository.Get().CementServer == null;
+
+        public int Run(string[] args)
+        {
+            if (args.Length < 2 || !commands.ContainsKey(args[1]))
+            {
+                ConsoleWriter.Shared.WriteError("Bad arguments");
+                return -1;
+            }
+
+            return commands[args[1]].Run(args);
+        }
     }
 }

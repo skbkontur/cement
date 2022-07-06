@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Tests.ParsersTests
 {
     [TestFixture]
-    class TestRulesetFile
+    internal class TestRulesetFile
     {
         private TempDirectory workDirectory = new TempDirectory();
 
@@ -110,7 +110,6 @@ namespace Tests.ParsersTests
             Console.WriteLine(rulesetFile.Document.OuterXml);
             Assert.IsNotNull(SearchByXpath(rulesetFile.Document, $"a:RuleSet/a:Include[@Path = '{rulesetPath}']").Single());
         }
-
 
         private List<XmlNode> SearchByXpath(XmlDocument xmlDocument, string xpath)
         {

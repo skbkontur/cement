@@ -70,7 +70,6 @@ namespace Tests.ParsersTests
             Assert.False(new ConfigurationXmlParser(text).ConfigurationExists("dev"));
         }
 
-
         [Test]
         public void TestGetConfigurationHierarchy()
         {

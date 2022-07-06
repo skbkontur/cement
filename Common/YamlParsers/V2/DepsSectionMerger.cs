@@ -7,11 +7,11 @@ namespace Common.YamlParsers.V2
 {
     public sealed class DepsSectionMerger
     {
-        public DepsData Merge(DepsSection current, [CanBeNull]  DepsSection defaults = null, [CanBeNull] DepsSection[] parents = null)
+        public DepsData Merge(DepsSection current, [CanBeNull] DepsSection defaults = null, [CanBeNull] DepsSection[] parents = null)
         {
-            var sections = new List<DepsSection> {defaults ?? new DepsSection() }
+            var sections = new List<DepsSection> {defaults ?? new DepsSection()}
                 .Concat(parents ?? new DepsSection[0])
-                .Concat(new [] {current})
+                .Concat(new[] {current})
                 .ToArray();
 
             var resultingDeps = new List<Dep>();

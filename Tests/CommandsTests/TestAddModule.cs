@@ -9,28 +9,6 @@ namespace Tests.CommandsTests
     [TestFixture]
     public class TestAddModule
     {
-        private static void TestAddGit(string oldContent, string moduleName, string push, string fetch, string answer)
-        {
-            using (var env = new TestEnvironment())
-            {
-                env.CreateRepo("modulesRepo");
-                env.CommitIntoRemote("modulesRepo", "modules", oldContent);
-
-                env.AddBranch("modulesRepo", "tmp");
-                env.Checkout("modulesRepo", "tmp");
-                var package = new Package("test_package", Path.Combine(env.RemoteWorkspace, "modulesRepo"));
-                if (ModuleCommand.AddModule(package, moduleName, push, fetch) != 0)
-                    throw new CementException("");
-                env.Checkout("modulesRepo", "master");
-
-                var path = Path.Combine(env.RemoteWorkspace, "modulesRepo", "modules");
-                var text = File.ReadAllText(path);
-                text = Helper.FixLineEndings(text);
-                answer = Helper.FixLineEndings(answer);
-                Assert.AreEqual(answer, text);
-            }
-        }
-
         [Test]
         public void TestAddInEmpty()
         {
@@ -113,6 +91,28 @@ pushurl = git@git.skbkontur.ru:ke/protobuf.git
             var answer = @"";
 
             Assert.Throws<CementException>(() => TestAddGit(oldModules, "protobuf", null, "k@fetch", answer));
+        }
+
+        private static void TestAddGit(string oldContent, string moduleName, string push, string fetch, string answer)
+        {
+            using (var env = new TestEnvironment())
+            {
+                env.CreateRepo("modulesRepo");
+                env.CommitIntoRemote("modulesRepo", "modules", oldContent);
+
+                env.AddBranch("modulesRepo", "tmp");
+                env.Checkout("modulesRepo", "tmp");
+                var package = new Package("test_package", Path.Combine(env.RemoteWorkspace, "modulesRepo"));
+                if (ModuleCommand.AddModule(package, moduleName, push, fetch) != 0)
+                    throw new CementException("");
+                env.Checkout("modulesRepo", "master");
+
+                var path = Path.Combine(env.RemoteWorkspace, "modulesRepo", "modules");
+                var text = File.ReadAllText(path);
+                text = Helper.FixLineEndings(text);
+                answer = Helper.FixLineEndings(answer);
+                Assert.AreEqual(answer, text);
+            }
         }
     }
 }

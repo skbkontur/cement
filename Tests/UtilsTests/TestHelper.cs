@@ -17,9 +17,8 @@ namespace Tests.UtilsTests
             ts += TimeSpan.FromSeconds(12);
             ts += TimeSpan.FromMilliseconds(777);
             var expected = "2:03:15:12.777";
-            Assert.AreEqual(expected, Helper.ConvertTime((long) ts.TotalMilliseconds));
+            Assert.AreEqual(expected, Helper.ConvertTime((long)ts.TotalMilliseconds));
         }
-
 
         [Test]
         public void TestConvertTimeOnlyMinutesSecondsAndMillis()
@@ -29,7 +28,7 @@ namespace Tests.UtilsTests
             ts += TimeSpan.FromSeconds(3);
             ts += TimeSpan.FromMilliseconds(777);
             var expected = "15:03.777";
-            Assert.AreEqual(expected, Helper.ConvertTime((long) ts.TotalMilliseconds));
+            Assert.AreEqual(expected, Helper.ConvertTime((long)ts.TotalMilliseconds));
         }
 
         [Test]
@@ -39,7 +38,7 @@ namespace Tests.UtilsTests
             ts += TimeSpan.FromSeconds(3);
             ts += TimeSpan.FromMilliseconds(777);
             var expected = "3.777";
-            Assert.AreEqual(expected, Helper.ConvertTime((long) ts.TotalMilliseconds));
+            Assert.AreEqual(expected, Helper.ConvertTime((long)ts.TotalMilliseconds));
         }
 
         [Test]
@@ -48,7 +47,7 @@ namespace Tests.UtilsTests
             var ts = new TimeSpan();
             ts += TimeSpan.FromMilliseconds(777);
             var expected = ".777";
-            Assert.AreEqual(expected, Helper.ConvertTime((long) ts.TotalMilliseconds));
+            Assert.AreEqual(expected, Helper.ConvertTime((long)ts.TotalMilliseconds));
         }
 
         [Test]

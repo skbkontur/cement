@@ -14,6 +14,8 @@ namespace Common
     {
         private static readonly ILogger Log = LogManager.GetLogger<DepsPatcher>();
 
+        private static readonly HashSet<KeyValuePair<string, string>> patchedDeps = new HashSet<KeyValuePair<string, string>>();
+
         public static void PatchDepsForProject(string currentModuleFullPath, Dep dep, string csprojFile)
         {
             var installData = InstallParser.Get(dep.Name, dep.Configuration);
@@ -42,7 +44,14 @@ namespace Common
                 toPatch);
         }
 
-        private static readonly HashSet<KeyValuePair<string, string>> patchedDeps = new HashSet<KeyValuePair<string, string>>();
+        public static List<string> GetSmallerCementConfigs(string modulePath, List<string> usedCementConfigs)
+        {
+            var configParser = new ConfigurationYamlParser(new FileInfo(modulePath));
+            var configManager = new ConfigurationManager(usedCementConfigs.Select(c => new Dep("", null, c)), configParser);
+            return usedCementConfigs
+                .Where(c => !configManager.ProcessedChildrenConfigurations(new Dep("", null, c)).Any())
+                .ToList();
+        }
 
         private static void PatchDeps(string currentModuleFullPath, List<string> modulesToInsert, List<string> cementConfigs)
         {
@@ -72,15 +81,6 @@ namespace Common
             }
         }
 
-        public static List<string> GetSmallerCementConfigs(string modulePath, List<string> usedCementConfigs)
-        {
-            var configParser = new ConfigurationYamlParser(new FileInfo(modulePath));
-            var configManager = new ConfigurationManager(usedCementConfigs.Select(c => new Dep("", null, c)), configParser);
-            return usedCementConfigs
-                .Where(c => !configManager.ProcessedChildrenConfigurations(new Dep("", null, c)).Any())
-                .ToList();
-        }
-
         private static List<string> GetUsedCementConfigsForSolution(string modulePath, string solutionFile)
         {
             var moduleYaml = Path.Combine(modulePath, Helper.YamlSpecFile);
@@ -101,6 +101,7 @@ namespace Common
                         result.Add(config);
                 }
             }
+
             return result.ToList();
         }
 
@@ -129,6 +130,7 @@ namespace Common
                         result.Add(config);
                 }
             }
+
             return result.ToList();
         }
     }

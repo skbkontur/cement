@@ -30,7 +30,7 @@ namespace Common.YamlParsers.V2
 
         public ConfigSection Parse(object title, object data, ModuleDefaults yamlDefaults)
         {
-            var titleAsString = (string) title;
+            var titleAsString = (string)title;
             var dataAsDict = data as Dictionary<object, object>;
             return Parse(titleAsString, dataAsDict, yamlDefaults);
         }

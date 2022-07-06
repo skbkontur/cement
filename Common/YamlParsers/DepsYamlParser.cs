@@ -47,6 +47,71 @@ namespace Common.YamlParsers
             return new DepsData(force, deps);
         }
 
+        public DepsData GetDepsFromConfig(string configName)
+        {
+            try
+            {
+                var configSection = GetConfigurationSection(configName);
+                return GetDepsFromSection(configSection);
+            }
+            catch (BadYamlException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw new BadYamlException(ModuleName, "deps", exception.Message);
+            }
+        }
+
+        private static DepsData GetDepsFromSection(Dictionary<string, object> configSection)
+        {
+            if (!configSection.ContainsKey("deps"))
+                return new DepsData(null, new List<Dep>());
+
+            if (configSection["deps"] == null || configSection["deps"] is string)
+                return new DepsData(null, new List<Dep>());
+
+            var deps = new List<Dep>();
+            string[] force = null;
+            foreach (var depSection in (List<object>)configSection["deps"])
+            {
+                if (depSection is Dictionary<object, object>)
+                {
+                    var dict = depSection as Dictionary<object, object>;
+                    if (dict.Keys.Count == 1 && (string)dict.Keys.First() == "force")
+                        force = ((string)dict.Values.First()).Split(',');
+                    else
+                        deps.Add(GetDepFromDictFormat(dict));
+                }
+                else
+                    deps.Add(new Dep(depSection.ToString()));
+            }
+
+            return new DepsData(force, deps);
+        }
+
+        private static Dep GetDepFromDictFormat(Dictionary<object, object> dict)
+        {
+            string name = null, treeish = null, configuration = null;
+            foreach (var kvp in dict)
+            {
+                if ((string)kvp.Key == "treeish")
+                    treeish = (string)kvp.Value;
+                if ((string)kvp.Key == "configuration")
+                    configuration = (string)kvp.Value;
+                if ((string)kvp.Value == "")
+                    name = (string)kvp.Key;
+            }
+
+            var dep = new Dep(name);
+            if (configuration != null)
+                dep.Configuration = configuration;
+            if (treeish != null)
+                dep.Treeish = treeish;
+            return dep;
+        }
+
         private List<Dep> RelaxDeps(List<Dep> deps)
         {
             var relaxedDeps = new List<Dep>();
@@ -63,10 +128,13 @@ namespace Common.YamlParsers
                     relaxedDeps.Add(deps[i]);
                 }
             }
+
             foreach (Dep dep in relaxedDeps)
                 if (relaxedDeps.Count(d => d.Name.Equals(dep.Name)) > 1)
                 {
-                    ConsoleWriter.Shared.WriteError(string.Format(@"Module duplication found in 'module.yaml' for dep {0}. To depend on different variations of same dep, you must turn it off.
+                    ConsoleWriter.Shared.WriteError(
+                        string.Format(
+                            @"Module duplication found in 'module.yaml' for dep {0}. To depend on different variations of same dep, you must turn it off.
 Example:
 client:
   dep:
@@ -77,6 +145,7 @@ sdk:
     - {0}/full-build", dep.Name));
                     throw new BadYamlException(ModuleName, "deps", "duplicate dep " + dep.Name);
                 }
+
             return relaxedDeps;
         }
 
@@ -94,6 +163,7 @@ sdk:
                 else
                     i++;
             }
+
             if (!deleted)
                 throw new BadYamlException(ModuleName, "deps", "fail to remove dep " + dep.Name);
         }
@@ -142,79 +212,19 @@ sdk:
                     idx++;
                     continue;
                 }
+
                 var parentConfigurations = GetParentConfigurations(currentConfig);
                 if (parentConfigurations == null || parentConfigurations.Count == 0)
                 {
                     idx++;
                     continue;
                 }
+
                 configQueue.AddRange(parentConfigurations);
                 idx++;
             }
+
             return new DepsData(force, deps);
-        }
-
-        public DepsData GetDepsFromConfig(string configName)
-        {
-            try
-            {
-                var configSection = GetConfigurationSection(configName);
-                return GetDepsFromSection(configSection);
-            }
-            catch (BadYamlException)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                throw new BadYamlException(ModuleName, "deps", exception.Message);
-            }
-        }
-
-        private static DepsData GetDepsFromSection(Dictionary<string, object> configSection)
-        {
-            if (!configSection.ContainsKey("deps"))
-                return new DepsData(null, new List<Dep>());
-
-            if (configSection["deps"] == null || configSection["deps"] is string)
-                return new DepsData(null, new List<Dep>());
-
-            var deps = new List<Dep>();
-            string[] force = null;
-            foreach (var depSection in (List<object>) configSection["deps"])
-            {
-                if (depSection is Dictionary<object, object>)
-                {
-                    var dict = depSection as Dictionary<object, object>;
-                    if (dict.Keys.Count == 1 && (string) dict.Keys.First() == "force")
-                        force = ((string) dict.Values.First()).Split(',');
-                    else
-                        deps.Add(GetDepFromDictFormat(dict));
-                }
-                else
-                    deps.Add(new Dep(depSection.ToString()));
-            }
-            return new DepsData(force, deps);
-        }
-
-        private static Dep GetDepFromDictFormat(Dictionary<object, object> dict)
-        {
-            string name = null, treeish = null, configuration = null;
-            foreach (var kvp in dict)
-            {
-                if ((string) kvp.Key == "treeish")
-                    treeish = (string) kvp.Value;
-                if ((string) kvp.Key == "configuration")
-                    configuration = (string) kvp.Value;
-                if ((string) kvp.Value == "")
-                    name = (string) kvp.Key;
-            }
-            var dep = new Dep(name);
-            if (configuration != null)
-                dep.Configuration = configuration;
-            if (treeish != null)
-                dep.Treeish = treeish;
-            return dep;
         }
     }
 }

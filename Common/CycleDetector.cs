@@ -20,6 +20,7 @@ namespace Common
                 log.LogWarning("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
                 ConsoleWriter.Shared.WriteWarning("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
             }
+
             ConsoleWriter.Shared.ResetProgress();
         }
 
@@ -50,6 +51,7 @@ namespace Common
                     cycle.Add(depNameAndConfig);
                     return true;
                 }
+
                 if (visitedConfigurations.Contains(currentDep))
                     continue;
                 if (Dfs(d, cycle))
@@ -58,6 +60,7 @@ namespace Common
                     return true;
                 }
             }
+
             modulesInProcessing.Remove(depNameAndConfig);
             return false;
         }

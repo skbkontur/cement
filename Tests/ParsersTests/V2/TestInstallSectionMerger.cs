@@ -9,17 +9,6 @@ namespace Tests.ParsersTests.V2
     [TestFixture]
     public class TestInstallSectionMerger
     {
-        [TestCaseSource(nameof(MergeCases))]
-        public void Merge(InstallSection installSection, InstallData defaults, InstallData[] parentInstalls, InstallData expected)
-        {
-            var parser = new InstallSectionParser();
-            var merger = new InstallSectionMerger();
-
-            var currentConfigInstallData = parser.Parse(installSection, defaults?.CurrentConfigurationInstallFiles);
-            var actual = merger.Merge(currentConfigInstallData, defaults, parentInstalls);
-            actual.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
-        }
-
         private static TestCaseData[] MergeCases =
         {
             new TestCaseData(
@@ -153,5 +142,16 @@ namespace Tests.ParsersTests.V2
                     })
                 .SetName("Install section: install files. Current config inherits Install section from 'default' section and several parent configurations."),
         };
+
+        [TestCaseSource(nameof(MergeCases))]
+        public void Merge(InstallSection installSection, InstallData defaults, InstallData[] parentInstalls, InstallData expected)
+        {
+            var parser = new InstallSectionParser();
+            var merger = new InstallSectionMerger();
+
+            var currentConfigInstallData = parser.Parse(installSection, defaults?.CurrentConfigurationInstallFiles);
+            var actual = merger.Merge(currentConfigInstallData, defaults, parentInstalls);
+            actual.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
+        }
     }
 }

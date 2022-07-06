@@ -6,11 +6,13 @@ namespace Common.YamlParsers
 {
     public sealed class SettingsYamlParser : ConfigurationYamlParser
     {
-        public SettingsYamlParser(FileInfo moduleName) : base(moduleName)
+        public SettingsYamlParser(FileInfo moduleName)
+            : base(moduleName)
         {
         }
 
-        public SettingsYamlParser(string moduleName, string text): base(moduleName, text)
+        public SettingsYamlParser(string moduleName, string text)
+            : base(moduleName, text)
         {
         }
 
@@ -45,7 +47,7 @@ namespace Common.YamlParsers
         private static ModuleSettings GetSettings(Dictionary<object, object> settingsDict)
         {
             var result = new ModuleSettings();
-            if (settingsDict.ContainsKey("type") && ((string) settingsDict["type"]).Trim() == "content")
+            if (settingsDict.ContainsKey("type") && ((string)settingsDict["type"]).Trim() == "content")
                 result.IsContentModule = true;
             return result;
         }

@@ -15,60 +15,6 @@ namespace Commands
         private string pushUrl, fetchUrl;
         private Package package;
 
-        public int Run(string[] args)
-        {
-            try
-            {
-                ParseArgs(args);
-                return Execute();
-            }
-            catch (CementException e)
-            {
-                ConsoleWriter.Shared.WriteError(e.Message);
-                return -1;
-            }
-            catch (Exception e)
-            {
-                ConsoleWriter.Shared.WriteError(e.Message);
-                ConsoleWriter.Shared.WriteError(e.StackTrace);
-                return -1;
-            }
-        }
-
-        private int Execute()
-        {
-            if (package.Type != "git")
-            {
-                ConsoleWriter.Shared.WriteError("You should add/change local modules file manually");
-                {
-                    return -1;
-                }
-            }
-
-            switch (command)
-            {
-                case "add":
-                {
-                    return AddModule();
-                }
-                case "change":
-                {
-                    return ChangeModule();
-                }
-            }
-            return -1;
-        }
-
-        private int AddModule()
-        {
-            return AddModule(package, moduleName, pushUrl, fetchUrl);
-        }
-
-        private int ChangeModule()
-        {
-            return ChangeModule(package, moduleName, pushUrl, fetchUrl);
-        }
-
         public static int AddModule(Package package, string moduleName, string pushUrl, string fetchUrl)
         {
             if (fetchUrl.StartsWith("https://git.skbkontur.ru/"))
@@ -82,6 +28,7 @@ namespace Commands
                     ConsoleWriter.Shared.WriteError("Module " + moduleName + " already exists in " + package.Name);
                     return -1;
                 }
+
                 WriteModuleDescription(moduleName, pushUrl, fetchUrl, repo);
 
                 var message = "(!)cement comment: added module '" + moduleName + "'";
@@ -109,6 +56,7 @@ namespace Commands
                     ConsoleWriter.Shared.WriteError("Unable to find module " + moduleName + " in package " + package.Name);
                     return -1;
                 }
+
                 if (toChange.Url == fetchUrl && toChange.Pushurl == pushUrl)
                 {
                     ConsoleWriter.Shared.WriteInfo("Your changes were already made");
@@ -126,6 +74,38 @@ namespace Commands
             return 0;
         }
 
+        public string HelpMessage => @"
+    Adds new or changes existing cement module
+    Don't delete old modules
+
+    Usage:
+        cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url] [--package=package_name]
+        --pushurl        - module push url
+        --package        - name of repository with modules description, specify if multiple
+";
+
+        public bool IsHiddenCommand => false;
+
+        public int Run(string[] args)
+        {
+            try
+            {
+                ParseArgs(args);
+                return Execute();
+            }
+            catch (CementException e)
+            {
+                ConsoleWriter.Shared.WriteError(e.Message);
+                return -1;
+            }
+            catch (Exception e)
+            {
+                ConsoleWriter.Shared.WriteError(e.Message);
+                ConsoleWriter.Shared.WriteError(e.StackTrace);
+                return -1;
+            }
+        }
+
         private static Module FindModule(GitRepository repo, string moduleName)
         {
             var content = File.ReadAllText(Path.Combine(repo.RepoPath, "modules"));
@@ -138,13 +118,14 @@ namespace Commands
             var filePath = Path.Combine(repo.RepoPath, "modules");
             if (!File.Exists(filePath))
                 File.Create(filePath).Close();
-            File.AppendAllLines(filePath, new[]
-            {
-                "",
-                "[module " + moduleName + "]",
-                "url = " + fetchUrl,
-                pushUrl != null ? "pushurl = " + pushUrl : ""
-            });
+            File.AppendAllLines(
+                filePath, new[]
+                {
+                    "",
+                    "[module " + moduleName + "]",
+                    "url = " + fetchUrl,
+                    pushUrl != null ? "pushurl = " + pushUrl : ""
+                });
         }
 
         private static void ChangeModuleDescription(GitRepository repo, Module old, Module changed)
@@ -179,27 +160,50 @@ namespace Commands
             return package;
         }
 
+        private int Execute()
+        {
+            if (package.Type != "git")
+            {
+                ConsoleWriter.Shared.WriteError("You should add/change local modules file manually");
+                {
+                    return -1;
+                }
+            }
+
+            switch (command)
+            {
+                case "add":
+                {
+                    return AddModule();
+                }
+                case "change":
+                {
+                    return ChangeModule();
+                }
+            }
+
+            return -1;
+        }
+
+        private int AddModule()
+        {
+            return AddModule(package, moduleName, pushUrl, fetchUrl);
+        }
+
+        private int ChangeModule()
+        {
+            return ChangeModule(package, moduleName, pushUrl, fetchUrl);
+        }
+
         private void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseModuleCommand(args);
-            command = (string) parsedArgs["command"];
-            moduleName = (string) parsedArgs["module"];
-            pushUrl = (string) parsedArgs["pushurl"];
-            fetchUrl = (string) parsedArgs["fetchurl"];
-            var packageName = (string) parsedArgs["package"];
+            command = (string)parsedArgs["command"];
+            moduleName = (string)parsedArgs["module"];
+            pushUrl = (string)parsedArgs["pushurl"];
+            fetchUrl = (string)parsedArgs["fetchurl"];
+            var packageName = (string)parsedArgs["package"];
             package = GetPackage(packageName);
         }
-
-        public string HelpMessage => @"
-    Adds new or changes existing cement module
-    Don't delete old modules
-
-    Usage:
-        cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url] [--package=package_name]
-        --pushurl        - module push url
-        --package        - name of repository with modules description, specify if multiple
-";
-
-        public bool IsHiddenCommand => false;
     }
 }

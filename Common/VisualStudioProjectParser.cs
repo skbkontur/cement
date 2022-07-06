@@ -41,6 +41,71 @@ namespace Common
             return GetConfigSetByGuid(guid);
         }
 
+        public IEnumerable<string> GetReferencesFromCsproj(string csprojPath, string configuration, bool allReferences)
+        {
+            if (!File.Exists(csprojPath))
+            {
+                ConsoleWriter.Shared.WriteError(csprojPath + " not found");
+                return new List<string>();
+            }
+
+            var result = new List<string>();
+            var xml = new XmlDocument();
+            xml.Load(csprojPath);
+
+            var csprojDir = Path.GetDirectoryName(csprojPath);
+
+            if (allReferences)
+                return GetAllReferencesFromCsproj(xml, csprojPath, configuration);
+
+            var refs = xml.GetElementsByTagName("HintPath");
+
+            foreach (XmlNode reference in refs)
+            {
+                var path = reference.ChildNodes[0].Value;
+                path = path.Replace("$(ProjectDir)", "");
+                if (IsReferenceToCementModule(path, csprojDir))
+                    result.Add(GetRelaxedPath(path, csprojPath));
+            }
+
+            return result;
+        }
+
+        public string GetOutputPathFromCsproj(XmlDocument xml, string csprojPath, string configuration)
+        {
+            var refs = xml.GetElementsByTagName("PropertyGroup");
+            foreach (XmlNode reference in refs)
+            {
+                var condition = reference?.Attributes?.GetNamedItem("Condition");
+                if (condition == null || !condition.InnerText.ToLower().Contains(configuration.ToLower()))
+                    continue;
+
+                foreach (XmlNode child in reference.ChildNodes)
+                {
+                    if (child.Name == "OutputPath")
+                        return child.InnerText.Trim('\\', '/');
+                }
+            }
+
+            return "";
+        }
+
+        public IEnumerable<string> GetCsprojList()
+        {
+            var guidToCsprojDict = GetGuidToCsprojDict();
+            return guidToCsprojDict.Select(kvp => kvp.Value).ToList();
+        }
+
+        public IEnumerable<string> GetCsprojList(BuildData buildData)
+        {
+            if (buildData.Target.EndsWith(".csproj"))
+                return new List<string> {Path.Combine(cwd, buildData.Target)};
+
+            var guidToCsprojDict = GetGuidToCsprojDict();
+            var guidSetForConfig = GetGuidSetForConfig(buildData.Configuration);
+            return guidSetForConfig.Where(guid => guidToCsprojDict.ContainsKey(guid)).Select(guid => guidToCsprojDict[guid]).ToList();
+        }
+
         private List<string> GetConfigSetByGuid(string guid)
         {
             var result = new List<string>();
@@ -60,34 +125,7 @@ namespace Common
             {
                 result.AddRange(GetReferencesFromCsproj(csproj, configuration, false));
             }
-            return result;
-        }
 
-        public IEnumerable<string> GetReferencesFromCsproj(string csprojPath, string configuration, bool allReferences)
-        {
-            if (!File.Exists(csprojPath))
-            {
-                ConsoleWriter.Shared.WriteError(csprojPath + " not found");
-                return new List<string>();
-            }
-            var result = new List<string>();
-            var xml = new XmlDocument();
-            xml.Load(csprojPath);
-
-            var csprojDir = Path.GetDirectoryName(csprojPath);
-
-            if (allReferences)
-                return GetAllReferencesFromCsproj(xml, csprojPath, configuration);
-            
-            var refs = xml.GetElementsByTagName("HintPath");
-
-            foreach (XmlNode reference in refs)
-            {
-                var path = reference.ChildNodes[0].Value;
-                path = path.Replace("$(ProjectDir)", "");
-                if (IsReferenceToCementModule(path, csprojDir))
-                    result.Add(GetRelaxedPath(path, csprojPath));
-            }
             return result;
         }
 
@@ -127,24 +165,6 @@ namespace Common
             return result;
         }
 
-        public string GetOutputPathFromCsproj(XmlDocument xml, string csprojPath, string configuration)
-        {
-            var refs = xml.GetElementsByTagName("PropertyGroup");
-            foreach (XmlNode reference in refs)
-            {
-                var condition = reference?.Attributes?.GetNamedItem("Condition");
-                if (condition == null || !condition.InnerText.ToLower().Contains(configuration.ToLower()))
-                    continue;
-
-                foreach (XmlNode child in reference.ChildNodes)
-                {
-                    if (child.Name == "OutputPath")
-                        return child.InnerText.Trim('\\', '/');
-                }
-            }
-            return "";
-        }
-
         private List<string> GetSplitedReference(string reference)
         {
             return reference.Split('/', '\\').ToList();
@@ -180,6 +200,7 @@ namespace Common
                 if (string.Equals(m, module, StringComparison.CurrentCultureIgnoreCase))
                     return m;
             }
+
             return module;
         }
 
@@ -210,22 +231,6 @@ namespace Common
             }
         }
 
-        public IEnumerable<string> GetCsprojList()
-        {
-            var guidToCsprojDict = GetGuidToCsprojDict();
-            return guidToCsprojDict.Select(kvp => kvp.Value).ToList();
-        }
-
-        public IEnumerable<string> GetCsprojList(BuildData buildData)
-        {
-            if (buildData.Target.EndsWith(".csproj"))
-                return new List<string> { Path.Combine(cwd, buildData.Target)};
-
-            var guidToCsprojDict = GetGuidToCsprojDict();
-            var guidSetForConfig = GetGuidSetForConfig(buildData.Configuration);
-            return guidSetForConfig.Where(guid => guidToCsprojDict.ContainsKey(guid)).Select(guid => guidToCsprojDict[guid]).ToList();
-        }
-
         private Dictionary<string, string> GetGuidToCsprojDict()
         {
             var result = new Dictionary<string, string>();
@@ -239,6 +244,7 @@ namespace Common
                     result[splited[2].Substring(1, splited[2].Length - 2)] = file;
                 }
             }
+
             return result;
         }
 

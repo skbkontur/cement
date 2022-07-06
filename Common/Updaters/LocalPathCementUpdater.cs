@@ -13,6 +13,8 @@ namespace Common.Updaters
             this.log = log;
         }
 
+        public string Name => "fileSystemLocalPath";
+
         public string GetNewCommitHash()
         {
             return DateTime.Now.Ticks.ToString();
@@ -41,7 +43,5 @@ namespace Common.Updaters
 
             return zipDir;
         }
-
-        public string Name => "fileSystemLocalPath";
     }
 }

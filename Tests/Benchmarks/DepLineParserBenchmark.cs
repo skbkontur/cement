@@ -21,21 +21,17 @@ namespace Tests.Benchmarks
     [Config(typeof(Config))]
     public class DepLineParserBenchmark
     {
-        private DepSectionItemParser parser;
-
-        private sealed class Config : ManualConfig
-        {
-            public Config()
-            {
-                Add(StatisticColumn.P85,
-                    StatisticColumn.P90,
-                    StatisticColumn.P95,
-                    StatisticColumn.P100);
-            }
-        }
-
         [ParamsSource(nameof(DepLines))]
         public string DepLine;
+        private DepSectionItemParser parser;
+
+        public IEnumerable<string> DepLines => new[]
+        {
+            "module",
+            "module@b32742e9701aef44ee986db2824e9007056ba60f/some-cfg",
+            "module/some-cfg@b32742e9701aef44ee986db2824e9007056ba60f",
+            @"module@hello\/there\@general/kenobi",
+        };
 
         [GlobalSetup]
         public void Setup()
@@ -49,12 +45,16 @@ namespace Tests.Benchmarks
         [Benchmark]
         public Dep Parse2() => new Dep(DepLine);
 
-        public IEnumerable<string> DepLines => new[]
+        private sealed class Config : ManualConfig
         {
-            "module",
-            "module@b32742e9701aef44ee986db2824e9007056ba60f/some-cfg",
-            "module/some-cfg@b32742e9701aef44ee986db2824e9007056ba60f",
-            @"module@hello\/there\@general/kenobi",
-        };
+            public Config()
+            {
+                Add(
+                    StatisticColumn.P85,
+                    StatisticColumn.P90,
+                    StatisticColumn.P95,
+                    StatisticColumn.P100);
+            }
+        }
     }
 }

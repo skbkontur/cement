@@ -10,6 +10,18 @@ namespace Commands
     {
         private static readonly ILogger Log = LogManager.GetLogger<Status>();
 
+        public string HelpMessage => @"
+    Prints status of modifed git repos in the cement tracked dir
+    It checks repo for push/pull and local state
+
+    Usage:
+        cm status
+
+    Runs anywhere in the cement tracked tree
+";
+
+        public bool IsHiddenCommand => false;
+
         public int Run(string[] args)
         {
             if (args.Length != 1)
@@ -41,6 +53,7 @@ namespace Commands
                 PrintStatus(repo);
                 ConsoleWriter.Shared.WriteProgress(++count + "/" + listDir.Length + " " + repo.ModuleName);
             }
+
             ConsoleWriter.Shared.ResetProgress();
         }
 
@@ -62,17 +75,5 @@ namespace Commands
                 // ignored
             }
         }
-
-        public string HelpMessage => @"
-    Prints status of modifed git repos in the cement tracked dir
-    It checks repo for push/pull and local state
-
-    Usage:
-        cm status
-
-    Runs anywhere in the cement tracked tree
-";
-
-        public bool IsHiddenCommand => false;
     }
 }

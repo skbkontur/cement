@@ -6,10 +6,9 @@ namespace Common
 {
     public sealed class RulesetFile
     {
-        private readonly string lineEndings;
-
         public readonly string FilePath;
         public readonly XmlDocument Document;
+        private readonly string lineEndings;
 
         public RulesetFile(string rulesetFilePath)
         {
@@ -50,17 +49,17 @@ namespace Common
             }
         }
 
+        public void Save()
+        {
+            XmlDocumentHelper.Save(Document, FilePath, lineEndings);
+        }
+
         private bool AlreadyIncluded(string rulesetPath)
         {
             return Document
                 .GetElementsByTagName("Include")
                 .Cast<XmlNode>()
                 .Any(node => node.Attributes != null && node.Attributes["Path"].Value == rulesetPath);
-        }
-
-        public void Save()
-        {
-            XmlDocumentHelper.Save(Document, FilePath, lineEndings);
         }
     }
 }

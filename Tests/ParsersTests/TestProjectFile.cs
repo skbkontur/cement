@@ -10,11 +10,11 @@ using NUnit.Framework;
 namespace Tests.ParsersTests
 {
     [TestFixture]
-    class TestProjectFile
+    internal class TestProjectFile
     {
         private TempDirectory workDirectory = new TempDirectory();
 
-        private string defaultCsprojXml =
+        private readonly string defaultCsprojXml =
             @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
@@ -262,7 +262,6 @@ namespace Tests.ParsersTests
             Assert.AreEqual(1, SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'dummyDir\\Another.dll']").Count);
         }
 
-
         [Test]
         public void TestMakeCsProjWithNugetReferences()
         {
@@ -290,7 +289,7 @@ namespace Tests.ParsersTests
             ";
 
             var proj = CreateProjectFile(content);
-            var xmlDocument = proj.CreateCsProjWithNugetReferences(new List<Dep> { new Dep("vostok.core") }, true);
+            var xmlDocument = proj.CreateCsProjWithNugetReferences(new List<Dep> {new Dep("vostok.core")}, true);
 
             Assert.Null(xmlDocument.SelectSingleNode("//Reference[@Include='Vostok.Core']"));
             Assert.NotNull(xmlDocument.SelectSingleNode("//PackageReference[@Include='vostok.core']"));

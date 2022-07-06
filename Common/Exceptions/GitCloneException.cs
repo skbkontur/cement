@@ -2,7 +2,8 @@
 {
     public sealed class GitCloneException : CementException
     {
-        public GitCloneException(string message) : base(message)
+        public GitCloneException(string message)
+            : base(message)
         {
         }
     }

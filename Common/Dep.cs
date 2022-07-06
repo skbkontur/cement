@@ -11,9 +11,6 @@ namespace Common
     [JsonConverter(typeof(DepJsonConverter))]
     public sealed class Dep : IEquatable<Dep>
     {
-        public string Name { get; }
-        public string Treeish { get; set; }
-        public string Configuration { get; set; }
         private static readonly ConcurrentDictionary<string, string> DepDefaultConfigurationCache = new ConcurrentDictionary<string, string>();
 
         public Dep(string name, string treeish = null, string configuration = null)
@@ -25,7 +22,7 @@ namespace Common
 
         public Dep(string fromYamlString)
         {
-            var tokens = new List<String>();
+            var tokens = new List<string>();
             var currentToken = "";
             fromYamlString += "@";
             for (int pos = 0; pos < fromYamlString.Length; pos++)
@@ -55,7 +52,10 @@ namespace Common
                 Configuration = null;
         }
 
-        
+        public string Name { get; }
+        public string Treeish { get; set; }
+        public string Configuration { get; set; }
+
         public void UpdateConfigurationIfNull()
         {
             UpdateConfigurationIfNull(Helper.CurrentWorkspace);
@@ -71,12 +71,8 @@ namespace Common
                     new ConfigurationParser(new FileInfo(Path.Combine(workspace, Name)))
                         .GetDefaultConfigurationName();
             }
-            Configuration = DepDefaultConfigurationCache[path];
-        }
 
-        private string UnEscapeBadChars(string str)
-        {
-            return str.Replace("\\@", "@").Replace("\\/", "/");
+            Configuration = DepDefaultConfigurationCache[path];
         }
 
         public bool Equals(Dep dep)
@@ -109,6 +105,11 @@ namespace Common
         {
             return Name +
                    (Configuration == null || Configuration.Equals("full-build") ? "" : "/" + Configuration);
+        }
+
+        private string UnEscapeBadChars(string str)
+        {
+            return str.Replace("\\@", "@").Replace("\\/", "/");
         }
     }
 }

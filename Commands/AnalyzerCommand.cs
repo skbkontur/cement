@@ -11,6 +11,26 @@ namespace Commands
             {"add", new AnalyzerAdd()}
         };
 
+        public string HelpMessage => @"
+    Adds analyzers in *.sln
+
+    analyzer add
+        Adds analyzer target reference assemblies to msbuild project files into solution
+
+        Usage:
+            cm analyzer add <module-name>/[<configuration>] [<solution-file>]
+
+        Example:
+            cm analyzer add analyzers.async-code/warn
+                Adds analyzer from module analyzers.code-style to all projects
+                in current solution and adds analyzers.code-style to 'module.yaml' file
+            cm analyzer add analyzers.async-code mysolution.sln
+                Adds analyzer from module analyzers.code-style to all projects
+                in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
+";
+
+        public bool IsHiddenCommand => false;
+
         public int Run(string[] args)
         {
             var subCommand = args
@@ -24,25 +44,5 @@ namespace Commands
             ConsoleWriter.Shared.WriteInfo($"Possible arguments: [{string.Join("|", subCommands.Keys)}]");
             return -1;
         }
-
-        public string HelpMessage => @"
-    Adds analyzers in *.sln
-
-    analyzer add
-        Adds analyzer target reference assemblies to msbuild project files into solution
-
-        Usage:
-            cm analyzer add <module-name>/[<configuration>] [<solution-file>]
-
-        Example:
-            cm analyzer add analyzers.async-code/warn
-                Adds analyzer from module analyzers.code-style to all projects 
-                in current solution and adds analyzers.code-style to 'module.yaml' file
-            cm analyzer add analyzers.async-code mysolution.sln
-                Adds analyzer from module analyzers.code-style to all projects 
-                in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
-";
-
-        public bool IsHiddenCommand => false;
     }
 }

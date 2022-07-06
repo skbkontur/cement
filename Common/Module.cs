@@ -4,11 +4,6 @@ namespace Common
 {
     public sealed class Module
     {
-        public string Name { get; }
-        public string Url { get; }
-        public string Pushurl { get; }
-        public string Type { get; }
-
         public Module(string name, string url, string pushurl)
         {
             Name = name;
@@ -23,6 +18,7 @@ namespace Common
             {
                 throw new CementException("Section is not module: " + sectionName);
             }
+
             Name = sectionNameTokens[1];
             Type = parsedData.GetValue("type", sectionName).Equals("")
                 ? "git"
@@ -31,10 +27,16 @@ namespace Common
             {
                 throw new CementException("Missing url in module: " + sectionName);
             }
+
             Url = parsedData.GetValue("url", sectionName);
             Pushurl = parsedData.GetValue("pushurl", sectionName).Equals("")
                 ? null
                 : parsedData.GetValue("pushurl", sectionName);
         }
+
+        public string Name { get; }
+        public string Url { get; }
+        public string Pushurl { get; }
+        public string Type { get; }
     }
 }

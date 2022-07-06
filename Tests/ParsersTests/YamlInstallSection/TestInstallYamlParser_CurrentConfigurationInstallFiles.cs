@@ -7,50 +7,45 @@ namespace Tests.ParsersTests.YamlInstallSection
     [TestFixture]
     public class TestInstallYamlParser_CurrentConfigurationInstallFiles
     {
-        [TestCaseSource(nameof(testCases))]
-        public void TestGetMainConfigBuildFiles(string moduleYamlText, string[] expected)
-        {
-            var parser = YamlFromText.InstallParser(moduleYamlText);
-            var parsed = parser.Get();
-
-            var actual = parsed.CurrentConfigurationInstallFiles;
-            actual.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
-        }
-
         private static TestCaseData[] testCases =
         {
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 full-build:
 ",
                     new string[0])
                 .SetName("Install section: CurrentConfigurationInstallFiles. No 'install' section."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 full-build:
   install:
 ",
                     new string[0])
                 .SetName("Install section: CurrentConfigurationInstallFiles. Empty 'install' section."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 full-build:
   install:
     - file1
 ",
-                    new [] { "file1" })
+                    new[] {"file1"})
                 .SetName("Install section: CurrentConfigurationInstallFiles. Single configuration, single build file."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 full-build:
   install:
     - file1
     - file2
     - file3
 ",
-                    new [] { "file1", "file2", "file3" })
+                    new[] {"file1", "file2", "file3"})
                 .SetName("Install section: CurrentConfigurationInstallFiles. Single configuration, multiple install files."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 default:
   install:
     - file4
@@ -62,10 +57,11 @@ full-build:
     - file2
     - file3
 ",
-                    new [] { "file1", "file2", "file3", "file4", "file5" })
+                    new[] {"file1", "file2", "file3", "file4", "file5"})
                 .SetName("Install section: CurrentConfigurationInstallFiles. CurrentConfigurationInstallFiles are inhereted from 'default' section."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 default:
   install:
     - file4
@@ -81,10 +77,11 @@ full-build > config1:
     - file2
     - file3
 ",
-                    new [] { "file1", "file2", "file3", "file4", "file5" })
+                    new[] {"file1", "file2", "file3", "file4", "file5"})
                 .SetName("Install section: CurrentConfigurationInstallFiles. CurrentConfigurationInstallFiles are not inhereted from parent configs."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 default:
   install:
     - duplicated
@@ -100,10 +97,11 @@ full-build > config1:
     - duplicated
     - duplicated
 ",
-                    new [] { "duplicated" })
+                    new[] {"duplicated"})
                 .SetName("Install section: CurrentConfigurationInstallFiles. CurrentConfigurationInstallFiles are not duplicated."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 default:
   install:
     - file4
@@ -122,10 +120,11 @@ full-build > config1:
     - file3
     - module SomeModule3
 ",
-                    new [] { "file1", "file2", "file3", "file4", "file5" })
+                    new[] {"file1", "file2", "file3", "file4", "file5"})
                 .SetName("Install section: CurrentConfigurationInstallFiles. 'modules' are not leaked into CurrentConfigurationInstallFiles."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 default:
   install:
     - file4
@@ -144,7 +143,7 @@ full-build > config1:
     - file3
     - nuget SomeNuget1
 ",
-                    new []
+                    new[]
                     {
                         "file1",
                         "file2",
@@ -154,15 +153,17 @@ full-build > config1:
                     })
                 .SetName("Install section: CurrentConfigurationInstallFiles. 'nuget' do not leak into CurrentConfigurationInstallFiles."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 full-build:
   artifacts:
     - file1
 ",
-                    new [] { "file1" })
+                    new[] {"file1"})
                 .SetName("Install section. CurrentConfigurationInstallFiles contain files from current configuration's artifacts."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 client:
   artifacts:
     - file2
@@ -170,8 +171,18 @@ client:
 full-build > client:
   artifacts:
     - file1",
-                    new [] { "file1" })
+                    new[] {"file1"})
                 .SetName("Install section. CurrentConfigurationInstallFiles should not contain files from parent configuration's artifacts."),
         };
+
+        [TestCaseSource(nameof(testCases))]
+        public void TestGetMainConfigBuildFiles(string moduleYamlText, string[] expected)
+        {
+            var parser = YamlFromText.InstallParser(moduleYamlText);
+            var parsed = parser.Get();
+
+            var actual = parsed.CurrentConfigurationInstallFiles;
+            actual.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        }
     }
 }

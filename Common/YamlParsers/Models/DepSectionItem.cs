@@ -2,9 +2,10 @@ using System;
 
 namespace Common.YamlParsers.Models
 {
-    public sealed class DepSectionItem: IEquatable<DepSectionItem>
+    public sealed class DepSectionItem : IEquatable<DepSectionItem>
     {
-        public DepSectionItem(Dep dependency): this(false, dependency)
+        public DepSectionItem(Dep dependency)
+            : this(false, dependency)
         {
         }
 
@@ -13,8 +14,6 @@ namespace Common.YamlParsers.Models
             IsRemoved = isRemoved;
             Dependency = dependency;
         }
-
-        private string DebuggerDisplay => IsRemoved ? "-" + Dependency : Dependency.ToString();
 
         public bool IsRemoved { get; set; }
         public Dep Dependency { get; set; }
@@ -30,5 +29,6 @@ namespace Common.YamlParsers.Models
 
         public override string ToString() => DebuggerDisplay;
 
+        private string DebuggerDisplay => IsRemoved ? "-" + Dependency : Dependency.ToString();
     }
 }

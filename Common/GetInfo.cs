@@ -3,7 +3,6 @@
     public sealed class GetInfo
     {
         public bool Cloned;
-        public bool Forced => ForcedBranch != null;
         public string ForcedBranch;
         public bool Changed;
         public bool ForcedLocal;
@@ -23,5 +22,7 @@
             HookUpdated = false;
             CommitInfo = "";
         }
+
+        public bool Forced => ForcedBranch != null;
     }
 }

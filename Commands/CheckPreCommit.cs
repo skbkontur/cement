@@ -9,17 +9,25 @@ namespace Commands
     public class CheckPreCommit : Command
     {
         public CheckPreCommit()
-            : base(new CommandSettings
-            {
-                LogPerfix = "CHECK-PRE-COMMIT",
-                LogFileName = null,
-                MeasureElapsedTime = false,
-                RequireModuleYaml = false,
-                Location = CommandSettings.CommandLocation.RootModuleDirectory,
-                IsHiddenCommand = true
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "CHECK-PRE-COMMIT",
+                    LogFileName = null,
+                    MeasureElapsedTime = false,
+                    RequireModuleYaml = false,
+                    Location = CommandSettings.CommandLocation.RootModuleDirectory,
+                    IsHiddenCommand = true
+                })
         {
         }
+
+        public override string HelpMessage => @"
+    Checks that commit is good
+
+    Usage:
+        cm check-pre-commit
+";
 
         protected override int Execute()
         {
@@ -40,6 +48,10 @@ namespace Commands
             }
 
             return exitCode;
+        }
+
+        protected override void ParseArgs(string[] args)
+        {
         }
 
         private static bool CheckFile(string file)
@@ -68,16 +80,5 @@ namespace Commands
                     return false;
             return true;
         }
-
-        protected override void ParseArgs(string[] args)
-        {
-        }
-
-        public override string HelpMessage => @"
-    Checks that commit is good
-
-    Usage:
-        cm check-pre-commit
-";
     }
 }

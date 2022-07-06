@@ -7,30 +7,22 @@ namespace Tests.ParsersTests.YamlInstallSection
     [TestFixture]
     public class TestInstallYamlParser_ExternalModules
     {
-        [TestCaseSource(nameof(testCases))]
-        public void TestGetExternalModules(string moduleYamlText, string[] expected)
-        {
-            var parser = YamlFromText.InstallParser(moduleYamlText);
-            var parsed = parser.Get();
-
-            var actual = parsed.ExternalModules;
-            actual.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
-        }
-
         private static TestCaseData[] testCases =
         {
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 full-build:
   install:
     - module Module1
 ",
-                new[]
-                {
-                    "Module1"
-                })
+                    new[]
+                    {
+                        "Module1"
+                    })
                 .SetName("Install section: external modules. Single configuration, single module."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 full-build:
   artifacts:
     - module Module1
@@ -38,7 +30,8 @@ full-build:
                     new string[0])
                 .SetName("Install section. External modules cannot be placed in 'artifacts' section."),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 full-build:
   install:
     - module Module1
@@ -53,7 +46,8 @@ full-build:
                     })
                 .SetName("Install section: external modules. Single configuration, multiple modules"),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 config1:
   install:
     - module Module4
@@ -75,7 +69,8 @@ full-build > config1:
                     })
                 .SetName("Install section: external modules. Two-leveled configuration, multiple modules"),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 config1:
   install:
     - module Module4
@@ -104,7 +99,8 @@ full-build > config1,config2:
                     })
                 .SetName("Install section: external modules. Two-leveled multiple-ancestors configuration, multiple modules"),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 config0:
   install:
     - module Module8
@@ -138,8 +134,8 @@ full-build > config1,config2:
                     })
                 .SetName("Install section: external modules. Three-leveled multiple-ancestors configuration, multiple modules"),
 
-
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 default:
   install:
     - module Module9
@@ -178,7 +174,8 @@ full-build > config1,config2:
                     })
                 .SetName("Install section: external modules. Three-leveled multiple-ancestors configuration with 'default' section, multiple external modules"),
 
-            new TestCaseData(@"
+            new TestCaseData(
+                    @"
 default:
   install:
     - module DuplicatedModule
@@ -208,5 +205,15 @@ full-build > config1,config2:
                     })
                 .SetName("Install section: external modules. Three-leveled multiple-ancestors configuration with 'default' section. External modules do duplicate."),
         };
+
+        [TestCaseSource(nameof(testCases))]
+        public void TestGetExternalModules(string moduleYamlText, string[] expected)
+        {
+            var parser = YamlFromText.InstallParser(moduleYamlText);
+            var parsed = parser.Get();
+
+            var actual = parsed.ExternalModules;
+            actual.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        }
     }
 }

@@ -11,71 +11,6 @@ namespace Tests.ParsersTests.V2
     [TestFixture]
     public class TestBuildSectionParser
     {
-        [TestCaseSource(nameof(GoodDefaultsCasesSource))]
-        public void ParseBuildDefaultsSections(string input, BuildData expected)
-        {
-            var parser = new BuildSectionParser();
-            var buildSections = GetBuildSections(input);
-            var actual = parser.ParseDefaults(buildSections);
-
-            actual.Should().BeEquivalentTo(expected);
-        }
-
-        [TestCaseSource(nameof(GoodConfigurationCasesSource))]
-        public void ParseBuildConfigurationSections(string input, BuildData[] expected)
-        {
-            var parser = new BuildSectionParser();
-            var buildSections = GetBuildSections(input);
-            var actual = parser.ParseConfiguration(buildSections);
-
-            actual.Should().BeEquivalentTo(expected);
-        }
-
-        [TestCaseSource(nameof(GoodConfigurationCasesWithDefaultsSource))]
-        public void ParseBuildConfigurationSections(string input, BuildData defaults, BuildData[] expected)
-        {
-            var parser = new BuildSectionParser();
-            var buildSections = GetBuildSections(input);
-            var actual = parser.ParseConfiguration(buildSections, defaults);
-
-            actual.Should().BeEquivalentTo(expected);
-        }
-
-        [TestCase("msbuild", null, null, ExpectedResult = null)]
-        [TestCase("msbuild", null, "default_version", ExpectedResult = "default_version")]
-        [TestCase("msbuild", "version_from_settings", "default_version", ExpectedResult = "default_version")]
-        [TestCase("msbuild", "version_from_settings", null, ExpectedResult = "version_from_settings")]
-        [TestCase("msbuild", "version_from_settings", "", ExpectedResult = "version_from_settings")]
-        [TestCase("not_msbuild", null, null, ExpectedResult = null)]
-        [TestCase("not_msbuild", null, "default_version", ExpectedResult = "default_version")]
-        [TestCase("not_msbuild", "version_from_settings", "default_version", ExpectedResult = "default_version")]
-        [TestCase("not_msbuild", "version_from_settings", null, ExpectedResult = null)]
-        [TestCase("not_msbuild", "version_from_settings", "", ExpectedResult = null)]
-        public string DefineCorrectDefaultToolVersion(string toolName, string settingVersion, string defaultVersion)
-        {
-            var settings = new CementSettings { DefaultMsBuildVersion = settingVersion };
-            var input = $@"build:
-  target: Solution.sln
-  configuration: Release
-  tool:
-    name: {toolName}
-";
-            var defaults = new BuildData(null, null, new Tool(null, defaultVersion), new List<string>(), string.Empty);
-
-            var parser = new BuildSectionParser(settings);
-            var buildSections = GetBuildSections(input);
-            var actual = parser.ParseConfiguration(buildSections, defaults);
-            return actual?[0].Tool.Version;
-        }
-
-        [TestCaseSource(nameof(BadCasesSource))]
-        public void ThrowOnInvalidBuildSection(string input, Type expectedException)
-        {
-            var parser = new BuildSectionParser();
-            var buildSections = GetBuildSections(input);
-            Assert.Throws(expectedException, () => parser.ParseConfiguration(buildSections));
-        }
-
         private static TestCaseData[] GoodConfigurationCasesSource =
         {
             new TestCaseData(
@@ -318,7 +253,6 @@ namespace Tests.ParsersTests.V2
                     })
                 .SetName("Single build section. Build tool name from defaults"),
 
-
             new TestCaseData(
                     @"build:
     target: Solution.sln
@@ -353,7 +287,7 @@ namespace Tests.ParsersTests.V2
                             "Solution.sln",
                             "Release",
                             new Tool("msbuild"),
-                            new List<string> { "/p:WarningLevel=0" },
+                            new List<string> {"/p:WarningLevel=0"},
                             string.Empty),
                     })
                 .SetName("Single build section. Build params from default are overriden, not added."),
@@ -369,8 +303,8 @@ namespace Tests.ParsersTests.V2
                     new BuildData("Solution.sln", null, new Tool("sometool", "42"), new List<string>(), string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Debug", new Tool("sometool", "42"), new List<string> (), "debug"),
-                        new BuildData("Solution.sln", "Release", new Tool("sometool", "42"), new List<string> (), "release"),
+                        new BuildData("Solution.sln", "Debug", new Tool("sometool", "42"), new List<string>(), "debug"),
+                        new BuildData("Solution.sln", "Release", new Tool("sometool", "42"), new List<string>(), "release"),
                     })
                 .SetName("Multiple build section. Default values added to every section"),
 
@@ -416,7 +350,6 @@ namespace Tests.ParsersTests.V2
                             "Restore deps for PSMoiraWorks"),
                     })
                 .SetName("Multiple build section. Explicit values from config override default values."),
-
         };
 
         private static TestCaseData[] GoodDefaultsCasesSource =
@@ -447,6 +380,71 @@ build:
   tool:  ", typeof(BadYamlException))
                 .SetName("Tool can't be an empty string"),
         };
+
+        [TestCaseSource(nameof(GoodDefaultsCasesSource))]
+        public void ParseBuildDefaultsSections(string input, BuildData expected)
+        {
+            var parser = new BuildSectionParser();
+            var buildSections = GetBuildSections(input);
+            var actual = parser.ParseDefaults(buildSections);
+
+            actual.Should().BeEquivalentTo(expected);
+        }
+
+        [TestCaseSource(nameof(GoodConfigurationCasesSource))]
+        public void ParseBuildConfigurationSections(string input, BuildData[] expected)
+        {
+            var parser = new BuildSectionParser();
+            var buildSections = GetBuildSections(input);
+            var actual = parser.ParseConfiguration(buildSections);
+
+            actual.Should().BeEquivalentTo(expected);
+        }
+
+        [TestCaseSource(nameof(GoodConfigurationCasesWithDefaultsSource))]
+        public void ParseBuildConfigurationSections(string input, BuildData defaults, BuildData[] expected)
+        {
+            var parser = new BuildSectionParser();
+            var buildSections = GetBuildSections(input);
+            var actual = parser.ParseConfiguration(buildSections, defaults);
+
+            actual.Should().BeEquivalentTo(expected);
+        }
+
+        [TestCase("msbuild", null, null, ExpectedResult = null)]
+        [TestCase("msbuild", null, "default_version", ExpectedResult = "default_version")]
+        [TestCase("msbuild", "version_from_settings", "default_version", ExpectedResult = "default_version")]
+        [TestCase("msbuild", "version_from_settings", null, ExpectedResult = "version_from_settings")]
+        [TestCase("msbuild", "version_from_settings", "", ExpectedResult = "version_from_settings")]
+        [TestCase("not_msbuild", null, null, ExpectedResult = null)]
+        [TestCase("not_msbuild", null, "default_version", ExpectedResult = "default_version")]
+        [TestCase("not_msbuild", "version_from_settings", "default_version", ExpectedResult = "default_version")]
+        [TestCase("not_msbuild", "version_from_settings", null, ExpectedResult = null)]
+        [TestCase("not_msbuild", "version_from_settings", "", ExpectedResult = null)]
+        public string DefineCorrectDefaultToolVersion(string toolName, string settingVersion, string defaultVersion)
+        {
+            var settings = new CementSettings {DefaultMsBuildVersion = settingVersion};
+            var input = $@"build:
+  target: Solution.sln
+  configuration: Release
+  tool:
+    name: {toolName}
+";
+            var defaults = new BuildData(null, null, new Tool(null, defaultVersion), new List<string>(), string.Empty);
+
+            var parser = new BuildSectionParser(settings);
+            var buildSections = GetBuildSections(input);
+            var actual = parser.ParseConfiguration(buildSections, defaults);
+            return actual?[0].Tool.Version;
+        }
+
+        [TestCaseSource(nameof(BadCasesSource))]
+        public void ThrowOnInvalidBuildSection(string input, Type expectedException)
+        {
+            var parser = new BuildSectionParser();
+            var buildSections = GetBuildSections(input);
+            Assert.Throws(expectedException, () => parser.ParseConfiguration(buildSections));
+        }
 
         private object GetBuildSections(string text)
         {

@@ -51,7 +51,6 @@ namespace Tests.UtilsTests
             Assert.AreEqual("error", runner.Errors.Trim());
         }
 
-
         [Test]
         public void TestOutputChangeEvent()
         {
@@ -80,6 +79,7 @@ namespace Tests.UtilsTests
             {
                 tasks.Add(Task.Run(() => new ShellRunner().Run("ping 127.0.0.1 -n 2 > nul", TimeSpan.FromSeconds(1))));
             }
+
             await Task.WhenAll(tasks);
             sw.Stop();
             Assert.That(sw.Elapsed.TotalSeconds < 10);
@@ -90,7 +90,8 @@ namespace Tests.UtilsTests
         {
             var count = 10000;
             var bat = "test_overflow.bat";
-            File.WriteAllText(bat, @"
+            File.WriteAllText(
+                bat, @"
 @echo off
 FOR /L %%G IN (1,1," + count + @") DO echo %%G");
 

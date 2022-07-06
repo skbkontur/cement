@@ -147,7 +147,7 @@ namespace Common.YamlParsers.V2.Factories
             private readonly HashSet<string> yieldedNodesSet = new HashSet<string>();
             private readonly HashSet<string> visitedNodes = new HashSet<string>();
 
-            public TraversalState(IReadOnlyDictionary<string,string[]> adjacencyMap)
+            public TraversalState(IReadOnlyDictionary<string, string[]> adjacencyMap)
             {
                 this.adjacencyMap = adjacencyMap;
             }
@@ -166,6 +166,5 @@ namespace Common.YamlParsers.V2.Factories
                     .ToArray();
             }
         }
-
     }
 }

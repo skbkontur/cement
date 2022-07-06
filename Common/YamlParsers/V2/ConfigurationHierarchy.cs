@@ -28,12 +28,10 @@ namespace Common.YamlParsers.V2
         /// </summary>
         public string[] GetAllParents(string configName) => configNameToAllParentsMap[configName];
 
-
         /// <summary>
         /// Return default configuration name
         /// </summary>
         public string FindDefault() => defaultConfig;
-
 
         /// <summary>
         /// Return all configurations in order:

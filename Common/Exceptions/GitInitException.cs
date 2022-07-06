@@ -2,7 +2,8 @@
 {
     public sealed class GitInitException : CementException
     {
-        public GitInitException(string format) : base(format)
+        public GitInitException(string format)
+            : base(format)
         {
         }
     }

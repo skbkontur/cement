@@ -11,13 +11,21 @@ namespace Commands
         private StreamWriter writer;
 
         public ConvertSpec()
-            : base(new CommandSettings
-            {
-                LogPerfix = "CONVERT",
-                Location = CommandSettings.CommandLocation.RootModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "CONVERT",
+                    Location = CommandSettings.CommandLocation.RootModuleDirectory
+                })
         {
         }
+
+        public override string HelpMessage => @"
+    Converts information about module from old dep format to new format - module.yaml
+
+    Usage:
+        cm convert-spec
+";
 
         protected override int Execute()
         {
@@ -40,6 +48,12 @@ namespace Commands
             ConsoleWriter.Shared.WriteInfo("Check build section.");
             ConsoleWriter.Shared.WriteInfo("Add install section.");
             return 0;
+        }
+
+        protected override void ParseArgs(string[] args)
+        {
+            if (args.Length > 1)
+                throw new CementException("Extra aruments. Using: cm convert-spec.");
         }
 
         private void Convert(Dictionary<string, IList<string>> hierarchy, string defaultConfiguration)
@@ -76,6 +90,7 @@ namespace Commands
                 deps.Force = deps.Force.Select(x => x.Replace("%CURRENT_BRANCH%", "$CURRENT_BRANCH")).ToArray();
                 writer.WriteLine("    - force: " + string.Join(",", deps.Force));
             }
+
             if (deps.Deps == null)
                 return;
             foreach (var dep in deps.Deps)
@@ -100,8 +115,10 @@ namespace Commands
                     var remove = withSameName.First();
                     result.Add(new Dep("-" + remove.Name, remove.Treeish, remove.Configuration));
                 }
+
                 result.Add(dep);
             }
+
             return result;
         }
 
@@ -133,18 +150,5 @@ namespace Commands
 
             return new BuildData(buildTarget, buildConfig);
         }
-
-        protected override void ParseArgs(string[] args)
-        {
-            if (args.Length > 1)
-                throw new CementException("Extra aruments. Using: cm convert-spec.");
-        }
-
-        public override string HelpMessage => @"
-    Converts information about module from old dep format to new format - module.yaml
-
-    Usage:
-        cm convert-spec
-";
     }
 }

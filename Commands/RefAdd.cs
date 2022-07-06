@@ -17,27 +17,30 @@ namespace Commands
         private bool force;
 
         public RefAdd()
-            : base(new CommandSettings
-            {
-                LogPerfix = "REF-ADD",
-                LogFileName = "ref-add",
-                MeasureElapsedTime = false,
-                Location = CommandSettings.CommandLocation.InsideModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "REF-ADD",
+                    LogFileName = "ref-add",
+                    MeasureElapsedTime = false,
+                    Location = CommandSettings.CommandLocation.InsideModuleDirectory
+                })
         {
         }
+
+        public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)
         {
             var parsedArgs = ArgumentParser.ParseRefAdd(args);
 
-            testReplaces = (bool) parsedArgs["testReplaces"];
-            dep = new Dep((string) parsedArgs["module"]);
+            testReplaces = (bool)parsedArgs["testReplaces"];
+            dep = new Dep((string)parsedArgs["module"]);
             if (parsedArgs["configuration"] != null)
-                dep.Configuration = (string) parsedArgs["configuration"];
+                dep.Configuration = (string)parsedArgs["configuration"];
 
-            project = (string) parsedArgs["project"];
-            force = (bool) parsedArgs["force"];
+            project = (string)parsedArgs["project"];
+            force = (bool)parsedArgs["force"];
             if (!project.EndsWith(".csproj"))
                 throw new BadArgumentException(project + " is not csproj file");
         }
@@ -87,6 +90,19 @@ namespace Commands
             return 0;
         }
 
+        private static void SafeAddRef(ProjectFile csproj, string refName, string hintPath)
+        {
+            try
+            {
+                csproj.AddRef(refName, hintPath);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Log.LogError("Fail to add reference", e);
+            }
+        }
+
         private void GetAndBuild(Dep module)
         {
             using (new DirectoryJumper(Helper.CurrentWorkspace))
@@ -102,14 +118,15 @@ namespace Commands
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
             {
                 ConsoleWriter.Shared.WriteInfo("cm build-deps " + module);
-                if (new BuildDeps().Run(new[] { "build-deps", "-c", module.Configuration }) != 0)
+                if (new BuildDeps().Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + dep);
                 ConsoleWriter.Shared.ResetProgress();
                 ConsoleWriter.Shared.WriteInfo("cm build " + module);
-                if (new Build().Run(new[] { "build", "-c", module.Configuration }) != 0)
+                if (new Build().Run(new[] {"build", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build " + dep);
                 ConsoleWriter.Shared.ResetProgress();
             }
+
             Console.WriteLine();
         }
 
@@ -151,7 +168,8 @@ namespace Commands
                 var buildItemPath = Platform.IsUnix() ? Helper.WindowsPathSlashesToUnix(buildItem) : buildItem;
                 var refName = Path.GetFileNameWithoutExtension(buildItemPath);
 
-                var hintPath = Helper.GetRelativePath(Path.Combine(Helper.CurrentWorkspace, buildItemPath),
+                var hintPath = Helper.GetRelativePath(
+                    Path.Combine(Helper.CurrentWorkspace, buildItemPath),
                     Directory.GetParent(projectPath).FullName);
 
                 if (Platform.IsUnix())
@@ -200,19 +218,6 @@ namespace Commands
             }
         }
 
-        private static void SafeAddRef(ProjectFile csproj, string refName, string hintPath)
-        {
-            try
-            {
-                csproj.AddRef(refName, hintPath);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                Log.LogError("Fail to add reference", e);
-            }
-        }
-
         private void TestReplaces(ProjectFile csproj, string refName)
         {
             XmlNode refXml;
@@ -234,12 +239,11 @@ namespace Commands
                 ConsoleWriter.Shared.WriteSkip("Already has same " + refName);
                 return false;
             }
+
             ConsoleWriter.Shared.WriteWarning(
                 $"'{project}' already contains ref '{refName}'.\n\n<<<<\n{oldRef}\n\n>>>>\n{newRef}\nDo you want to replace (y/N)?");
             var answer = Console.ReadLine();
             return answer != null && answer.Trim().ToLowerInvariant() == "y";
         }
-
-        public override string HelpMessage => @"";
     }
 }

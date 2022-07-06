@@ -68,7 +68,8 @@ default:
 full-build > sdk, client *default:
 sdk > client:
 client:";
-            Assert.AreEqual(new[] {"sdk", "client"}.ToList(),
+            Assert.AreEqual(
+                new[] {"sdk", "client"}.ToList(),
                 YamlFromText.ConfigurationParser(text).GetParentConfigurations("full-build"));
         }
 
@@ -107,7 +108,8 @@ notests:";
             {
                 using (new DirectoryJumper(tempDir.Path))
                 {
-                    File.WriteAllText("module.yaml", @"
+                    File.WriteAllText(
+                        "module.yaml", @"
 default:
 client:
 sdk:

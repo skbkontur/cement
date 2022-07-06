@@ -32,7 +32,7 @@ namespace Common.YamlParsers.V2
             content = PatchTabs(content, moduleInfo);
             var serializer = new Serializer();
 
-            var yaml = (Dictionary<object, object>) serializer.Deserialize(content);
+            var yaml = (Dictionary<object, object>)serializer.Deserialize(content);
 
             var defaultSection = yaml.FindValue("default") as Dictionary<object, object>;
             var moduleDefaults = moduleDefaultsParser.Parse(defaultSection) ?? new ModuleDefaults();

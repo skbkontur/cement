@@ -5,7 +5,7 @@ namespace Common
 {
     public static class Usages
     {
-        public static ShowParentsAnswer GetUsagesResponse(string moduleName, string checkingBranch, string configuration="*")
+        public static ShowParentsAnswer GetUsagesResponse(string moduleName, string checkingBranch, string configuration = "*")
         {
             var webClient = new WebClient();
             var str = webClient.DownloadString($"{CementSettingsRepository.Get().CementServer}/api/v1/{moduleName}/deps/{configuration}/{checkingBranch}");

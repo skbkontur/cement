@@ -10,6 +10,15 @@ namespace Commands
     {
         private static readonly ILogger Log = LogManager.GetLogger<IdCommand>();
 
+        public string HelpMessage => @"
+    Prints id of current module or ids of modules
+
+    Usage:
+        cm id
+";
+
+        public bool IsHiddenCommand => true;
+
         public int Run(string[] args)
         {
             var cwd = Directory.GetCurrentDirectory();
@@ -18,6 +27,7 @@ namespace Commands
                 PrintHashes(Directory.GetDirectories(cwd));
                 return 0;
             }
+
             if (Helper.IsCurrentDirectoryModule(cwd))
             {
                 PrintHashes(new[] {cwd});
@@ -49,14 +59,5 @@ namespace Commands
                 }
             }
         }
-
-        public string HelpMessage => @"
-    Prints id of current module or ids of modules
-
-    Usage:
-        cm id
-";
-
-        public bool IsHiddenCommand => true;
     }
 }

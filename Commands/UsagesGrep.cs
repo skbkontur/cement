@@ -11,41 +11,43 @@ namespace Commands
 {
     public class UsagesGrep : Command
     {
-        private string moduleName;
-        private string cwd;
-        private string workspace;
-        private GitRepository currentRepository;
-        private readonly ShellRunner runner;
-        private string[] arguments;
-        private string[] fileMasks;
-        private bool skipGet;
-
         private static readonly string[] GrepParametersWithValue =
             {"-A", "-B", "-C", "--threads", "-f", "-e", "--parent-basename", "--max-depth"};
         private static readonly string[] NewLine = {"\r\n", "\r", "\n"};
         private static readonly Regex Whitespaces = new Regex("\\s");
+        private readonly ShellRunner runner;
+        private string moduleName;
+        private string cwd;
+        private string workspace;
+        private GitRepository currentRepository;
+        private string[] arguments;
+        private string[] fileMasks;
+        private bool skipGet;
         private string checkingBranch;
 
         public UsagesGrep()
-            : base(new CommandSettings
-            {
-                LogPerfix = "USAGES-GREP",
-                LogFileName = "usages-grep",
-                MeasureElapsedTime = true,
-                Location = CommandSettings.CommandLocation.RootModuleDirectory
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "USAGES-GREP",
+                    LogFileName = "usages-grep",
+                    MeasureElapsedTime = true,
+                    Location = CommandSettings.CommandLocation.RootModuleDirectory
+                })
         {
             runner = new ShellRunner(Log);
         }
 
+        public override string HelpMessage => @"";
+
         protected override void ParseArgs(string[] args)
         {
             var parsed = ArgumentParser.ParseGrepParents(args);
-            arguments = (string[]) parsed["gitArgs"];
-            fileMasks = (string[]) parsed["fileMaskArgs"];
+            arguments = (string[])parsed["gitArgs"];
+            fileMasks = (string[])parsed["fileMaskArgs"];
 
-            checkingBranch = (string) parsed["branch"];
-            skipGet = (bool) parsed["skip-get"];
+            checkingBranch = (string)parsed["branch"];
+            skipGet = (bool)parsed["skip-get"];
         }
 
         protected override int Execute()
@@ -56,8 +58,7 @@ namespace Commands
             currentRepository = new GitRepository(moduleName, workspace, Log);
 
             if (checkingBranch == null)
-                checkingBranch = currentRepository.HasLocalBranch("master") ?
-                    "master" : currentRepository.CurrentLocalTreeish().Value;
+                checkingBranch = currentRepository.HasLocalBranch("master") ? "master" : currentRepository.CurrentLocalTreeish().Value;
 
             var response = Usages.GetUsagesResponse(moduleName, checkingBranch);
 
@@ -68,6 +69,43 @@ namespace Commands
 
             Grep(usages);
             return 0;
+        }
+
+        private static string BuildGitCommand(string[] args, string[] masks)
+        {
+            var sb = new StringBuilder();
+
+            sb.Append("git --no-pager grep -n ");
+            for (var i = 2; i < args.Length; ++i)
+            {
+                if (args[i - 1] == "-f")
+                    sb.Append('"').Append(Path.GetFullPath(args[i])).Append('"');
+                else
+                {
+                    if (IsPatternWithoutFlag(args, i))
+                        sb.Append("-e ");
+                    sb.Append(Escape(Whitespaces.Replace(args[i], "\\s")));
+                }
+
+                sb.Append(' ');
+            }
+
+            if (masks.Length > 0)
+                sb.Append("-- ");
+            foreach (var mask in masks)
+                sb.Append('"').Append(mask).Append('"');
+
+            return sb.ToString();
+        }
+
+        private static bool IsPatternWithoutFlag(string[] args, int position)
+        {
+            return !(args[position][0] == '-' || GrepParametersWithValue.Contains(args[position - 1]));
+        }
+
+        private static string Escape(string s)
+        {
+            return s.Replace("\"", "\\\"");
         }
 
         private void Grep(IEnumerable<Dep> toGrep)
@@ -126,42 +164,6 @@ namespace Commands
             return string.Join(Environment.NewLine, lines);
         }
 
-        private static string BuildGitCommand(string[] args, string[] masks)
-        {
-            var sb = new StringBuilder();
-
-            sb.Append("git --no-pager grep -n ");
-            for (var i = 2; i < args.Length; ++i)
-            {
-                if (args[i - 1] == "-f")
-                    sb.Append('"').Append(Path.GetFullPath(args[i])).Append('"');
-                else
-                {
-                    if (IsPatternWithoutFlag(args, i))
-                        sb.Append("-e ");
-                    sb.Append(Escape(Whitespaces.Replace(args[i], "\\s")));
-                }
-                sb.Append(' ');
-            }
-
-            if (masks.Length > 0)
-                sb.Append("-- ");
-            foreach (var mask in masks)
-                sb.Append('"').Append(mask).Append('"');
-
-            return sb.ToString();
-        }
-
-        private static bool IsPatternWithoutFlag(string[] args, int position)
-        {
-            return !(args[position][0] == '-' || GrepParametersWithValue.Contains(args[position - 1]));
-        }
-
-        private static string Escape(string s)
-        {
-            return s.Replace("\"", "\\\"");
-        }
-
         private void GetWithoutDependencies(Dep dep, List<Module> modules)
         {
             var getter = new ModuleGetter(
@@ -172,7 +174,5 @@ namespace Commands
 
             getter.GetModule();
         }
-
-        public override string HelpMessage => @"";
     }
 }

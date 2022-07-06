@@ -10,6 +10,42 @@ namespace Tests.ParsersTests.V2
     [TestFixture]
     public class TestSettingsSectionParser
     {
+        private static TestCaseData[] Source =
+        {
+            new TestCaseData(
+                    @"
+default:
+",
+                    new ModuleSettings())
+                .SetName("No settings section"),
+
+            new TestCaseData(
+                    @"
+default:
+  settings:
+",
+                    new ModuleSettings())
+                .SetName("Empty settings section"),
+
+            new TestCaseData(
+                    @"
+default:
+  settings:
+    somekey: somevalue
+",
+                    new ModuleSettings())
+                .SetName("Settings section with unknown key-value"),
+
+            new TestCaseData(
+                    @"
+default:
+  settings:
+    type: content
+",
+                    new ModuleSettings() {IsContentModule = true})
+                .SetName("Settings section with 'type: content'"),
+        };
+
         [TestCaseSource(nameof(Source))]
         public void TestParse(string input, ModuleSettings expectedResult)
         {
@@ -21,42 +57,10 @@ namespace Tests.ParsersTests.V2
             actual.Should().BeEquivalentTo(expectedResult, o => o.WithStrictOrdering());
         }
 
-        private static TestCaseData[] Source =
-        {
-            new TestCaseData(@"
-default:
-",
-                    new ModuleSettings())
-                .SetName("No settings section"),
-
-            new TestCaseData(@"
-default:
-  settings:
-",
-                    new ModuleSettings())
-                .SetName("Empty settings section"),
-
-            new TestCaseData(@"
-default:
-  settings:
-    somekey: somevalue
-",
-                    new ModuleSettings())
-                .SetName("Settings section with unknown key-value"),
-
-            new TestCaseData(@"
-default:
-  settings:
-    type: content
-",
-                    new ModuleSettings() {IsContentModule = true})
-                .SetName("Settings section with 'type: content'"),
-        };
-
         private object GetSettingsSection(string text)
         {
             var serializer = new Serializer();
-            var yaml = (Dictionary<object, object>) serializer.Deserialize(text);
+            var yaml = (Dictionary<object, object>)serializer.Deserialize(text);
 
             var defaultSection = yaml["default"] as Dictionary<object, object>;
 

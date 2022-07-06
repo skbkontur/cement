@@ -15,11 +15,12 @@ namespace Common
 
             foreach (var key in policyMapping.Keys)
             {
-                if ((int) parsedArgs[key] == 1)
+                if ((int)parsedArgs[key] == 1)
                 {
                     return policyMapping[key];
                 }
             }
+
             return LocalChangesPolicy.FailOnLocalChanges;
         }
     }

@@ -11,16 +11,24 @@ namespace Commands
         private string moduleNameArg;
 
         public ShowConfigs()
-            : base(new CommandSettings
-            {
-                LogPerfix = "SHOW-CONFIGS",
-                LogFileName = null,
-                MeasureElapsedTime = false,
-                Location = CommandSettings.CommandLocation.Any,
-                RequireModuleYaml = true
-            })
+            : base(
+                new CommandSettings
+                {
+                    LogPerfix = "SHOW-CONFIGS",
+                    LogFileName = null,
+                    MeasureElapsedTime = false,
+                    Location = CommandSettings.CommandLocation.Any,
+                    RequireModuleYaml = true
+                })
         {
         }
+
+        public override string HelpMessage => @"
+    Shows configurations of module
+
+    Usage:
+        cm show-configs [<module_name>]
+";
 
         protected override int Execute()
         {
@@ -50,6 +58,7 @@ namespace Commands
                     sb.Append(" > ");
                     sb.Append(string.Join(", ", parents));
                 }
+
                 if (config == defaultConfig)
                 {
                     sb.Append("  *default");
@@ -60,25 +69,19 @@ namespace Commands
                     ConsoleWriter.Shared.WriteLine(sb.ToString());
                 }
             }
+
             return 0;
+        }
+
+        protected override void ParseArgs(string[] args)
+        {
+            var parsedArgs = ArgumentParser.ParseShowConfigs(args);
+            moduleNameArg = (string)parsedArgs["module"];
         }
 
         private string ResolveModuleName(string currentDirectory)
         {
             return moduleNameArg ?? new DirectoryInfo(Helper.GetModuleDirectory(currentDirectory)).Name;
         }
-
-        protected override void ParseArgs(string[] args)
-        {
-            var parsedArgs = ArgumentParser.ParseShowConfigs(args);
-            moduleNameArg = (string) parsedArgs["module"];
-        }
-
-        public override string HelpMessage => @"
-    Shows configurations of module
-
-    Usage:
-        cm show-configs [<module_name>]
-";
     }
 }

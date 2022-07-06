@@ -60,8 +60,8 @@ namespace Common
             consoleWriter.WriteProgress($"Cleaning {dep.Name}");
 
             var command = "git clean -d -f -x"; // -d               - remove whole directory
-                                                // -f               - force delete
-                                                // -x               - remove ignored files, too
+            // -f               - force delete
+            // -x               - remove ignored files, too
 
             var exitCode = shellRunner.RunInDirectory(Path.Combine(Helper.CurrentWorkspace, dep.Name), command, TimeSpan.FromMinutes(1), RetryStrategy.None);
 
