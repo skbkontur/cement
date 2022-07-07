@@ -243,7 +243,7 @@ full-build > webapi-service-local, jobs-service-local, webapi-plugin, jobs-plugi
         public IEnumerable<string> Yamls => new[]
         {
             SmallModuleYaml,
-            FatModuleYaml,
+            FatModuleYaml
         };
 
         [Benchmark]

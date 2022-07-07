@@ -28,7 +28,7 @@ default:
     - b/c
 ",
                     new[] {"a", "b/c"})
-                .SetName("Two hooks in defaults section"),
+                .SetName("Two hooks in defaults section")
         };
 
         [TestCaseSource(nameof(Source))]

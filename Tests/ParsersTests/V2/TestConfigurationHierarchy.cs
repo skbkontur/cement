@@ -19,7 +19,7 @@ namespace Tests.ParsersTests.V2
                     "B", new[]
                     {
                         "A *default",
-                        "B > A",
+                        "B > A"
                     }, new[] {"A"})
                 .SetName("One root, one child"),
 
@@ -38,7 +38,7 @@ namespace Tests.ParsersTests.V2
                         "A",
                         "B > A",
                         "C > A",
-                        "D > A *default",
+                        "D > A *default"
                     }, new[] {"A"})
                 .SetName("One root, 2 usual children and one marked as default"),
 
@@ -115,7 +115,7 @@ namespace Tests.ParsersTests.V2
                         "G > B",
                         "H > B",
                         "I > G",
-                        "J > I,F,H,E",
+                        "J > I,F,H,E"
                     }, new[] {"A", "B", "C", "D"})
                 .SetName("Complex tree with cross-inheritence, finding parents of a node in the middle"),
 
@@ -131,7 +131,7 @@ namespace Tests.ParsersTests.V2
                         "G > B",
                         "H > B",
                         "I > G",
-                        "J > I,F,H,E",
+                        "J > I,F,H,E"
                     }, new[] {"A", "B", "C", "G", "H", "D", "E", "I", "F"})
                 .SetName("Complex tree with cross-inheritence, finding parents of the biggest node")
         };
@@ -150,7 +150,7 @@ namespace Tests.ParsersTests.V2
                     new List<string>
                     {
                         "A",
-                        "B *default",
+                        "B *default"
                     })
                 .Returns("B")
                 .SetName("Two non-full-build configs, second of them marked as default"),
@@ -159,7 +159,7 @@ namespace Tests.ParsersTests.V2
                     new List<string>
                     {
                         "A *default",
-                        "B",
+                        "B"
                     })
                 .Returns("A")
                 .SetName("Two non-full-build configs, first of them marked as default"),
@@ -178,7 +178,7 @@ namespace Tests.ParsersTests.V2
                     new List<string>
                     {
                         "A",
-                        "B",
+                        "B"
                     })
                 .Returns(null)
                 .SetName("Two non-full-build configs, no default mark. Null default config"),
@@ -201,7 +201,7 @@ namespace Tests.ParsersTests.V2
                         "full-build"
                     })
                 .Returns("A")
-                .SetName("Two inhereted non-full-build configs and a full-build, first marked as default"),
+                .SetName("Two inhereted non-full-build configs and a full-build, first marked as default")
         };
 
         private static TestCaseData[] GetAllSource =
@@ -245,7 +245,7 @@ namespace Tests.ParsersTests.V2
                         "A",
                         "B > A *default",
                         "C > A, D",
-                        "D",
+                        "D"
                     }, new[] {"A", "D", "B", "C"})
                 .SetName("A; D; B>A; C>A,D"),
 
@@ -261,7 +261,7 @@ namespace Tests.ParsersTests.V2
                     {
                         "A *default",
                         "B > A",
-                        "C > B,A",
+                        "C > B,A"
                     }, new[] {"A", "B", "C"})
                 .SetName("A; B>A; C>B,A"),
 
@@ -281,7 +281,7 @@ namespace Tests.ParsersTests.V2
                         "B > A",
                         "C > A",
                         "D > C",
-                        "E > B,D",
+                        "E > B,D"
                     }, new[] {"A", "B", "C", "D", "E"})
                 .SetName("Uneven paths' lengths to root"),
 
@@ -303,7 +303,7 @@ namespace Tests.ParsersTests.V2
                         "C > A",
                         "D > B,C",
                         "E > B,C",
-                        "F > D,E",
+                        "F > D,E"
                     }, new[] {"A", "B", "C", "D", "E", "F"})
                 .SetName("Cross-references"),
 
@@ -357,9 +357,9 @@ namespace Tests.ParsersTests.V2
                         "G > B",
                         "H > B",
                         "I > G",
-                        "J > I,F,H,E",
+                        "J > I,F,H,E"
                     }, new[] {"A", "B", "C", "G", "H", "D", "E", "I", "F", "J"})
-                .SetName("Complex tree with cross-inheritance"),
+                .SetName("Complex tree with cross-inheritance")
         };
         private readonly ConfigSectionTitleParser parser;
 
@@ -406,7 +406,7 @@ namespace Tests.ParsersTests.V2
             {
                 "A > C *default",
                 "B > A",
-                "C > B",
+                "C > B"
             };
 
             var lines = configLines.Select(line => parser.Parse(line)).ToArray();

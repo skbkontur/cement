@@ -30,7 +30,7 @@ namespace Tests.Benchmarks
             "module",
             "module@b32742e9701aef44ee986db2824e9007056ba60f/some-cfg",
             "module/some-cfg@b32742e9701aef44ee986db2824e9007056ba60f",
-            @"module@hello\/there\@general/kenobi",
+            @"module@hello\/there\@general/kenobi"
         };
 
         [GlobalSetup]

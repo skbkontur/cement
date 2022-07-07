@@ -17,13 +17,13 @@ namespace Tests.ParsersTests.V2
                         {
                             "file1",
                             "nuget Nuget1",
-                            "module Module1",
+                            "module Module1"
                         },
                         new[]
                         {
                             "file2",
                             "nuget Nuget2",
-                            "module Module2",
+                            "module Module2"
                         }
                     ),
                     new InstallData
@@ -51,13 +51,13 @@ namespace Tests.ParsersTests.V2
                         {
                             "file1",
                             "nuget Nuget1",
-                            "module Module1",
+                            "module Module1"
                         },
                         new[]
                         {
                             "file2",
                             "nuget Nuget2",
-                            "module Module2",
+                            "module Module2"
                         }
                     ),
                     null,
@@ -78,7 +78,7 @@ namespace Tests.ParsersTests.V2
                             CurrentConfigurationInstallFiles = {"parent2_file", "parent2_artifact"},
                             ExternalModules = {"parent2_module"},
                             NuGetPackages = {"parent2_nuget"}
-                        },
+                        }
                     },
                     new InstallData
                     {
@@ -96,13 +96,13 @@ namespace Tests.ParsersTests.V2
                         {
                             "file1",
                             "nuget Nuget1",
-                            "module Module1",
+                            "module Module1"
                         },
                         new[]
                         {
                             "file2",
                             "nuget Nuget2",
-                            "module Module2",
+                            "module Module2"
                         }
                     ),
                     new InstallData
@@ -130,7 +130,7 @@ namespace Tests.ParsersTests.V2
                             CurrentConfigurationInstallFiles = {"parent2_file", "parent2_artifact"},
                             ExternalModules = {"parent2_module"},
                             NuGetPackages = {"parent2_nuget"}
-                        },
+                        }
                     },
                     new InstallData
                     {
@@ -140,7 +140,7 @@ namespace Tests.ParsersTests.V2
                         ExternalModules = {"default_module", "parent1_module", "parent2_module", "Module1"},
                         NuGetPackages = {"default_nuget", "parent1_nuget", "parent2_nuget", "Nuget1"}
                     })
-                .SetName("Install section: install files. Current config inherits Install section from 'default' section and several parent configurations."),
+                .SetName("Install section: install files. Current config inherits Install section from 'default' section and several parent configurations.")
         };
 
         [TestCaseSource(nameof(MergeCases))]

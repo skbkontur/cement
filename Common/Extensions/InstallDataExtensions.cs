@@ -18,7 +18,7 @@ namespace Common.Extensions
                 ExternalModules = new List<string>(ConcatDistinct(first, second, item => item.ExternalModules)),
                 InstallFiles = new List<string>(ConcatDistinct(first, second, item => item.InstallFiles)),
                 NuGetPackages = new List<string>(ConcatDistinct(first, second, item => item.NuGetPackages)),
-                CurrentConfigurationInstallFiles = new List<string>(currentConfigurationInstallFiles),
+                CurrentConfigurationInstallFiles = new List<string>(currentConfigurationInstallFiles)
             };
 
             return result;

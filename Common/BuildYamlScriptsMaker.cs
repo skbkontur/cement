@@ -13,7 +13,7 @@ namespace Common
             @"/t:Rebuild",
             @"/nodeReuse:false",
             @"/maxcpucount",
-            @"/v:m",
+            @"/v:m"
         };
 
         private static readonly string[] DefaultXbuildParameters =

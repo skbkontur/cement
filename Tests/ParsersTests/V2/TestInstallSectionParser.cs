@@ -81,7 +81,7 @@ namespace Tests.ParsersTests.V2
                         CurrentConfigurationInstallFiles = {"a1", "a2"},
                         ExternalModules = {"Module1"}
                     })
-                .SetName("Install section: artifacts. External modules are not added to artifacts."),
+                .SetName("Install section: artifacts. External modules are not added to artifacts.")
         };
 
         private static TestCaseData[] BuildFilesSource =
@@ -92,13 +92,13 @@ namespace Tests.ParsersTests.V2
                         {
                             "file1",
                             "nuget Nuget1",
-                            "module Module1",
+                            "module Module1"
                         },
                         new[]
                         {
                             "file2",
                             "nuget Nuget2",
-                            "module Module2",
+                            "module Module2"
                         }
                     ),
                     new InstallData
@@ -109,7 +109,7 @@ namespace Tests.ParsersTests.V2
                         ExternalModules = {"Module1"},
                         NuGetPackages = {"Nuget1"}
                     })
-                .SetName("Install section: install files. Nuget and external modules are not considered install files."),
+                .SetName("Install section: install files. Nuget and external modules are not considered install files.")
         };
 
         [TestCaseSource(nameof(ArtifactsSource))]

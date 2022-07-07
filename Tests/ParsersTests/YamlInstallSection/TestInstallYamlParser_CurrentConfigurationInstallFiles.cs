@@ -149,7 +149,7 @@ full-build > config1:
                         "file2",
                         "file3",
                         "file4",
-                        "file5",
+                        "file5"
                     })
                 .SetName("Install section: CurrentConfigurationInstallFiles. 'nuget' do not leak into CurrentConfigurationInstallFiles."),
 
@@ -172,7 +172,7 @@ full-build > client:
   artifacts:
     - file1",
                     new[] {"file1"})
-                .SetName("Install section. CurrentConfigurationInstallFiles should not contain files from parent configuration's artifacts."),
+                .SetName("Install section. CurrentConfigurationInstallFiles should not contain files from parent configuration's artifacts.")
         };
 
         [TestCaseSource(nameof(testCases))]

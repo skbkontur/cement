@@ -16,7 +16,7 @@ namespace Tests.Extensions
             InstallFiles = {"first_i1", "first_i2", "common_i"},
             CurrentConfigurationInstallFiles = {"first_i1", "first_i2", "common_i", "first_a1", "first_a2", "common_a"},
             ExternalModules = {"first_m1", "first_m2", "common_m"},
-            NuGetPackages = {"first_n1", "first_n2", "common_n"},
+            NuGetPackages = {"first_n1", "first_n2", "common_n"}
         };
 
         private readonly InstallData Second = new InstallData
@@ -25,7 +25,7 @@ namespace Tests.Extensions
             InstallFiles = {"second_i1", "second_i2", "common_i"},
             CurrentConfigurationInstallFiles = {"second_i1", "second_i2", "common_i", "second_a1", "second_a2", "common_a"},
             ExternalModules = {"second_m1", "second_m2", "common_m"},
-            NuGetPackages = {"second_n1", "second_n2", "common_n"},
+            NuGetPackages = {"second_n1", "second_n2", "common_n"}
         };
 
         [Test]

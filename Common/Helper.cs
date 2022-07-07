@@ -31,7 +31,7 @@ namespace Common
                 "Community",
                 "Professional",
                 "Enterprise",
-                "BuildTools",
+                "BuildTools"
             }.AsReadOnly();
 
         public static IReadOnlyList<string> VisualStudioVersions { get; } =

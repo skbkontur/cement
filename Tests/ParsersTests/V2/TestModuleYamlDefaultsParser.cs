@@ -46,13 +46,13 @@ namespace Tests.ParsersTests.V2
                     HooksSection = new[]
                     {
                         "hooks/pre-commit",
-                        "pre-commit.cement",
+                        "pre-commit.cement"
                     },
                     DepsSection = new DepsSection(
                         new[] {"some_branch"}, new DepSectionItem[]
                         {
                             new DepSectionItem(new Dep("module1", null, null)),
-                            new DepSectionItem(new Dep("module2", null, null)),
+                            new DepSectionItem(new Dep("module2", null, null))
                         }),
                     BuildSection = new BuildData("solution.sln", null, new Tool("sometool"), new List<string>(), string.Empty),
                     InstallSection = new InstallData()
@@ -61,9 +61,9 @@ namespace Tests.ParsersTests.V2
                         CurrentConfigurationInstallFiles = {"file1.dll", "file2.dll", "file3.dll"},
                         Artifacts = {"file1.dll", "file2.dll", "file3.dll"},
                         ExternalModules = {"externalModule"},
-                        NuGetPackages = {"nuget1"},
+                        NuGetPackages = {"nuget1"}
                     }
-                }).SetName("Complex defaults section"),
+                }).SetName("Complex defaults section")
         };
 
         [TestCaseSource(nameof(Source))]

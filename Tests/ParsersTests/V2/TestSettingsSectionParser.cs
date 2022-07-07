@@ -43,7 +43,7 @@ default:
     type: content
 ",
                     new ModuleSettings() {IsContentModule = true})
-                .SetName("Settings section with 'type: content'"),
+                .SetName("Settings section with 'type: content'")
         };
 
         [TestCaseSource(nameof(Source))]

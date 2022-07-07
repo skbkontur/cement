@@ -95,7 +95,7 @@ namespace Tests.ParsersTests
                     Name = "full-build",
                     Parents = new[] {"a", "b", "c"},
                     IsDefault = true
-                }),
+                })
         };
 
         [TestCaseSource(nameof(Source))]

@@ -19,7 +19,7 @@ namespace Tests.ParsersTests.V2
   configuration: Release",
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty),
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty)
                     })
                 .SetName("Single sln-target with configuration, no params, no tool, no name"),
 
@@ -30,7 +30,7 @@ namespace Tests.ParsersTests.V2
     configuration: Release",
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), "build-name"),
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), "build-name")
                     })
                 .SetName("Single sln-target with configuration, no params, no tool, with name"),
 
@@ -43,7 +43,7 @@ namespace Tests.ParsersTests.V2
     version: ""14.0""",
                 new[]
                 {
-                    new BuildData("Solution.sln", "Debug", new Tool("sometool", "14.0"), new List<string>(), string.Empty),
+                    new BuildData("Solution.sln", "Debug", new Tool("sometool", "14.0"), new List<string>(), string.Empty)
                 }).SetName("Single sln-target with configuration, no params, multiline tool, no name"),
 
             new TestCaseData(
@@ -56,7 +56,7 @@ namespace Tests.ParsersTests.V2
       version: ""14.0""",
                 new[]
                 {
-                    new BuildData("Solution.sln", "Debug", new Tool("sometool", "14.0"), new List<string>(), "build-name"),
+                    new BuildData("Solution.sln", "Debug", new Tool("sometool", "14.0"), new List<string>(), "build-name")
                 }).SetName("Single sln-target with configuration, no params, multiline tool, with name"),
 
             new TestCaseData(
@@ -64,7 +64,7 @@ namespace Tests.ParsersTests.V2
   target: package.json",
                 new[]
                 {
-                    new BuildData("package.json", null, new Tool("msbuild"), new List<string>(), string.Empty),
+                    new BuildData("package.json", null, new Tool("msbuild"), new List<string>(), string.Empty)
                 }).SetName("Single package.json-target, no configuration, no params, default tool, no name"),
 
             new TestCaseData(
@@ -73,7 +73,7 @@ namespace Tests.ParsersTests.V2
   tool: npm",
                 new[]
                 {
-                    new BuildData("package.json", null, new Tool("npm"), new List<string>(), string.Empty),
+                    new BuildData("package.json", null, new Tool("npm"), new List<string>(), string.Empty)
                 }).SetName("Single package.json-target, no configuration, no params, single tool, no name"),
 
             new TestCaseData(
@@ -91,7 +91,7 @@ namespace Tests.ParsersTests.V2
                             {
                                 "/p:WarningLevel=0"
                             },
-                            string.Empty),
+                            string.Empty)
                     })
                 .SetName("Single sln-target with configuration, single-line params, no tool, no name"),
 
@@ -115,7 +115,7 @@ namespace Tests.ParsersTests.V2
                                 "/p:SomeParam1=0",
                                 "/p:SomeParam2=0"
                             },
-                            string.Empty),
+                            string.Empty)
                     })
                 .SetName("Single sln-target with configuration, multiline params in quotes, no tool, no name"),
 
@@ -139,7 +139,7 @@ namespace Tests.ParsersTests.V2
                                 "/p:SomeParam1=0",
                                 "/p:SomeParam2=0"
                             },
-                            string.Empty),
+                            string.Empty)
                     })
                 .SetName("Single sln-target with configuration, multiline params without quotes, no tool, no name"),
 
@@ -161,11 +161,11 @@ namespace Tests.ParsersTests.V2
                             new Tool("msbuild"),
                             new List<string>
                             {
-                                "/t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0;DeployOnBuild=true;PublishProfile=WebApp",
+                                "/t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0;DeployOnBuild=true;PublishProfile=WebApp"
                             },
                             "Utilities"),
 
-                        new BuildData("transportLog.sln", "Release", new Tool("msbuild"), new List<string>(), "Transport Log"),
+                        new BuildData("transportLog.sln", "Release", new Tool("msbuild"), new List<string>(), "Transport Log")
                     })
                 .SetName("Multi sln-target with configuration, single-line params, no tool"),
 
@@ -192,7 +192,7 @@ namespace Tests.ParsersTests.V2
                             new Tool("sometool", "14.0"),
                             new List<string>
                             {
-                                "/t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0;DeployOnBuild=true;PublishProfile=WebApp",
+                                "/t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0;DeployOnBuild=true;PublishProfile=WebApp"
                             },
                             "Utilities"),
 
@@ -204,9 +204,9 @@ namespace Tests.ParsersTests.V2
                             {
                                 "-NonInteractive -NoProfile -ExecutionPolicy Bypass"
                             },
-                            "Restore deps for PSMoiraWorks"),
+                            "Restore deps for PSMoiraWorks")
                     })
-                .SetName("Multi sln-powershell-target with configuration, single-line params, with multi- and signle-line tool"),
+                .SetName("Multi sln-powershell-target with configuration, single-line params, with multi- and signle-line tool")
         };
 
         private static TestCaseData[] GoodConfigurationCasesWithDefaultsSource =
@@ -217,7 +217,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData("Solution.sln", null, null, new List<string>(), string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty),
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty)
                     })
                 .SetName("Single build section. Sln-target from defaults"),
 
@@ -227,7 +227,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData(null, "Release", null, new List<string>(), string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty),
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty)
                     })
                 .SetName("Single build section. Configuration from defaults"),
 
@@ -238,7 +238,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData(null, null, new Tool(null, "42"), new List<string>(), string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild", "42"), new List<string>(), string.Empty),
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild", "42"), new List<string>(), string.Empty)
                     })
                 .SetName("Single build section. Build tool version from defaults"),
 
@@ -249,7 +249,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData(null, null, new Tool("sometool"), new List<string>(), string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("sometool"), new List<string>(), string.Empty),
+                        new BuildData("Solution.sln", "Release", new Tool("sometool"), new List<string>(), string.Empty)
                     })
                 .SetName("Single build section. Build tool name from defaults"),
 
@@ -260,7 +260,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData(null, null, null, new List<string>() {"param1", "param2"}, string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>() {"param1", "param2"}, string.Empty),
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>() {"param1", "param2"}, string.Empty)
                     })
                 .SetName("Single build section. Build parameters from defaults"),
 
@@ -271,7 +271,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData(null, null, null, new List<string>(), "buildname"),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), "buildname"),
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), "buildname")
                     })
                 .SetName("Single build section. Build parameters from defaults"),
 
@@ -288,7 +288,7 @@ namespace Tests.ParsersTests.V2
                             "Release",
                             new Tool("msbuild"),
                             new List<string> {"/p:WarningLevel=0"},
-                            string.Empty),
+                            string.Empty)
                     })
                 .SetName("Single build section. Build params from default are overriden, not added."),
 
@@ -304,7 +304,7 @@ namespace Tests.ParsersTests.V2
                     new[]
                     {
                         new BuildData("Solution.sln", "Debug", new Tool("sometool", "42"), new List<string>(), "debug"),
-                        new BuildData("Solution.sln", "Release", new Tool("sometool", "42"), new List<string>(), "release"),
+                        new BuildData("Solution.sln", "Release", new Tool("sometool", "42"), new List<string>(), "release")
                     })
                 .SetName("Multiple build section. Default values added to every section"),
 
@@ -335,7 +335,7 @@ namespace Tests.ParsersTests.V2
                             new Tool("sometool", "14.0"),
                             new List<string>
                             {
-                                "/t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0;DeployOnBuild=true;PublishProfile=WebApp",
+                                "/t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0;DeployOnBuild=true;PublishProfile=WebApp"
                             },
                             "Utilities"),
 
@@ -347,9 +347,9 @@ namespace Tests.ParsersTests.V2
                             {
                                 "-NonInteractive -NoProfile -ExecutionPolicy Bypass"
                             },
-                            "Restore deps for PSMoiraWorks"),
+                            "Restore deps for PSMoiraWorks")
                     })
-                .SetName("Multiple build section. Explicit values from config override default values."),
+                .SetName("Multiple build section. Explicit values from config override default values.")
         };
 
         private static TestCaseData[] GoodDefaultsCasesSource =
@@ -360,7 +360,7 @@ build:
   target: Solution.sln",
                     new BuildData("Solution.sln", null, new Tool("msbuild"), new List<string>(), string.Empty)
                 )
-                .SetName("'configuration' is not required for *.sln targets in default section"),
+                .SetName("'configuration' is not required for *.sln targets in default section")
         };
 
         private static TestCaseData[] BadCasesSource =
@@ -378,7 +378,7 @@ build:
   target: Solution.sln
   configuration: debug
   tool:  ", typeof(BadYamlException))
-                .SetName("Tool can't be an empty string"),
+                .SetName("Tool can't be an empty string")
         };
 
         [TestCaseSource(nameof(GoodDefaultsCasesSource))]

@@ -54,7 +54,7 @@ namespace Common
                 {"m|merged:", m => parsedArguments["merged"] = m ?? "master"},
                 {"allow-local-branch-force", f => parsedArguments["localBranchForce"] = true},
                 {"v|verbose", v => parsedArguments["verbose"] = true},
-                {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)},
+                {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)}
             };
             var extraArgs = parser.Parse(args.Skip(1));
             ThrowIfHasExtraArgs(extraArgs);
@@ -170,7 +170,7 @@ namespace Common
                 {"f|force", f => parsedArguments["force"] = 1},
                 {"m|merged:", m => parsedArguments["merged"] = m ?? "master"},
                 {"v|verbose", v => parsedArguments["verbose"] = true},
-                {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)},
+                {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)}
             };
             var extraArgs = parser.Parse(args.Skip(1));
             if (extraArgs.Count > 0)
@@ -431,7 +431,7 @@ namespace Common
                 {"p|pull-anyway", p => parsedArguments["pullAnyway"] = 1},
                 {"f|force", f => parsedArguments["force"] = 1},
                 {"v|verbose", v => parsedArguments["verbose"] = true},
-                {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)},
+                {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)}
             };
             var extraArgs = parser.Parse(args.Skip(1));
             if (extraArgs.Count > 0)

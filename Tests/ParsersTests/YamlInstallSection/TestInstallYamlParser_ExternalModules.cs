@@ -42,7 +42,7 @@ full-build:
                     {
                         "Module1",
                         "Module2",
-                        "Module3",
+                        "Module3"
                     })
                 .SetName("Install section: external modules. Single configuration, multiple modules"),
 
@@ -65,7 +65,7 @@ full-build > config1:
                         "Module2",
                         "Module3",
                         "Module4",
-                        "Module5",
+                        "Module5"
                     })
                 .SetName("Install section: external modules. Two-leveled configuration, multiple modules"),
 
@@ -95,7 +95,7 @@ full-build > config1,config2:
                         "Module4",
                         "Module5",
                         "Module6",
-                        "Module7",
+                        "Module7"
                     })
                 .SetName("Install section: external modules. Two-leveled multiple-ancestors configuration, multiple modules"),
 
@@ -130,7 +130,7 @@ full-build > config1,config2:
                         "Module5",
                         "Module6",
                         "Module7",
-                        "Module8",
+                        "Module8"
                     })
                 .SetName("Install section: external modules. Three-leveled multiple-ancestors configuration, multiple modules"),
 
@@ -170,7 +170,7 @@ full-build > config1,config2:
                         "Module6",
                         "Module7",
                         "Module8",
-                        "Module9",
+                        "Module9"
                     })
                 .SetName("Install section: external modules. Three-leveled multiple-ancestors configuration with 'default' section, multiple external modules"),
 
@@ -201,9 +201,9 @@ full-build > config1,config2:
                         "DuplicatedModule",
                         "DuplicatedModule",
                         "DuplicatedModule",
-                        "DuplicatedModule",
+                        "DuplicatedModule"
                     })
-                .SetName("Install section: external modules. Three-leveled multiple-ancestors configuration with 'default' section. External modules do duplicate."),
+                .SetName("Install section: external modules. Three-leveled multiple-ancestors configuration with 'default' section. External modules do duplicate.")
         };
 
         [TestCaseSource(nameof(testCases))]

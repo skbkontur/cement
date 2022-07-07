@@ -48,7 +48,7 @@ full-build:
                     {
                         "file1",
                         "file2",
-                        "file3",
+                        "file3"
                     })
                 .SetName("Install section: install files. Single configuration, multiple install files"),
 
@@ -71,7 +71,7 @@ full-build > config1:
                         "file2",
                         "file3",
                         "file4",
-                        "file5",
+                        "file5"
                     })
                 .SetName("Install section: install files. Two-leveled configuration configuration, multiple install files"),
 
@@ -101,7 +101,7 @@ full-build > config1,config2:
                         "file4",
                         "file5",
                         "file6",
-                        "file7",
+                        "file7"
                     })
                 .SetName("Install section: install files. Two-leveled multiple-ancestors configuration configuration, multiple install files"),
 
@@ -138,7 +138,7 @@ full-build > config1,config2:
                         "file6",
                         "file7",
                         "file8",
-                        "file9",
+                        "file9"
                     })
                 .SetName("Install section: install files. Three-leveled multiple-ancestors configuration configuration, multiple install files"),
 
@@ -180,7 +180,7 @@ full-build > config1,config2:
                         "file7",
                         "file8",
                         "file9",
-                        "file10",
+                        "file10"
                     })
                 .SetName("Install section: install files. Three-leveled multiple-ancestors configuration configuration with 'default' section, multiple install files"),
 
@@ -254,7 +254,7 @@ full-build > client:
     - file1
 ",
                     new[] {"file1"})
-                .SetName("Install section: install files. InstallFiles does not contain artifacts from parent configuration."),
+                .SetName("Install section: install files. InstallFiles does not contain artifacts from parent configuration.")
         };
 
         [TestCaseSource(nameof(testCases))]

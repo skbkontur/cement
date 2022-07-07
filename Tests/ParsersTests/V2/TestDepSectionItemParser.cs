@@ -36,7 +36,7 @@ namespace Tests.ParsersTests.V2
             new TestCaseData("module@b32742e9701aef44ee986db2824e9007056ba60f/some-cfg")
                 .Returns(new DepSectionItem(new Dep("module", "b32742e9701aef44ee986db2824e9007056ba60f", "some-cfg"))),
             new TestCaseData("module/some-cfg@branch")
-                .Returns(new DepSectionItem(new Dep("module", "branch", "some-cfg"))),
+                .Returns(new DepSectionItem(new Dep("module", "branch", "some-cfg")))
         };
 
         [TestCaseSource(nameof(Source))]

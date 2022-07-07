@@ -159,7 +159,7 @@ full-build:
     - module SomeModule1
 ",
                     new[] {"a1"})
-                .SetName("Install section: artifacts. External modules do not leak into artifact section"),
+                .SetName("Install section: artifacts. External modules do not leak into artifact section")
         };
 
         [TestCaseSource(nameof(testCases))]
