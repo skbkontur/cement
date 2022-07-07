@@ -13,7 +13,9 @@ namespace Common
             @"/t:Rebuild",
             @"/nodeReuse:false",
             @"/maxcpucount",
-            @"/v:m"
+            @"/v:m",
+            //  30.06.22 (east1k): для того, чтобы msbuild ресторил пакеты из packages.config в csproj старого формата
+            @"/p:RestorePackagesConfig=true"
         };
 
         private static readonly string[] DefaultXbuildParameters =
