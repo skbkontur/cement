@@ -45,7 +45,7 @@ namespace Common.Updaters
                     BaseAddress = new Uri(server)
                 };
 
-                var uri = new Uri($"/api/v1/cement/info/head/{branch}", UriKind.Relative);
+                var uri = new Uri($"api/v1/cement/info/head/{branch}", UriKind.Relative);
                 using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
                 {
                     Headers =
@@ -87,7 +87,7 @@ namespace Common.Updaters
                     BaseAddress = new Uri(server)
                 };
 
-                var uri = new Uri($"/api/v1/cement/head/{branch}", UriKind.Relative);
+                var uri = new Uri($"api/v1/cement/head/{branch}", UriKind.Relative);
                 using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
                 {
                     Headers =
