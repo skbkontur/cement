@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace Common.Graph
 {
-    public static class GraphHelper
+    public sealed class GraphHelper
     {
-        public static HashSet<Dep> GetChildren(Dep dep, Dictionary<Dep, List<Dep>> graph)
+        public HashSet<Dep> GetChildren(Dep dep, Dictionary<Dep, List<Dep>> graph)
         {
             var result = new HashSet<Dep>();
             GetChildrenDfs(dep, graph, result);

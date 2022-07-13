@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Common.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Common.Graph
 {
     public sealed class ParallelBuilder
     {
-        private static readonly ILogger Log = LogManager.GetLogger(typeof(ParallelBuilder));
+        private readonly ILogger logger;
+        private readonly GraphHelper graphHelper;
+
         public bool IsFailed;
 
         private readonly Dictionary<Dep, List<Dep>> graph = new Dictionary<Dep, List<Dep>>();
@@ -20,16 +21,23 @@ namespace Common.Graph
         private readonly List<Dep> built = new List<Dep>();
         private bool needChecking = true;
 
-        public ParallelBuilder(Dictionary<Dep, List<Dep>> graph)
+        public ParallelBuilder(ILogger<ParallelBuilder> logger, GraphHelper graphHelper)
+
         {
-            foreach (var key in graph.Keys)
+            this.logger = logger;
+            this.graphHelper = graphHelper;
+        }
+
+        public void Initialize(Dictionary<Dep, List<Dep>> source)
+        {
+            foreach (var key in source.Keys)
             {
-                this.graph[key] = GraphHelper.GetChildren(key, graph)
+                graph[key] = graphHelper.GetChildren(key, source)
                     .Where(d => d.Name != key.Name)
                     .ToList();
             }
 
-            waiting.AddRange(this.graph.Keys);
+            waiting.AddRange(graph.Keys);
         }
 
         public Dep TryStartBuild()
@@ -83,7 +91,7 @@ namespace Common.Graph
 
                 if (!needChecking)
                 {
-                    Log.LogInformation("Nothing to build - already checked.");
+                    logger.LogInformation("Nothing to build - already checked.");
                     return null;
                 }
 
@@ -100,14 +108,14 @@ namespace Common.Graph
 
                     building.Add(module);
                     waiting.Remove(module);
-                    Log.LogInformation($"Building {module} with {building.Count - 1} others.");
+                    logger.LogInformation($"Building {module} with {building.Count - 1} others.");
                     return module;
                 }
 
                 needChecking = false;
             }
 
-            Log.LogInformation("Nothing to build.");
+            logger.LogInformation("Nothing to build.");
             return null;
         }
     }

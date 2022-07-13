@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Common.Extensions;
 using Common.Graph;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
@@ -176,7 +175,12 @@ namespace Commands
 
         private static bool BuildDepsParallel(ModulesOrder modulesOrder, BuildInfoStorage buildStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
         {
-            var parallelBuilder = new ParallelBuilder(modulesOrder.ConfigsGraph);
+            var logger = LogManager.GetLogger<ParallelBuilder>();
+            var graphHelper = new GraphHelper();
+
+            var parallelBuilder = new ParallelBuilder(logger, graphHelper);
+            parallelBuilder.Initialize(modulesOrder.ConfigsGraph);
+
             var tasks = new List<Task>();
             var builtCount = 1;
 
