@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common;
+using Common.Logging;
 
 namespace Commands
 {
-    public class UsagesShow : Command
+    public sealed class UsagesShow : Command
     {
+        private readonly IUsagesProvider usagesProvider;
+
         private string module, branch, configuration;
         private bool showAll;
         private bool printEdges;
@@ -21,6 +24,8 @@ namespace Commands
                     Location = CommandSettings.CommandLocation.Any
                 })
         {
+            var logger = LogManager.GetLogger<UsagesProvider>();
+            usagesProvider = new UsagesProvider(logger, CementSettingsRepository.Get);
         }
 
         public override string HelpMessage => @"";
@@ -39,7 +44,7 @@ namespace Commands
 
         protected override int Execute()
         {
-            var response = Usages.GetUsagesResponse(module, branch, configuration);
+            var response = usagesProvider.GetUsages(module, branch, configuration);
 
             if (printEdges)
             {

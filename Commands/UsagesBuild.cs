@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
+using Common.Logging;
 
 namespace Commands
 {
-    public class UsagesBuild : Command
+    public sealed class UsagesBuild : Command
     {
+        private readonly IUsagesProvider usagesProvider;
+
         private string moduleName, branch;
         private string checkingBranch;
         private string cwd;
@@ -25,6 +28,8 @@ namespace Commands
                     Location = CommandSettings.CommandLocation.RootModuleDirectory
                 })
         {
+            var logger = LogManager.GetLogger<UsagesProvider>();
+            usagesProvider = new UsagesProvider(logger, CementSettingsRepository.Get);
         }
 
         public override string HelpMessage => @"";
@@ -49,7 +54,7 @@ namespace Commands
             if (checkingBranch == null)
                 checkingBranch = branch;
 
-            var response = Usages.GetUsagesResponse(moduleName, checkingBranch);
+            var response = usagesProvider.GetUsages(moduleName, checkingBranch);
 
             var toBuild = response.Items.SelectMany(kvp => kvp.Value).Where(d => d.Treeish == "master").ToList();
             BuildDeps(toBuild);

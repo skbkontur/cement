@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Common;
-using Common.Extensions;
+using Common.Logging;
 
 namespace Commands
 {
@@ -15,7 +15,10 @@ namespace Commands
             {"-A", "-B", "-C", "--threads", "-f", "-e", "--parent-basename", "--max-depth"};
         private static readonly string[] NewLine = {"\r\n", "\r", "\n"};
         private static readonly Regex Whitespaces = new Regex("\\s");
+
         private readonly ShellRunner runner;
+        private readonly IUsagesProvider usagesProvider;
+
         private string moduleName;
         private string cwd;
         private string workspace;
@@ -36,6 +39,8 @@ namespace Commands
                 })
         {
             runner = new ShellRunner(Log);
+            var logger = LogManager.GetLogger<UsagesProvider>();
+            usagesProvider = new UsagesProvider(logger, CementSettingsRepository.Get);
         }
 
         public override string HelpMessage => @"";
@@ -60,7 +65,7 @@ namespace Commands
             if (checkingBranch == null)
                 checkingBranch = currentRepository.HasLocalBranch("master") ? "master" : currentRepository.CurrentLocalTreeish().Value;
 
-            var response = Usages.GetUsagesResponse(moduleName, checkingBranch);
+            var response = usagesProvider.GetUsages(moduleName, checkingBranch);
 
             var usages = response.Items
                 .SelectMany(kvp => kvp.Value)
