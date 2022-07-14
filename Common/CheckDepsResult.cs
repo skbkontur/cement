@@ -4,12 +4,7 @@ namespace Common
 {
     public sealed class CheckDepsResult
     {
-        public readonly SortedSet<string> NotUsedDeps;
-        public readonly List<ReferenceWithCsproj> NotInDeps;
-        public readonly SortedSet<string> NoYamlInstallSection;
-        public readonly SortedSet<string> ConfigOverhead;
-
-        public CheckDepsResult(SortedSet<string> notUsedDeps, List<ReferenceWithCsproj> notInDeps,
+        public CheckDepsResult(SortedSet<string> notUsedDeps, IReadOnlyList<ReferenceWithCsproj> notInDeps,
                                SortedSet<string> noYamlInstall, SortedSet<string> configOverhead)
         {
             NotUsedDeps = notUsedDeps;
@@ -17,5 +12,10 @@ namespace Common
             NoYamlInstallSection = noYamlInstall;
             ConfigOverhead = configOverhead;
         }
+
+        public SortedSet<string> NotUsedDeps { get; }
+        public IReadOnlyList<ReferenceWithCsproj> NotInDeps { get; }
+        public SortedSet<string> NoYamlInstallSection { get; }
+        public SortedSet<string> ConfigOverhead { get; }
     }
 }
