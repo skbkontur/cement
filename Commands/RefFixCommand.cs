@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class RefFix : Command
+    public sealed class RefFixCommand : Command
     {
         private readonly FixReferenceResult fixReferenceResult = new FixReferenceResult();
         private readonly HashSet<string> missingModules = new HashSet<string>();
@@ -19,7 +19,7 @@ namespace Commands
         private string rootModuleName;
         private string oldYamlContent;
 
-        public RefFix()
+        public RefFixCommand()
             : base(
                 new CommandSettings
                 {

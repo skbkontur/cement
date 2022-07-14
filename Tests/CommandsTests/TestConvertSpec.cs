@@ -38,7 +38,7 @@ namespace Tests.CommandsTests
         public void TestGetBuildSection()
         {
             AddBuildScript("kanso.sln", null);
-            new ConvertSpec().Run(new[] {"convert-spec"});
+            new ConvertSpecCommand().Run(new[] {"convert-spec"});
 
             var data = Yaml.BuildParser("module").Get();
             Assert.That(data.Count == 1);
@@ -52,7 +52,7 @@ namespace Tests.CommandsTests
             AddBuildScript("kanso.sln", null);
             var deps = new List<Dep> {new Dep("A@branch"), new Dep("B"), new Dep("C@conf"), new Dep("D/conf@branch")};
             AddDeps(deps, null, "%CURRENT_BRANCH%");
-            new ConvertSpec().Run(new[] {"convert-spec"});
+            new ConvertSpecCommand().Run(new[] {"convert-spec"});
 
             var yamlDeps = Yaml.DepsParser("module").Get();
             CollectionAssert.AreEqual(deps, yamlDeps.Deps);
@@ -70,7 +70,7 @@ namespace Tests.CommandsTests
             AddBuildScript("kanso.sln", "client");
             AddSpec(new List<string> {"client"});
 
-            new ConvertSpec().Run(new[] {"convert-spec"});
+            new ConvertSpecCommand().Run(new[] {"convert-spec"});
             var yamlDeps = Yaml.DepsParser("module").Get();
             var yamlDepsClient = Yaml.DepsParser("module").Get("client");
             CollectionAssert.AreEqual(deps, yamlDeps.Deps);
@@ -88,7 +88,7 @@ namespace Tests.CommandsTests
             AddBuildScript("kanso.sln", "client");
             AddSpec(new List<string> {"client"});
 
-            new ConvertSpec().Run(new[] {"convert-spec"});
+            new ConvertSpecCommand().Run(new[] {"convert-spec"});
             var yamlDeps = Yaml.DepsParser("module").Get();
             var yamlDepsClient = Yaml.DepsParser("module").Get("client");
             CollectionAssert.AreEquivalent(deps, yamlDeps.Deps);

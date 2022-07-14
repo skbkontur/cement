@@ -1,9 +1,8 @@
-﻿using System.Linq;
-using Common;
+﻿using Common;
 
 namespace Commands
 {
-    public class CementVersion : ICommand
+    public sealed class VersionCommand : ICommand
     {
         public string HelpMessage => @"
     Shows cement's version
@@ -16,9 +15,8 @@ namespace Commands
 
         public int Run(string[] args)
         {
-            var lines = Helper.GetAssemblyTitle().Split('\n');
-            var version = string.Join("\n", lines.Skip(1).Take(4));
-            ConsoleWriter.Shared.WriteInfo(version);
+            var assemblyTitle = Helper.GetAssemblyTitle();
+            ConsoleWriter.Shared.WriteLine(assemblyTitle);
             return 0;
         }
     }

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class Get : Command
+    public sealed class GetCommand : Command
     {
         private readonly CycleDetector cycleDetector;
         private string configuration;
@@ -16,7 +16,7 @@ namespace Commands
         private bool verbose;
         private int? gitDepth;
 
-        public Get()
+        public GetCommand()
             : base(
                 new CommandSettings
                 {

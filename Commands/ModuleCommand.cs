@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class ModuleCommand : ICommand
+    public sealed class ModuleCommand : ICommand
     {
         private static readonly ILogger Log = LogManager.GetLogger<ModuleCommand>();
         private string command;

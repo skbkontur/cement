@@ -4,14 +4,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class Update : Command
+    public sealed class UpdateCommand : Command
     {
         private string treeish = "master";
         private bool verbose;
         private LocalChangesPolicy policy;
         private int? gitDepth;
 
-        public Update()
+        public UpdateCommand()
             : base(
                 new CommandSettings
                 {

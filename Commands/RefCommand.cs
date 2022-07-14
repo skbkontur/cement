@@ -3,12 +3,12 @@ using Common;
 
 namespace Commands
 {
-    public class RefCommand : ICommand
+    public sealed class RefCommand : ICommand
     {
         private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>
         {
-            {"add", new RefAdd()},
-            {"fix", new RefFix()}
+            {"add", new RefAddCommand()},
+            {"fix", new RefFixCommand()}
         };
 
         public string HelpMessage => @"

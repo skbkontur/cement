@@ -7,7 +7,7 @@ using Common.YamlParsers;
 
 namespace Commands
 {
-    public class Ls : ICommand
+    public sealed class LsCommand : ICommand
     {
         private Dictionary<string, object> parsedArgs;
         private bool simple;

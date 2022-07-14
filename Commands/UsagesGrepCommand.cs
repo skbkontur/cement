@@ -9,7 +9,7 @@ using Common.Logging;
 
 namespace Commands
 {
-    public class UsagesGrep : Command
+    public sealed class UsagesGrepCommand : Command
     {
         private static readonly string[] GrepParametersWithValue =
             {"-A", "-B", "-C", "--threads", "-f", "-e", "--parent-basename", "--max-depth"};
@@ -28,7 +28,7 @@ namespace Commands
         private bool skipGet;
         private string checkingBranch;
 
-        public UsagesGrep()
+        public UsagesGrepCommand()
             : base(
                 new CommandSettings
                 {

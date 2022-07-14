@@ -6,13 +6,13 @@ using Common.Logging;
 
 namespace Commands
 {
-    public class Build : Command
+    public sealed class BuildCommand : Command
     {
         private string configuration;
         private BuildSettings buildSettings;
         private bool restore;
 
-        public Build()
+        public BuildCommand()
             : base(
                 new CommandSettings
                 {
@@ -88,7 +88,7 @@ namespace Commands
                     cleaner.Clean(module);
             }
 
-            BuildDeps.TryNugetRestore(new List<Dep> {module}, builder);
+            BuildDepsCommand.TryNugetRestore(new List<Dep> {module}, builder);
 
             if (!builder.Build(module))
             {

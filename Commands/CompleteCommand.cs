@@ -6,7 +6,7 @@ using Common.Logging;
 
 namespace Commands
 {
-    public class CompleteCommand : Command
+    public sealed class CompleteCommand : Command
     {
         private string[] otherArgs;
 

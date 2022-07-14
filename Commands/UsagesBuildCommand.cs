@@ -7,7 +7,7 @@ using Common.Logging;
 
 namespace Commands
 {
-    public sealed class UsagesBuild : Command
+    public sealed class UsagesBuildCommand : Command
     {
         private readonly IUsagesProvider usagesProvider;
 
@@ -18,7 +18,7 @@ namespace Commands
         private GitRepository currentRepository;
         private bool pause;
 
-        public UsagesBuild()
+        public UsagesBuildCommand()
             : base(
                 new CommandSettings
                 {
@@ -127,19 +127,19 @@ namespace Commands
         private void BuildParent(Dep depParent)
         {
             ConsoleWriter.Shared.WriteInfo("Checking parent " + depParent);
-            if (new Get().Run(new[] {"get", depParent.Name, "-c", depParent.Configuration}) != 0)
+            if (new GetCommand().Run(new[] {"get", depParent.Name, "-c", depParent.Configuration}) != 0)
                 throw new CementException("Failed get module " + depParent.Name);
             ConsoleWriter.Shared.ResetProgress();
-            if (new Get().Run(new[] {"get", moduleName, branch}) != 0)
+            if (new GetCommand().Run(new[] {"get", moduleName, branch}) != 0)
                 throw new CementException("Failed get current module " + moduleName);
             ConsoleWriter.Shared.ResetProgress();
 
             using (new DirectoryJumper(Path.Combine(workspace, depParent.Name)))
             {
-                if (new BuildDeps().Run(new[] {"build-deps", "-c", depParent.Configuration}) != 0)
+                if (new BuildDepsCommand().Run(new[] {"build-deps", "-c", depParent.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + depParent.Name);
                 ConsoleWriter.Shared.ResetProgress();
-                if (new Build().Run(new[] {"build"}) != 0)
+                if (new BuildCommand().Run(new[] {"build"}) != 0)
                     throw new CementException("Failed to build " + depParent.Name);
                 ConsoleWriter.Shared.ResetProgress();
             }

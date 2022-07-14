@@ -8,7 +8,7 @@ using Common.Logging;
 
 namespace Commands
 {
-    public class PackCommand : Command
+    public sealed class PackCommand : Command
     {
         private string project;
         private string configuration;

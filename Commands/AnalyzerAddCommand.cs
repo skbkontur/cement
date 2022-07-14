@@ -9,12 +9,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class AnalyzerAdd : Command
+    public sealed class AnalyzerAddCommand : Command
     {
         private string moduleSolutionName;
         private Dep analyzerModule;
 
-        public AnalyzerAdd()
+        public AnalyzerAddCommand()
             : base(
                 new CommandSettings
                 {

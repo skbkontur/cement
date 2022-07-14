@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class UserCommand : Command
+    public sealed class UserCommand : Command
     {
         private string[] arguments;
 

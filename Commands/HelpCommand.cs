@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace Commands
 {
-    public sealed class Help : ICommand
+    public sealed class HelpCommand : ICommand
     {
         private readonly ConsoleWriter consoleWriter;
         private readonly ReadmeGenerator readmeGenerator;
 
-        public Help(ConsoleWriter consoleWriter, ReadmeGenerator readmeGenerator)
+        public HelpCommand(ConsoleWriter consoleWriter, ReadmeGenerator readmeGenerator)
         {
             this.consoleWriter = consoleWriter;
             this.readmeGenerator = readmeGenerator;
@@ -65,7 +65,7 @@ namespace Commands
             return -1;
         }
 
-        private static void PrintHelpFooter()
+        private void PrintHelpFooter()
         {
             consoleWriter.WriteLine($"Cement. {DateTime.Now.Year}.");
         }

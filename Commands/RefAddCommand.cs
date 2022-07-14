@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class RefAdd : Command
+    public sealed class RefAddCommand : Command
     {
         private string project;
         private Dep dep;
@@ -16,7 +16,7 @@ namespace Commands
         private bool hasReplaces;
         private bool force;
 
-        public RefAdd()
+        public RefAddCommand()
             : base(
                 new CommandSettings
                 {
@@ -108,7 +108,7 @@ namespace Commands
             using (new DirectoryJumper(Helper.CurrentWorkspace))
             {
                 ConsoleWriter.Shared.WriteInfo("cm get " + module);
-                if (new Get().Run(new[] {"get", module.ToYamlString()}) != 0)
+                if (new GetCommand().Run(new[] {"get", module.ToYamlString()}) != 0)
                     throw new CementException("Failed get module " + module);
                 ConsoleWriter.Shared.ResetProgress();
             }
@@ -118,11 +118,11 @@ namespace Commands
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
             {
                 ConsoleWriter.Shared.WriteInfo("cm build-deps " + module);
-                if (new BuildDeps().Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
+                if (new BuildDepsCommand().Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + dep);
                 ConsoleWriter.Shared.ResetProgress();
                 ConsoleWriter.Shared.WriteInfo("cm build " + module);
-                if (new Build().Run(new[] {"build", "-c", module.Configuration}) != 0)
+                if (new BuildCommand().Run(new[] {"build", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build " + dep);
                 ConsoleWriter.Shared.ResetProgress();
             }

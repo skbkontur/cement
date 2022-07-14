@@ -37,7 +37,7 @@ namespace Tests.CommandsTests
                         {"client", new DepsData(null, new List<Dep>())}
                     });
                 Helper.SetWorkspace(env.RemoteWorkspace);
-                var result = new ShowDeps().GetDepsGraph(new Dep("A"));
+                var result = new ShowDepsCommand().GetDepsGraph(new Dep("A"));
                 CollectionAssert.AreEqual(
                     new[]
                     {

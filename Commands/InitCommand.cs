@@ -3,7 +3,7 @@ using Common;
 
 namespace Commands
 {
-    public class Init : ICommand
+    public sealed class InitCommand : ICommand
     {
         public string HelpMessage => @"
     Inits current directory as 'cement tracked'

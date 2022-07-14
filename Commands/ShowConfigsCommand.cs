@@ -6,11 +6,11 @@ using Common.YamlParsers;
 
 namespace Commands
 {
-    public class ShowConfigs : Command
+    public sealed class ShowConfigsCommand : Command
     {
         private string moduleNameArg;
 
-        public ShowConfigs()
+        public ShowConfigsCommand()
             : base(
                 new CommandSettings
                 {

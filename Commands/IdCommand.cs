@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class IdCommand : ICommand
+    public sealed class IdCommand : ICommand
     {
         private static readonly ILogger Log = LogManager.GetLogger<IdCommand>();
 

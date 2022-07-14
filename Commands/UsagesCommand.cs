@@ -3,13 +3,13 @@ using Common;
 
 namespace Commands
 {
-    public class UsagesCommand : ICommand
+    public sealed class UsagesCommand : ICommand
     {
         private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>
         {
-            {"show", new UsagesShow()},
-            {"build", new UsagesBuild()},
-            {"grep", new UsagesGrep()}
+            {"show", new UsagesShowCommand()},
+            {"build", new UsagesBuildCommand()},
+            {"grep", new UsagesGrepCommand()}
         };
 
         public string HelpMessage => @"

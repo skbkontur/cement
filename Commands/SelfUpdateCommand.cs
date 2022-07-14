@@ -10,14 +10,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public class SelfUpdate : Command
+public class SelfUpdateCommand : Command
 {
     private static bool isAutoUpdate;
     protected bool IsInstallingCement;
     private string branch;
     private string server;
 
-    public SelfUpdate()
+    public SelfUpdateCommand()
         : base(
             new CommandSettings
             {
@@ -42,7 +42,7 @@ public class SelfUpdate : Command
             if (diff <= TimeSpan.FromHours(5))
                 return;
             isAutoUpdate = true;
-            var exitCode = new SelfUpdate().Run(new[] {"self-update"});
+            var exitCode = new SelfUpdateCommand().Run(new[] {"self-update"});
             if (exitCode != 0)
             {
                 Log.LogError("Auto update cement failed. 'self-update' exited with code '{Code}'", exitCode);

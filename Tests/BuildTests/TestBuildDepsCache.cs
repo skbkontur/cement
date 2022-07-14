@@ -145,13 +145,13 @@ namespace Tests.BuildTests
         private void Build(Dep module)
         {
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
-                new Build().Run(new[] {"build", "-c", module.Configuration});
+                new BuildCommand().Run(new[] {"build", "-c", module.Configuration});
         }
 
         private void BuildDeps(Dep module)
         {
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
-                new BuildDeps().Run(new[] {"build-deps", "-c", module.Configuration});
+                new BuildDepsCommand().Run(new[] {"build-deps", "-c", module.Configuration});
         }
     }
 }

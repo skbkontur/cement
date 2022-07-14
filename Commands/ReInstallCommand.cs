@@ -1,8 +1,8 @@
 ﻿namespace Commands
 {
-    public class ReInstall : SelfUpdate
+    public sealed class ReInstallCommand : SelfUpdateCommand
     {
-        public ReInstall()
+        public ReInstallCommand()
         {
             IsInstallingCement = true;
             CommandSettings.IsHiddenCommand = true;

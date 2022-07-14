@@ -6,9 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class Status : ICommand
+    public sealed class StatusCommand : ICommand
     {
-        private static readonly ILogger Log = LogManager.GetLogger<Status>();
+        private static readonly ILogger Log = LogManager.GetLogger<StatusCommand>();
 
         public string HelpMessage => @"
     Prints status of modifed git repos in the cement tracked dir

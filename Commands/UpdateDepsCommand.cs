@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class UpdateDeps : Command
+    public sealed class UpdateDepsCommand : Command
     {
         private string configuration;
         private string mergedBranch;
@@ -14,7 +14,7 @@ namespace Commands
         private bool verbose;
         private int? gitDepth;
 
-        public UpdateDeps()
+        public UpdateDepsCommand()
             : base(
                 new CommandSettings
                 {

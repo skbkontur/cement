@@ -6,13 +6,13 @@ using Common.YamlParsers;
 
 namespace Commands
 {
-    public class ShowDeps : Command
+    public sealed class ShowDepsCommand : Command
     {
         private static readonly Dictionary<Dep, List<string>> overheadCache = new Dictionary<Dep, List<string>>();
         private readonly ArborJs arborJs;
         private string configuration;
 
-        public ShowDeps()
+        public ShowDepsCommand()
             : base(
                 new CommandSettings
                 {

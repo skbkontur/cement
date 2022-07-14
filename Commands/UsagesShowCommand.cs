@@ -6,7 +6,7 @@ using Common.Logging;
 
 namespace Commands
 {
-    public sealed class UsagesShow : Command
+    public sealed class UsagesShowCommand : Command
     {
         private readonly IUsagesProvider usagesProvider;
 
@@ -14,7 +14,7 @@ namespace Commands
         private bool showAll;
         private bool printEdges;
 
-        public UsagesShow()
+        public UsagesShowCommand()
             : base(
                 new CommandSettings
                 {

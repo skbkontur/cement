@@ -15,7 +15,7 @@ namespace Tests.CommandsTests
             {
                 using (new DirectoryJumper(tmp.Path))
                 {
-                    new Init().Run(new[] {"init"});
+                    new InitCommand().Run(new[] {"init"});
                     Assert.That(Directory.Exists(Path.Combine(tmp.Path, Helper.CementDirectory)));
                 }
             }

@@ -10,14 +10,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
-    public class BuildDeps : Command
+    public sealed class BuildDepsCommand : Command
     {
         private string configuration;
         private bool rebuild;
         private bool parallel;
         private BuildSettings buildSettings;
 
-        public BuildDeps()
+        public BuildDepsCommand()
             : base(
                 new CommandSettings
                 {

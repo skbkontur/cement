@@ -6,9 +6,9 @@ using Common;
 
 namespace Commands
 {
-    public class CheckPreCommit : Command
+    public sealed class CheckPreCommitCommand : Command
     {
-        public CheckPreCommit()
+        public CheckPreCommitCommand()
             : base(
                 new CommandSettings
                 {

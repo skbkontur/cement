@@ -5,14 +5,14 @@ using Common;
 
 namespace Commands
 {
-    public class CheckDeps : Command
+    public sealed class CheckDepsCommand : Command
     {
         private string configuration;
         private bool showAll;
         private bool findExternal;
         private bool showShort;
 
-        public CheckDeps()
+        public CheckDepsCommand()
             : base(
                 new CommandSettings
                 {

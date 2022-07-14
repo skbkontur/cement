@@ -6,11 +6,11 @@ using Common;
 
 namespace Commands
 {
-    public class ConvertSpec : Command
+    public sealed class ConvertSpecCommand : Command
     {
         private StreamWriter writer;
 
-        public ConvertSpec()
+        public ConvertSpecCommand()
             : base(
                 new CommandSettings
                 {

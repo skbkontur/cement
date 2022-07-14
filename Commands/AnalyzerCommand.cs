@@ -4,11 +4,11 @@ using Common;
 
 namespace Commands
 {
-    public class AnalyzerCommand : ICommand
+    public sealed class AnalyzerCommand : ICommand
     {
         private readonly Dictionary<string, ICommand> subCommands = new Dictionary<string, ICommand>
         {
-            {"add", new AnalyzerAdd()}
+            {"add", new AnalyzerAddCommand()}
         };
 
         public string HelpMessage => @"
