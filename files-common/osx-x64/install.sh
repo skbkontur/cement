@@ -16,5 +16,6 @@ chmod +x ./cm
 
 ./cm reinstall
 
+chmod -R +rwx ~/.cement
 chmod +x ~/bin/cm
 chmod +x ~/bin/dotnet/cm.exe
