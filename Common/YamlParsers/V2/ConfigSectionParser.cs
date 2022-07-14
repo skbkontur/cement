@@ -49,7 +49,7 @@ namespace Common.YamlParsers.V2
             var buildSection = data?.FindValue("build");
             var buildData = buildSectionParser.ParseConfiguration(buildSection, yamlDefaults?.BuildSection);
 
-            return new ConfigSection()
+            return new ConfigSection
             {
                 Title = configSectionTitle,
                 DepsSection = depsSection,

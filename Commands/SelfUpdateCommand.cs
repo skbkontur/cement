@@ -220,10 +220,10 @@ exit $exit_code";
 
         if (Directory.Exists(Path.Combine(from, currOsDir)))
         {
-            filesForCopy.AddRange(Directory.GetFiles(Path.Combine(from, currOsDir), $"*", SearchOption.TopDirectoryOnly).ToList());
+            filesForCopy.AddRange(Directory.GetFiles(Path.Combine(from, currOsDir), "*", SearchOption.TopDirectoryOnly).ToList());
         }
 
-        filesForCopy.AddRange(Directory.GetFiles(from, $"arborjs\\*", SearchOption.AllDirectories).ToList());
+        filesForCopy.AddRange(Directory.GetFiles(from, "arborjs\\*", SearchOption.AllDirectories).ToList());
 
         filesForCopy.AddRange(Directory.GetFiles(from, "*", SearchOption.TopDirectoryOnly));
 
@@ -349,7 +349,7 @@ exit $exit_code";
             File.Copy(file, to, true);
         }
 
-        Log.LogDebug($"copy files from temp folder to bin completed");
+        Log.LogDebug("copy files from temp folder to bin completed");
     }
 
     private void AddInstallToPath()

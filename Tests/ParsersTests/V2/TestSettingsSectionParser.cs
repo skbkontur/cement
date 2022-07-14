@@ -42,7 +42,7 @@ default:
   settings:
     type: content
 ",
-                    new ModuleSettings() {IsContentModule = true})
+                    new ModuleSettings {IsContentModule = true})
                 .SetName("Settings section with 'type: content'")
         };
 

@@ -129,7 +129,7 @@ namespace Common.YamlParsers
                 }
             }
 
-            foreach (Dep dep in relaxedDeps)
+            foreach (var dep in relaxedDeps)
                 if (relaxedDeps.Count(d => d.Name.Equals(dep.Name)) > 1)
                 {
                     ConsoleWriter.Shared.WriteError(
@@ -151,8 +151,8 @@ sdk:
 
         private void RemoveDep(Dep dep, List<Dep> deps)
         {
-            int i = 0;
-            bool deleted = false;
+            var i = 0;
+            var deleted = false;
             while (i < deps.Count)
             {
                 if (DepMatch(dep, deps[i]))

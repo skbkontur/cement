@@ -43,7 +43,7 @@ namespace Tests.Benchmarks
         public DepSectionItem Parse1() => parser.Parse(DepLine);
 
         [Benchmark]
-        public Dep Parse2() => new Dep(DepLine);
+        public Dep Parse2() => new(DepLine);
 
         private sealed class Config : ManualConfig
         {

@@ -11,7 +11,7 @@ namespace Tests.ParsersTests
     [TestFixture]
     internal class TestRulesetFile
     {
-        private TempDirectory workDirectory = new TempDirectory();
+        private TempDirectory workDirectory = new();
 
         [SetUp]
         public void SetUp()

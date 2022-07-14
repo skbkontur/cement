@@ -18,17 +18,17 @@ namespace Tests.CommandsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B"), new("C")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("D")})}
                     });
                 env.CreateRepo(
                     "C", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D", null, "client")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("D", null, "client")})}
                     });
                 env.CreateRepo(
                     "D", new Dictionary<string, DepsData>

@@ -14,7 +14,7 @@ namespace Common
     {
         private static readonly ILogger Log = LogManager.GetLogger<DepsPatcher>();
 
-        private static readonly HashSet<KeyValuePair<string, string>> patchedDeps = new HashSet<KeyValuePair<string, string>>();
+        private static readonly HashSet<KeyValuePair<string, string>> patchedDeps = new();
 
         public static void PatchDepsForProject(string currentModuleFullPath, Dep dep, string csprojFile)
         {

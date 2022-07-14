@@ -65,7 +65,7 @@ namespace Tests.BuildTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>

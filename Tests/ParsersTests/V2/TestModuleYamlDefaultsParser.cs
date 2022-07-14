@@ -37,9 +37,9 @@ namespace Tests.ParsersTests.V2
     - file2.dll
     - file3.dll
 ",
-                new ModuleDefaults()
+                new ModuleDefaults
                 {
-                    SettingsSection = new ModuleSettings()
+                    SettingsSection = new ModuleSettings
                     {
                         IsContentModule = true
                     },
@@ -49,13 +49,13 @@ namespace Tests.ParsersTests.V2
                         "pre-commit.cement"
                     },
                     DepsSection = new DepsSection(
-                        new[] {"some_branch"}, new DepSectionItem[]
+                        new[] {"some_branch"}, new[]
                         {
-                            new DepSectionItem(new Dep("module1", null, null)),
-                            new DepSectionItem(new Dep("module2", null, null))
+                            new DepSectionItem(new Dep("module1", null)),
+                            new DepSectionItem(new Dep("module2", null))
                         }),
                     BuildSection = new BuildData("solution.sln", null, new Tool("sometool"), new List<string>(), string.Empty),
-                    InstallSection = new InstallData()
+                    InstallSection = new InstallData
                     {
                         InstallFiles = {"file1.dll"},
                         CurrentConfigurationInstallFiles = {"file1.dll", "file2.dll", "file3.dll"},

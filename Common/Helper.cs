@@ -18,11 +18,11 @@ namespace Common
         public const string CementDirectory = ".cement";
         public const string YamlSpecFile = "module.yaml";
         public const string ConfigurationDelimiter = "/";
-        public static readonly object LockObject = new object();
+        public static readonly object LockObject = new();
         public static readonly int MaxDegreeOfParallelism = CementSettingsRepository.Get().MaxDegreeOfParallelism ?? 2 * Environment.ProcessorCount;
-        public static readonly object PackageLockObject = new object();
+        public static readonly object PackageLockObject = new();
         private static readonly ILogger Log = LogManager.GetLogger(typeof(Helper));
-        public static ParallelOptions ParallelOptions => new ParallelOptions {MaxDegreeOfParallelism = MaxDegreeOfParallelism};
+        public static ParallelOptions ParallelOptions => new() {MaxDegreeOfParallelism = MaxDegreeOfParallelism};
         public static string CurrentWorkspace { get; private set; }
 
         public static IReadOnlyList<string> VisualStudioEditions { get; } =
@@ -189,7 +189,7 @@ namespace Common
             var ts = TimeSpan.FromMilliseconds(millisecs);
             var res = ts.ToString(@"d\:hh\:mm\:ss\.fff");
 
-            int idx = 0;
+            var idx = 0;
             while (res[idx] == '0' || res[idx] == ':')
             {
                 idx++;
@@ -320,18 +320,18 @@ namespace Common
 
         public static string Encrypt(string password)
         {
-            byte[] passwordBytes = Encoding.Unicode.GetBytes(password);
+            var passwordBytes = Encoding.Unicode.GetBytes(password);
 
-            byte[] cipherBytes = ProtectedData.Protect(passwordBytes, null, DataProtectionScope.CurrentUser);
+            var cipherBytes = ProtectedData.Protect(passwordBytes, null, DataProtectionScope.CurrentUser);
 
             return Convert.ToBase64String(cipherBytes);
         }
 
         public static string Decrypt(string cipher)
         {
-            byte[] cipherBytes = Convert.FromBase64String(cipher);
+            var cipherBytes = Convert.FromBase64String(cipher);
 
-            byte[] passwordBytes = ProtectedData.Unprotect(cipherBytes, null, DataProtectionScope.CurrentUser);
+            var passwordBytes = ProtectedData.Unprotect(cipherBytes, null, DataProtectionScope.CurrentUser);
 
             return Encoding.Unicode.GetString(passwordBytes);
         }

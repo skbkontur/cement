@@ -169,7 +169,7 @@ namespace Common
                      || l.StartsWith(configuration + " "));
             var depsIndex = -1;
 
-            for (int index = configIndex + 1; index < lines.Count && lines[index].StartsWith(" "); index++)
+            for (var index = configIndex + 1; index < lines.Count && lines[index].StartsWith(" "); index++)
                 if (lines[index].EndsWith("deps:"))
                 {
                     depsIndex = index;
@@ -178,7 +178,7 @@ namespace Common
 
             if (depsIndex == -1)
                 return;
-            for (int index = depsIndex + 1; index < lines.Count && lines[index].StartsWith(GetSpacesStart(lines, depsIndex)); index++)
+            for (var index = depsIndex + 1; index < lines.Count && lines[index].StartsWith(GetSpacesStart(lines, depsIndex)); index++)
             {
                 var str = (isOn ? " - " : " - -") + dep.Name;
                 if (lines[index].Contains(str + "/") || lines[index].Contains(str + "@") || lines[index].EndsWith(str))
@@ -201,7 +201,7 @@ namespace Common
                      || l.StartsWith(configuration + " "));
             var depsIndex = -1;
 
-            for (int index = configIndex + 1; index < lines.Count && (lines[index].Length == 0 || lines[index].StartsWith(" ")); index++)
+            for (var index = configIndex + 1; index < lines.Count && (lines[index].Length == 0 || lines[index].StartsWith(" ")); index++)
                 if (lines[index].EndsWith("deps:"))
                 {
                     depsIndex = index;
@@ -253,7 +253,7 @@ namespace Common
 
         private string GetSpacesStart(List<string> lines, int depsIndex)
         {
-            int count = CalcStartSpacesCount(lines[depsIndex]) + 2;
+            var count = CalcStartSpacesCount(lines[depsIndex]) + 2;
             if (depsIndex + 1 < lines.Count)
                 count = Math.Max(count, CalcStartSpacesCount(lines[depsIndex + 1]));
             return new string(' ', count);
@@ -261,7 +261,7 @@ namespace Common
 
         private int CalcStartSpacesCount(string str)
         {
-            int res = 0;
+            var res = 0;
             while (res < str.Length && str[res] == ' ')
                 res++;
             return res;

@@ -11,7 +11,7 @@ namespace Common
     [JsonConverter(typeof(DepJsonConverter))]
     public sealed class Dep : IEquatable<Dep>
     {
-        private static readonly ConcurrentDictionary<string, string> DepDefaultConfigurationCache = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> DepDefaultConfigurationCache = new();
 
         public Dep(string name, string treeish = null, string configuration = null)
         {
@@ -25,7 +25,7 @@ namespace Common
             var tokens = new List<string>();
             var currentToken = "";
             fromYamlString += "@";
-            for (int pos = 0; pos < fromYamlString.Length; pos++)
+            for (var pos = 0; pos < fromYamlString.Length; pos++)
             {
                 if ((fromYamlString[pos] == '/' || fromYamlString[pos] == '@') &&
                     (pos == 0 || fromYamlString[pos - 1] != '\\'))

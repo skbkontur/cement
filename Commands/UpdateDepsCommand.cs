@@ -88,7 +88,7 @@ namespace Commands
                 mergedBranch,
                 verbose,
                 localBranchForce,
-                gitDepth: gitDepth);
+                gitDepth);
 
             getter.GetDeps();
 

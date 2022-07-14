@@ -9,15 +9,13 @@ using NuGet.CommandLine;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
+using NuGet.PackageManagement;
 using NuGet.Packaging.Core;
 using NuGet.ProjectManagement;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using Console = NuGet.CommandLine.Console;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
-using PackageDownloader = NuGet.PackageManagement.PackageDownloader;
-using PackageSourceProvider = NuGet.Configuration.PackageSourceProvider;
-using Settings = NuGet.Configuration.Settings;
 
 namespace Common
 {

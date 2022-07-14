@@ -6,7 +6,7 @@ namespace Commands
 {
     public sealed class AnalyzerCommand : ICommand
     {
-        private readonly Dictionary<string, ICommand> subCommands = new Dictionary<string, ICommand>
+        private readonly Dictionary<string, ICommand> subCommands = new()
         {
             {"add", new AnalyzerAddCommand()}
         };

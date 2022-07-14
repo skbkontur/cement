@@ -10,7 +10,7 @@ namespace Common
 {
     public sealed class BuildPreparer
     {
-        private static readonly Dictionary<string, bool> DepConfigurationExistsCache = new Dictionary<string, bool>();
+        private static readonly Dictionary<string, bool> DepConfigurationExistsCache = new();
 
         private readonly ILogger log;
 
@@ -160,7 +160,7 @@ namespace Common
                     var configsGraph2 = EraseChild(configsGraph, child, parrent);
                     try
                     {
-                        GetTopologicallySortedGraph(configsGraph2, parrent.Name, parrent.Configuration, printCycle: false);
+                        GetTopologicallySortedGraph(configsGraph2, parrent.Name, parrent.Configuration, false);
                         configsGraph = configsGraph2;
                         deletedChildren.Add(child);
                     }

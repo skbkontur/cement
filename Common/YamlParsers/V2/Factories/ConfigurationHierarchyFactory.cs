@@ -144,8 +144,8 @@ namespace Common.YamlParsers.V2.Factories
         private sealed class TraversalState
         {
             private readonly IReadOnlyDictionary<string, string[]> adjacencyMap;
-            private readonly HashSet<string> yieldedNodesSet = new HashSet<string>();
-            private readonly HashSet<string> visitedNodes = new HashSet<string>();
+            private readonly HashSet<string> yieldedNodesSet = new();
+            private readonly HashSet<string> visitedNodes = new();
 
             public TraversalState(IReadOnlyDictionary<string, string[]> adjacencyMap)
             {

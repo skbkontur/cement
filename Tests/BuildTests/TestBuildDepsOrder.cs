@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,10 +20,10 @@ namespace Tests.BuildTests
         {
             var graph = new Dictionary<Dep, List<Dep>>
             {
-                {new Dep("A/full-build"), new List<Dep> {new Dep("B/full-build")}},
-                {new Dep("B/full-build"), new List<Dep> {new Dep("C/full-build")}},
-                {new Dep("C/full-build"), new List<Dep> {new Dep("D/full-build")}},
-                {new Dep("D/full-build"), new List<Dep> {new Dep("A/full-build")}}
+                {new Dep("A/full-build"), new List<Dep> {new("B/full-build")}},
+                {new Dep("B/full-build"), new List<Dep> {new("C/full-build")}},
+                {new Dep("C/full-build"), new List<Dep> {new("D/full-build")}},
+                {new Dep("D/full-build"), new List<Dep> {new("A/full-build")}}
             };
             Assert.Throws<CementException>(() => BuildPreparer.Shared.GetTopologicallySortedGraph(graph, "A", "full-build"));
         }
@@ -34,11 +33,11 @@ namespace Tests.BuildTests
         {
             var graph = new Dictionary<Dep, List<Dep>>
             {
-                {new Dep("A/full-build"), new List<Dep> {new Dep("B/full-build"), new Dep("C/client")}},
-                {new Dep("B/full-build"), new List<Dep> {new Dep("D/full-build"), new Dep("E/full-build")}},
-                {new Dep("C/full-build"), new List<Dep> {new Dep("D/full-build")}},
-                {new Dep("C/client"), new List<Dep> {new Dep("D/client")}},
-                {new Dep("D/full-build"), new List<Dep> {new Dep("E/full-build")}},
+                {new Dep("A/full-build"), new List<Dep> {new("B/full-build"), new("C/client")}},
+                {new Dep("B/full-build"), new List<Dep> {new("D/full-build"), new("E/full-build")}},
+                {new Dep("C/full-build"), new List<Dep> {new("D/full-build")}},
+                {new Dep("C/client"), new List<Dep> {new("D/client")}},
+                {new Dep("D/full-build"), new List<Dep> {new("E/full-build")}},
                 {new Dep("D/client"), new List<Dep>()},
                 {new Dep("E/full-build"), new List<Dep>()}
             };
@@ -62,18 +61,18 @@ namespace Tests.BuildTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C", null, "client")})}
+                        {"full-build *default", new DepsData(null, new List<Dep> {new("B"), new("C", null, "client")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new Dep("D")})}
+                        {"full-build *default", new DepsData(null, new List<Dep> {new("D")})}
                     });
                 env.CreateRepo(
                     "C", new Dictionary<string, DepsData>
                     {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new Dep("D")})},
-                        {"client", new DepsData(null, new List<Dep> {new Dep("D", null, "client")})}
+                        {"full-build *default", new DepsData(null, new List<Dep> {new("D")})},
+                        {"client", new DepsData(null, new List<Dep> {new("D", null, "client")})}
                     });
                 env.CreateRepo(
                     "D", new Dictionary<string, DepsData>
@@ -101,12 +100,12 @@ namespace Tests.BuildTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C", null, "client")})}
+                        {"full-build *default", new DepsData(null, new List<Dep> {new("B"), new("C", null, "client")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new Dep("C")})}
+                        {"full-build *default", new DepsData(null, new List<Dep> {new("C")})}
                     });
                 env.CreateRepo(
                     "C", new Dictionary<string, DepsData>
@@ -136,17 +135,17 @@ namespace Tests.BuildTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                        {"full-build *default", new DepsData(null, new List<Dep> {new("B"), new("C")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new Dep("X", null, "client")})}
+                        {"full-build *default", new DepsData(null, new List<Dep> {new("X", null, "client")})}
                     });
                 env.CreateRepo(
                     "C", new Dictionary<string, DepsData>
                     {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new Dep("X"), new Dep("B")})}
+                        {"full-build *default", new DepsData(null, new List<Dep> {new("X"), new("B")})}
                     });
                 env.CreateRepo(
                     "X", new Dictionary<string, DepsData>
@@ -167,10 +166,10 @@ namespace Tests.BuildTests
                 CollectionAssert.AreEqual(
                     new List<Dep>
                     {
-                        new Dep("X", null, "full-build"),
-                        new Dep("B", null, "full-build"),
-                        new Dep("C", null, "full-build"),
-                        new Dep("A", null, "full-build")
+                        new("X", null, "full-build"),
+                        new("B", null, "full-build"),
+                        new("C", null, "full-build"),
+                        new("A", null, "full-build")
                     }, modulesOrder.BuildOrder);
             }
         }
@@ -185,7 +184,7 @@ namespace Tests.BuildTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new Dep("X", null, "client")})}
+                        {"full-build *default", new DepsData(null, new List<Dep> {new("X", null, "client")})}
                     });
                 env.CreateRepo(
                     "X", new Dictionary<string, DepsData>
@@ -216,12 +215,12 @@ namespace Tests.BuildTests
                     "A", new Dictionary<string, DepsData>
                     {
                         {"client", new DepsData(null, new List<Dep>())},
-                        {"full-build > client *default", new DepsData(null, new List<Dep> {new Dep("X")})}
+                        {"full-build > client *default", new DepsData(null, new List<Dep> {new("X")})}
                     });
                 env.CreateRepo(
                     "X", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "client")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("A", null, "client")})}
                     });
 
                 Helper.SetWorkspace(env.RemoteWorkspace);
@@ -232,9 +231,9 @@ namespace Tests.BuildTests
                 CollectionAssert.AreEqual(
                     new List<Dep>
                     {
-                        new Dep("A", null, "client"),
-                        new Dep("X", null, "full-build"),
-                        new Dep("A", null, "full-build")
+                        new("A", null, "client"),
+                        new("X", null, "full-build"),
+                        new("A", null, "full-build")
                     }, modulesOrder.BuildOrder);
             }
         }
@@ -249,20 +248,20 @@ namespace Tests.BuildTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("C1"), new Dep("C2"), new Dep("C3"), new Dep("P1")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("C1"), new("C2"), new("C3"), new("P1")})}
                     });
                 env.CreateRepo(
                     "C1", new Dictionary<string, DepsData>
-                        {{"full-build", new DepsData(null, new List<Dep> {new Dep("X/child1")})}});
+                        {{"full-build", new DepsData(null, new List<Dep> {new("X/child1")})}});
                 env.CreateRepo(
                     "C2", new Dictionary<string, DepsData>
-                        {{"full-build", new DepsData(null, new List<Dep> {new Dep("X/child2")})}});
+                        {{"full-build", new DepsData(null, new List<Dep> {new("X/child2")})}});
                 env.CreateRepo(
                     "C3", new Dictionary<string, DepsData>
-                        {{"full-build", new DepsData(null, new List<Dep> {new Dep("X/child3")})}});
+                        {{"full-build", new DepsData(null, new List<Dep> {new("X/child3")})}});
                 env.CreateRepo(
                     "P1", new Dictionary<string, DepsData>
-                        {{"full-build", new DepsData(null, new List<Dep> {new Dep("X/parent1")})}});
+                        {{"full-build", new DepsData(null, new List<Dep> {new("X/parent1")})}});
                 env.CreateRepo(
                     "X", new Dictionary<string, DepsData>
                     {

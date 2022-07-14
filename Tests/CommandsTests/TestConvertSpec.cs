@@ -50,7 +50,7 @@ namespace Tests.CommandsTests
         public void TestSimpleDepsWithForce()
         {
             AddBuildScript("kanso.sln", null);
-            var deps = new List<Dep> {new Dep("A@branch"), new Dep("B"), new Dep("C@conf"), new Dep("D/conf@branch")};
+            var deps = new List<Dep> {new("A@branch"), new("B"), new("C@conf"), new("D/conf@branch")};
             AddDeps(deps, null, "%CURRENT_BRANCH%");
             new ConvertSpecCommand().Run(new[] {"convert-spec"});
 
@@ -62,7 +62,7 @@ namespace Tests.CommandsTests
         [Test]
         public void TestSimpleWithTwoConfigs()
         {
-            var deps = new List<Dep> {new Dep("A"), new Dep("B"), new Dep("C")};
+            var deps = new List<Dep> {new("A"), new("B"), new("C")};
             var depsClient = deps.Take(2).ToList();
             AddDeps(deps);
             AddDeps(depsClient, "client");
@@ -80,8 +80,8 @@ namespace Tests.CommandsTests
         [Test]
         public void TestWithDepsOnOff()
         {
-            var deps = new List<Dep> {new Dep("A"), new Dep("B"), new Dep("C")};
-            var depsClient = new List<Dep> {new Dep("B/client"), new Dep("C")};
+            var deps = new List<Dep> {new("A"), new("B"), new("C")};
+            var depsClient = new List<Dep> {new("B/client"), new("C")};
             AddDeps(deps);
             AddDeps(depsClient, "client");
             AddBuildScript("kanso.sln", null);

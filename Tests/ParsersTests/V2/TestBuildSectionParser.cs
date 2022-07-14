@@ -200,7 +200,7 @@ namespace Tests.ParsersTests.V2
                             @"PSModules\PSMoiraWorks\deps.ps1",
                             "Release",
                             new Tool("powershell"),
-                            new List<string>()
+                            new List<string>
                             {
                                 "-NonInteractive -NoProfile -ExecutionPolicy Bypass"
                             },
@@ -257,10 +257,10 @@ namespace Tests.ParsersTests.V2
                     @"build:
     target: Solution.sln
     configuration: Release",
-                    new BuildData(null, null, null, new List<string>() {"param1", "param2"}, string.Empty),
+                    new BuildData(null, null, null, new List<string> {"param1", "param2"}, string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>() {"param1", "param2"}, string.Empty)
+                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string> {"param1", "param2"}, string.Empty)
                     })
                 .SetName("Single build section. Build parameters from defaults"),
 
@@ -280,7 +280,7 @@ namespace Tests.ParsersTests.V2
   target: Solution.sln
   configuration: Release
   parameters: ""/p:WarningLevel=0""",
-                    new BuildData(null, null, null, new List<string>() {"param1", "param2"}, string.Empty),
+                    new BuildData(null, null, null, new List<string> {"param1", "param2"}, string.Empty),
                     new[]
                     {
                         new BuildData(
@@ -326,7 +326,7 @@ namespace Tests.ParsersTests.V2
       name: sometool
       version: ""14.0"""
                     ,
-                    new BuildData("Default.sln", "Default", new Tool("default_name", "default_version"), new List<string>() {"default"}, "default"),
+                    new BuildData("Default.sln", "Default", new Tool("default_name", "default_version"), new List<string> {"default"}, "default"),
                     new[]
                     {
                         new BuildData(
@@ -343,7 +343,7 @@ namespace Tests.ParsersTests.V2
                             @"PSModules\PSMoiraWorks\deps.ps1",
                             "Release",
                             new Tool("sometool", "14.0"),
-                            new List<string>()
+                            new List<string>
                             {
                                 "-NonInteractive -NoProfile -ExecutionPolicy Bypass"
                             },

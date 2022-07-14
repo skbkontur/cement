@@ -22,9 +22,9 @@ namespace Tests.ParsersTests.V2
                     @"deps:
   - module.a",
                     new DepsData(
-                        null, new List<Dep>()
+                        null, new List<Dep>
                         {
-                            new Dep("module.a", null, null)
+                            new("module.a", null)
                         }))
                 .SetName("No parent deps, no force, single single-line module"),
 
@@ -35,11 +35,11 @@ namespace Tests.ParsersTests.V2
   - module.c
 ",
                     new DepsData(
-                        null, new List<Dep>()
+                        null, new List<Dep>
                         {
-                            new Dep("module.a", null, null),
-                            new Dep("module.b", null, null),
-                            new Dep("module.c", null, null)
+                            new("module.a", null),
+                            new("module.b", null),
+                            new("module.c", null)
                         }))
                 .SetName("No parent deps, no force, multiple single-line modules"),
 
@@ -53,11 +53,11 @@ namespace Tests.ParsersTests.V2
   - module.c
 ",
                     new DepsData(
-                        null, new List<Dep>()
+                        null, new List<Dep>
                         {
-                            new Dep("module.a", "somebranch", "client"),
-                            new Dep("module.b", null, null),
-                            new Dep("module.c", null, null)
+                            new("module.a", "somebranch", "client"),
+                            new("module.b", null),
+                            new("module.c", null)
                         }))
                 .SetName("No parent deps, no force, single multiple-line module and multiple single-line modules"),
 
@@ -69,11 +69,11 @@ namespace Tests.ParsersTests.V2
   - module.c
 ",
                     new DepsData(
-                        new[] {"$CURRENT_BRANCH"}, new List<Dep>()
+                        new[] {"$CURRENT_BRANCH"}, new List<Dep>
                         {
-                            new Dep("module.a", null, null),
-                            new Dep("module.b", null, null),
-                            new Dep("module.c", null, null)
+                            new("module.a", null),
+                            new("module.b", null),
+                            new("module.c", null)
                         }))
                 .SetName("No parent deps, one force, multiple single-line modules"),
 
@@ -85,11 +85,11 @@ namespace Tests.ParsersTests.V2
   - module.c
 ",
                     new DepsData(
-                        new[] {"$CURRENT_BRANCH", "branch_a", "branch_b"}, new List<Dep>()
+                        new[] {"$CURRENT_BRANCH", "branch_a", "branch_b"}, new List<Dep>
                         {
-                            new Dep("module.a", null, null),
-                            new Dep("module.b", null, null),
-                            new Dep("module.c", null, null)
+                            new("module.a", null),
+                            new("module.b", null),
+                            new("module.c", null)
                         }))
                 .SetName("No parent deps, multiple force, multiple single-line modules"),
 
@@ -101,11 +101,11 @@ namespace Tests.ParsersTests.V2
   - force: $CURRENT_BRANCH,branch_a, branch_b
 ",
                     new DepsData(
-                        new[] {"$CURRENT_BRANCH", "branch_a", "branch_b"}, new List<Dep>()
+                        new[] {"$CURRENT_BRANCH", "branch_a", "branch_b"}, new List<Dep>
                         {
-                            new Dep("module.a", null, null),
-                            new Dep("module.b", null, null),
-                            new Dep("module.c", null, null)
+                            new("module.a", null),
+                            new("module.b", null),
+                            new("module.c", null)
                         }))
                 .SetName("No parent deps, multiple force in the end, multiple single-line modules"),
 
@@ -116,9 +116,9 @@ namespace Tests.ParsersTests.V2
   - module.c
 ",
                     new DepsData(
-                        null, new List<Dep>()
+                        null, new List<Dep>
                         {
-                            new Dep("module.c", null, null)
+                            new("module.c", null)
                         }))
                 .SetName("No parent deps, no force, removing module within current deps section"),
 
@@ -131,9 +131,9 @@ namespace Tests.ParsersTests.V2
   - module.c
 ",
                     new DepsData(
-                        null, new List<Dep>()
+                        null, new List<Dep>
                         {
-                            new Dep("module.c", null, null)
+                            new("module.c", null)
                         }))
                 .SetName("No parent deps, no force, removing module within current deps section")
         };

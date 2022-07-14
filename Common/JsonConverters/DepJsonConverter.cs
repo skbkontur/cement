@@ -1,8 +1,8 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Text;
 using Newtonsoft.Json;
 
-#nullable enable
 namespace Common.JsonConverters
 {
     internal sealed class DepJsonConverter : JsonConverter

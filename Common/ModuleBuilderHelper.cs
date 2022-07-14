@@ -12,7 +12,7 @@ namespace Common
     {
         private static readonly ILogger Log = LogManager.GetLogger(typeof(ModuleBuilderHelper));
 
-        private static readonly HashSet<string> PrintedObsolete = new HashSet<string>();
+        private static readonly HashSet<string> PrintedObsolete = new();
 
         private static List<KeyValuePair<string, string>> msBuildsCache;
 

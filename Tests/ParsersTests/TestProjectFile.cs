@@ -12,8 +12,6 @@ namespace Tests.ParsersTests
     [TestFixture]
     internal class TestProjectFile
     {
-        private TempDirectory workDirectory = new TempDirectory();
-
         private readonly string defaultCsprojXml =
             @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
@@ -37,6 +35,7 @@ namespace Tests.ParsersTests
     <Analyzer Include=""dummyDir\Another.dll"" />
   </ItemGroup>
 </Project>";
+        private TempDirectory workDirectory = new();
 
         [SetUp]
         public void SetUp()
@@ -191,14 +190,14 @@ namespace Tests.ParsersTests
         [Test]
         public void BindRuleset_NoBindRuleset_IfBindingAlreadyExists()
         {
-            var rulesetName = $"Other.ruleset";
+            var rulesetName = "Other.ruleset";
             var rulesetPath = Path.Combine(workDirectory.Path, rulesetName);
             var rulesetFile = new RulesetFile(rulesetPath);
             var projectFile = CreateProjectFile(defaultCsprojXml);
 
             projectFile.BindRuleset(rulesetFile);
 
-            Console.WriteLine($"ProjectFile should be contains 2 old rulesetBindings:");
+            Console.WriteLine("ProjectFile should be contains 2 old rulesetBindings:");
             Console.WriteLine(projectFile.Document.OuterXml);
             var rulesetBindings = SearchByXpath(projectFile.Document, "//a:CodeAnalysisRuleSet");
             Assert.AreEqual(2, rulesetBindings.Count);
@@ -219,7 +218,7 @@ namespace Tests.ParsersTests
             var rulesetBinding = SearchByXpath(projectFile.Document, "//a:CodeAnalysisRuleSet").Single();
             Assert.AreEqual(rulesetName, rulesetBinding.InnerText);
 
-            Console.WriteLine($"RulesetFile should be contains oldRulesetBindings:");
+            Console.WriteLine("RulesetFile should be contains oldRulesetBindings:");
             Console.WriteLine(rulesetFile.Document.OuterXml);
             var oldRulesetBindings = SearchByXpath(rulesetFile.Document, "//a:Include");
             Assert.AreEqual(2, oldRulesetBindings.Count);
@@ -252,7 +251,7 @@ namespace Tests.ParsersTests
         [Test]
         public void AddAnalyzer_NotAddAnalyzersDll_IfDllWithSomeNameAlreadyAdded()
         {
-            var analyzerDllRelpath = $"Another.dll";
+            var analyzerDllRelpath = "Another.dll";
             var analyzerDllFullPath = Path.Combine(workDirectory.Path, analyzerDllRelpath);
             var projectFile = CreateProjectFile(defaultCsprojXml);
 
@@ -289,7 +288,7 @@ namespace Tests.ParsersTests
             ";
 
             var proj = CreateProjectFile(content);
-            var xmlDocument = proj.CreateCsProjWithNugetReferences(new List<Dep> {new Dep("vostok.core")}, true);
+            var xmlDocument = proj.CreateCsProjWithNugetReferences(new List<Dep> {new("vostok.core")}, true);
 
             Assert.Null(xmlDocument.SelectSingleNode("//Reference[@Include='Vostok.Core']"));
             Assert.NotNull(xmlDocument.SelectSingleNode("//PackageReference[@Include='vostok.core']"));

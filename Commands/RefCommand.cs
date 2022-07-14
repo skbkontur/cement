@@ -5,7 +5,7 @@ namespace Commands
 {
     public sealed class RefCommand : ICommand
     {
-        private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>
+        private readonly Dictionary<string, ICommand> commands = new()
         {
             {"add", new RefAddCommand()},
             {"fix", new RefFixCommand()}

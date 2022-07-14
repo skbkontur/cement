@@ -24,7 +24,7 @@ namespace Common.YamlParsers
         public static void ReplaceTabs(string yamlPath)
         {
             var file = new ModuleYamlFile(new FileInfo(yamlPath));
-            for (int i = 0; i < file.Lines.Count; i++)
+            for (var i = 0; i < file.Lines.Count; i++)
                 file.Lines[i] = file.Lines[i].Replace("\t", "    ");
             file.Save(yamlPath);
         }

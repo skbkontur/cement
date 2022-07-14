@@ -1,7 +1,7 @@
-using Common;
 using System;
 using System.IO;
 using System.Linq;
+using Common;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -133,7 +133,7 @@ namespace Commands
             var filePath = Path.Combine(repo.RepoPath, "modules");
             var lines = File.ReadAllLines(filePath);
 
-            for (int i = 0; i < lines.Length; i++)
+            for (var i = 0; i < lines.Length; i++)
             {
                 if (lines[i] != "[module " + old.Name + "]")
                     continue;

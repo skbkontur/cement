@@ -1,10 +1,10 @@
-using Common.YamlParsers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Common.YamlParsers;
 using Microsoft.Extensions.Logging;
 
 namespace Common
@@ -176,8 +176,8 @@ namespace Common
             var command = script.Script;
             var runner = PrepareShellRunner();
 
-            int exitCode = -1;
-            for (int timesTry = 0; timesTry < 2 && exitCode != 0; timesTry++)
+            var exitCode = -1;
+            for (var timesTry = 0; timesTry < 2 && exitCode != 0; timesTry++)
             {
                 log.LogDebug("Build command: '{0}'", command);
                 if (buildSettings.ShowOutput)

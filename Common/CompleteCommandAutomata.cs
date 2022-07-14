@@ -1,8 +1,8 @@
-using Common.YamlParsers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.YamlParsers;
 using Microsoft.Extensions.Logging;
 
 namespace Common
@@ -24,7 +24,7 @@ namespace Common
 
         public List<string> Complete(string command)
         {
-            bool newToken = command.EndsWith(" ") || command.EndsWith("\t");
+            var newToken = command.EndsWith(" ") || command.EndsWith("\t");
             lastToken = "";
             var parts = command.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries).ToList();
             if (!newToken)
@@ -202,7 +202,7 @@ namespace Common
                 {
                     "analyzer", () => new TokensList
                     {
-                        {"add"} //TODO
+                        "add" //TODO
                     }
                 },
                 "self-update",

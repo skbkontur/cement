@@ -6,7 +6,7 @@ namespace Commands
 {
     public static class CommandsList
     {
-        public static readonly Dictionary<string, ICommand> Commands = new Dictionary<string, ICommand>
+        public static readonly Dictionary<string, ICommand> Commands = new()
         {
             {"help", new HelpCommand(ConsoleWriter.Shared, new ReadmeGenerator())},
             {"get", new GetCommand()},

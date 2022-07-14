@@ -59,7 +59,7 @@ namespace Common
                     inDeps.Add(d);
                 }
 
-                bool isOverhead = true;
+                var isOverhead = true;
                 foreach (var d in installData.CurrentConfigurationInstallFiles)
                 {
                     if (csprojRefs.Any(r => r.Reference.ToLower() == d.ToLower()))

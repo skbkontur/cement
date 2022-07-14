@@ -9,7 +9,7 @@ namespace Common.YamlParsers
     public class ConfigurationYamlParser : IConfigurationParser
     {
         protected readonly string ModuleName;
-        private readonly Dictionary<string, object> configurationsDescription = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> configurationsDescription = new();
 
         public ConfigurationYamlParser(FileSystemInfo moduleName)
         {

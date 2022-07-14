@@ -5,7 +5,7 @@ namespace Commands
 {
     public sealed class UsagesCommand : ICommand
     {
-        private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>
+        private readonly Dictionary<string, ICommand> commands = new()
         {
             {"show", new UsagesShowCommand()},
             {"build", new UsagesBuildCommand()},

@@ -210,7 +210,7 @@ namespace Common
             {
                 var splitedRef = GetSplitedReference(reference);
                 var currentCwd = csprojDir;
-                int idx = 0;
+                var idx = 0;
                 while (idx < splitedRef.Count() && splitedRef[idx].Equals(".."))
                 {
                     currentCwd = Directory.GetParent(currentCwd).FullName;

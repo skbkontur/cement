@@ -28,8 +28,8 @@ namespace Tests.BuildTests
 
             var deps = new List<Dep>
             {
-                new Dep("module", null, "sdk"),
-                new Dep("module", null, "subclient")
+                new("module", null, "sdk"),
+                new("module", null, "subclient")
             };
 
             manager = new ConfigurationManager(deps, fakeParser);
@@ -44,7 +44,7 @@ namespace Tests.BuildTests
         [Test]
         public void TestProcessedParentIsProcessedNull()
         {
-            Assert.False(manager.ProcessedParent(new Dep("module", null, null)));
+            Assert.False(manager.ProcessedParent(new Dep("module", null)));
         }
 
         [Test]
@@ -79,9 +79,9 @@ namespace Tests.BuildTests
                 treeishManager.TreeishAlreadyProcessed(
                     new Dep("", "treeish"), new List<Dep>
                     {
-                        new Dep("", "A"),
-                        new Dep("", "treeish"),
-                        new Dep("", "C")
+                        new("", "A"),
+                        new("", "treeish"),
+                        new("", "C")
                     }));
         }
 
@@ -92,8 +92,8 @@ namespace Tests.BuildTests
                 () => treeishManager.ThrowOnTreeishConflict(
                     new DepWithParent(new Dep("", "treeish1"), "A"), new List<DepWithParent>
                     {
-                        new DepWithParent(new Dep("", "treeish1"), "B"),
-                        new DepWithParent(new Dep("", "treeish2"), "C")
+                        new(new Dep("", "treeish1"), "B"),
+                        new(new Dep("", "treeish2"), "C")
                     }));
         }
 
@@ -104,8 +104,8 @@ namespace Tests.BuildTests
                 treeishManager.TreeishAlreadyProcessed(
                     new Dep("", "treeish"), new List<Dep>
                     {
-                        new Dep("", "A"),
-                        new Dep("", "B")
+                        new("", "A"),
+                        new("", "B")
                     }));
         }
 
@@ -116,8 +116,8 @@ namespace Tests.BuildTests
                 () => treeishManager.ThrowOnTreeishConflict(
                     new DepWithParent(new Dep("", "treeish"), "A"), new List<DepWithParent>
                     {
-                        new DepWithParent(new Dep(""), "B"),
-                        new DepWithParent(new Dep("", "treeish"), "C")
+                        new(new Dep(""), "B"),
+                        new(new Dep("", "treeish"), "C")
                     }));
         }
     }

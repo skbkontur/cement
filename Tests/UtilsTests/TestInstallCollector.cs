@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using Common;
 using NUnit.Framework;
-using Tests.Helpers;
 
 namespace Tests.UtilsTests
 {

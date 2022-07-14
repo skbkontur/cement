@@ -36,7 +36,7 @@ namespace Commands
             var repo = new GitRepository(moduleName, Helper.CurrentWorkspace, Log);
 
             var changedFiles = repo.GetFilesForCommit().Where(file => file.EndsWith(".cs") && File.Exists(file)).Distinct().ToList();
-            int exitCode = 0;
+            var exitCode = 0;
 
             foreach (var file in changedFiles)
             {

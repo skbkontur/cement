@@ -94,7 +94,7 @@ namespace cm
 
         private static void ThreadPoolSetUp(int count)
         {
-            int num = Math.Min(count, short.MaxValue);
+            var num = Math.Min(count, short.MaxValue);
             ThreadPool.SetMaxThreads(short.MaxValue, short.MaxValue);
             ThreadPool.SetMinThreads(num, num);
         }

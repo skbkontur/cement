@@ -19,12 +19,12 @@ namespace Tests.UtilsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("A")})}
                     });
                 Helper.SetWorkspace(env.RemoteWorkspace);
 
@@ -41,27 +41,27 @@ namespace Tests.UtilsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("C")})}
                     });
                 env.CreateRepo(
                     "C", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("D")})}
                     });
                 env.CreateRepo(
                     "D", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("E")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("E")})}
                     });
                 env.CreateRepo(
                     "E", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("A")})}
                     });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
@@ -77,17 +77,17 @@ namespace Tests.UtilsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B"), new("C")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("D")})}
                     });
                 env.CreateRepo(
                     "C", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("D")})}
                     });
                 env.CreateRepo(
                     "D", new Dictionary<string, DepsData>
@@ -108,22 +108,22 @@ namespace Tests.UtilsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("C")})}
                     });
                 env.CreateRepo(
                     "C", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("D")})}
                     });
                 env.CreateRepo(
                     "D", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})}
                     });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
@@ -139,22 +139,22 @@ namespace Tests.UtilsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B"), new("C")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("D")})}
                     });
                 env.CreateRepo(
                     "C", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("D")})}
                     });
                 env.CreateRepo(
                     "D", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("A")})}
                     });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
@@ -170,13 +170,13 @@ namespace Tests.UtilsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})},
                         {"client", new DepsData(null, new List<Dep>())}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "client")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("A", null, "client")})}
                     });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A/full-build");
@@ -192,13 +192,13 @@ namespace Tests.UtilsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
-                        {"client", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})},
+                        {"client", new DepsData(null, new List<Dep> {new("B")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "client")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("A", null, "client")})}
                     });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A/client");
@@ -214,13 +214,13 @@ namespace Tests.UtilsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
-                        {"client *default", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})},
+                        {"client *default", new DepsData(null, new List<Dep> {new("B")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("A", null, "full-build")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("A", null, "full-build")})}
                     });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
@@ -236,17 +236,17 @@ namespace Tests.UtilsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})}
                     });
                 env.CreateRepo(
                     "B", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("C")})}
                     });
                 env.CreateRepo(
                     "C", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})}
                     });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");
@@ -262,17 +262,17 @@ namespace Tests.UtilsTests
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B"), new Dep("C")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B"), new("C")})}
                     });
                 env.CreateRepo(
                     "C", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("D")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("D")})}
                     });
                 env.CreateRepo(
                     "D", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("C")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("C")})}
                     });
                 Helper.SetWorkspace(env.RemoteWorkspace);
                 var cycle = cycleDetector.TryFindCycle("A");

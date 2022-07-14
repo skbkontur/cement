@@ -1,10 +1,8 @@
-using System;
-using Common;
-using Common.YamlParsers;
 using System.IO;
 using System.Linq;
+using Common;
 using Common.Extensions;
-using Common.Logging;
+using Common.YamlParsers;
 
 namespace Commands
 {
@@ -13,7 +11,7 @@ namespace Commands
         private string project;
         private string configuration;
         private BuildSettings buildSettings;
-        private bool preRelease = false;
+        private bool preRelease;
 
         public PackCommand()
             : base(

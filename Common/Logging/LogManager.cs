@@ -18,7 +18,7 @@ namespace Common.Logging
 {
     public static class LogManager
     {
-        private static readonly List<IDisposable> disposables = new List<IDisposable>();
+        private static readonly List<IDisposable> disposables = new();
         private static ILoggerFactory loggerFactory;
 
         private static ILog fileLog;

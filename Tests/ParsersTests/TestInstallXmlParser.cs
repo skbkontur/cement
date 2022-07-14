@@ -17,7 +17,7 @@ namespace Tests.ParsersTests
 	</install>
 </module>
 ";
-            var result = new InstallXmlParser(content, "module").Get(null);
+            var result = new InstallXmlParser(content, "module").Get();
             Assert.AreEqual(2, result.CurrentConfigurationInstallFiles.Count);
             Assert.AreEqual(new[] {"A/B.dll", "C/D.dll"}, result.CurrentConfigurationInstallFiles.ToArray());
         }
@@ -57,7 +57,7 @@ namespace Tests.ParsersTests
 		<default-config name=""sdk""/>
 	</configurations>
 </spec>";
-            Assert.Throws<NoSuchConfigurationException>(() => new InstallXmlParser(content, "module").Get(null));
+            Assert.Throws<NoSuchConfigurationException>(() => new InstallXmlParser(content, "module").Get());
         }
 
         [Test]

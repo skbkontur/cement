@@ -8,7 +8,7 @@ namespace Commands
 {
     public sealed class ShowDepsCommand : Command
     {
-        private static readonly Dictionary<Dep, List<string>> overheadCache = new Dictionary<Dep, List<string>>();
+        private static readonly Dictionary<Dep, List<string>> overheadCache = new();
         private readonly ArborJs arborJs;
         private string configuration;
 

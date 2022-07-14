@@ -19,7 +19,7 @@ namespace Common
             var currentSection = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
             ini[""] = currentSection;
-            string currentOption = "";
+            var currentOption = "";
 
             foreach (var line in txt.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries)
                          .Where(t => !string.IsNullOrWhiteSpace(t))

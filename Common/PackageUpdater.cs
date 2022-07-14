@@ -48,7 +48,7 @@ namespace Common
             if (remoteHash != null && remoteHash.Equals(localHash))
                 return;
 
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 using (var tempDir = new TempDirectory())
                 {

@@ -41,7 +41,7 @@ namespace Common
 
         public string GetDefaultConfigurationName()
         {
-            string defaultConfiguration = "full-build";
+            var defaultConfiguration = "full-build";
             var configurationsTags = document.GetElementsByTagName("default-config");
             foreach (XmlNode node in configurationsTags)
             {

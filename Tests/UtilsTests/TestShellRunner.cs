@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using NUnit.Framework;
@@ -13,7 +12,7 @@ namespace Tests.UtilsTests
     [TestFixture]
     public class TestShellRunner
     {
-        private readonly ShellRunner runner = new ShellRunner();
+        private readonly ShellRunner runner = new();
 
         [Test]
         public void TestRunCommand()
@@ -40,14 +39,14 @@ namespace Tests.UtilsTests
         [Test]
         public void TestOutputCommand()
         {
-            int result = runner.Run("echo hello");
+            var result = runner.Run("echo hello");
             Assert.AreEqual("hello", runner.Output.Trim());
         }
 
         [Test]
         public void TestRedirectOutputToError()
         {
-            int result = runner.Run("echo error 1>&2");
+            var result = runner.Run("echo error 1>&2");
             Assert.AreEqual("error", runner.Errors.Trim());
         }
 
@@ -56,7 +55,7 @@ namespace Tests.UtilsTests
         {
             var result = string.Empty;
             runner.OnOutputChange += content => result += content;
-            int i = runner.Run("echo hello");
+            var i = runner.Run("echo hello");
             Assert.AreEqual("hello", result);
         }
 
@@ -75,7 +74,7 @@ namespace Tests.UtilsTests
         {
             var sw = Stopwatch.StartNew();
             var tasks = new List<Task>();
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 tasks.Add(Task.Run(() => new ShellRunner().Run("ping 127.0.0.1 -n 2 > nul", TimeSpan.FromSeconds(1))));
             }

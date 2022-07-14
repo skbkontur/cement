@@ -4,7 +4,7 @@ namespace Common.YamlParsers.V2.Factories
 {
     public static class ModuleYamlParserFactory
     {
-        private static readonly Lazy<ModuleYamlParser> instance = new Lazy<ModuleYamlParser>(Create);
+        private static readonly Lazy<ModuleYamlParser> instance = new(Create);
 
         public static ModuleYamlParser Get()
         {

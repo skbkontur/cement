@@ -16,7 +16,7 @@ namespace Tests.ParsersTests
     {
         private const string LocalCementDirectory = @"D:\Projects\";
 
-        private static readonly Dictionary<string, string> pathToContentMap = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> pathToContentMap = new();
 
         static TestModuleYamlParser()
         {

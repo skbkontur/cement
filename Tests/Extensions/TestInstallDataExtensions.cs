@@ -1,6 +1,6 @@
 using System;
-using Common;
 using System.Collections.Generic;
+using Common;
 using Common.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
@@ -10,7 +10,7 @@ namespace Tests.Extensions
     [TestFixture]
     public class TestInstallDataExtensions
     {
-        private readonly InstallData First = new InstallData
+        private readonly InstallData First = new()
         {
             Artifacts = {"first_a1", "first_a2", "common_a"},
             InstallFiles = {"first_i1", "first_i2", "common_i"},
@@ -19,7 +19,7 @@ namespace Tests.Extensions
             NuGetPackages = {"first_n1", "first_n2", "common_n"}
         };
 
-        private readonly InstallData Second = new InstallData
+        private readonly InstallData Second = new()
         {
             Artifacts = {"second_a1", "second_a2", "common_a"},
             InstallFiles = {"second_i1", "second_i2", "common_i"},

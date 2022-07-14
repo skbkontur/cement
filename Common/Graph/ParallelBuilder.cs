@@ -7,18 +7,17 @@ namespace Common.Graph
 {
     public sealed class ParallelBuilder
     {
+        public bool IsFailed;
         private readonly ILogger logger;
         private readonly GraphHelper graphHelper;
 
-        public bool IsFailed;
+        private readonly Dictionary<Dep, List<Dep>> graph = new();
+        private readonly AutoResetEvent signal = new(true);
+        private readonly object sync = new();
 
-        private readonly Dictionary<Dep, List<Dep>> graph = new Dictionary<Dep, List<Dep>>();
-        private readonly AutoResetEvent signal = new AutoResetEvent(true);
-        private readonly object sync = new object();
-
-        private readonly List<Dep> waiting = new List<Dep>();
-        private readonly HashSet<Dep> building = new HashSet<Dep>();
-        private readonly List<Dep> built = new List<Dep>();
+        private readonly List<Dep> waiting = new();
+        private readonly HashSet<Dep> building = new();
+        private readonly List<Dep> built = new();
         private bool needChecking = true;
 
         public ParallelBuilder(ILogger<ParallelBuilder> logger, GraphHelper graphHelper)

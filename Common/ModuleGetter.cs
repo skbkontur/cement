@@ -104,8 +104,8 @@ namespace Common
 
         private static void Reset(GitRepository repo, Dep dep)
         {
-            int times = 3;
-            for (int i = 0; i < times; i++)
+            var times = 3;
+            for (var i = 0; i < times; i++)
             {
                 try
                 {
@@ -190,7 +190,7 @@ namespace Common
         private void ProcessDeps(string[] force, List<DepWithParent> depsPool)
         {
             if (depsPool.Any())
-                Log.LogInformation("Parallel update-deps iteration: " + depsPool.Select(d => d.Dep.ToString() + "(" + d.ParentModule + ")").Aggregate((a, b) => a + " " + b));
+                Log.LogInformation("Parallel update-deps iteration: " + depsPool.Select(d => d.Dep + "(" + d.ParentModule + ")").Aggregate((a, b) => a + " " + b));
             try
             {
                 Parallel.ForEach(depsPool.Where(d => d.Dep.Name != rootModule.Name), Helper.ParallelOptions, d => GetModule(d.Dep, force));

@@ -9,17 +9,17 @@ namespace Tests.UtilsTests
         [Test]
         public void SimpleTest()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
   deps:
     - X
     - Y
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-bulid > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
   deps:
     - B
@@ -37,16 +37,16 @@ full-build:
         [Test]
         public void NoDepsSection()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
 client:
   deps:
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-bulid > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
   deps:
     - B
@@ -65,17 +65,17 @@ client:
         [Test]
         public void SimpleTestWithConfig()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
   deps:
     - X
     - Y
 ";
-            string yamlB = @"
+            var yamlB = @"
 client:
 full-bulid > client *default:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
   deps:
     - B/client
@@ -94,17 +94,17 @@ full-build:
         [Test]
         public void SimpleTestWithSpaces()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
     deps:
       - X
       - Y
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-bulid > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
     deps:
       - B
@@ -123,17 +123,17 @@ full-build:
         [Test]
         public void SimpleTestWithTabs()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
 	deps:
 		- X
 		- Y
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-bulid > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
     deps:
         - B
@@ -152,18 +152,18 @@ full-build:
         [Test]
         public void NeedReplaceToHugeConfig()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
   deps:
     - B
     - X
     - Y
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
   deps:
     - B/full-build
@@ -182,18 +182,18 @@ full-build:
         [Test]
         public void NoNeedReplaceToSmallerConfig()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
   deps:
     - B/full-build
     - X
     - Y
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
   deps:
     - B/full-build
@@ -212,18 +212,18 @@ full-build:
         [Test]
         public void AlreadyHasSameConfig()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
   deps:
     - B/client
     - X
     - Y
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-bulid > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
   deps:
     - B
@@ -242,17 +242,17 @@ full-build:
         [Test]
         public void NeedReplaceToHugeConfigFromParent()
         {
-            string yamlA = @"
+            var yamlA = @"
 client *default:
   deps:
     - B
 full-build > client:
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client *default:
   deps:
     - B
@@ -273,17 +273,17 @@ full-build > client:
         [Test]
         public void NoNeedReplaceToSmallerConfigFromParent()
         {
-            string yamlA = @"
+            var yamlA = @"
 client *default:
   deps:
     - B/full-build
 full-build > client:
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client *default:
   deps:
     - B/full-build
@@ -301,18 +301,18 @@ full-build > client:
         [Test]
         public void TestBranchWithSlashes()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
   deps:
     - X
     - Y
     - B@feature\/status
 ";
-            string yamlB = @"
+            var yamlB = @"
 client:
 full-bulid > client *default:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
   deps:
     - X
@@ -331,17 +331,17 @@ full-build:
         [Test]
         public void NeedReplaceToHugeConfigFromParentWithBranch()
         {
-            string yamlA = @"
+            var yamlA = @"
 client *default:
   deps:
     - B@branch
 full-build > client:
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client *default:
   deps:
     - B@branch
@@ -362,17 +362,17 @@ full-build > client:
         [Test]
         public void NeedReplaceToHugeConfigFromParentWithBranchWithSlashes()
         {
-            string yamlA = @"
+            var yamlA = @"
 client *default:
   deps:
     - B@feature\/status
 full-build > client:
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client *default:
   deps:
     - B@feature\/status
@@ -393,17 +393,17 @@ full-build > client:
         [Test]
         public void LcaTest()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
   deps:
     - B/client1
 ";
-            string yamlB = @"
+            var yamlB = @"
 client1 *default:
 client2:
 full-build > client1, client2:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
   deps:
     - B/full-build
@@ -420,18 +420,18 @@ full-build:
         [Test]
         public void LcaTestWithNesting()
         {
-            string yamlA = @"
+            var yamlA = @"
 client:
   deps:
     - B/client1
 ";
-            string yamlB = @"
+            var yamlB = @"
 client1:
 client2:
 sdk > client1, client2:
 full-build > sdk:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client:
   deps:
     - B/sdk
@@ -448,12 +448,12 @@ client:
         [Test]
         public void NoLcaThrows()
         {
-            string yamlA = @"
+            var yamlA = @"
 client:
   deps:
     - B/client1
 ";
-            string yamlB = @"
+            var yamlB = @"
 client1:
 client2:
 ";
@@ -466,7 +466,7 @@ client2:
         [Test]
         public void OnOffReplace()
         {
-            string yamlA = @"
+            var yamlA = @"
 client *default:
   deps:
     - B/client
@@ -476,12 +476,12 @@ full-build > client:
     - B/sdk
     - C
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 sdk > client:
 full-build > sdk:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client *default:
   deps:
     - B/client
@@ -503,17 +503,17 @@ full-build > client:
         [Test]
         public void ChildHasntSameDep()
         {
-            string yamlA = @"
+            var yamlA = @"
 client *default:
 full-build > client:
   deps:
     - X
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client *default:
   deps:
     - B/full-build
@@ -533,7 +533,7 @@ full-build > client:
         [Test]
         public void ChildHasSmallerConfig()
         {
-            string yamlA = @"
+            var yamlA = @"
 client *default:
 full-build > client:
   deps:
@@ -541,11 +541,11 @@ full-build > client:
     - B
     - Y
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client *default:
   deps:
     - B/full-build
@@ -566,18 +566,18 @@ full-build > client:
         [Test]
         public void ChildHasHugeConfig()
         {
-            string yamlA = @"
+            var yamlA = @"
 client *default:
 full-build > client:
   deps:
     - B/full-build
     - X
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client *default:
   deps:
     - B
@@ -599,18 +599,18 @@ full-build > client:
         [Test]
         public void ChildHasSameConfig()
         {
-            string yamlA = @"
+            var yamlA = @"
 client *default:
 full-build > client:
   deps:
     - B/client
     - X/full-build
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client *default:
   deps:
     - B
@@ -630,7 +630,7 @@ full-build > client:
         [Test]
         public void ChildOnOff()
         {
-            string yamlA = @"
+            var yamlA = @"
 client *default:
   deps:
     - B
@@ -641,12 +641,12 @@ full-build > client:
     - B/full-build
     - Y
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 sdk > client:
 full-build > sdk:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client *default:
   deps:
     - B/sdk
@@ -669,7 +669,7 @@ full-build > client:
         [Test]
         public void NestingHell()
         {
-            string yamlA = @"
+            var yamlA = @"
 client1 *default:
 client2 > client1:
   deps:
@@ -681,13 +681,13 @@ client4 > client3:
   deps:
     - B/client3
 ";
-            string yamlB = @"
+            var yamlB = @"
 client1:
 client2 > client1:
 client3 > client2:
 client4 > client3:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client1 *default:
   deps:
     - B/client4
@@ -710,7 +710,7 @@ client4 > client3:
         [Test]
         public void NestingHell2()
         {
-            string yamlA = @"
+            var yamlA = @"
 client1 *default:
 client2 > client1:
   deps:
@@ -722,13 +722,13 @@ client4 > client3:
   deps:
     - B/client4
 ";
-            string yamlB = @"
+            var yamlB = @"
 client1:
 client2 > client1:
 client3 > client2:
 client4 > client3:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 client1 *default:
   deps:
     - B/client4
@@ -751,7 +751,7 @@ client4 > client3:
         [Test]
         public void NeedReplaceToHugeConfigWithSrcType()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
   deps:
     - B:
@@ -759,11 +759,11 @@ full-build:
     - X
     - Y
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-build > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
   deps:
     - B/full-build:
@@ -783,7 +783,7 @@ full-build:
         [Test]
         public void TestWithBuildSection()
         {
-            string yamlA = @"
+            var yamlA = @"
 full-build:
   build:
     target: sicklistTransport.sln
@@ -792,11 +792,11 @@ full-build:
   deps:
     - kanso
 ";
-            string yamlB = @"
+            var yamlB = @"
 client *default:
 full-bulid > client:
 ";
-            string yamlAExpected = @"
+            var yamlAExpected = @"
 full-build:
   build:
     target: sicklistTransport.sln

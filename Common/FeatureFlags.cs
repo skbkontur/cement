@@ -5,7 +5,7 @@ namespace Common
     [JsonObject]
     public sealed class FeatureFlags
     {
-        public static FeatureFlags Default => new FeatureFlags
+        public static FeatureFlags Default => new()
         {
             CleanBeforeBuild = false
         };

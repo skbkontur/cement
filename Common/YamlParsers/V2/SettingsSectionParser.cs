@@ -16,7 +16,7 @@ namespace Common.YamlParsers.V2
                 return new ModuleSettings();
 
             var isContentModule = settingsDict.ContainsKey("type") && ((string)settingsDict["type"]).Trim() == "content";
-            return new ModuleSettings()
+            return new ModuleSettings
             {
                 IsContentModule = isContentModule
             };

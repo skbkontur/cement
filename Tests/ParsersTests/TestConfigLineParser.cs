@@ -1,5 +1,4 @@
 using System;
-using Common.YamlParsers;
 using Common.YamlParsers.Models;
 using Common.YamlParsers.V2;
 using NUnit.Framework;
@@ -12,55 +11,55 @@ namespace Tests.ParsersTests
         private static TestCaseData[] Source =
         {
             new TestCaseData("full-build").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build"
                 }),
 
             new TestCaseData("full-build*default").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     IsDefault = true
                 }),
 
             new TestCaseData("full-build *default").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     IsDefault = true
                 }),
 
             new TestCaseData("full-build         *default").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     IsDefault = true
                 }),
 
             new TestCaseData("full-build>client").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     Parents = new[] {"client"}
                 }),
 
             new TestCaseData("full-build > client").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     Parents = new[] {"client"}
                 }),
 
             new TestCaseData("full-build     >    client").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     Parents = new[] {"client"}
                 }),
 
             new TestCaseData("full-build > client *default").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     IsDefault = true,
@@ -68,7 +67,7 @@ namespace Tests.ParsersTests
                 }),
 
             new TestCaseData("full-build   >   client   *default   ").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     IsDefault = true,
@@ -76,21 +75,21 @@ namespace Tests.ParsersTests
                 }),
 
             new TestCaseData("full-build > client, client, client").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     Parents = new[] {"client"}
                 }),
 
             new TestCaseData("full-build > a, b, c").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     Parents = new[] {"a", "b", "c"}
                 }),
 
             new TestCaseData("full-build > a, b, c *default").Returns(
-                new ConfigSectionTitle()
+                new ConfigSectionTitle
                 {
                     Name = "full-build",
                     Parents = new[] {"a", "b", "c"},

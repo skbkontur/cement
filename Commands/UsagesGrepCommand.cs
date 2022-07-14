@@ -14,7 +14,7 @@ namespace Commands
         private static readonly string[] GrepParametersWithValue =
             {"-A", "-B", "-C", "--threads", "-f", "-e", "--parent-basename", "--max-depth"};
         private static readonly string[] NewLine = {"\r\n", "\r", "\n"};
-        private static readonly Regex Whitespaces = new Regex("\\s");
+        private static readonly Regex Whitespaces = new("\\s");
 
         private readonly ShellRunner runner;
         private readonly IUsagesProvider usagesProvider;

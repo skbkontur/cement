@@ -9,7 +9,6 @@ using Humanizer;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Common.Updaters
 {
@@ -19,19 +18,18 @@ namespace Common.Updaters
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
 
         private readonly ILogger log;
-        private readonly string server;
         private readonly string branch;
         private readonly ConsoleWriter consoleWriter;
 
         public ServerCementUpdater(ILogger log, ConsoleWriter consoleWriter, string server, string branch)
         {
-            this.server = server;
+            Name = server;
             this.branch = branch;
             this.log = log;
             this.consoleWriter = consoleWriter;
         }
 
-        public string Name => server;
+        public string Name { get; }
 
         public string GetNewCommitHash()
         {
@@ -42,7 +40,7 @@ namespace Common.Updaters
                 using var handler = new SocketsHttpHandler();
                 using var httpClient = new HttpClient(handler)
                 {
-                    BaseAddress = new Uri(server)
+                    BaseAddress = new Uri(Name)
                 };
 
                 var uri = new Uri($"api/v1/cement/info/head/{branch}", UriKind.Relative);
@@ -84,7 +82,7 @@ namespace Common.Updaters
                 using var handler = new SocketsHttpHandler();
                 using var httpClient = new HttpClient(handler)
                 {
-                    BaseAddress = new Uri(server)
+                    BaseAddress = new Uri(Name)
                 };
 
                 var uri = new Uri($"api/v1/cement/head/{branch}", UriKind.Relative);

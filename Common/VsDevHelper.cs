@@ -45,7 +45,7 @@ namespace Common
             var result = new Dictionary<string, string>();
             foreach (var line in lines)
             {
-                int equal = line.IndexOf("=", StringComparison.Ordinal);
+                var equal = line.IndexOf("=", StringComparison.Ordinal);
                 if (equal < 0)
                     continue;
                 var name = line.Substring(0, equal);

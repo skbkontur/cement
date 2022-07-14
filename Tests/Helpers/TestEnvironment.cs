@@ -169,7 +169,7 @@ full-build:
   deps:{
       (depsByConfig[config]
           .Force != null
-          ? $"\r\n    - force: " + string.Join(",", depsByConfig[config].Force)
+          ? "\r\n    - force: " + string.Join(",", depsByConfig[config].Force)
           : "")
   }
 ", (current, dep) => current +
@@ -283,7 +283,7 @@ force = " + string.Join(",", depsByConfig[config].Force) + "\r\n"
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})}
                     });
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")));
                 Assert.AreEqual(
@@ -306,8 +306,8 @@ full-build:
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})},
-                        {"client", new DepsData(null, new List<Dep> {new Dep("C")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})},
+                        {"client", new DepsData(null, new List<Dep> {new("C")})}
                     });
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")));
                 Assert.AreEqual(
@@ -337,7 +337,7 @@ full-build:
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B")})}
                     }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps")));
                 Assert.AreEqual(
@@ -354,7 +354,7 @@ full-build:
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B", "develop"), new("C", null, "client"), new("D", "release", "sdk")})}
                     }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps")));
                 Assert.AreEqual(
@@ -378,7 +378,7 @@ configuration = sdk
                     "A", new Dictionary<string, DepsData>
                     {
                         {"full-build", null},
-                        {"client", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"client", new DepsData(null, new List<Dep> {new("B")})}
                     }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")));
@@ -395,7 +395,7 @@ configuration = sdk
                     "A", new Dictionary<string, DepsData>
                     {
                         {"full-build", null},
-                        {"*client", new DepsData(null, new List<Dep> {new Dep("B")})}
+                        {"*client", new DepsData(null, new List<Dep> {new("B")})}
                     }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")));
@@ -412,8 +412,8 @@ configuration = sdk
                 env.CreateRepo(
                     "A", new Dictionary<string, DepsData>
                     {
-                        {"full-build", new DepsData(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})},
-                        {"client", new DepsData(null, new List<Dep> {new Dep("B", "develop"), new Dep("C", null, "client"), new Dep("D", "release", "sdk")})}
+                        {"full-build", new DepsData(null, new List<Dep> {new("B", "develop"), new("C", null, "client"), new("D", "release", "sdk")})},
+                        {"client", new DepsData(null, new List<Dep> {new("B", "develop"), new("C", null, "client"), new("D", "release", "sdk")})}
                     }, null, DepsFormatStyle.Ini);
                 Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
                 Assert.AreEqual(

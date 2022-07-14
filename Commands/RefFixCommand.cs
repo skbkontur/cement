@@ -12,8 +12,8 @@ namespace Commands
 {
     public sealed class RefFixCommand : Command
     {
-        private readonly FixReferenceResult fixReferenceResult = new FixReferenceResult();
-        private readonly HashSet<string> missingModules = new HashSet<string>();
+        private readonly FixReferenceResult fixReferenceResult = new();
+        private readonly HashSet<string> missingModules = new();
         private bool hasFixedReferences;
         private bool fixExternal;
         private string rootModuleName;
@@ -151,7 +151,7 @@ namespace Commands
         {
             ConsoleWriter.Shared.WriteWarning($"{project}\n\tMultiple choise for replace '{oldReference}':");
             withSameName = new[] {"don't replace"}.Concat(withSameName).ToList();
-            for (int i = 0; i < withSameName.Count; i++)
+            for (var i = 0; i < withSameName.Count; i++)
             {
                 ConsoleWriter.Shared.WriteLine($"\t{i}. {withSameName[i].Replace("/", "\\")}");
             }
@@ -223,9 +223,9 @@ namespace Commands
 
     internal class FixReferenceResult
     {
-        public readonly Dictionary<string, List<string>> NotFound = new Dictionary<string, List<string>>();
-        public readonly Dictionary<string, List<string>> Replaced = new Dictionary<string, List<string>>();
-        public readonly HashSet<string> NoYamlModules = new HashSet<string>();
+        public readonly Dictionary<string, List<string>> NotFound = new();
+        public readonly Dictionary<string, List<string>> Replaced = new();
+        public readonly HashSet<string> NoYamlModules = new();
 
         public void Print()
         {
