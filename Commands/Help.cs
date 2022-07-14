@@ -7,11 +7,13 @@ namespace Commands
 {
     public sealed class Help : ICommand
     {
+        private readonly ConsoleWriter consoleWriter;
         private readonly ReadmeGenerator readmeGenerator;
 
-        public Help()
+        public Help(ConsoleWriter consoleWriter, ReadmeGenerator readmeGenerator)
         {
-            readmeGenerator = new ReadmeGenerator();
+            this.consoleWriter = consoleWriter;
+            this.readmeGenerator = readmeGenerator;
         }
 
         public string HelpMessage => @"
@@ -39,14 +41,14 @@ namespace Commands
             if (args.Length == 1)
             {
                 CommandsList.Print();
-                ConsoleWriter.Shared.WriteLine("");
+                consoleWriter.WriteLine("");
                 PrintHelpFooter();
                 return 0;
             }
 
             if (args.Length > 2)
             {
-                ConsoleWriter.Shared.WriteError("Wrong usage. Type 'cm help commandName'");
+                consoleWriter.WriteError("Wrong usage. Type 'cm help commandName'");
                 return 0;
             }
 
@@ -54,18 +56,18 @@ namespace Commands
             if (CommandsList.Commands.ContainsKey(command))
             {
                 var help = CommandsList.Commands[args[1]].HelpMessage;
-                ConsoleWriter.Shared.WriteLine(help);
+                consoleWriter.WriteLine(help);
                 PrintHelpFooter();
                 return 0;
             }
 
-            ConsoleWriter.Shared.WriteError("Bad command: '" + command + "'");
+            consoleWriter.WriteError("Bad command: '" + command + "'");
             return -1;
         }
 
         private static void PrintHelpFooter()
         {
-            ConsoleWriter.Shared.WriteLine($"Cement. {DateTime.Now.Year}.");
+            consoleWriter.WriteLine($"Cement. {DateTime.Now.Year}.");
         }
 
         private void GenerateReadme(string file)

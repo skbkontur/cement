@@ -8,7 +8,7 @@ namespace Commands
     {
         public static readonly Dictionary<string, ICommand> Commands = new Dictionary<string, ICommand>
         {
-            {"help", new Help()},
+            {"help", new Help(ConsoleWriter.Shared, new ReadmeGenerator())},
             {"get", new Get()},
             {"update-deps", new UpdateDeps()},
             {"ref", new RefCommand()},
