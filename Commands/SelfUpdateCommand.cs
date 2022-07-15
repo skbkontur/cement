@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using Common;
 using Common.Updaters;
 using Microsoft.Extensions.Logging;
@@ -112,7 +113,46 @@ public class SelfUpdateCommand : Command
 
     private static void CreateRunners()
     {
-        const string cmdText = @"@echo off
+        var installDirectory = Helper.GetCementInstallDirectory();
+
+        if (OperatingSystem.IsWindows())
+            Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm.cmd"), GetWindowsScript());
+        else
+            Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm"), GetUnixScript());
+
+        Log.LogDebug("Successfully created cm.cmd & cm");
+    }
+
+    private static string GetUnixScript()
+    {
+        const string unixScriptTemplate = @"#!/bin/bash
+path=""`dirname \""$0\""`/dotnet/cm.exe""
+
+cmd=""$path""
+for word in ""$@""; do cmd=""$cmd \""$word\""""; done
+eval $cmd
+exit_code=$?
+if [ -f ~/bin/dotnet/{PlatformSpecificDirectory}/cm ];
+then
+	cp ~/bin/dotnet/{PlatformSpecificDirectory}/cm ~/bin/dotnet/cm.exe
+    rm ~/bin/dotnet/{PlatformSpecificDirectory}/cm
+else
+    if [ -f ~/bin/dotnet/cm_new.exe ]
+    then
+        cp ~/bin/dotnet/cm_new.exe ~/bin/dotnet/cm.exe
+	    rm ~/bin/dotnet/cm_new.exe
+    fi
+fi
+chmod u+x ~/bin/dotnet/cm.exe
+exit $exit_code
+";
+
+        return unixScriptTemplate.Replace("{PlatformSpecificDirectory}", GetCurrentOsDirectory()).Replace("\r\n", "\n");
+    }
+
+    private static string GetWindowsScript()
+    {
+        const string windowsScript = @"@echo off
 ""%~dp0\dotnet\cm.exe"" %*
 SET exit_code=%errorlevel%
 if exist %~dp0\dotnet\win10-x64\cm.exe (
@@ -126,51 +166,7 @@ if exist %~dp0\dotnet\win10-x64\cm.exe (
     )
 cmd /C exit %exit_code% > nul";
 
-        var bashTextUnix = @"#!/bin/bash
-path=""`dirname \""$0\""`/dotnet/cm.exe""
-
-cmd=""$path""
-for word in ""$@""; do cmd=""$cmd \""$word\""""; done
-eval $cmd
-exit_code=$?
-if [ -f ~/bin/dotnet/linux-x64/cm ];
-then
-	cp ~/bin/dotnet/linux-x64/cm ~/bin/dotnet/cm.exe
-    rm ~/bin/dotnet/linux-x64/cm
-else
-    if [ -f ~/bin/dotnet/cm_new.exe ]
-    then
-        cp ~/bin/dotnet/cm_new.exe ~/bin/dotnet/cm.exe
-	    rm ~/bin/dotnet/cm_new.exe
-    fi
-fi
-chmod u+x ~/bin/dotnet/cm.exe
-exit $exit_code";
-        bashTextUnix = bashTextUnix.Replace("\r\n", "\n");
-
-        const string bashText = @"#!/bin/bash
-path=""`dirname \""$0\""`/dotnet/cm.exe""
-args=$@
-$path ""$@""
-exit_code=$?
-if [ -f ~/bin/dotnet/osx-x64/cm ];
-then
-	cp ~/bin/dotnet/osx-x64/cm ~/bin/dotnet/cm.exe
-    rm ~/bin/dotnet/osx-x64/cm
-else
-    if [ -f ~/bin/dotnet/cm_new.exe ]
-    then
-        cp ~/bin/dotnet/cm_new.exe ~/bin/dotnet/cm.exe
-	    rm ~/bin/dotnet/cm_new.exe
-    fi
-fi
-chmod u+x ~/bin/dotnet/cm.exe
-exit $exit_code";
-
-        var installDirectory = Helper.GetCementInstallDirectory();
-        Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm.cmd"), cmdText);
-        Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm"), Platform.IsUnix() ? bashTextUnix : bashText);
-        Log.LogDebug("Successfully created cm.cmd & cm.");
+        return windowsScript;
     }
 
     private static bool HasInstalledCement()
@@ -207,13 +203,6 @@ exit $exit_code";
         CementSettingsRepository.Save(settings);
     }
 
-    private static bool IsWindowsPlatform()
-    {
-        return Environment.OSVersion.Platform != PlatformID.Unix
-               && Environment.OSVersion.Platform != PlatformID.MacOSX
-               && Environment.OSVersion.Platform != PlatformID.Xbox;
-    }
-
     private static IEnumerable<string> GetIncludeFilesForCopy(string from, string currOsDir)
     {
         var filesForCopy = new List<string>();
@@ -230,12 +219,18 @@ exit $exit_code";
         return filesForCopy;
     }
 
-    private static string GetCurrentOsDirectory() => Environment.OSVersion.Platform switch
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetCurrentOsDirectory()
     {
-        PlatformID.MacOSX => "osx-x64",
-        PlatformID.Unix => "linux-x64",
-        _ => "win10-x64"
-    };
+        if (OperatingSystem.IsWindows())
+            return "win10-x64";
+        if (OperatingSystem.IsMacOS())
+            return "osx-x64";
+        if (OperatingSystem.IsLinux())
+            return "linux-x64";
+
+        throw new CementException("Unknown operating system. Terminating");
+    }
 
     private int UpdateBinary(ICementUpdater updater)
     {
@@ -323,7 +318,7 @@ exit $exit_code";
 
         if (Directory.Exists(tempPathToCementBinary))
         {
-            var isOsWin = IsWindowsPlatform();
+            var isOsWin = OperatingSystem.IsWindows();
             var newcm = Path.Combine(tempPathToCementBinary, $"cm{(isOsWin ? ".exe" : "")}");
             if (File.Exists(newcm))
             {

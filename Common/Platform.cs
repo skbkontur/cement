@@ -6,7 +6,7 @@ namespace Common
     {
         public static bool IsUnix()
         {
-            return Environment.OSVersion.Platform == PlatformID.Unix;
+            return OperatingSystem.IsLinux() || OperatingSystem.IsMacOS();
         }
     }
 }
