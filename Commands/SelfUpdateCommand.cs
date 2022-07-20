@@ -264,6 +264,13 @@ cmd /C exit %exit_code% > nul";
         try
         {
             var zipContent = updater.GetNewCementZip();
+
+            if (zipContent is null)
+            {
+                ConsoleWriter.Shared.WriteWarning("Failed to receive cement binary");
+                return false;
+            }
+
             using (var tempDir = new TempDirectory())
             {
                 File.WriteAllBytes(Path.Combine(tempDir.Path, "cement.zip"), zipContent);
