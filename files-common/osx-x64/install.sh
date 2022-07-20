@@ -8,9 +8,9 @@ mkdir ~/bin
 cp -R ../../dotnet ~/.cement
 cp -R ../../dotnet ~/bin/dotnet
 
-cp -R ~/bin/dotnet/linux-x64/cm ~/bin/dotnet/cm.exe
+cp -R ~/bin/dotnet/osx-x64/cm ~/bin/dotnet/cm.exe
 
-rm -rf ~/bin/dotnet/linux-x64/cm
+rm -rf ~/bin/dotnet/osx-x64/cm
 
 chmod +x ./cm
 
