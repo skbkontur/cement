@@ -21,7 +21,6 @@ after_build:
   - dotnet publish -r linux-x64 -o ..\files-common\linux-x64 /p:PublishSingleFile=true /p:DebugType=None --self-contained true
   - if not exist ..\files-common\osx-x64 mkdir ..\files-common\osx-x64
   - dotnet publish -r osx-x64 -o ..\files-common\osx-x64 /p:PublishSingleFile=true /p:DebugType=None --self-contained true
-  - copy ..\files-common\win10-x64\cm.exe ..\files-common\cm_new.exe
   - cd %APPVEYOR_BUILD_FOLDER%
   - xcopy files-common dotnet /s /i /Y
   - 7z a %APPVEYOR_REPO_COMMIT%.zip dotnet
