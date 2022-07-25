@@ -15,7 +15,7 @@ namespace Common.Updaters
     [PublicAPI]
     public sealed class ServerCementUpdater : ICementUpdater
     {
-        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
+        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(5);
 
         private readonly ILogger log;
         private readonly string branch;

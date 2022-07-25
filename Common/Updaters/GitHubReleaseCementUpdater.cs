@@ -16,7 +16,7 @@ namespace Common.Updaters
     {
         private const string Owner = "skbkontur";
         private const string Repository = "cement";
-        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
+        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(5);
 
         private readonly ILogger log;
 
