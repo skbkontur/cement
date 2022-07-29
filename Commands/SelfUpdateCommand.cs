@@ -126,7 +126,7 @@ public class SelfUpdateCommand : Command
     private static string GetUnixScript()
     {
         const string unixScriptTemplate = @"#!/bin/bash
-path=""`dirname \""$0\""`/dotnet/cm.exe""
+path=""$HOME/bin/dotnet/cm.exe""
 
 cmd=""$path""
 for word in ""$@""; do cmd=""$cmd \""$word\""""; done
