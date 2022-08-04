@@ -103,7 +103,7 @@ public class SelfUpdateCommand : Command
 
         Log.LogInformation("Cement server: {CementServerUri}", server);
 
-        ICementUpdater updater = server == null
+        using ICementUpdater updater = server == null
             ? new GitHubReleaseCementUpdater(Log)
             : new ServerCementUpdater(Log, ConsoleWriter.Shared, server, branch);
 
@@ -278,7 +278,7 @@ cmd /C exit %exit_code% > nul";
                 CopyNewCmExe(tempDir.Path);
             }
 
-            var okMessage = $"Successfully updated cement binaries. {oldHash} -> {newHash} ({updater.Name})";
+            var okMessage = $"Update succeeded: {oldHash} -> {newHash} ({updater.Name})";
             ConsoleWriter.Shared.WriteOk(okMessage);
             Log.LogDebug(okMessage);
             return true;

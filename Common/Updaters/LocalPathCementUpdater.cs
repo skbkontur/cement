@@ -34,6 +34,10 @@ namespace Common.Updaters
             return null;
         }
 
+        public void Dispose()
+        {
+        }
+
         private static string GetZipCementDirectory()
         {
             var zipDir = Path.Combine(Helper.HomeDirectory(), "work");

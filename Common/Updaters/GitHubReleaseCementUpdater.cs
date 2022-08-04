@@ -19,10 +19,12 @@ namespace Common.Updaters
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(5);
 
         private readonly ILogger log;
+        private readonly HttpClient httpClient;
 
         public GitHubReleaseCementUpdater(ILogger log)
         {
             this.log = log;
+            httpClient = new HttpClient();
         }
 
         public string Name => "GitHub";
@@ -68,12 +70,35 @@ namespace Common.Updaters
             }
         }
 
-        private static GitHubRelease LoadGitHubRelease()
+        public void Dispose()
+        {
+            httpClient.Dispose();
+        }
+
+        private byte[] LoadGitHubReleaseAsset(GitHubAsset gitHubAsset)
         {
             using var cts = new CancellationTokenSource(DefaultTimeout);
 
-            using var handler = new SocketsHttpHandler();
-            using var httpClient = new HttpClient(handler);
+            var uri = new Uri(gitHubAsset.BrowserDownloadUrl);
+            using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
+            {
+                Headers =
+                {
+                    Accept = {MediaTypeWithQualityHeaderValue.Parse(gitHubAsset.ContentType)},
+                    UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
+                }
+            };
+
+            using var httpResponseMessage = httpClient.Send(httpRequestMessage, cts.Token);
+            httpResponseMessage.EnsureSuccessStatusCode();
+
+            using var stream = httpResponseMessage.Content.ReadAsStream(cts.Token);
+            return stream.ReadAllBytes();
+        }
+
+        private GitHubRelease LoadGitHubRelease()
+        {
+            using var cts = new CancellationTokenSource(DefaultTimeout);
 
             var uri = new Uri($"https://api.github.com/repos/{Owner}/{Repository}/releases/latest");
             using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
@@ -95,30 +120,6 @@ namespace Common.Updaters
             var gitHubRelease = JsonConvert.DeserializeObject<GitHubRelease>(content);
 
             return gitHubRelease;
-        }
-
-        private static byte[] LoadGitHubReleaseAsset(GitHubAsset gitHubAsset)
-        {
-            using var cts = new CancellationTokenSource(DefaultTimeout);
-
-            using var handler = new SocketsHttpHandler();
-            using var httpClient = new HttpClient(handler);
-
-            var uri = new Uri(gitHubAsset.BrowserDownloadUrl);
-            using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
-            {
-                Headers =
-                {
-                    Accept = {MediaTypeWithQualityHeaderValue.Parse(gitHubAsset.ContentType)},
-                    UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
-                }
-            };
-
-            using var httpResponseMessage = httpClient.Send(httpRequestMessage, cts.Token);
-            httpResponseMessage.EnsureSuccessStatusCode();
-
-            using var stream = httpResponseMessage.Content.ReadAsStream(cts.Token);
-            return stream.ReadAllBytes();
         }
     }
 }

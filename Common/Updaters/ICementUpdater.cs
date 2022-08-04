@@ -1,6 +1,8 @@
-﻿namespace Common.Updaters
+﻿using System;
+
+namespace Common.Updaters
 {
-    public interface ICementUpdater
+    public interface ICementUpdater : IDisposable
     {
         string Name { get; }
 
