@@ -78,6 +78,7 @@ namespace Common
                 ? GetDefaultMsbuildParameters(buildSection.Tool)
                 : buildSection.Parameters.Select(EscapeSemicolon)).ToList();
             parameters.Add("/p:Configuration=" + buildSection.Configuration);
+            parameters.Add("/p:CementDir=" + Helper.CurrentWorkspace);
             parameters.Add(buildSection.Target);
 
             var minMsBuildVersionWithRestoreTarget = new Version(15, 5, 180);
