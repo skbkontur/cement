@@ -77,8 +77,8 @@ namespace Common
             var parameters = (buildSection.Parameters.Count == 0
                 ? GetDefaultMsbuildParameters(buildSection.Tool)
                 : buildSection.Parameters.Select(EscapeSemicolon)).ToList();
-            parameters.Add("/p:Configuration=" + buildSection.Configuration);
-            parameters.Add("/p:CementDir=" + Helper.CurrentWorkspace);
+            parameters.Add("/p:Configuration=" + buildSection.Configuration.QuoteIfNeeded());
+            parameters.Add("/p:CementDir=" + Helper.CurrentWorkspace.QuoteIfNeeded());
             parameters.Add(buildSection.Target);
 
             var minMsBuildVersionWithRestoreTarget = new Version(15, 5, 180);
@@ -89,7 +89,7 @@ namespace Common
             var toolPath = tool.Path;
 
             if (!Platform.IsUnix())
-                toolPath = "\"" + tool.Path + "\"";
+                toolPath = tool.Path.QuoteIfNeeded();
             return toolPath + " " + string.Join(" ", parameters);
         }
 

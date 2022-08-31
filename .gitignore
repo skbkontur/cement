@@ -7,6 +7,7 @@ packages/
 AssemblyTitle.cs
 .vs/Cement.Net/v14/.suo
 .vs/
+.vscode/
 releases/
 server.lnk
 deploy.bat
@@ -15,4 +16,6 @@ Cement.Net/Properties/
 /files-common/linux-x64/cm*
 /files-common/osx-x64/cm*
 /files-common/win10-x64/cm*
-
+/files-common/win10-x64/NuGet.exe
+dotnet/
+*.zip

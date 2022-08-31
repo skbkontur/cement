@@ -192,7 +192,7 @@ namespace Common
             var warnCount = runner.Output.Split('\n').Count(ModuleBuilderHelper.IsWarning);
             var obsoleteUsages = runner.Output.Split('\n').Where(ModuleBuilderHelper.IsObsoleteWarning).ToList();
 
-            var buildName = script.BuildData == null ? "" : script.BuildData.Name;
+            var buildName = script.BuildData?.Name ?? "";
             if (exitCode != 0)
             {
                 PrintBuildFailResult(dep, buildName, script, runner);
