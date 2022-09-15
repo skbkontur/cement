@@ -31,7 +31,8 @@ namespace Commands
             {"convert-spec", new ConvertSpecCommand()},
             {"reinstall", new ReInstallCommand()},
             {"complete", new CompleteCommand()},
-            {"pack", new PackCommand()}
+            {"pack", new PackCommand()},
+            {"packages", new PackagesCommand(ConsoleWriter.Shared)}
         };
 
         public static void Print()
