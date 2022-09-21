@@ -351,7 +351,7 @@ namespace Common
             }
 
             var branches = runner.Output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
-            return branches.Select(s => new Branch(s)).Where(b => b.Name != null).ToList();
+            return branches.Select(Branch.Parse).Where(b => b.Name != null).ToList();
         }
 
         public bool HasLocalBranch(string branch)

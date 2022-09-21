@@ -5,16 +5,29 @@ namespace Common
 {
     public sealed class Branch
     {
-        public Branch(string branchDescription)
+        private const string RefHeadsPrefix = "refs/heads/";
+
+        private Branch(string commitHash, string name)
         {
-            var tokens = branchDescription.Split(new char[] {}, StringSplitOptions.RemoveEmptyEntries).ToArray();
-            if (tokens.Length < 2 || tokens[1].IndexOf("refs/heads/") < 0)
+            CommitHash = commitHash;
+            Name = name;
+        }
+
+        public static Branch Parse(string branchDescription)
+        {
+            var tokens = branchDescription
+                .Split(Array.Empty<char>(), StringSplitOptions.RemoveEmptyEntries)
+                .ToArray();
+
+            if (tokens.Length < 2 || tokens[1].IndexOf(RefHeadsPrefix, StringComparison.Ordinal) < 0)
             {
                 throw new GitBranchException("Can't parse branch from:\n" + branchDescription);
             }
 
-            CommitHash = tokens[0];
-            Name = tokens[1].Replace("refs/heads/", string.Empty);
+            var commitHash = tokens[0];
+            var name = tokens[1].Replace(RefHeadsPrefix, string.Empty);
+
+            return new Branch(commitHash, name);
         }
 
         public string CommitHash { get; }
