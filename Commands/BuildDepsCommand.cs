@@ -21,7 +21,6 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogPerfix = "BUILD-DEPS",
                     LogFileName = "build-deps",
                     MeasureElapsedTime = true,
                     Location = CommandSettings.CommandLocation.RootModuleDirectory

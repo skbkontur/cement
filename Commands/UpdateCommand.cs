@@ -15,7 +15,6 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogPerfix = "UPDATE",
                     LogFileName = "update",
                     Location = CommandSettings.CommandLocation.RootModuleDirectory
                 })

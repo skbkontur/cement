@@ -17,7 +17,6 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogPerfix = "PACK",
                     LogFileName = null,
                     MeasureElapsedTime = false,
                     RequireModuleYaml = true,

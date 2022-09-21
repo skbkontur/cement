@@ -8,7 +8,6 @@ public sealed class ListPackagesCommand : Command
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogPerfix = "PACKAGES-LIST",
         LogFileName = "packages-list",
         MeasureElapsedTime = false,
         Location = CommandSettings.CommandLocation.Any

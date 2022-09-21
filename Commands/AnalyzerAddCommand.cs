@@ -17,7 +17,6 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogPerfix = "ANALYZER-ADD",
                     LogFileName = "analyzer-add",
                     MeasureElapsedTime = false,
                     Location = CommandSettings.CommandLocation.InsideModuleDirectory

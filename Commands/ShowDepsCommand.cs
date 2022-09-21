@@ -16,7 +16,6 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogPerfix = "SHOW-DEPS",
                     LogFileName = null,
                     MeasureElapsedTime = false,
                     Location = CommandSettings.CommandLocation.RootModuleDirectory

@@ -8,7 +8,6 @@ public sealed class RemovePackageCommand : Command
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogPerfix = "PACKAGE-REMOVE",
         LogFileName = "package-remove",
         MeasureElapsedTime = false,
         Location = CommandSettings.CommandLocation.Any

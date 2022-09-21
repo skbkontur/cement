@@ -8,7 +8,6 @@ public sealed class AddPackageCommand : Command
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogPerfix = "PACKAGE-ADD",
         LogFileName = "package-add",
         MeasureElapsedTime = false,
         Location = CommandSettings.CommandLocation.Any

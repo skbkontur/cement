@@ -12,7 +12,6 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogPerfix = "CHECK-PRE-COMMIT",
                     LogFileName = null,
                     MeasureElapsedTime = false,
                     RequireModuleYaml = false,

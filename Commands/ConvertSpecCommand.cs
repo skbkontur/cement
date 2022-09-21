@@ -10,7 +10,6 @@ namespace Commands
     {
         private static readonly CommandSettings ConvertSpecCommandSettings = new()
         {
-            LogPerfix = "CONVERT",
             Location = CommandSettings.CommandLocation.RootModuleDirectory
         };
 

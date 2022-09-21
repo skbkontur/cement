@@ -13,7 +13,6 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogPerfix = "USER-COMMAND",
                     LogFileName = null,
                     MeasureElapsedTime = false,
                     Location = CommandSettings.CommandLocation.Any

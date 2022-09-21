@@ -23,7 +23,6 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogPerfix = "REF-FIX",
                     LogFileName = "fixing-refs",
                     MeasureElapsedTime = false,
                     RequireModuleYaml = true,

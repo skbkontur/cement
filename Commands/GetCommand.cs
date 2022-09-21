@@ -19,7 +19,6 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogPerfix = "GET",
                     LogFileName = "get",
                     MeasureElapsedTime = true,
                     Location = CommandSettings.CommandLocation.WorkspaceDirectory

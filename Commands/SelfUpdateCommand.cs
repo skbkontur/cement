@@ -22,7 +22,6 @@ public class SelfUpdateCommand : Command
         : base(
             new CommandSettings
             {
-                LogPerfix = "SELF-UPDATE",
                 LogFileName = null,
                 MeasureElapsedTime = false,
                 Location = CommandSettings.CommandLocation.Any

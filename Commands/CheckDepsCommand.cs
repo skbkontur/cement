@@ -16,7 +16,6 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogPerfix = "CHECK-DEPS",
                     LogFileName = null,
                     MeasureElapsedTime = false,
                     RequireModuleYaml = true,
