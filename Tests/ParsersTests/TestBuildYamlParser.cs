@@ -19,7 +19,7 @@ full-build:
 ";
             var result = YamlFromText.BuildParser(text).Get();
             Assert.AreEqual(result.Count, 1);
-            Assert.AreEqual("msbuild", result[0].Tool.Name);
+            Assert.AreEqual(ToolNames.MSBuild, result[0].Tool.Name);
         }
 
         [Test]
@@ -34,7 +34,7 @@ full-build:
 ";
             var result = YamlFromText.BuildParser(text).Get();
             Assert.AreEqual(result.Count, 1);
-            Assert.AreEqual("msbuild", result[0].Tool.Name);
+            Assert.AreEqual(ToolNames.MSBuild, result[0].Tool.Name);
         }
 
         [Test]
@@ -220,7 +220,7 @@ full-build:
 ";
             var result = YamlFromText.BuildParser(text).Get();
             Assert.AreEqual(result.Count, 1);
-            Assert.AreEqual("msbuild", result[0].Tool.Name);
+            Assert.AreEqual(ToolNames.MSBuild, result[0].Tool.Name);
             Assert.AreEqual("14.0", result[0].Tool.Version);
         }
 

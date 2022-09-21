@@ -7,7 +7,7 @@ namespace Common.YamlParsers.V2
 {
     public sealed class BuildSectionParser
     {
-        private const string DefaultToolName = "msbuild";
+        private const string DefaultToolName = ToolNames.MSBuild;
         private readonly CementSettings settings;
 
         public BuildSectionParser()
@@ -87,7 +87,7 @@ namespace Common.YamlParsers.V2
 
                 case IDictionary<object, object> toolDict:
                     var name = FindValue(toolDict, "name", defaultName);
-                    var defaultVersion = name == "msbuild" && string.IsNullOrEmpty(versionFromDefault)
+                    var defaultVersion = name == ToolNames.MSBuild && string.IsNullOrEmpty(versionFromDefault)
                         ? settings.DefaultMsBuildVersion
                         : versionFromDefault;
 

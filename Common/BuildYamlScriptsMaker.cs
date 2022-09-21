@@ -55,7 +55,7 @@ namespace Common
         {
             switch (buildSection.Tool.Name)
             {
-                case "msbuild":
+                case ToolNames.MSBuild:
                 case "dotnet":
                     return BuildMsbuildScript(buildSection, dep.Name);
                 default:
@@ -95,10 +95,10 @@ namespace Common
 
         private static MsBuildLikeTool FindTool(Tool buildTool, string moduleName)
         {
-            if (buildTool.Name != "msbuild")
+            if (buildTool.Name != ToolNames.MSBuild)
                 return new MsBuildLikeTool(buildTool.Name);
             if (Platform.IsUnix())
-                return new MsBuildLikeTool("msbuild");
+                return new MsBuildLikeTool(ToolNames.MSBuild);
 
             var tool = ModuleBuilderHelper.FindMsBuild(buildTool.Version, moduleName);
 

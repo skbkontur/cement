@@ -46,7 +46,7 @@ namespace Common.YamlParsers
 
         private static Tool GetToolFromDict(Dictionary<object, object> dict)
         {
-            var tool = new Tool {Name = "msbuild"};
+            var tool = new Tool {Name = ToolNames.MSBuild};
             foreach (var key in dict.Keys)
             {
                 if ((string)key == "name")
@@ -94,7 +94,7 @@ namespace Common.YamlParsers
                 && ((string)buildSection["target"]).EndsWith(".sln"))
                 throw new BadYamlException(ModuleName, "build", "Build configuration not found in " + configName);
             if (!buildSection.ContainsKey("tool") || buildSection["tool"] == null)
-                buildSection["tool"] = "msbuild";
+                buildSection["tool"] = ToolNames.MSBuild;
             if (!buildSection.ContainsKey("parameters"))
                 buildSection["parameters"] = null;
             if (buildSections.Count > 1 && (!buildSection.ContainsKey("name") || buildSection["name"] == null))

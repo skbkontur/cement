@@ -19,7 +19,7 @@ namespace Tests.ParsersTests.V2
   configuration: Release",
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty)
+                        new BuildData("Solution.sln", "Release", new Tool(ToolNames.MSBuild), new List<string>(), string.Empty)
                     })
                 .SetName("Single sln-target with configuration, no params, no tool, no name"),
 
@@ -30,7 +30,7 @@ namespace Tests.ParsersTests.V2
     configuration: Release",
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), "build-name")
+                        new BuildData("Solution.sln", "Release", new Tool(ToolNames.MSBuild), new List<string>(), "build-name")
                     })
                 .SetName("Single sln-target with configuration, no params, no tool, with name"),
 
@@ -64,7 +64,7 @@ namespace Tests.ParsersTests.V2
   target: package.json",
                 new[]
                 {
-                    new BuildData("package.json", null, new Tool("msbuild"), new List<string>(), string.Empty)
+                    new BuildData("package.json", null, new Tool(ToolNames.MSBuild), new List<string>(), string.Empty)
                 }).SetName("Single package.json-target, no configuration, no params, default tool, no name"),
 
             new TestCaseData(
@@ -86,7 +86,7 @@ namespace Tests.ParsersTests.V2
                         new BuildData(
                             "Solution.sln",
                             "Release",
-                            new Tool("msbuild"),
+                            new Tool(ToolNames.MSBuild),
                             new List<string>
                             {
                                 "/p:WarningLevel=0"
@@ -108,7 +108,7 @@ namespace Tests.ParsersTests.V2
                         new BuildData(
                             "Solution.sln",
                             "Release",
-                            new Tool("msbuild"),
+                            new Tool(ToolNames.MSBuild),
                             new List<string>
                             {
                                 "/p:WarningLevel=0",
@@ -132,7 +132,7 @@ namespace Tests.ParsersTests.V2
                         new BuildData(
                             "Solution.sln",
                             "Release",
-                            new Tool("msbuild"),
+                            new Tool(ToolNames.MSBuild),
                             new List<string>
                             {
                                 "/p:WarningLevel=0",
@@ -158,14 +158,14 @@ namespace Tests.ParsersTests.V2
                         new BuildData(
                             "utilities.sln",
                             "Release",
-                            new Tool("msbuild"),
+                            new Tool(ToolNames.MSBuild),
                             new List<string>
                             {
                                 "/t:Rebuild /nodeReuse:false /maxcpucount /v:m /p:WarningLevel=0;DeployOnBuild=true;PublishProfile=WebApp"
                             },
                             "Utilities"),
 
-                        new BuildData("transportLog.sln", "Release", new Tool("msbuild"), new List<string>(), "Transport Log")
+                        new BuildData("transportLog.sln", "Release", new Tool(ToolNames.MSBuild), new List<string>(), "Transport Log")
                     })
                 .SetName("Multi sln-target with configuration, single-line params, no tool"),
 
@@ -217,7 +217,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData("Solution.sln", null, null, new List<string>(), string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty)
+                        new BuildData("Solution.sln", "Release", new Tool(ToolNames.MSBuild), new List<string>(), string.Empty)
                     })
                 .SetName("Single build section. Sln-target from defaults"),
 
@@ -227,7 +227,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData(null, "Release", null, new List<string>(), string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), string.Empty)
+                        new BuildData("Solution.sln", "Release", new Tool(ToolNames.MSBuild), new List<string>(), string.Empty)
                     })
                 .SetName("Single build section. Configuration from defaults"),
 
@@ -238,7 +238,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData(null, null, new Tool(null, "42"), new List<string>(), string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild", "42"), new List<string>(), string.Empty)
+                        new BuildData("Solution.sln", "Release", new Tool(ToolNames.MSBuild, "42"), new List<string>(), string.Empty)
                     })
                 .SetName("Single build section. Build tool version from defaults"),
 
@@ -260,7 +260,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData(null, null, null, new List<string> {"param1", "param2"}, string.Empty),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string> {"param1", "param2"}, string.Empty)
+                        new BuildData("Solution.sln", "Release", new Tool(ToolNames.MSBuild), new List<string> {"param1", "param2"}, string.Empty)
                     })
                 .SetName("Single build section. Build parameters from defaults"),
 
@@ -271,7 +271,7 @@ namespace Tests.ParsersTests.V2
                     new BuildData(null, null, null, new List<string>(), "buildname"),
                     new[]
                     {
-                        new BuildData("Solution.sln", "Release", new Tool("msbuild"), new List<string>(), "buildname")
+                        new BuildData("Solution.sln", "Release", new Tool(ToolNames.MSBuild), new List<string>(), "buildname")
                     })
                 .SetName("Single build section. Build parameters from defaults"),
 
@@ -286,7 +286,7 @@ namespace Tests.ParsersTests.V2
                         new BuildData(
                             "Solution.sln",
                             "Release",
-                            new Tool("msbuild"),
+                            new Tool(ToolNames.MSBuild),
                             new List<string> {"/p:WarningLevel=0"},
                             string.Empty)
                     })
@@ -358,7 +358,7 @@ namespace Tests.ParsersTests.V2
                     @"
 build:
   target: Solution.sln",
-                    new BuildData("Solution.sln", null, new Tool("msbuild"), new List<string>(), string.Empty)
+                    new BuildData("Solution.sln", null, new Tool(ToolNames.MSBuild), new List<string>(), string.Empty)
                 )
                 .SetName("'configuration' is not required for *.sln targets in default section")
         };
@@ -411,11 +411,11 @@ build:
             actual.Should().BeEquivalentTo(expected);
         }
 
-        [TestCase("msbuild", null, null, ExpectedResult = null)]
-        [TestCase("msbuild", null, "default_version", ExpectedResult = "default_version")]
-        [TestCase("msbuild", "version_from_settings", "default_version", ExpectedResult = "default_version")]
-        [TestCase("msbuild", "version_from_settings", null, ExpectedResult = "version_from_settings")]
-        [TestCase("msbuild", "version_from_settings", "", ExpectedResult = "version_from_settings")]
+        [TestCase(ToolNames.MSBuild, null, null, ExpectedResult = null)]
+        [TestCase(ToolNames.MSBuild, null, "default_version", ExpectedResult = "default_version")]
+        [TestCase(ToolNames.MSBuild, "version_from_settings", "default_version", ExpectedResult = "default_version")]
+        [TestCase(ToolNames.MSBuild, "version_from_settings", null, ExpectedResult = "version_from_settings")]
+        [TestCase(ToolNames.MSBuild, "version_from_settings", "", ExpectedResult = "version_from_settings")]
         [TestCase("not_msbuild", null, null, ExpectedResult = null)]
         [TestCase("not_msbuild", null, "default_version", ExpectedResult = "default_version")]
         [TestCase("not_msbuild", "version_from_settings", "default_version", ExpectedResult = "default_version")]
