@@ -22,7 +22,7 @@ public class SelfUpdateCommand : Command
         : base(
             new CommandSettings
             {
-                LogFileName = null,
+                LogFileName = "self-update",
                 MeasureElapsedTime = false,
                 Location = CommandSettings.CommandLocation.Any
             })

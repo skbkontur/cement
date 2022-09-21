@@ -17,7 +17,7 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogFileName = null,
+                    LogFileName = "pack",
                     MeasureElapsedTime = false,
                     RequireModuleYaml = true,
                     Location = CommandSettings.CommandLocation.InsideModuleDirectory

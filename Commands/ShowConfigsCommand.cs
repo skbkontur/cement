@@ -14,7 +14,7 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogFileName = null,
+                    LogFileName = "show-configs",
                     MeasureElapsedTime = false,
                     Location = CommandSettings.CommandLocation.Any,
                     RequireModuleYaml = true

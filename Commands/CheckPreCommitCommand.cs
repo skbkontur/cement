@@ -12,7 +12,7 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogFileName = null,
+                    LogFileName = "pre-commit-check",
                     MeasureElapsedTime = false,
                     RequireModuleYaml = false,
                     Location = CommandSettings.CommandLocation.RootModuleDirectory,

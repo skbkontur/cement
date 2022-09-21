@@ -16,7 +16,7 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogFileName = null,
+                    LogFileName = "check-deps",
                     MeasureElapsedTime = false,
                     RequireModuleYaml = true,
                     Location = CommandSettings.CommandLocation.RootModuleDirectory

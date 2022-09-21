@@ -18,7 +18,7 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogFileName = null,
+                    LogFileName = "usages-show",
                     MeasureElapsedTime = false,
                     Location = CommandSettings.CommandLocation.Any
                 })

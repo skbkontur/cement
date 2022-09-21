@@ -14,7 +14,7 @@ namespace Commands
             : base(
                 new CommandSettings
                 {
-                    LogFileName = null,
+                    LogFileName = "complete",
                     MeasureElapsedTime = false,
                     Location = CommandSettings.CommandLocation.Any,
                     IsHiddenCommand = true,
