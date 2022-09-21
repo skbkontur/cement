@@ -8,7 +8,6 @@ namespace Commands
 {
     public sealed class ConvertSpecCommand : Command
     {
-        private StreamWriter writer;
         private static readonly CommandSettings ConvertSpecCommandSettings = new()
         {
             LogPerfix = "CONVERT",
@@ -36,13 +35,13 @@ namespace Commands
                 throw new CementException("module.yaml already exists");
 
             var yamlTempName = Guid.NewGuid().ToString();
-            writer = File.CreateText(yamlTempName);
+            var writer = File.CreateText(yamlTempName);
 
             var configurationsParser = new ConfigurationParser(new FileInfo(Directory.GetCurrentDirectory()));
             var defaultConfiguration = configurationsParser.GetDefaultConfigurationName();
             var hierarchy = configurationsParser.GetConfigurationsHierarchy();
 
-            Convert(hierarchy, defaultConfiguration);
+            Convert(writer, hierarchy, defaultConfiguration);
 
             writer.Close();
             File.Move(yamlTempName, Helper.YamlSpecFile);
@@ -59,28 +58,28 @@ namespace Commands
                 throw new CementException("Extra arguments. Using: cm convert-spec.");
         }
 
-        private void Convert(Dictionary<string, IList<string>> hierarchy, string defaultConfiguration)
+        private void Convert(TextWriter writer, Dictionary<string, IList<string>> hierarchy, string defaultConfiguration)
         {
             foreach (var configuration in hierarchy.Keys)
             {
                 var children = hierarchy.Keys.Where(key => hierarchy[key].Contains(configuration)).ToList();
                 var isDefault = configuration == defaultConfiguration && configuration != "full-build";
-                Convert(configuration, children, isDefault);
+                Convert(writer, configuration, children, isDefault);
             }
         }
 
-        private void Convert(string configuration, List<string> children, bool isDefault)
+        private void Convert(TextWriter writer, string configuration, List<string> children, bool isDefault)
         {
             var childrenStr = children.Count == 0
                 ? ""
                 : " > " + string.Join(", ", children);
             var defaultStr = isDefault ? " *default" : "";
             writer.WriteLine(configuration + childrenStr + defaultStr + ":");
-            ConvertDepsSection(configuration, children);
-            ConvertBuildSection(configuration);
+            ConvertDepsSection(writer, configuration, children);
+            ConvertBuildSection(writer, configuration);
         }
 
-        private void ConvertDepsSection(string configuration, List<string> children)
+        private void ConvertDepsSection(TextWriter writer, string configuration, List<string> children)
         {
             var parser = new DepsParser(Directory.GetCurrentDirectory());
             var deps = parser.Get(configuration);
@@ -125,7 +124,7 @@ namespace Commands
             return result;
         }
 
-        private void ConvertBuildSection(string configuration)
+        private void ConvertBuildSection(TextWriter writer, string configuration)
         {
             var buildData = GetBuildData(configuration);
             writer.WriteLine("  build:");
