@@ -7,7 +7,7 @@ namespace Common.Graph
 {
     public sealed class ParallelBuilder
     {
-        public bool IsFailed;
+
         private readonly ILogger logger;
         private readonly GraphHelper graphHelper;
 
@@ -26,6 +26,8 @@ namespace Common.Graph
             this.logger = logger;
             this.graphHelper = graphHelper;
         }
+
+        public bool IsFailed { get; private set; }
 
         public void Initialize(Dictionary<Dep, List<Dep>> source)
         {
