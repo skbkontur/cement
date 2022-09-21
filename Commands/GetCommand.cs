@@ -6,7 +6,6 @@ namespace Commands
 {
     public sealed class GetCommand : Command
     {
-        private readonly ConsoleWriter consoleWriter;
         private static readonly CommandSettings Settings = new()
         {
             LogFileName = "get",
@@ -14,7 +13,9 @@ namespace Commands
             Location = CommandSettings.CommandLocation.WorkspaceDirectory
         };
 
+        private readonly ConsoleWriter consoleWriter;
         private readonly CycleDetector cycleDetector;
+
         private string configuration;
         private LocalChangesPolicy policy;
         private string module;
