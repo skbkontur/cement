@@ -9,15 +9,18 @@ namespace Commands
     public sealed class ConvertSpecCommand : Command
     {
         private StreamWriter writer;
-
-        public ConvertSpecCommand()
-            : base(
-                new CommandSettings
-                {
-                    LogPerfix = "CONVERT",
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory
-                })
+        private static readonly CommandSettings ConvertSpecCommandSettings = new()
         {
+            LogPerfix = "CONVERT",
+            Location = CommandSettings.CommandLocation.RootModuleDirectory
+        };
+
+        private readonly ConsoleWriter consoleWriter;
+
+        public ConvertSpecCommand(ConsoleWriter consoleWriter)
+            : base(ConvertSpecCommandSettings)
+        {
+            this.consoleWriter = consoleWriter;
         }
 
         public override string HelpMessage => @"
@@ -44,16 +47,16 @@ namespace Commands
             writer.Close();
             File.Move(yamlTempName, Helper.YamlSpecFile);
 
-            ConsoleWriter.Shared.WriteOk("Successfully converted info.");
-            ConsoleWriter.Shared.WriteInfo("Check build section.");
-            ConsoleWriter.Shared.WriteInfo("Add install section.");
+            consoleWriter.WriteOk("Successfully converted info.");
+            consoleWriter.WriteInfo("Check build section.");
+            consoleWriter.WriteInfo("Add install section.");
             return 0;
         }
 
         protected override void ParseArgs(string[] args)
         {
             if (args.Length > 1)
-                throw new CementException("Extra aruments. Using: cm convert-spec.");
+                throw new CementException("Extra arguments. Using: cm convert-spec.");
         }
 
         private void Convert(Dictionary<string, IList<string>> hierarchy, string defaultConfiguration)
@@ -108,9 +111,9 @@ namespace Commands
             foreach (var dep in deps)
             {
                 var withSameName = childrenDeps.Where(c => c.Name == dep.Name).ToList();
-                if (withSameName.Count() > 1)
-                    ConsoleWriter.Shared.WriteError("Fail to delete dep " + dep.Name + " and add");
-                if (withSameName.Count() == 1)
+                if (withSameName.Count > 1)
+                    consoleWriter.WriteError("Fail to delete dep " + dep.Name + " and add");
+                if (withSameName.Count == 1)
                 {
                     var remove = withSameName.First();
                     result.Add(new Dep("-" + remove.Name, remove.Treeish, remove.Configuration));

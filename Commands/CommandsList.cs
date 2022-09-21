@@ -28,7 +28,7 @@ namespace Commands
             {"status", new StatusCommand()},
             {"module", new ModuleCommand()},
             {"update", new UpdateCommand()},
-            {"convert-spec", new ConvertSpecCommand()},
+            {"convert-spec", new ConvertSpecCommand(ConsoleWriter.Shared)},
             {"reinstall", new ReInstallCommand()},
             {"complete", new CompleteCommand()},
             {"pack", new PackCommand()},
