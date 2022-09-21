@@ -13,7 +13,7 @@ namespace Common.Graph
 
         private readonly Dictionary<Dep, List<Dep>> graph = new();
         private readonly AutoResetEvent signal = new(true);
-        private readonly object sync = new();
+        private readonly SemaphoreSlim semaphore = new(1, 1);
 
         private readonly List<Dep> waiting = new();
         private readonly HashSet<Dep> building = new();
@@ -68,7 +68,8 @@ namespace Common.Graph
 
         public void EndBuild(Dep dep, bool failed = false)
         {
-            lock (sync)
+            semaphore.Wait();
+            try
             {
                 IsFailed |= failed;
                 building.Remove(dep);
@@ -80,11 +81,16 @@ namespace Common.Graph
 
                 needChecking = true;
             }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         private Dep TryStartOnce(out bool finished)
         {
-            lock (sync)
+            semaphore.Wait();
+            try
             {
                 finished = !waiting.Any();
 
@@ -112,6 +118,10 @@ namespace Common.Graph
                 }
 
                 needChecking = false;
+            }
+            finally
+            {
+                semaphore.Release();
             }
 
             logger.LogInformation("Nothing to build.");
