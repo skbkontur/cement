@@ -132,7 +132,7 @@ namespace Commands
 
             try
             {
-                Log.LogInformation("Cement version: " + Helper.GetAssemblyTitle());
+                Log.LogInformation("Cement version: {CementVersion}", Helper.GetAssemblyTitle());
             }
             catch (Exception)
             {
@@ -142,7 +142,7 @@ namespace Commands
 
         private void LogAndParseArgs(string[] args)
         {
-            Log.LogDebug($"Parsing args: [{string.Join(" ", args)}] in {Directory.GetCurrentDirectory()}");
+            Log.LogDebug("Parsing args: [{Args}] in {WorkingDirectory}", string.Join(" ", args), Directory.GetCurrentDirectory());
             ParseArgs(args);
             Log.LogDebug("OK parsing args");
         }
