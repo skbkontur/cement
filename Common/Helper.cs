@@ -18,7 +18,7 @@ namespace Common
         public const string CementDirectory = ".cement";
         public const string YamlSpecFile = "module.yaml";
         public const string ConfigurationDelimiter = "/";
-        public static readonly object LockObject = new();
+
         public static readonly int MaxDegreeOfParallelism = CementSettingsRepository.Get().MaxDegreeOfParallelism ?? 2 * Environment.ProcessorCount;
         public static readonly object PackageLockObject = new();
         private static readonly ILogger Log = LogManager.GetLogger(typeof(Helper));

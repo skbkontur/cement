@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Common
 {
     public sealed class ConsoleWriter
     {
+        private readonly SemaphoreSlim semaphore = new(1, 1);
+
         private readonly ConsoleColor defaultColor = Console.ForegroundColor;
         private readonly Stack<string> progressMessageStack = new();
         private readonly HashSet<string> processedModules = new();
@@ -96,7 +99,8 @@ namespace Common
 
         public void PrintLn(string text, ConsoleColor color)
         {
-            lock (Helper.LockObject)
+            semaphore.Wait();
+            try
             {
                 Console.ForegroundColor = color;
                 ClearLine();
@@ -104,15 +108,24 @@ namespace Common
                 Console.ForegroundColor = defaultColor;
                 SaveToProcessedModules(text);
             }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         public void SaveToProcessedModules(string text)
         {
-            lock (Helper.LockObject)
+            semaphore.Wait();
+            try
             {
                 var moduleName = text.Split(']').Last().Trim().Split(' ', '/').First();
                 processedModules.Add(moduleName);
                 PrintLastProgressFromStack();
+            }
+            finally
+            {
+                semaphore.Release();
             }
         }
 
@@ -147,7 +160,9 @@ namespace Common
         private void PrintLnError(string text, ConsoleColor color, bool emptyLineAfter = false)
         {
             var consoleWindowWidth = CalculateWindowWidth();
-            lock (Helper.LockObject)
+
+            semaphore.Wait();
+            try
             {
                 Console.ForegroundColor = color;
                 if (!Console.IsErrorRedirected)
@@ -157,11 +172,16 @@ namespace Common
                     Console.Error.WriteLine();
                 Console.ForegroundColor = defaultColor;
             }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         private void Print(string text, ConsoleColor color, bool saveProgress = true)
         {
-            lock (Helper.LockObject)
+            semaphore.Wait();
+            try
             {
                 Console.ForegroundColor = color;
                 ClearLine();
@@ -169,6 +189,10 @@ namespace Common
                 Console.ForegroundColor = defaultColor;
                 if (text.StartsWith(PROGRESS) && saveProgress)
                     progressMessageStack.Push(text);
+            }
+            finally
+            {
+                semaphore.Release();
             }
         }
 
