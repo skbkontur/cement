@@ -8,17 +8,20 @@ namespace Commands
 {
     public sealed class CheckPreCommitCommand : Command
     {
-        public CheckPreCommitCommand()
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "pre-commit-check",
-                    MeasureElapsedTime = false,
-                    RequireModuleYaml = false,
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory,
-                    IsHiddenCommand = true
-                })
+        private static readonly CommandSettings Settings = new()
         {
+            LogFileName = "pre-commit-check",
+            MeasureElapsedTime = false,
+            RequireModuleYaml = false,
+            Location = CommandSettings.CommandLocation.RootModuleDirectory,
+            IsHiddenCommand = true
+        };
+        private readonly ConsoleWriter consoleWriter;
+
+        public CheckPreCommitCommand(ConsoleWriter consoleWriter)
+            : base(Settings)
+        {
+            this.consoleWriter = consoleWriter;
         }
 
         public override string HelpMessage => @"
@@ -42,7 +45,7 @@ namespace Commands
                 if (!CheckFile(file))
                 {
                     exitCode = -1;
-                    Console.WriteLine("Bad encoding in file: " + file);
+                    consoleWriter.WriteLine("Bad encoding in file: " + file);
                 }
             }
 

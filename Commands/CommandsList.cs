@@ -21,7 +21,7 @@ namespace Commands
             {"build-deps", new BuildDepsCommand()},
             {"build", new BuildCommand()},
             {"check-deps", new CheckDepsCommand()},
-            {"check-pre-commit", new CheckPreCommitCommand()},
+            {"check-pre-commit", new CheckPreCommitCommand(ConsoleWriter.Shared)},
             {"usages", new UsagesCommand()},
             {"init", new InitCommand()},
             {"id", new IdCommand()},
