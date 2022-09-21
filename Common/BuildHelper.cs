@@ -1,22 +1,28 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Threading;
 using Common.YamlParsers;
 
 namespace Common
 {
     public sealed class BuildHelper
     {
-        private readonly object lockObject = new();
+        private readonly SemaphoreSlim semaphore = new(1, 1);
 
         public static BuildHelper Shared { get; } = new();
 
         public void RemoveModuleFromBuiltInfo(string moduleName)
         {
-            lock (lockObject)
+            semaphore.Wait();
+            try
             {
                 var storage = BuildInfoStorage.Deserialize();
                 storage.RemoveBuildInfo(moduleName);
                 storage.Save();
+            }
+            finally
+            {
+                semaphore.Release();
             }
         }
 
