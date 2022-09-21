@@ -9,7 +9,7 @@ namespace Commands
         public static readonly Dictionary<string, ICommand> Commands = new()
         {
             {"help", new HelpCommand(ConsoleWriter.Shared, new ReadmeGenerator())},
-            {"get", new GetCommand()},
+            {"get", new GetCommand(ConsoleWriter.Shared, new CycleDetector())},
             {"update-deps", new UpdateDepsCommand()},
             {"ref", new RefCommand()},
             {"analyzer", new AnalyzerCommand()},

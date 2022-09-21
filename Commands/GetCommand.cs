@@ -6,6 +6,14 @@ namespace Commands
 {
     public sealed class GetCommand : Command
     {
+        private readonly ConsoleWriter consoleWriter;
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "get",
+            MeasureElapsedTime = true,
+            Location = CommandSettings.CommandLocation.WorkspaceDirectory
+        };
+
         private readonly CycleDetector cycleDetector;
         private string configuration;
         private LocalChangesPolicy policy;
@@ -15,16 +23,11 @@ namespace Commands
         private bool verbose;
         private int? gitDepth;
 
-        public GetCommand()
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "get",
-                    MeasureElapsedTime = true,
-                    Location = CommandSettings.CommandLocation.WorkspaceDirectory
-                })
+        public GetCommand(ConsoleWriter consoleWriter, CycleDetector cycleDetector)
+            : base(Settings)
         {
-            cycleDetector = new CycleDetector();
+            this.consoleWriter = consoleWriter;
+            this.cycleDetector = cycleDetector;
         }
 
         public override string HelpMessage => @"
@@ -99,7 +102,7 @@ namespace Commands
 
             getter.GetModule();
 
-            ConsoleWriter.Shared.WriteInfo("Getting deps for " + module);
+            consoleWriter.WriteInfo("Getting deps for " + module);
             Log.LogInformation("Getting deps list for " + module);
 
             getter.GetDeps();
