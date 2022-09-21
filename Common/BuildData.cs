@@ -10,7 +10,7 @@ namespace Common
             Configuration = configuration;
         }
 
-        public BuildData(string target, string configuration, Tool tool, List<string> parameters, string name)
+        public BuildData(string target, string configuration, Tool tool, IReadOnlyCollection<string> parameters, string name)
         {
             Target = target;
             Configuration = configuration;
@@ -22,7 +22,7 @@ namespace Common
         public string Target { get; }
         public Tool Tool { get; }
         public string Configuration { get; }
-        public List<string> Parameters { get; }
+        public IReadOnlyCollection<string> Parameters { get; }
         public string Name { get; }
     }
 }

@@ -136,7 +136,7 @@ full-build:
 ";
             var result = YamlFromText.BuildParser(text).Get();
             Assert.AreEqual(result.Count, 1);
-            Assert.AreEqual(new[] {"a:b", "/c:d", "e"}, result[0].Parameters.ToArray());
+            Assert.AreEqual(new[] {"a:b", "/c:d", "e"}, result[0].Parameters);
         }
 
         [Test]
@@ -151,7 +151,7 @@ full-build:
 ";
             var result = YamlFromText.BuildParser(text).Get();
             Assert.AreEqual(result.Count, 1);
-            Assert.AreEqual(new[] {"asdf"}, result[0].Parameters.ToArray());
+            Assert.AreEqual(new[] {"asdf"}, result[0].Parameters);
         }
 
         [Test]
@@ -167,7 +167,7 @@ full-build:
 ";
             var result = YamlFromText.BuildParser(text).Get();
             Assert.AreEqual(result.Count, 1);
-            Assert.AreEqual(new[] {"asdf \"q\"wer"}, result[0].Parameters.ToArray());
+            Assert.AreEqual(new[] {"asdf \"q\"wer"}, result[0].Parameters);
         }
 
         [Test]
