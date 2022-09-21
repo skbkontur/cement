@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,7 +8,6 @@ namespace Common.Graph
 {
     public sealed class ParallelBuilder
     {
-
         private readonly ILogger logger;
         private readonly GraphHelper graphHelper;
 
@@ -18,6 +18,7 @@ namespace Common.Graph
         private readonly List<Dep> waiting = new();
         private readonly HashSet<Dep> building = new();
         private readonly List<Dep> built = new();
+
         private bool needChecking = true;
 
         public ParallelBuilder(ILogger<ParallelBuilder> logger, GraphHelper graphHelper)
@@ -77,7 +78,9 @@ namespace Common.Graph
                 building.Remove(dep);
                 built.Add(dep);
 
-                var children = new ConfigurationManager(dep.Name, new Dep[0]).ChildrenConfigurations(dep);
+                var children = new ConfigurationManager(dep.Name, Array.Empty<Dep>())
+                    .ChildrenConfigurations(dep);
+
                 foreach (var child in children)
                     built.Add(new Dep(dep.Name, null, child));
 
@@ -98,7 +101,7 @@ namespace Common.Graph
 
                 if (!needChecking)
                 {
-                    logger.LogInformation("Nothing to build - already checked.");
+                    logger.LogInformation("Nothing to build - already checked");
                     return null;
                 }
 
@@ -110,12 +113,14 @@ namespace Common.Graph
                     var deps = graph[module];
                     if (!deps.All(d => built.Contains(d)))
                         continue;
+
                     if (deps.Any(d => building.Any(b => d.Name == b.Name)))
                         continue;
 
                     building.Add(module);
                     waiting.Remove(module);
-                    logger.LogInformation($"Building {module} with {building.Count - 1} others.");
+
+                    logger.LogInformation("Building {Module} with {ModulesCount} others", module, building.Count - 1);
                     return module;
                 }
 
@@ -126,7 +131,7 @@ namespace Common.Graph
                 semaphore.Release();
             }
 
-            logger.LogInformation("Nothing to build.");
+            logger.LogInformation("Nothing to build");
             return null;
         }
     }
