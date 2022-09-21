@@ -56,7 +56,7 @@ namespace Common
             switch (buildSection.Tool.Name)
             {
                 case ToolNames.MSBuild:
-                case "dotnet":
+                case ToolNames.DOTNET:
                     return BuildMsbuildScript(buildSection, dep.Name);
                 default:
                     return BuildShellScript(buildSection);
@@ -116,7 +116,7 @@ namespace Common
 
         private static List<string> GetDefaultMsbuildParameters(string toolName)
         {
-            if (toolName == "dotnet")
+            if (toolName == ToolNames.DOTNET)
                 return DefaultDotnetParameters.ToList();
 
             return (Platform.IsUnix() ? DefaultXbuildParameters : DefaultMsbuildParameters).ToList();

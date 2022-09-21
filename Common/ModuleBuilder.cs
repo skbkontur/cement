@@ -54,7 +54,7 @@ namespace Common
                 {
                     if (buildSection.Target == null || !buildSection.Target.EndsWith(".sln"))
                         continue;
-                    if (buildSection.Tool.Name != "dotnet")
+                    if (buildSection.Tool.Name != ToolNames.DOTNET)
                     {
                         var target = Path.Combine(Helper.CurrentWorkspace, moduleName, buildSection.Target);
                         targets.Add(target);
