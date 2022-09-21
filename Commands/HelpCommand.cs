@@ -38,9 +38,10 @@ namespace Commands
                 return 0;
             }
 
+            var commands = new CommandsList(consoleWriter);
             if (args.Length == 1)
             {
-                CommandsList.Print();
+                commands.Print();
                 consoleWriter.WriteLine("");
                 PrintHelpFooter();
                 return 0;
@@ -53,9 +54,9 @@ namespace Commands
             }
 
             var command = args[1];
-            if (CommandsList.Commands.ContainsKey(command))
+            if (commands.ContainsKey(command))
             {
-                var help = CommandsList.Commands[args[1]].HelpMessage;
+                var help = commands[args[1]].HelpMessage;
                 consoleWriter.WriteLine(help);
                 PrintHelpFooter();
                 return 0;

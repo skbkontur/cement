@@ -4,54 +4,59 @@ namespace Commands
 {
     public sealed class ReadmeGenerator
     {
+        private readonly CommandsList commandsList;
+
+        public ReadmeGenerator(CommandsList commandsList)
+        {
+            this.commandsList = commandsList;
+        }
+
         public string Generate()
         {
-            var commands = CommandsList.Commands;
-
             var result = $@"
 ### cm help
-{commands["help"].HelpMessage}
+{commandsList["help"].HelpMessage}
 
 ### cm self-update
-{commands["self-update"].HelpMessage}
+{commandsList["self-update"].HelpMessage}
 ### cm --version
-{commands["--version"].HelpMessage}
+{commandsList["--version"].HelpMessage}
 
 ### cm init
-{commands["init"].HelpMessage}
+{commandsList["init"].HelpMessage}
 ### cm get
-{commands["get"].HelpMessage}
+{commandsList["get"].HelpMessage}
 ### cm update-deps
-{commands["update-deps"].HelpMessage}
+{commandsList["update-deps"].HelpMessage}
 ### cm update
-{commands["update"].HelpMessage}
+{commandsList["update"].HelpMessage}
 
 ### cm build-deps
-{commands["build-deps"].HelpMessage}
+{commandsList["build-deps"].HelpMessage}
 ### cm build
-{commands["build"].HelpMessage}
+{commandsList["build"].HelpMessage}
 
 ### cm ls
-{commands["ls"].HelpMessage}
+{commandsList["ls"].HelpMessage}
 ### cm module
-{commands["module"].HelpMessage}
+{commandsList["module"].HelpMessage}
 ### cm ref
-{commands["ref"].HelpMessage}
+{commandsList["ref"].HelpMessage}
 ### cm analyzer
-{commands["analyzer"].HelpMessage}
+{commandsList["analyzer"].HelpMessage}
 ### cm show-configs
-{commands["show-configs"].HelpMessage}
+{commandsList["show-configs"].HelpMessage}
 ### cm check-deps
-{commands["check-deps"].HelpMessage}
+{commandsList["check-deps"].HelpMessage}
 ### cm show-deps
-{commands["show-deps"].HelpMessage}
+{commandsList["show-deps"].HelpMessage}
 ### cm usages
-{commands["usages"].HelpMessage}
+{commandsList["usages"].HelpMessage}
 ### cm pack
-{commands["pack"].HelpMessage}
+{commandsList["pack"].HelpMessage}
 
 ### cm status
-{commands["status"].HelpMessage}";
+{commandsList["status"].HelpMessage}";
 
             var menu = "# Commands" + Environment.NewLine + Environment.NewLine;
 

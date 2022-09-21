@@ -5,12 +5,17 @@ namespace Commands
 {
     public sealed class UsagesCommand : ICommand
     {
-        private readonly Dictionary<string, ICommand> commands = new()
+        private readonly Dictionary<string, ICommand> commands;
+
+        public UsagesCommand(ConsoleWriter consoleWriter, IUsagesProvider usagesProvider, GetCommand getCommand)
         {
-            {"show", new UsagesShowCommand()},
-            {"build", new UsagesBuildCommand()},
-            {"grep", new UsagesGrepCommand()}
-        };
+            commands = new Dictionary<string, ICommand>
+            {
+                {"show", new UsagesShowCommand()},
+                {"build", new UsagesBuildCommand(consoleWriter, usagesProvider, getCommand)},
+                {"grep", new UsagesGrepCommand()}
+            };
+        }
 
         public string HelpMessage => @"
     Performs operations with module usages

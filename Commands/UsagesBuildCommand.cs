@@ -3,13 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
-using Common.Logging;
 
 namespace Commands
 {
     public sealed class UsagesBuildCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "usages-build",
+            MeasureElapsedTime = true,
+            Location = CommandSettings.CommandLocation.RootModuleDirectory
+        };
+        private readonly ConsoleWriter consoleWriter;
+
         private readonly IUsagesProvider usagesProvider;
+        private readonly GetCommand getCommand;
 
         private string moduleName, branch;
         private string checkingBranch;
@@ -18,17 +26,12 @@ namespace Commands
         private GitRepository currentRepository;
         private bool pause;
 
-        public UsagesBuildCommand()
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "usages-build",
-                    MeasureElapsedTime = true,
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory
-                })
+        public UsagesBuildCommand(ConsoleWriter consoleWriter, IUsagesProvider usagesProvider, GetCommand getCommand)
+            : base(Settings)
         {
-            var logger = LogManager.GetLogger<UsagesProvider>();
-            usagesProvider = new UsagesProvider(logger, CementSettingsRepository.Get);
+            this.consoleWriter = consoleWriter;
+            this.usagesProvider = usagesProvider;
+            this.getCommand = getCommand;
         }
 
         public override string HelpMessage => @"";
@@ -60,23 +63,23 @@ namespace Commands
             return 0;
         }
 
-        private static void WriteStat(List<KeyValuePair<Dep, string>> badParents, List<Dep> goodParents)
+        private void WriteStat(List<KeyValuePair<Dep, string>> badParents, List<Dep> goodParents)
         {
             if (!badParents.Any())
-                ConsoleWriter.Shared.WriteOk("All usages builds is fine");
+                consoleWriter.WriteOk("All usages builds is fine");
             else
             {
-                ConsoleWriter.Shared.WriteOk("Ok builds:");
+                consoleWriter.WriteOk("Ok builds:");
                 if (!goodParents.Any())
                     Console.WriteLine("none");
                 foreach (var dep in goodParents)
-                    ConsoleWriter.Shared.WriteOk(dep.ToString());
+                    consoleWriter.WriteOk(dep.ToString());
                 Console.WriteLine();
-                ConsoleWriter.Shared.WriteError("There were some errors in modules:");
+                consoleWriter.WriteError("There were some errors in modules:");
                 foreach (var pair in badParents)
                 {
                     Console.WriteLine();
-                    ConsoleWriter.Shared.WriteError(pair.Key.ToString());
+                    consoleWriter.WriteError(pair.Key.ToString());
                     Console.WriteLine(pair.Value);
                 }
             }
@@ -98,7 +101,7 @@ namespace Commands
                     }
                     catch (CementException exception)
                     {
-                        ConsoleWriter.Shared.WriteError(exception.ToString());
+                        consoleWriter.WriteError(exception.ToString());
                         badParents.Add(
                             new KeyValuePair<Dep, string>(
                                 depParent,
@@ -125,25 +128,25 @@ namespace Commands
 
         private void BuildParent(Dep depParent)
         {
-            ConsoleWriter.Shared.WriteInfo("Checking parent " + depParent);
-            if (new GetCommand().Run(new[] {"get", depParent.Name, "-c", depParent.Configuration}) != 0)
+            consoleWriter.WriteInfo("Checking parent " + depParent);
+            if (getCommand.Run(new[] {"get", depParent.Name, "-c", depParent.Configuration}) != 0)
                 throw new CementException("Failed get module " + depParent.Name);
-            ConsoleWriter.Shared.ResetProgress();
-            if (new GetCommand().Run(new[] {"get", moduleName, branch}) != 0)
+            consoleWriter.ResetProgress();
+            if (getCommand.Run(new[] {"get", moduleName, branch}) != 0)
                 throw new CementException("Failed get current module " + moduleName);
-            ConsoleWriter.Shared.ResetProgress();
+            consoleWriter.ResetProgress();
 
             using (new DirectoryJumper(Path.Combine(workspace, depParent.Name)))
             {
                 if (new BuildDepsCommand().Run(new[] {"build-deps", "-c", depParent.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + depParent.Name);
-                ConsoleWriter.Shared.ResetProgress();
+                consoleWriter.ResetProgress();
                 if (new BuildCommand().Run(new[] {"build"}) != 0)
                     throw new CementException("Failed to build " + depParent.Name);
-                ConsoleWriter.Shared.ResetProgress();
+                consoleWriter.ResetProgress();
             }
 
-            ConsoleWriter.Shared.WriteOk($"{depParent} build fine");
+            consoleWriter.WriteOk($"{depParent} build fine");
             Console.WriteLine();
         }
     }

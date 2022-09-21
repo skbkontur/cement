@@ -10,21 +10,26 @@ namespace Commands
 {
     public sealed class RefAddCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "ref-add",
+            MeasureElapsedTime = false,
+            Location = CommandSettings.CommandLocation.InsideModuleDirectory
+        };
+        private readonly ConsoleWriter consoleWriter;
+        private readonly GetCommand getCommand;
+
         private string project;
         private Dep dep;
         private bool testReplaces;
         private bool hasReplaces;
         private bool force;
 
-        public RefAddCommand()
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "ref-add",
-                    MeasureElapsedTime = false,
-                    Location = CommandSettings.CommandLocation.InsideModuleDirectory
-                })
+        public RefAddCommand(ConsoleWriter consoleWriter, GetCommand getCommand)
+            : base(Settings)
         {
+            this.consoleWriter = consoleWriter;
+            this.getCommand = getCommand;
         }
 
         public override string HelpMessage => @"";
@@ -58,7 +63,7 @@ namespace Commands
 
             if (!Helper.HasModule(moduleToInsert))
             {
-                ConsoleWriter.Shared.WriteError($"Can't find module '{moduleToInsert}'");
+                consoleWriter.WriteError($"Can't find module '{moduleToInsert}'");
                 return -1;
             }
 
@@ -74,7 +79,7 @@ namespace Commands
             var installData = InstallParser.Get(moduleToInsert, configuration);
             if (!installData.InstallFiles.Any())
             {
-                ConsoleWriter.Shared.WriteWarning($"No install files found in '{moduleToInsert}'");
+                consoleWriter.WriteWarning($"No install files found in '{moduleToInsert}'");
                 return 0;
             }
 
@@ -106,24 +111,24 @@ namespace Commands
         {
             using (new DirectoryJumper(Helper.CurrentWorkspace))
             {
-                ConsoleWriter.Shared.WriteInfo("cm get " + module);
-                if (new GetCommand().Run(new[] {"get", module.ToYamlString()}) != 0)
+                consoleWriter.WriteInfo("cm get " + module);
+                if (getCommand.Run(new[] {"get", module.ToYamlString()}) != 0)
                     throw new CementException("Failed get module " + module);
-                ConsoleWriter.Shared.ResetProgress();
+                consoleWriter.ResetProgress();
             }
 
             module.Configuration = module.Configuration ?? Yaml.ConfigurationParser(module.Name).GetDefaultConfigurationName();
 
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
             {
-                ConsoleWriter.Shared.WriteInfo("cm build-deps " + module);
+                consoleWriter.WriteInfo("cm build-deps " + module);
                 if (new BuildDepsCommand().Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + dep);
-                ConsoleWriter.Shared.ResetProgress();
-                ConsoleWriter.Shared.WriteInfo("cm build " + module);
+                consoleWriter.ResetProgress();
+                consoleWriter.WriteInfo("cm build " + module);
                 if (new BuildCommand().Run(new[] {"build", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build " + dep);
-                ConsoleWriter.Shared.ResetProgress();
+                consoleWriter.ResetProgress();
             }
 
             Console.WriteLine();
@@ -139,7 +144,7 @@ namespace Commands
                 var repo = new GitRepository(dep.Name, Helper.CurrentWorkspace, Log);
                 var current = repo.CurrentLocalTreeish().Value;
                 if (current != dep.Treeish)
-                    ConsoleWriter.Shared.WriteWarning($"{dep.Name} on @{current} but adding @{dep.Treeish}");
+                    consoleWriter.WriteWarning($"{dep.Name} on @{current} but adding @{dep.Treeish}");
             }
             catch (Exception e)
             {
@@ -158,7 +163,7 @@ namespace Commands
             }
             catch (Exception e)
             {
-                ConsoleWriter.Shared.WriteWarning($"Installation of NuGet packages failed: {e.InnerException?.Message ?? e.Message}");
+                consoleWriter.WriteWarning($"Installation of NuGet packages failed: {e.InnerException?.Message ?? e.Message}");
                 Log.LogError("Installation of NuGet packages failed:", e);
             }
 
@@ -188,7 +193,7 @@ namespace Commands
         {
             if (File.Exists(file))
                 return;
-            ConsoleWriter.Shared.WriteWarning($"File {file} does not exist. Probably you need to build {dep.Name}.");
+            consoleWriter.WriteWarning($"File {file} does not exist. Probably you need to build {dep.Name}.");
         }
 
         private void AddRef(ProjectFile csproj, string refName, string hintPath)
@@ -206,14 +211,14 @@ namespace Commands
                 {
                     csproj.ReplaceRef(refName, hintPath);
                     Log.LogDebug($"'{refName}' ref replaced");
-                    ConsoleWriter.Shared.WriteOk("Successfully replaced " + refName);
+                    consoleWriter.WriteOk("Successfully replaced " + refName);
                 }
             }
             else
             {
                 SafeAddRef(csproj, refName, hintPath);
                 Log.LogDebug($"'{refName}' ref added");
-                ConsoleWriter.Shared.WriteOk("Successfully installed " + refName);
+                consoleWriter.WriteOk("Successfully installed " + refName);
             }
         }
 
@@ -235,11 +240,11 @@ namespace Commands
 
             if (oldRef.Equals(newRef))
             {
-                ConsoleWriter.Shared.WriteSkip("Already has same " + refName);
+                consoleWriter.WriteSkip("Already has same " + refName);
                 return false;
             }
 
-            ConsoleWriter.Shared.WriteWarning(
+            consoleWriter.WriteWarning(
                 $"'{project}' already contains ref '{refName}'.\n\n<<<<\n{oldRef}\n\n>>>>\n{newRef}\nDo you want to replace (y/N)?");
             var answer = Console.ReadLine();
             return answer != null && answer.Trim().ToLowerInvariant() == "y";

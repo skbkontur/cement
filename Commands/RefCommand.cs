@@ -5,11 +5,16 @@ namespace Commands
 {
     public sealed class RefCommand : ICommand
     {
-        private readonly Dictionary<string, ICommand> commands = new()
+        private readonly Dictionary<string, ICommand> commands;
+
+        public RefCommand(ConsoleWriter consoleWriter, GetCommand getCommand)
         {
-            {"add", new RefAddCommand()},
-            {"fix", new RefFixCommand()}
-        };
+            commands = new Dictionary<string, ICommand>
+            {
+                {"add", new RefAddCommand(consoleWriter, getCommand)},
+                {"fix", new RefFixCommand()}
+            };
+        }
 
         public string HelpMessage => @"
     Adds or fixes references in *.csproj

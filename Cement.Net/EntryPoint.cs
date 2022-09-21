@@ -79,7 +79,7 @@ namespace cm
 
         private static int Run(string[] args)
         {
-            var commands = CommandsList.Commands;
+            var commands = new CommandsList(ConsoleWriter.Shared);
             if (commands.ContainsKey(args[0]))
             {
                 return commands[args[0]].Run(args);
