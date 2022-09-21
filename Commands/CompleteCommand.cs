@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Common;
 using Common.Logging;
@@ -8,19 +7,21 @@ namespace Commands
 {
     public sealed class CompleteCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "complete",
+            MeasureElapsedTime = false,
+            Location = CommandSettings.CommandLocation.Any,
+            IsHiddenCommand = true,
+            NoElkLog = true
+        };
+        private readonly ConsoleWriter consoleWriter;
         private string[] otherArgs;
 
-        public CompleteCommand()
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "complete",
-                    MeasureElapsedTime = false,
-                    Location = CommandSettings.CommandLocation.Any,
-                    IsHiddenCommand = true,
-                    NoElkLog = true
-                })
+        public CompleteCommand(ConsoleWriter consoleWriter)
+            : base(Settings)
         {
+            this.consoleWriter = consoleWriter;
         }
 
         public override string HelpMessage => "";
@@ -50,9 +51,9 @@ namespace Commands
             otherArgs = args.Skip(1).ToArray();
         }
 
-        private static void PrintList(IEnumerable<string> list)
+        private void PrintList(IEnumerable<string> list)
         {
-            Console.WriteLine(string.Join("\n", list.OrderBy(x => x)));
+            consoleWriter.WriteLines(list.OrderBy(x => x));
         }
     }
 }

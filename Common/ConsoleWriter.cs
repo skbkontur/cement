@@ -48,6 +48,11 @@ namespace Common
             PrintLn(OK + text, ConsoleColor.Green);
         }
 
+        public void WriteLines(IEnumerable<string> lines)
+        {
+            PrintLn(string.Join(Environment.NewLine, lines), defaultColor);
+        }
+
         public void WriteLine(string text)
         {
             PrintLn(text, defaultColor);
