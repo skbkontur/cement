@@ -1,8 +1,11 @@
-﻿namespace Commands
+﻿using Common;
+
+namespace Commands
 {
     public sealed class ReInstallCommand : SelfUpdateCommand
     {
-        public ReInstallCommand()
+        public ReInstallCommand(ConsoleWriter consoleWriter)
+            : base(consoleWriter)
         {
             IsInstallingCement = true;
             CommandSettings.IsHiddenCommand = true;

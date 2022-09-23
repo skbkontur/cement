@@ -8,20 +8,21 @@ namespace Commands
 {
     public sealed class PackCommand : Command
     {
+        private static readonly CommandSettings Settings = new CommandSettings
+        {
+            LogFileName = "pack",
+            MeasureElapsedTime = false,
+            RequireModuleYaml = true,
+            Location = CommandSettings.CommandLocation.InsideModuleDirectory
+        };
+
         private string project;
         private string configuration;
         private BuildSettings buildSettings;
         private bool preRelease;
 
-        public PackCommand()
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "pack",
-                    MeasureElapsedTime = false,
-                    RequireModuleYaml = true,
-                    Location = CommandSettings.CommandLocation.InsideModuleDirectory
-                })
+        public PackCommand(ConsoleWriter consoleWriter)
+            : base(consoleWriter, Settings)
         {
         }
 

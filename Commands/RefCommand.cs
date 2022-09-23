@@ -12,7 +12,7 @@ namespace Commands
             commands = new Dictionary<string, ICommand>
             {
                 {"add", new RefAddCommand(consoleWriter, getCommand)},
-                {"fix", new RefFixCommand()}
+                {"fix", new RefFixCommand(consoleWriter)}
             };
         }
 

@@ -25,7 +25,7 @@ namespace Commands
         private int? gitDepth;
 
         public GetCommand(ConsoleWriter consoleWriter, CycleDetector cycleDetector)
-            : base(Settings)
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
             this.cycleDetector = cycleDetector;

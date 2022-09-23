@@ -8,15 +8,16 @@ namespace Commands
 {
     public sealed class ConvertSpecCommand : Command
     {
-        private static readonly CommandSettings ConvertSpecCommandSettings = new()
+        private static readonly CommandSettings Settings = new()
         {
+            LogFileName = "convert-spec",
             Location = CommandSettings.CommandLocation.RootModuleDirectory
         };
 
         private readonly ConsoleWriter consoleWriter;
 
         public ConvertSpecCommand(ConsoleWriter consoleWriter)
-            : base(ConvertSpecCommandSettings)
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
         }

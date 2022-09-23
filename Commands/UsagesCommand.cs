@@ -5,10 +5,12 @@ namespace Commands
 {
     public sealed class UsagesCommand : ICommand
     {
+        private readonly ConsoleWriter consoleWriter;
         private readonly Dictionary<string, ICommand> commands;
 
         public UsagesCommand(ConsoleWriter consoleWriter, IUsagesProvider usagesProvider, GetCommand getCommand)
         {
+            this.consoleWriter = consoleWriter;
             commands = new Dictionary<string, ICommand>
             {
                 {"show", new UsagesShowCommand(consoleWriter)},
@@ -70,7 +72,7 @@ namespace Commands
         {
             if (args.Length < 2 || !commands.ContainsKey(args[1]))
             {
-                ConsoleWriter.Shared.WriteError("Bad arguments");
+                consoleWriter.WriteError("Bad arguments");
                 return -1;
             }
 

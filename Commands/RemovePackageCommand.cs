@@ -15,8 +15,8 @@ public sealed class RemovePackageCommand : Command
 
     private string packageName = null!;
 
-    public RemovePackageCommand()
-        : base(Settings)
+    public RemovePackageCommand(ConsoleWriter consoleWriter)
+        : base(consoleWriter, Settings)
     {
     }
 

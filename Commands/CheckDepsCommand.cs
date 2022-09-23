@@ -7,6 +7,13 @@ namespace Commands
 {
     public sealed class CheckDepsCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "check-deps",
+            MeasureElapsedTime = false,
+            RequireModuleYaml = true,
+            Location = CommandSettings.CommandLocation.RootModuleDirectory
+        };
         private readonly ConsoleWriter consoleWriter;
         private string configuration;
         private bool showAll;
@@ -14,14 +21,7 @@ namespace Commands
         private bool showShort;
 
         public CheckDepsCommand(ConsoleWriter consoleWriter)
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "check-deps",
-                    MeasureElapsedTime = false,
-                    RequireModuleYaml = true,
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory
-                })
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
         }

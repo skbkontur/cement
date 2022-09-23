@@ -13,19 +13,20 @@ namespace Commands;
 
 public class SelfUpdateCommand : Command
 {
+    private static readonly CommandSettings Settings = new()
+    {
+        LogFileName = "self-update",
+        MeasureElapsedTime = false,
+        Location = CommandSettings.CommandLocation.Any
+    };
+
     private static bool isAutoUpdate;
     protected bool IsInstallingCement;
     private string branch;
     private string server;
 
-    public SelfUpdateCommand()
-        : base(
-            new CommandSettings
-            {
-                LogFileName = "self-update",
-                MeasureElapsedTime = false,
-                Location = CommandSettings.CommandLocation.Any
-            })
+    public SelfUpdateCommand(ConsoleWriter consoleWriter)
+        : base(consoleWriter, Settings)
     {
     }
 
@@ -42,7 +43,7 @@ public class SelfUpdateCommand : Command
             if (diff <= TimeSpan.FromHours(5))
                 return;
             isAutoUpdate = true;
-            var exitCode = new SelfUpdateCommand().Run(new[] {"self-update"});
+            var exitCode = new SelfUpdateCommand(ConsoleWriter.Shared).Run(new[] {"self-update"});
             if (exitCode != 0)
             {
                 Log.LogError("Auto update cement failed. 'self-update' exited with code '{Code}'", exitCode);

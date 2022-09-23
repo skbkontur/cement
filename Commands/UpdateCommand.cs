@@ -6,6 +6,12 @@ namespace Commands
 {
     public sealed class UpdateCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "update",
+            Location = CommandSettings.CommandLocation.RootModuleDirectory
+        };
+
         private readonly ConsoleWriter consoleWriter;
         private string treeish = "master";
         private bool verbose;
@@ -13,12 +19,7 @@ namespace Commands
         private int? gitDepth;
 
         public UpdateCommand(ConsoleWriter consoleWriter)
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "update",
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory
-                })
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
         }

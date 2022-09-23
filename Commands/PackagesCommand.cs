@@ -18,9 +18,9 @@ public sealed class PackagesCommand : ICommand
         //dstarasov: не должен знать про то, как создавать его подкомманды и в будущем эта ответственность отсюда уедет
         subcommands = new Dictionary<string, ICommand>
         {
-            {"list", new ListPackagesCommand(ConsoleWriter.Shared)},
-            {"add", new AddPackageCommand()},
-            {"remove", new RemovePackageCommand()}
+            {"list", new ListPackagesCommand(consoleWriter)},
+            {"add", new AddPackageCommand(consoleWriter)},
+            {"remove", new RemovePackageCommand(consoleWriter)}
         };
     }
 

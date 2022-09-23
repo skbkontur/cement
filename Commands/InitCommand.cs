@@ -5,6 +5,13 @@ namespace Commands
 {
     public sealed class InitCommand : ICommand
     {
+        private readonly ConsoleWriter consoleWriter;
+
+        public InitCommand(ConsoleWriter consoleWriter)
+        {
+            this.consoleWriter = consoleWriter;
+        }
+
         public string HelpMessage => @"
     Inits current directory as 'cement tracked'
 
@@ -21,7 +28,7 @@ namespace Commands
         {
             if (args.Length != 1)
             {
-                ConsoleWriter.Shared.WriteError("Invalid command usage. User 'cm help init' for details");
+                consoleWriter.WriteError("Invalid command usage. User 'cm help init' for details");
                 return -1;
             }
 
@@ -30,18 +37,18 @@ namespace Commands
 
             if (cwd == home)
             {
-                ConsoleWriter.Shared.WriteError("$HOME cannot be used as cement base directory");
+                consoleWriter.WriteError("$HOME cannot be used as cement base directory");
                 return -1;
             }
 
             if (Helper.IsCementTrackedDirectory(cwd))
             {
-                ConsoleWriter.Shared.WriteInfo("It is already cement tracked directory");
+                consoleWriter.WriteInfo("It is already cement tracked directory");
                 return 0;
             }
 
             Directory.CreateDirectory(Helper.CementDirectory);
-            ConsoleWriter.Shared.WriteOk(Directory.GetCurrentDirectory() + " became cement tracked directory.");
+            consoleWriter.WriteOk(Directory.GetCurrentDirectory() + " became cement tracked directory.");
             return 0;
         }
     }

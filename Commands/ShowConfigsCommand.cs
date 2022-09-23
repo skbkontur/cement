@@ -8,18 +8,18 @@ namespace Commands
 {
     public sealed class ShowConfigsCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "show-configs",
+            MeasureElapsedTime = false,
+            Location = CommandSettings.CommandLocation.Any,
+            RequireModuleYaml = true
+        };
         private readonly ConsoleWriter consoleWriter;
         private string moduleNameArg;
 
         public ShowConfigsCommand(ConsoleWriter consoleWriter)
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "show-configs",
-                    MeasureElapsedTime = false,
-                    Location = CommandSettings.CommandLocation.Any,
-                    RequireModuleYaml = true
-                })
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
         }

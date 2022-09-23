@@ -79,16 +79,17 @@ namespace cm
 
         private static int Run(string[] args)
         {
-            var commands = new CommandsList(ConsoleWriter.Shared);
+            var consoleWriter = ConsoleWriter.Shared;
+            var commands = new CommandsList(consoleWriter);
             if (commands.ContainsKey(args[0]))
             {
                 return commands[args[0]].Run(args);
             }
 
             if (CementSettingsRepository.Get().UserCommands.ContainsKey(args[0]))
-                return new UserCommand().Run(args);
+                return new UserCommand(consoleWriter).Run(args);
 
-            ConsoleWriter.Shared.WriteError("Bad command: '" + args[0] + "'");
+            consoleWriter.WriteError("Bad command: '" + args[0] + "'");
             return -1;
         }
 

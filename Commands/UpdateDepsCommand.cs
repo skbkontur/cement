@@ -7,6 +7,13 @@ namespace Commands
 {
     public sealed class UpdateDepsCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "update-deps",
+            MeasureElapsedTime = true,
+            Location = CommandSettings.CommandLocation.RootModuleDirectory
+        };
+
         private readonly ConsoleWriter consoleWriter;
         private string configuration;
         private string mergedBranch;
@@ -16,13 +23,7 @@ namespace Commands
         private int? gitDepth;
 
         public UpdateDepsCommand(ConsoleWriter consoleWriter)
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "update-deps",
-                    MeasureElapsedTime = true,
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory
-                })
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
         }

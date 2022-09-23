@@ -10,18 +10,19 @@ namespace Commands
 {
     public sealed class AnalyzerAddCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "analyzer-add",
+            MeasureElapsedTime = false,
+            Location = CommandSettings.CommandLocation.InsideModuleDirectory
+        };
+
         private readonly ConsoleWriter consoleWriter;
         private string moduleSolutionName;
         private Dep analyzerModule;
 
         public AnalyzerAddCommand(ConsoleWriter consoleWriter)
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "analyzer-add",
-                    MeasureElapsedTime = false,
-                    Location = CommandSettings.CommandLocation.InsideModuleDirectory
-                })
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
         }

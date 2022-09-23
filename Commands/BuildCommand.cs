@@ -8,18 +8,19 @@ namespace Commands
 {
     public sealed class BuildCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "build",
+            MeasureElapsedTime = false,
+            Location = CommandSettings.CommandLocation.RootModuleDirectory
+        };
+
         private readonly ConsoleWriter consoleWriter;
         private string configuration;
         private BuildSettings buildSettings;
 
         public BuildCommand(ConsoleWriter consoleWriter)
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "build",
-                    MeasureElapsedTime = false,
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory
-                })
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
         }

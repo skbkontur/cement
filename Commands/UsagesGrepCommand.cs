@@ -11,12 +11,20 @@ namespace Commands
 {
     public sealed class UsagesGrepCommand : Command
     {
-        private readonly ConsoleWriter consoleWriter;
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "usages-grep",
+            MeasureElapsedTime = true,
+            Location = CommandSettings.CommandLocation.RootModuleDirectory
+        };
         private static readonly string[] GrepParametersWithValue =
-            {"-A", "-B", "-C", "--threads", "-f", "-e", "--parent-basename", "--max-depth"};
+        {
+            "-A", "-B", "-C", "--threads", "-f",
+            "-e", "--parent-basename", "--max-depth"
+        };
         private static readonly string[] NewLine = {"\r\n", "\r", "\n"};
         private static readonly Regex Whitespaces = new("\\s");
-
+        private readonly ConsoleWriter consoleWriter;
         private readonly ShellRunner runner;
         private readonly IUsagesProvider usagesProvider;
 
@@ -30,18 +38,11 @@ namespace Commands
         private string checkingBranch;
 
         public UsagesGrepCommand(ConsoleWriter consoleWriter)
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "usages-grep",
-                    MeasureElapsedTime = true,
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory
-                })
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
             runner = new ShellRunner(Log);
-            var logger = LogManager.GetLogger<UsagesProvider>();
-            usagesProvider = new UsagesProvider(logger, CementSettingsRepository.Get);
+            usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);
         }
 
         public override string HelpMessage => @"";

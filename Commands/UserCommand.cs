@@ -7,17 +7,19 @@ namespace Commands
 {
     public sealed class UserCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "user",
+            MeasureElapsedTime = false,
+            Location = CommandSettings.CommandLocation.Any
+        };
+        private readonly ConsoleWriter consoleWriter;
         private string[] arguments;
 
-        public UserCommand()
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "user",
-                    MeasureElapsedTime = false,
-                    Location = CommandSettings.CommandLocation.Any
-                })
+        public UserCommand(ConsoleWriter consoleWriter)
+            : base(consoleWriter, Settings)
         {
+            this.consoleWriter = consoleWriter;
         }
 
         public override string HelpMessage => @"";
@@ -40,9 +42,9 @@ namespace Commands
             arguments = args;
         }
 
-        private static int Run(string cmd)
+        private int Run(string cmd)
         {
-            ConsoleWriter.Shared.WriteInfo("Running command '" + cmd + "'");
+            consoleWriter.WriteInfo("Running command '" + cmd + "'");
 
             var startInfo = new ProcessStartInfo
             {

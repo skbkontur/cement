@@ -8,6 +8,13 @@ namespace Commands
 {
     public sealed class UsagesShowCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "usages-show",
+            MeasureElapsedTime = false,
+            Location = CommandSettings.CommandLocation.Any
+        };
+
         private readonly ConsoleWriter consoleWriter;
         private readonly IUsagesProvider usagesProvider;
 
@@ -16,17 +23,10 @@ namespace Commands
         private bool printEdges;
 
         public UsagesShowCommand(ConsoleWriter consoleWriter)
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "usages-show",
-                    MeasureElapsedTime = false,
-                    Location = CommandSettings.CommandLocation.Any
-                })
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
-            var logger = LogManager.GetLogger<UsagesProvider>();
-            usagesProvider = new UsagesProvider(logger, CementSettingsRepository.Get);
+            usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);
         }
 
         public override string HelpMessage => @"";

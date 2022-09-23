@@ -27,7 +27,7 @@ namespace Commands
         private bool pause;
 
         public UsagesBuildCommand(ConsoleWriter consoleWriter, IUsagesProvider usagesProvider, GetCommand getCommand)
-            : base(Settings)
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
             this.usagesProvider = usagesProvider;

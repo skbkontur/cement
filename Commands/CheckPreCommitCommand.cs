@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
 using Common;
@@ -19,7 +18,7 @@ namespace Commands
         private readonly ConsoleWriter consoleWriter;
 
         public CheckPreCommitCommand(ConsoleWriter consoleWriter)
-            : base(Settings)
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
         }

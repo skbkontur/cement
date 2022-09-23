@@ -4,6 +4,13 @@ namespace Commands
 {
     public sealed class VersionCommand : ICommand
     {
+        private readonly ConsoleWriter consoleWriter;
+
+        public VersionCommand(ConsoleWriter consoleWriter)
+        {
+            this.consoleWriter = consoleWriter;
+        }
+
         public string HelpMessage => @"
     Shows cement's version
 
@@ -16,7 +23,7 @@ namespace Commands
         public int Run(string[] args)
         {
             var assemblyTitle = Helper.GetAssemblyTitle();
-            ConsoleWriter.Shared.WriteLine(assemblyTitle);
+            consoleWriter.WriteLine(assemblyTitle);
             return 0;
         }
     }

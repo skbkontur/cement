@@ -9,6 +9,12 @@ namespace Commands
     public sealed class StatusCommand : ICommand
     {
         private static readonly ILogger Log = LogManager.GetLogger<StatusCommand>();
+        private readonly ConsoleWriter consoleWriter;
+
+        public StatusCommand(ConsoleWriter consoleWriter)
+        {
+            this.consoleWriter = consoleWriter;
+        }
 
         public string HelpMessage => @"
     Prints status of modifed git repos in the cement tracked dir
@@ -26,7 +32,7 @@ namespace Commands
         {
             if (args.Length != 1)
             {
-                ConsoleWriter.Shared.WriteError("Invalid command usage. User 'cm help init' for details");
+                consoleWriter.WriteError("Invalid command usage. User 'cm help init' for details");
                 return -1;
             }
 
@@ -35,7 +41,7 @@ namespace Commands
 
             if (cwd == null)
             {
-                ConsoleWriter.Shared.WriteError("Cement root was not found");
+                consoleWriter.WriteError("Cement root was not found");
                 return -1;
             }
 
@@ -51,10 +57,10 @@ namespace Commands
             {
                 var repo = new GitRepository(dir, Log);
                 PrintStatus(repo);
-                ConsoleWriter.Shared.WriteProgress(++count + "/" + listDir.Length + " " + repo.ModuleName);
+                consoleWriter.WriteProgress(++count + "/" + listDir.Length + " " + repo.ModuleName);
             }
 
-            ConsoleWriter.Shared.ResetProgress();
+            consoleWriter.ResetProgress();
         }
 
         private void PrintStatus(GitRepository repo)
@@ -64,11 +70,11 @@ namespace Commands
                 if (!repo.HasLocalChanges() && repo.ShowUnpushedCommits().Length == 0)
                     return;
 
-                ConsoleWriter.Shared.WriteInfo(repo.ModuleName);
+                consoleWriter.WriteInfo(repo.ModuleName);
                 if (repo.HasLocalChanges())
-                    ConsoleWriter.Shared.WriteLine(repo.ShowLocalChanges());
+                    consoleWriter.WriteLine(repo.ShowLocalChanges());
                 if (repo.ShowUnpushedCommits().Length > 0)
-                    ConsoleWriter.Shared.WriteLine(repo.ShowUnpushedCommits());
+                    consoleWriter.WriteLine(repo.ShowUnpushedCommits());
             }
             catch (Exception)
             {

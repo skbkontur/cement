@@ -16,8 +16,8 @@ public sealed class AddPackageCommand : Command
     private string packageName = null!;
     private string packageUrl = null!;
 
-    public AddPackageCommand()
-        : base(Settings)
+    public AddPackageCommand(ConsoleWriter consoleWriter)
+        : base(consoleWriter, Settings)
     {
     }
 

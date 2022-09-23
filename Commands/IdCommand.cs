@@ -8,7 +8,13 @@ namespace Commands
 {
     public sealed class IdCommand : ICommand
     {
+        private readonly ConsoleWriter consoleWriter;
         private static readonly ILogger Log = LogManager.GetLogger<IdCommand>();
+
+        public IdCommand(ConsoleWriter consoleWriter)
+        {
+            this.consoleWriter = consoleWriter;
+        }
 
         public string HelpMessage => @"
     Prints id of current module or ids of modules
@@ -34,7 +40,7 @@ namespace Commands
                 return 0;
             }
 
-            ConsoleWriter.Shared.WriteError("Failed to get info in %s\nNot a module or module's parent folder");
+            consoleWriter.WriteError("Failed to get info in %s\nNot a module or module's parent folder");
             return -1;
         }
 
@@ -50,7 +56,7 @@ namespace Commands
                     if (repo.IsGitRepo)
                     {
                         var hash = repo.CurrentLocalCommitHash();
-                        ConsoleWriter.Shared.WriteLine(moduleName + " " + hash);
+                        consoleWriter.WriteLine(moduleName + " " + hash);
                     }
                 }
                 catch (Exception)

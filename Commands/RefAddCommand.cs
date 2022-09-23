@@ -26,7 +26,7 @@ namespace Commands
         private bool force;
 
         public RefAddCommand(ConsoleWriter consoleWriter, GetCommand getCommand)
-            : base(Settings)
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
             this.getCommand = getCommand;

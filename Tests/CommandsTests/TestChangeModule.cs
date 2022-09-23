@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Commands;
 using Common;
+using Common.Logging;
 using NUnit.Framework;
 using Tests.Helpers;
 
@@ -8,6 +9,13 @@ namespace Tests.CommandsTests
 {
     public class TestChangeModule
     {
+        private readonly ModuleHelper moduleHelper;
+
+        public TestChangeModule()
+        {
+            moduleHelper = new ModuleHelper(LogManager.GetLogger<ModuleHelper>(), ConsoleWriter.Shared);
+        }
+
         [Test]
         public void TestChangeUnexisting()
         {
@@ -65,7 +73,7 @@ url = new_url
             TestChangeGit(oldModules, "hello", null, "new_url", answer);
         }
 
-        private static void TestChangeGit(string oldContent, string moduleName, string push, string fetch, string answer)
+        private void TestChangeGit(string oldContent, string moduleName, string push, string fetch, string answer)
         {
             using (var env = new TestEnvironment())
             {
@@ -75,7 +83,7 @@ url = new_url
                 env.AddBranch("modulesRepo", "tmp");
                 env.Checkout("modulesRepo", "tmp");
                 var package = new Package("test_package", Path.Combine(env.RemoteWorkspace, "modulesRepo"));
-                if (ModuleCommand.ChangeModule(package, moduleName, push, fetch) != 0)
+                if (moduleHelper.ChangeModule(package, moduleName, push, fetch) != 0)
                     throw new CementException("");
                 env.Checkout("modulesRepo", "master");
 

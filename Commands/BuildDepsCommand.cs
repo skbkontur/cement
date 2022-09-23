@@ -12,6 +12,13 @@ namespace Commands
 {
     public sealed class BuildDepsCommand : Command
     {
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "build-deps",
+            MeasureElapsedTime = true,
+            Location = CommandSettings.CommandLocation.RootModuleDirectory
+        };
+
         private readonly ConsoleWriter consoleWriter;
         private string configuration;
         private bool rebuild;
@@ -19,13 +26,7 @@ namespace Commands
         private BuildSettings buildSettings;
 
         public BuildDepsCommand(ConsoleWriter consoleWriter)
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "build-deps",
-                    MeasureElapsedTime = true,
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory
-                })
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
         }

@@ -8,18 +8,19 @@ namespace Commands
 {
     public sealed class ShowDepsCommand : Command
     {
-        private static readonly Dictionary<Dep, List<string>> overheadCache = new();
+        private static readonly CommandSettings Settings = new()
+        {
+            LogFileName = "show-deps",
+            MeasureElapsedTime = false,
+            Location = CommandSettings.CommandLocation.RootModuleDirectory
+        };
+
+        private readonly Dictionary<Dep, List<string>> overheadCache = new();
         private readonly ArborJs arborJs;
         private string configuration;
 
-        public ShowDepsCommand()
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "show-deps",
-                    MeasureElapsedTime = false,
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory
-                })
+        public ShowDepsCommand(ConsoleWriter consoleWriter)
+            : base(consoleWriter, Settings)
         {
             arborJs = new ArborJs();
         }
@@ -64,7 +65,7 @@ namespace Commands
             return 0;
         }
 
-        private static void Bfs(Dep root, List<string> tree)
+        private void Bfs(Dep root, List<string> tree)
         {
             var used = new HashSet<Dep>();
             var queue = new Queue<Dep>();
@@ -114,7 +115,7 @@ namespace Commands
             return false;
         }
 
-        private static void AddEdge(Dep from, Dep to, List<string> result)
+        private void AddEdge(Dep from, Dep to, List<string> result)
         {
             var edge = $"{from} -> {to}";
 
@@ -128,7 +129,7 @@ namespace Commands
             result.Add(edge);
         }
 
-        private static List<string> GetOverhead(Dep dep)
+        private List<string> GetOverhead(Dep dep)
         {
             if (overheadCache.ContainsKey(dep))
                 return overheadCache[dep];

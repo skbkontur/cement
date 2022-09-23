@@ -19,7 +19,7 @@ namespace Commands
         private string[] otherArgs;
 
         public CompleteCommand(ConsoleWriter consoleWriter)
-            : base(Settings)
+            : base(consoleWriter, Settings)
         {
             this.consoleWriter = consoleWriter;
         }

@@ -11,11 +11,13 @@ namespace Commands
     public abstract class Command : ICommand
     {
         protected static ILogger Log;
-        protected readonly CommandSettings CommandSettings;
-        protected FeatureFlags FeatureFlags;
+        protected ConsoleWriter ConsoleWriter { get; }
+        protected CommandSettings CommandSettings { get; }
+        protected FeatureFlags FeatureFlags { get; private set; }
 
-        protected Command(CommandSettings settings)
+        protected Command(ConsoleWriter consoleWriter, CommandSettings settings)
         {
+            ConsoleWriter = consoleWriter;
             CommandSettings = settings;
         }
 
@@ -42,7 +44,7 @@ namespace Commands
 
                 if (CommandSettings.MeasureElapsedTime)
                 {
-                    ConsoleWriter.Shared.WriteInfo("Total time: " + sw.Elapsed);
+                    ConsoleWriter.WriteInfo("Total time: " + sw.Elapsed);
                     Log.LogDebug("Total time: " + sw.Elapsed);
                 }
 
@@ -51,20 +53,20 @@ namespace Commands
             catch (GitLocalChangesException e)
             {
                 Log?.LogWarning(e, "Failed to " + GetType().Name.ToLower());
-                ConsoleWriter.Shared.WriteError(e.Message);
+                ConsoleWriter.WriteError(e.Message);
                 return -1;
             }
             catch (CementException e)
             {
                 Log?.LogError(e, "Failed to " + GetType().Name.ToLower());
-                ConsoleWriter.Shared.WriteError(e.Message);
+                ConsoleWriter.WriteError(e.Message);
                 return -1;
             }
             catch (Exception e)
             {
                 Log?.LogError(e, "Failed to " + GetType().Name.ToLower());
-                ConsoleWriter.Shared.WriteError(e.Message);
-                ConsoleWriter.Shared.WriteError(e.StackTrace);
+                ConsoleWriter.WriteError(e.Message);
+                ConsoleWriter.WriteError(e.StackTrace);
                 return -1;
             }
         }
@@ -82,7 +84,7 @@ namespace Commands
             }
             else
             {
-                ConsoleWriter.Shared.WriteWarning($"File with feature flags not found in '{featureFlagsConfigPath}'. Reinstalling cement may fix that issue");
+                ConsoleWriter.WriteWarning($"File with feature flags not found in '{featureFlagsConfigPath}'. Reinstalling cement may fix that issue");
                 FeatureFlags = FeatureFlags.Default;
             }
         }
