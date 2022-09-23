@@ -44,7 +44,7 @@ namespace Commands
         protected override int Execute()
         {
             Log.LogInformation("Updating packages");
-            PackageUpdater.UpdatePackages();
+            PackageUpdater.Shared.UpdatePackages();
             var cwd = Directory.GetCurrentDirectory();
             var module = Path.GetFileName(cwd);
 

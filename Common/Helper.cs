@@ -120,7 +120,7 @@ namespace Common
             {
                 var packageConfig = GetPackagePath(package.Name);
                 if (!File.Exists(packageConfig))
-                    PackageUpdater.UpdatePackages();
+                    PackageUpdater.Shared.UpdatePackages();
                 var configData = File.ReadAllText(packageConfig!);
                 return ModuleIniParser.Parse(configData).ToList();
             }

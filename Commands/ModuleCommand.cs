@@ -38,7 +38,7 @@ namespace Commands
 
             ConsoleWriter.Shared.WriteOk($"Successfully added {moduleName} to {package.Name} package.");
 
-            PackageUpdater.UpdatePackages();
+            PackageUpdater.Shared.UpdatePackages();
 
             return 0;
         }
@@ -146,7 +146,7 @@ namespace Commands
 
         private static Package GetPackage(string packageName)
         {
-            PackageUpdater.UpdatePackages();
+            PackageUpdater.Shared.UpdatePackages();
             var packages = Helper.GetPackages();
 
             if (packages.Count > 1 && packageName == null)

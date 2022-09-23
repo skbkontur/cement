@@ -72,7 +72,7 @@ namespace Commands
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
 
             Log.LogInformation("Updating packages");
-            PackageUpdater.UpdatePackages();
+            PackageUpdater.Shared.UpdatePackages();
             var modules = Helper.GetModules();
 
             var moduleName = Path.GetFileName(cwd);

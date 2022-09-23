@@ -48,7 +48,7 @@ namespace Commands
                 return 0;
             }
 
-            PackageUpdater.UpdatePackages();
+            PackageUpdater.Shared.UpdatePackages();
             var packages = Helper.GetPackages();
             foreach (var package in packages)
                 PrintPackage(package);

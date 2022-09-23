@@ -82,7 +82,7 @@ namespace Commands
             configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
 
             Log.LogInformation("Updating packages");
-            PackageUpdater.UpdatePackages();
+            PackageUpdater.Shared.UpdatePackages();
 
             GetModule();
             cycleDetector.WarnIfCycle(module, configuration, Log);

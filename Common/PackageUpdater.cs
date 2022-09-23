@@ -1,18 +1,29 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Common
 {
-    public static class PackageUpdater
+    public sealed class PackageUpdater
     {
-        private static readonly ILogger Log = LogManager.GetLogger(typeof(PackageUpdater));
+        private readonly SemaphoreSlim semaphore = new(1, 1);
+        private readonly ILogger<PackageUpdater> logger;
+        private readonly ConsoleWriter consoleWriter;
 
-        public static void UpdatePackages()
+        public static PackageUpdater Shared { get; } = new(LogManager.GetLogger<PackageUpdater>(), ConsoleWriter.Shared);
+
+        public PackageUpdater(ILogger<PackageUpdater> logger, ConsoleWriter consoleWriter)
         {
-            ConsoleWriter.Shared.WriteProgress("Updating module urls");
+            this.logger = logger;
+            this.consoleWriter = consoleWriter;
+        }
+
+        public void UpdatePackages()
+        {
+            consoleWriter.WriteProgress("Updating module urls");
             var packages = Helper.GetPackages();
             foreach (var package in packages)
             {
@@ -27,20 +38,28 @@ namespace Common
                 }
             }
 
-            ConsoleWriter.Shared.ResetProgress();
+            consoleWriter.ResetProgress();
         }
 
-        private static void UpdateFilePackage(Package package)
+        private void UpdateFilePackage(Package package)
         {
-            lock (Helper.PackageLockObject)
-                File.Copy(
-                    Path.Combine(package.Url),
-                    Helper.GetPackagePath(package.Name), true);
+            semaphore.Wait();
+            try
+            {
+                var source = Path.Combine(package.Url);
+                var destination = Helper.GetPackagePath(package.Name);
+
+                File.Copy(source, destination, true);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
-        private static void UpdateGitPackage(Package package)
+        private void UpdateGitPackage(Package package)
         {
-            var runner = new ShellRunner(Log);
+            var runner = new ShellRunner(logger);
             var timeout = TimeSpan.FromMinutes(1);
 
             var remoteHash = GetRepositoryHeadHash(package);
@@ -84,9 +103,9 @@ namespace Common
             }
         }
 
-        private static string GetRepositoryHeadHash(Package package)
+        private string GetRepositoryHeadHash(Package package)
         {
-            var runner = new ShellRunner(Log);
+            var runner = new ShellRunner(logger);
             var timeout = TimeSpan.FromMinutes(1);
 
             var exitCode = runner.RunOnce($"git ls-remote {package.Url} HEAD", Directory.GetCurrentDirectory(), timeout);
