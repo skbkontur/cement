@@ -103,7 +103,7 @@ public class SelfUpdateCommand : Command
         Log.LogInformation("Cement server: {CementServerUri}", server);
 
         using ICementUpdater updater = server == null
-            ? new GitHubReleaseCementUpdater(Log)
+            ? new GitHubReleaseCementUpdater(Log, ConsoleWriter.Shared)
             : new ServerCementUpdater(Log, ConsoleWriter.Shared, server, branch);
 
         Log.LogInformation("Updater: {CementUpdaterName}", updater.Name);

@@ -19,11 +19,13 @@ namespace Common.Updaters
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(5);
 
         private readonly ILogger log;
+        private readonly ConsoleWriter consoleWriter;
         private readonly HttpClient httpClient;
 
-        public GitHubReleaseCementUpdater(ILogger log)
+        public GitHubReleaseCementUpdater(ILogger log, ConsoleWriter consoleWriter)
         {
             this.log = log;
+            this.consoleWriter = consoleWriter;
             httpClient = new HttpClient();
         }
 
@@ -46,7 +48,7 @@ namespace Common.Updaters
             catch (Exception ex)
             {
                 log.LogError(ex, "Failed to look for updates on github");
-                ConsoleWriter.Shared.WriteWarning("Failed to look for updates on github: " + ex.Message);
+                consoleWriter.WriteWarning("Failed to look for updates on github: " + ex.Message);
 
                 return null;
             }
@@ -64,7 +66,7 @@ namespace Common.Updaters
             catch (Exception ex)
             {
                 log.LogError(ex, "Failed to look for updates on github");
-                ConsoleWriter.Shared.WriteWarning("Failed to look for updates on github: " + ex.Message);
+                consoleWriter.WriteWarning("Failed to look for updates on github: " + ex.Message);
 
                 return null;
             }
