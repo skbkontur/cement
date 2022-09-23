@@ -103,7 +103,7 @@ namespace Commands
             catch (Exception e)
             {
                 consoleWriter.WriteLine(e.ToString());
-                Log.LogError("Fail to add reference", e);
+                Log.LogError(e, "Fail to add reference");
             }
         }
 
@@ -148,7 +148,7 @@ namespace Commands
             }
             catch (Exception e)
             {
-                Log.LogError($"FAILED-TO-CHECK-BRANCH {dep}", e);
+                Log.LogError(e, $"FAILED-TO-CHECK-BRANCH {dep}");
             }
         }
 
@@ -164,7 +164,7 @@ namespace Commands
             catch (Exception e)
             {
                 consoleWriter.WriteWarning($"Installation of NuGet packages failed: {e.InnerException?.Message ?? e.Message}");
-                Log.LogError("Installation of NuGet packages failed:", e);
+                Log.LogError(e, "Installation of NuGet packages failed:");
             }
 
             foreach (var buildItem in installData.InstallFiles)
