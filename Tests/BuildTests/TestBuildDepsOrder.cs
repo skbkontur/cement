@@ -56,38 +56,36 @@ namespace Tests.BuildTests
         [Test]
         public void TestConfigGraph()
         {
-            using (var env = new TestEnvironment())
-            {
-                env.CreateRepo(
-                    "A", new Dictionary<string, DepsData>
-                    {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new("B"), new("C", null, "client")})}
-                    });
-                env.CreateRepo(
-                    "B", new Dictionary<string, DepsData>
-                    {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new("D")})}
-                    });
-                env.CreateRepo(
-                    "C", new Dictionary<string, DepsData>
-                    {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new("D")})},
-                        {"client", new DepsData(null, new List<Dep> {new("D", null, "client")})}
-                    });
-                env.CreateRepo(
-                    "D", new Dictionary<string, DepsData>
-                    {
-                        {"full-build *default", new DepsData(null, new List<Dep>())},
-                        {"client", new DepsData(null, new List<Dep>())}
-                    });
-                Helper.SetWorkspace(env.RemoteWorkspace);
-                var result = BuildPreparer.Shared.BuildConfigsGraph("A", null);
-                Assert.AreEqual(new[] {new Dep("B", null, "full-build"), new Dep("C/client")}, result[new Dep("A", null, "full-build")].ToArray());
-                Assert.AreEqual(new[] {new Dep("D", null, "full-build")}, result[new Dep("B", null, "full-build")].ToArray());
-                Assert.AreEqual(new Dep[] {}, result[new Dep("D", null, "full-build")].ToArray());
-                Assert.AreEqual(new[] {new Dep("D/client")}, result[new Dep("C/client")].ToArray());
-                Assert.AreEqual(new string[] {}, result[new Dep("D/client")].ToArray());
-            }
+            using var env = new TestEnvironment();
+            env.CreateRepo(
+                "A", new Dictionary<string, DepsData>
+                {
+                    {"full-build *default", new DepsData(null, new List<Dep> {new("B"), new("C", null, "client")})}
+                });
+            env.CreateRepo(
+                "B", new Dictionary<string, DepsData>
+                {
+                    {"full-build *default", new DepsData(null, new List<Dep> {new("D")})}
+                });
+            env.CreateRepo(
+                "C", new Dictionary<string, DepsData>
+                {
+                    {"full-build *default", new DepsData(null, new List<Dep> {new("D")})},
+                    {"client", new DepsData(null, new List<Dep> {new("D", null, "client")})}
+                });
+            env.CreateRepo(
+                "D", new Dictionary<string, DepsData>
+                {
+                    {"full-build *default", new DepsData(null, new List<Dep>())},
+                    {"client", new DepsData(null, new List<Dep>())}
+                });
+            Helper.SetWorkspace(env.RemoteWorkspace);
+            var result = BuildPreparer.Shared.BuildConfigsGraph("A", null);
+            Assert.AreEqual(new[] {new Dep("B", null, "full-build"), new Dep("C/client")}, result[new Dep("A", null, "full-build")].ToArray());
+            Assert.AreEqual(new[] {new Dep("D", null, "full-build")}, result[new Dep("B", null, "full-build")].ToArray());
+            Assert.AreEqual(new Dep[] {}, result[new Dep("D", null, "full-build")].ToArray());
+            Assert.AreEqual(new[] {new Dep("D/client")}, result[new Dep("C/client")].ToArray());
+            Assert.AreEqual(new string[] {}, result[new Dep("D/client")].ToArray());
         }
 
         [Test]
@@ -95,34 +93,32 @@ namespace Tests.BuildTests
         [TestCase(true)]
         public void TestRelaxNesting(bool forParallel)
         {
-            using (var env = new TestEnvironment())
-            {
-                env.CreateRepo(
-                    "A", new Dictionary<string, DepsData>
-                    {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new("B"), new("C", null, "client")})}
-                    });
-                env.CreateRepo(
-                    "B", new Dictionary<string, DepsData>
-                    {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new("C")})}
-                    });
-                env.CreateRepo(
-                    "C", new Dictionary<string, DepsData>
-                    {
-                        {"full-build > client *default", new DepsData(null, new List<Dep>())},
-                        {"client", new DepsData(null, new List<Dep>())}
-                    });
-                Helper.SetWorkspace(env.RemoteWorkspace);
-                Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
+            using var env = new TestEnvironment();
+            env.CreateRepo(
+                "A", new Dictionary<string, DepsData>
+                {
+                    {"full-build *default", new DepsData(null, new List<Dep> {new("B"), new("C", null, "client")})}
+                });
+            env.CreateRepo(
+                "B", new Dictionary<string, DepsData>
+                {
+                    {"full-build *default", new DepsData(null, new List<Dep> {new("C")})}
+                });
+            env.CreateRepo(
+                "C", new Dictionary<string, DepsData>
+                {
+                    {"full-build > client *default", new DepsData(null, new List<Dep>())},
+                    {"client", new DepsData(null, new List<Dep>())}
+                });
+            Helper.SetWorkspace(env.RemoteWorkspace);
+            Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
-                Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("C/client")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("C", null, "full-build")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("B", null, "full-build")));
-                Assert.AreEqual(3, modulesOrder.BuildOrder.Count);
-            }
+            var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
+            Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("C/client")));
+            Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("C", null, "full-build")));
+            Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
+            Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("B", null, "full-build")));
+            Assert.AreEqual(3, modulesOrder.BuildOrder.Count);
         }
 
         [Test]
@@ -130,48 +126,46 @@ namespace Tests.BuildTests
         [TestCase(true)]
         public void TestNestingSkip(bool forParallel)
         {
-            using (var env = new TestEnvironment())
-            {
-                env.CreateRepo(
-                    "A", new Dictionary<string, DepsData>
-                    {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new("B"), new("C")})}
-                    });
-                env.CreateRepo(
-                    "B", new Dictionary<string, DepsData>
-                    {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new("X", null, "client")})}
-                    });
-                env.CreateRepo(
-                    "C", new Dictionary<string, DepsData>
-                    {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new("X"), new("B")})}
-                    });
-                env.CreateRepo(
-                    "X", new Dictionary<string, DepsData>
-                    {
-                        {"full-build > client *default", new DepsData(null, new List<Dep>())},
-                        {"client", new DepsData(null, new List<Dep>())}
-                    });
+            using var env = new TestEnvironment();
+            env.CreateRepo(
+                "A", new Dictionary<string, DepsData>
+                {
+                    {"full-build *default", new DepsData(null, new List<Dep> {new("B"), new("C")})}
+                });
+            env.CreateRepo(
+                "B", new Dictionary<string, DepsData>
+                {
+                    {"full-build *default", new DepsData(null, new List<Dep> {new("X", null, "client")})}
+                });
+            env.CreateRepo(
+                "C", new Dictionary<string, DepsData>
+                {
+                    {"full-build *default", new DepsData(null, new List<Dep> {new("X"), new("B")})}
+                });
+            env.CreateRepo(
+                "X", new Dictionary<string, DepsData>
+                {
+                    {"full-build > client *default", new DepsData(null, new List<Dep>())},
+                    {"client", new DepsData(null, new List<Dep>())}
+                });
 
-                Helper.SetWorkspace(env.RemoteWorkspace);
-                Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
+            Helper.SetWorkspace(env.RemoteWorkspace);
+            Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
-                Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("X/client")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("B", null, "full-build")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("C", null, "full-build")));
-                Assert.AreEqual(4, modulesOrder.BuildOrder.Count);
-                CollectionAssert.AreEqual(
-                    new List<Dep>
-                    {
-                        new("X", null, "full-build"),
-                        new("B", null, "full-build"),
-                        new("C", null, "full-build"),
-                        new("A", null, "full-build")
-                    }, modulesOrder.BuildOrder);
-            }
+            var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
+            Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("X/client")));
+            Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
+            Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("B", null, "full-build")));
+            Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("C", null, "full-build")));
+            Assert.AreEqual(4, modulesOrder.BuildOrder.Count);
+            CollectionAssert.AreEqual(
+                new List<Dep>
+                {
+                    new("X", null, "full-build"),
+                    new("B", null, "full-build"),
+                    new("C", null, "full-build"),
+                    new("A", null, "full-build")
+                }, modulesOrder.BuildOrder);
         }
 
         [Test]
@@ -179,29 +173,27 @@ namespace Tests.BuildTests
         [TestCase(true)]
         public void TestNestingOnlyClient(bool forParallel)
         {
-            using (var env = new TestEnvironment())
-            {
-                env.CreateRepo(
-                    "A", new Dictionary<string, DepsData>
-                    {
-                        {"full-build *default", new DepsData(null, new List<Dep> {new("X", null, "client")})}
-                    });
-                env.CreateRepo(
-                    "X", new Dictionary<string, DepsData>
-                    {
-                        {"full-build > client *default", new DepsData(null, new List<Dep>())},
-                        {"client", new DepsData(null, new List<Dep>())}
-                    });
+            using var env = new TestEnvironment();
+            env.CreateRepo(
+                "A", new Dictionary<string, DepsData>
+                {
+                    {"full-build *default", new DepsData(null, new List<Dep> {new("X", null, "client")})}
+                });
+            env.CreateRepo(
+                "X", new Dictionary<string, DepsData>
+                {
+                    {"full-build > client *default", new DepsData(null, new List<Dep>())},
+                    {"client", new DepsData(null, new List<Dep>())}
+                });
 
-                Helper.SetWorkspace(env.RemoteWorkspace);
-                Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
+            Helper.SetWorkspace(env.RemoteWorkspace);
+            Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
-                Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("X", null, "full-build")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("X", null, "client")));
-                Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
-                Assert.AreEqual(2, modulesOrder.BuildOrder.Count);
-            }
+            var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
+            Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("X", null, "full-build")));
+            Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("X", null, "client")));
+            Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
+            Assert.AreEqual(2, modulesOrder.BuildOrder.Count);
         }
 
         [Test]
@@ -209,33 +201,31 @@ namespace Tests.BuildTests
         [TestCase(true)]
         public void TestNestingNeedBuildBoth(bool forParallel)
         {
-            using (var env = new TestEnvironment())
-            {
-                env.CreateRepo(
-                    "A", new Dictionary<string, DepsData>
-                    {
-                        {"client", new DepsData(null, new List<Dep>())},
-                        {"full-build > client *default", new DepsData(null, new List<Dep> {new("X")})}
-                    });
-                env.CreateRepo(
-                    "X", new Dictionary<string, DepsData>
-                    {
-                        {"full-build", new DepsData(null, new List<Dep> {new("A", null, "client")})}
-                    });
+            using var env = new TestEnvironment();
+            env.CreateRepo(
+                "A", new Dictionary<string, DepsData>
+                {
+                    {"client", new DepsData(null, new List<Dep>())},
+                    {"full-build > client *default", new DepsData(null, new List<Dep> {new("X")})}
+                });
+            env.CreateRepo(
+                "X", new Dictionary<string, DepsData>
+                {
+                    {"full-build", new DepsData(null, new List<Dep> {new("A", null, "client")})}
+                });
 
-                Helper.SetWorkspace(env.RemoteWorkspace);
-                Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
+            Helper.SetWorkspace(env.RemoteWorkspace);
+            Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
+            var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
 
-                CollectionAssert.AreEqual(
-                    new List<Dep>
-                    {
-                        new("A", null, "client"),
-                        new("X", null, "full-build"),
-                        new("A", null, "full-build")
-                    }, modulesOrder.BuildOrder);
-            }
+            CollectionAssert.AreEqual(
+                new List<Dep>
+                {
+                    new("A", null, "client"),
+                    new("X", null, "full-build"),
+                    new("A", null, "full-build")
+                }, modulesOrder.BuildOrder);
         }
 
         [Test]
@@ -243,44 +233,42 @@ namespace Tests.BuildTests
         [TestCase(true)]
         public void TestNestingLotChildren(bool forParallel)
         {
-            using (var env = new TestEnvironment())
-            {
-                env.CreateRepo(
-                    "A", new Dictionary<string, DepsData>
-                    {
-                        {"full-build", new DepsData(null, new List<Dep> {new("C1"), new("C2"), new("C3"), new("P1")})}
-                    });
-                env.CreateRepo(
-                    "C1", new Dictionary<string, DepsData>
-                        {{"full-build", new DepsData(null, new List<Dep> {new("X/child1")})}});
-                env.CreateRepo(
-                    "C2", new Dictionary<string, DepsData>
-                        {{"full-build", new DepsData(null, new List<Dep> {new("X/child2")})}});
-                env.CreateRepo(
-                    "C3", new Dictionary<string, DepsData>
-                        {{"full-build", new DepsData(null, new List<Dep> {new("X/child3")})}});
-                env.CreateRepo(
-                    "P1", new Dictionary<string, DepsData>
-                        {{"full-build", new DepsData(null, new List<Dep> {new("X/parent1")})}});
-                env.CreateRepo(
-                    "X", new Dictionary<string, DepsData>
-                    {
-                        {"child1", new DepsData(null, new List<Dep>())},
-                        {"child2 > child1", new DepsData(null, new List<Dep>())},
-                        {"child3 > child1", new DepsData(null, new List<Dep>())},
-                        {"parent1 > child1, child2", new DepsData(null, new List<Dep>())},
-                        {"parent2 > parent1, child3", new DepsData(null, new List<Dep>())}
-                    });
+            using var env = new TestEnvironment();
+            env.CreateRepo(
+                "A", new Dictionary<string, DepsData>
+                {
+                    {"full-build", new DepsData(null, new List<Dep> {new("C1"), new("C2"), new("C3"), new("P1")})}
+                });
+            env.CreateRepo(
+                "C1", new Dictionary<string, DepsData>
+                    {{"full-build", new DepsData(null, new List<Dep> {new("X/child1")})}});
+            env.CreateRepo(
+                "C2", new Dictionary<string, DepsData>
+                    {{"full-build", new DepsData(null, new List<Dep> {new("X/child2")})}});
+            env.CreateRepo(
+                "C3", new Dictionary<string, DepsData>
+                    {{"full-build", new DepsData(null, new List<Dep> {new("X/child3")})}});
+            env.CreateRepo(
+                "P1", new Dictionary<string, DepsData>
+                    {{"full-build", new DepsData(null, new List<Dep> {new("X/parent1")})}});
+            env.CreateRepo(
+                "X", new Dictionary<string, DepsData>
+                {
+                    {"child1", new DepsData(null, new List<Dep>())},
+                    {"child2 > child1", new DepsData(null, new List<Dep>())},
+                    {"child3 > child1", new DepsData(null, new List<Dep>())},
+                    {"parent1 > child1, child2", new DepsData(null, new List<Dep>())},
+                    {"parent2 > parent1, child3", new DepsData(null, new List<Dep>())}
+                });
 
-                Helper.SetWorkspace(env.RemoteWorkspace);
-                Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
+            Helper.SetWorkspace(env.RemoteWorkspace);
+            Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-                var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
+            var modulesOrder = new BuildPreparer(Log).GetModulesOrder("A", null);
 
-                var xDeps = modulesOrder.BuildOrder.Where(d => d.Name == "X").ToList();
-                Assert.IsTrue(xDeps.Any(d => d.Name == "X" && d.Configuration == "parent1"));
-                Assert.IsTrue(xDeps.Any(d => d.Name == "X" && d.Configuration == "child3"));
-            }
+            var xDeps = modulesOrder.BuildOrder.Where(d => d.Name == "X").ToList();
+            Assert.IsTrue(xDeps.Any(d => d.Name == "X" && d.Configuration == "parent1"));
+            Assert.IsTrue(xDeps.Any(d => d.Name == "X" && d.Configuration == "child3"));
         }
     }
 }

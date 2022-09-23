@@ -394,11 +394,9 @@ config3 > config2,config1:
         [Test]
         public void TestNoDepsFile()
         {
-            using (var tmp = new TempDirectory())
-            {
-                var dc = new DepsParser(tmp.Path).Get();
-                Assert.That(dc.Deps.Count == 0);
-            }
+            using var tmp = new TempDirectory();
+            var dc = new DepsParser(tmp.Path).Get();
+            Assert.That(dc.Deps.Count == 0);
         }
 
         private DepsData GetDepsContent(string text, string config = null, bool strictOrdering = true)

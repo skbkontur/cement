@@ -98,13 +98,11 @@ namespace Tests.CommandsTests
         private static void AddSpec(List<string> configurations)
         {
             Directory.CreateDirectory(".cm");
-            using (var writer = File.CreateText(Path.Combine(".cm", "spec.xml")))
-            {
-                writer.WriteLine("<configurations>");
-                foreach (var configuration in configurations)
-                    writer.WriteLine("<conf name = \"" + configuration + "\"/>");
-                writer.WriteLine("</configurations>");
-            }
+            using var writer = File.CreateText(Path.Combine(".cm", "spec.xml"));
+            writer.WriteLine("<configurations>");
+            foreach (var configuration in configurations)
+                writer.WriteLine("<conf name = \"" + configuration + "\"/>");
+            writer.WriteLine("</configurations>");
         }
 
         private static void AddBuildScript(string target, string configuration)
@@ -130,18 +128,16 @@ namespace Tests.CommandsTests
 
         private static void WriteDeps(List<Dep> deps, string force, string depsFileName)
         {
-            using (var writer = File.CreateText(depsFileName))
+            using var writer = File.CreateText(depsFileName);
+            if (force != null)
+                writer.WriteLine("[main]\nforce = " + force);
+            foreach (var dep in deps)
             {
-                if (force != null)
-                    writer.WriteLine("[main]\nforce = " + force);
-                foreach (var dep in deps)
-                {
-                    writer.WriteLine("[module " + dep.Name + "]");
-                    if (dep.Configuration != null)
-                        writer.WriteLine("conf=" + dep.Configuration);
-                    if (dep.Treeish != null)
-                        writer.WriteLine("treeish=" + dep.Treeish);
-                }
+                writer.WriteLine("[module " + dep.Name + "]");
+                if (dep.Configuration != null)
+                    writer.WriteLine("conf=" + dep.Configuration);
+                if (dep.Treeish != null)
+                    writer.WriteLine("treeish=" + dep.Treeish);
             }
         }
     }

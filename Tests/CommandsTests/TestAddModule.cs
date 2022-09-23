@@ -103,26 +103,22 @@ pushurl = git@git.skbkontur.ru:ke/protobuf.git
 
         private void TestAddGit(string oldContent, string moduleName, string push, string fetch, string answer)
         {
-            using (var env = new TestEnvironment())
-            {
+            using var env = new TestEnvironment();
+            env.CreateRepo("modulesRepo");
+            env.CommitIntoRemote("modulesRepo", "modules", oldContent);
 
+            env.AddBranch("modulesRepo", "tmp");
+            env.Checkout("modulesRepo", "tmp");
+            var package = new Package("test_package", Path.Combine(env.RemoteWorkspace, "modulesRepo"));
+            if (moduleHelper.AddModule(package, moduleName, push, fetch) != 0)
+                throw new CementException("");
+            env.Checkout("modulesRepo", "master");
 
-                env.CreateRepo("modulesRepo");
-                env.CommitIntoRemote("modulesRepo", "modules", oldContent);
-
-                env.AddBranch("modulesRepo", "tmp");
-                env.Checkout("modulesRepo", "tmp");
-                var package = new Package("test_package", Path.Combine(env.RemoteWorkspace, "modulesRepo"));
-                if (moduleHelper.AddModule(package, moduleName, push, fetch) != 0)
-                    throw new CementException("");
-                env.Checkout("modulesRepo", "master");
-
-                var path = Path.Combine(env.RemoteWorkspace, "modulesRepo", "modules");
-                var text = File.ReadAllText(path);
-                text = Helper.FixLineEndings(text);
-                answer = Helper.FixLineEndings(answer);
-                Assert.AreEqual(answer, text);
-            }
+            var path = Path.Combine(env.RemoteWorkspace, "modulesRepo", "modules");
+            var text = File.ReadAllText(path);
+            text = Helper.FixLineEndings(text);
+            answer = Helper.FixLineEndings(answer);
+            Assert.AreEqual(answer, text);
         }
     }
 }

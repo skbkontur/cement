@@ -10,7 +10,7 @@ namespace Tests.UtilsTests
         [Test]
         public void TestJumpToExistingDirectory()
         {
-            using (var tempDir = new TempDirectory())
+            using var tempDir = new TempDirectory();
             using (new DirectoryJumper(tempDir.Path))
             {
                 Assert.AreEqual(Directory.GetCurrentDirectory(), tempDir.Path);

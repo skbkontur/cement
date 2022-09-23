@@ -11,13 +11,11 @@ namespace Tests.CommandsTests
         [Test]
         public void CreateCementDir()
         {
-            using (var tmp = new TempDirectory())
+            using var tmp = new TempDirectory();
+            using (new DirectoryJumper(tmp.Path))
             {
-                using (new DirectoryJumper(tmp.Path))
-                {
-                    new InitCommand(ConsoleWriter.Shared).Run(new[] {"init"});
-                    Assert.That(Directory.Exists(Path.Combine(tmp.Path, Helper.CementDirectory)));
-                }
+                new InitCommand(ConsoleWriter.Shared).Run(new[] {"init"});
+                Assert.That(Directory.Exists(Path.Combine(tmp.Path, Helper.CementDirectory)));
             }
         }
     }

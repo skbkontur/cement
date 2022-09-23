@@ -24,18 +24,16 @@ full-build:
         - current
         - module ext
         - nuget pCurrent";
-            using (var tempDir = new TempDirectory())
+            using var tempDir = new TempDirectory();
+            using (new DirectoryJumper(tempDir.Path))
             {
-                using (new DirectoryJumper(tempDir.Path))
-                {
-                    CreateModule("ext", externalModuleText);
-                    CreateModule("cur", moduleText);
-                    var installData = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
-                    var installFiles = installData.InstallFiles.ToArray();
-                    var nugetPackages = installData.NuGetPackages.ToArray();
-                    Assert.AreEqual(new[] {@"cur\current", @"ext\external"}, installFiles);
-                    Assert.AreEqual(new[] {"pCurrent", "pExternal"}, nugetPackages);
-                }
+                CreateModule("ext", externalModuleText);
+                CreateModule("cur", moduleText);
+                var installData = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
+                var installFiles = installData.InstallFiles.ToArray();
+                var nugetPackages = installData.NuGetPackages.ToArray();
+                Assert.AreEqual(new[] {@"cur\current", @"ext\external"}, installFiles);
+                Assert.AreEqual(new[] {"pCurrent", "pExternal"}, nugetPackages);
             }
         }
 
@@ -58,7 +56,7 @@ full-build:
         - current
         - module ext/client
 ";
-            using (var tempDir = new TempDirectory())
+            using var tempDir = new TempDirectory();
             using (new DirectoryJumper(tempDir.Path))
             {
                 CreateModule("ext", externalModuleText);
@@ -96,7 +94,7 @@ full-build:
         - current
         - module ext
 ";
-            using (var tempDir = new TempDirectory())
+            using var tempDir = new TempDirectory();
             using (new DirectoryJumper(tempDir.Path))
             {
                 CreateModule("q", qText);
@@ -146,7 +144,7 @@ client:
         - module ext/client
         - nuget client
 ";
-            using (var tempDir = new TempDirectory())
+            using var tempDir = new TempDirectory();
             using (new DirectoryJumper(tempDir.Path))
             {
                 CreateModule("q", qText);

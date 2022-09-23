@@ -23,11 +23,9 @@ namespace Tests.UtilsTests
         [Test]
         public void TestRunInDirectory()
         {
-            using (var temp = new TempDirectory())
-            {
-                runner.RunInDirectory(temp.Path, "mkdir 1");
-                Assert.That(Directory.Exists(Path.Combine(temp.Path, "1")));
-            }
+            using var temp = new TempDirectory();
+            runner.RunInDirectory(temp.Path, "mkdir 1");
+            Assert.That(Directory.Exists(Path.Combine(temp.Path, "1")));
         }
 
         [Test]

@@ -104,19 +104,17 @@ notests:";
         [Test]
         public void TestSampleContentFromAFile()
         {
-            using (var tempDir = new TempDirectory())
+            using var tempDir = new TempDirectory();
+            using (new DirectoryJumper(tempDir.Path))
             {
-                using (new DirectoryJumper(tempDir.Path))
-                {
-                    File.WriteAllText(
-                        "module.yaml", @"
+                File.WriteAllText(
+                    "module.yaml", @"
 default:
 client:
 sdk:
 ");
-                    var configurations = new ConfigurationYamlParser(new FileInfo(tempDir.Path)).GetConfigurations();
-                    Assert.AreEqual(2, configurations.Count);
-                }
+                var configurations = new ConfigurationYamlParser(new FileInfo(tempDir.Path)).GetConfigurations();
+                Assert.AreEqual(2, configurations.Count);
             }
         }
     }
