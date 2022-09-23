@@ -26,9 +26,11 @@ namespace Common.Logging
 
         static LogManager()
         {
-            loggerFactory = LoggerFactory.Create(
-                builder => builder
-                    .SetMinimumLevel(LogLevel.None));
+            loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.ClearProviders();
+                builder.SetMinimumLevel(LogLevel.Debug);
+            });
         }
 
         public static ILogger GetLogger(Type type) =>
@@ -39,18 +41,6 @@ namespace Common.Logging
 
         public static ILogger GetLogger(string categoryName) =>
             loggerFactory.CreateLogger(categoryName);
-
-        public static void SetDebugLoggingLevel()
-        {
-            SetMinimumLoggingLevel(LogLevel.Debug);
-        }
-
-        public static void SetMinimumLoggingLevel(LogLevel minLevel)
-        {
-            loggerFactory = LoggerFactory.Create(
-                builder => builder
-                    .SetMinimumLevel(minLevel));
-        }
 
         public static void InitializeFileLogger(string logFileName)
         {

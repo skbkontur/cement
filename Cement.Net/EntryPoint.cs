@@ -15,8 +15,6 @@ namespace cm
 
         private static int Main(string[] args)
         {
-            LogManager.SetDebugLoggingLevel();
-
             logger = LogManager.GetLogger(typeof(EntryPoint));
 
             ThreadPoolSetUp(Helper.MaxDegreeOfParallelism);
