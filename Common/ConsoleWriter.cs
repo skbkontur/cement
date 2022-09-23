@@ -117,11 +117,7 @@ namespace Common
             semaphore.Wait();
             try
             {
-                Console.ForegroundColor = color;
-                ClearLine();
-                Console.WriteLine(text);
-                Console.ForegroundColor = defaultColor;
-                SaveToProcessedModules(text);
+                UnsafePrintLn(text, color);
             }
             finally
             {
@@ -129,19 +125,35 @@ namespace Common
             }
         }
 
+        private void UnsafePrintLn(string text, ConsoleColor color)
+        {
+            ClearLine();
+
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ForegroundColor = defaultColor;
+
+            UnsafeSaveToProcessedModules(text);
+        }
+
         public void SaveToProcessedModules(string text)
         {
             semaphore.Wait();
             try
             {
-                var moduleName = text.Split(']').Last().Trim().Split(' ', '/').First();
-                processedModules.Add(moduleName);
-                PrintLastProgressFromStack();
+                UnsafeSaveToProcessedModules(text);
             }
             finally
             {
                 semaphore.Release();
             }
+        }
+
+        private void UnsafeSaveToProcessedModules(string text)
+        {
+            var moduleName = text.Split(']').Last().Trim().Split(' ', '/').First();
+            processedModules.Add(moduleName);
+            PrintLastProgressFromStack();
         }
 
         public void ResetProgress()
