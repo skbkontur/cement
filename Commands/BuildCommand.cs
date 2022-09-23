@@ -11,7 +11,6 @@ namespace Commands
         private readonly ConsoleWriter consoleWriter;
         private string configuration;
         private BuildSettings buildSettings;
-        private bool restore;
 
         public BuildCommand(ConsoleWriter consoleWriter)
             : base(
@@ -54,7 +53,6 @@ namespace Commands
                 ShowWarningsSummary = true,
                 CleanBeforeBuild = (bool)parsedArgs["cleanBeforeBuild"]
             };
-            restore = (bool)parsedArgs["restore"];
         }
 
         protected override int Execute()
