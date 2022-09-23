@@ -25,8 +25,8 @@ namespace Commands
         private bool parallel;
         private BuildSettings buildSettings;
 
-        public BuildDepsCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public BuildDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

@@ -9,7 +9,7 @@ namespace Commands
 {
     public sealed class PackCommand : Command
     {
-        private static readonly CommandSettings Settings = new CommandSettings
+        private static readonly CommandSettings Settings = new()
         {
             LogFileName = "pack",
             MeasureElapsedTime = false,
@@ -22,8 +22,8 @@ namespace Commands
         private BuildSettings buildSettings;
         private bool preRelease;
 
-        public PackCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public PackCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
         }
 

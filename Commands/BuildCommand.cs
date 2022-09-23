@@ -19,8 +19,8 @@ namespace Commands
         private string configuration;
         private BuildSettings buildSettings;
 
-        public BuildCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public BuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

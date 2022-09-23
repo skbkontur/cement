@@ -38,8 +38,8 @@ namespace Commands
         private bool skipGet;
         private string checkingBranch;
 
-        public UsagesGrepCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public UsagesGrepCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
             runner = new ShellRunner(Log);

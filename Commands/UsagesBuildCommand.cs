@@ -16,6 +16,7 @@ namespace Commands
             Location = CommandSettings.CommandLocation.RootModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
+        private readonly FeatureFlags featureFlags;
 
         private readonly IUsagesProvider usagesProvider;
         private readonly GetCommand getCommand;
@@ -27,10 +28,12 @@ namespace Commands
         private GitRepository currentRepository;
         private bool pause;
 
-        public UsagesBuildCommand(ConsoleWriter consoleWriter, IUsagesProvider usagesProvider, GetCommand getCommand)
-            : base(consoleWriter, Settings)
+        public UsagesBuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
+                                  GetCommand getCommand)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
+            this.featureFlags = featureFlags;
             this.usagesProvider = usagesProvider;
             this.getCommand = getCommand;
         }
@@ -139,10 +142,10 @@ namespace Commands
 
             using (new DirectoryJumper(Path.Combine(workspace, depParent.Name)))
             {
-                if (new BuildDepsCommand(consoleWriter).Run(new[] {"build-deps", "-c", depParent.Configuration}) != 0)
+                if (new BuildDepsCommand(consoleWriter, featureFlags).Run(new[] {"build-deps", "-c", depParent.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + depParent.Name);
                 consoleWriter.ResetProgress();
-                if (new BuildCommand(consoleWriter).Run(new[] {"build"}) != 0)
+                if (new BuildCommand(consoleWriter, featureFlags).Run(new[] {"build"}) != 0)
                     throw new CementException("Failed to build " + depParent.Name);
                 consoleWriter.ResetProgress();
             }

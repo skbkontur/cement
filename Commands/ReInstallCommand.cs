@@ -4,8 +4,8 @@ namespace Commands
 {
     public sealed class ReInstallCommand : SelfUpdateCommand
     {
-        public ReInstallCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter)
+        public ReInstallCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, featureFlags)
         {
             IsInstallingCement = true;
             CommandSettings.IsHiddenCommand = true;

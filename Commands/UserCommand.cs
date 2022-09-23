@@ -16,8 +16,8 @@ namespace Commands
         private readonly ConsoleWriter consoleWriter;
         private string[] arguments;
 
-        public UserCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public UserCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

@@ -9,12 +9,12 @@ namespace Commands
         private readonly ConsoleWriter consoleWriter;
         private readonly Dictionary<string, ICommand> subCommands;
 
-        public AnalyzerCommand(ConsoleWriter consoleWriter)
+        public AnalyzerCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
         {
             this.consoleWriter = consoleWriter;
             subCommands = new Dictionary<string, ICommand>
             {
-                {"add", new AnalyzerAddCommand(consoleWriter)}
+                {"add", new AnalyzerAddCommand(consoleWriter, featureFlags)}
             };
         }
 

@@ -22,8 +22,8 @@ namespace Commands
         private bool showAll;
         private bool printEdges;
 
-        public UsagesShowCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public UsagesShowCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
             usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);

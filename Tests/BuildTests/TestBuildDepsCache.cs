@@ -135,13 +135,13 @@ namespace Tests.BuildTests
         private void Build(Dep module)
         {
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
-                new BuildCommand(ConsoleWriter.Shared).Run(new[] {"build", "-c", module.Configuration});
+                new BuildCommand(ConsoleWriter.Shared, FeatureFlags.Default).Run(new[] {"build", "-c", module.Configuration});
         }
 
         private void BuildDeps(Dep module)
         {
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
-                new BuildDepsCommand(ConsoleWriter.Shared).Run(new[] {"build-deps", "-c", module.Configuration});
+                new BuildDepsCommand(ConsoleWriter.Shared, FeatureFlags.Default).Run(new[] {"build-deps", "-c", module.Configuration});
         }
     }
 }

@@ -7,12 +7,12 @@ namespace Commands
     {
         private readonly Dictionary<string, ICommand> commands;
 
-        public RefCommand(ConsoleWriter consoleWriter, GetCommand getCommand)
+        public RefCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand)
         {
             commands = new Dictionary<string, ICommand>
             {
-                {"add", new RefAddCommand(consoleWriter, getCommand)},
-                {"fix", new RefFixCommand(consoleWriter)}
+                {"add", new RefAddCommand(consoleWriter, featureFlags, getCommand)},
+                {"fix", new RefFixCommand(consoleWriter, featureFlags)}
             };
         }
 

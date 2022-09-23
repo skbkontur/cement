@@ -8,11 +8,13 @@ namespace Commands
     public sealed class HelpCommand : ICommand
     {
         private readonly ConsoleWriter consoleWriter;
+        private readonly FeatureFlags featureFlags;
         private readonly ReadmeGenerator readmeGenerator;
 
-        public HelpCommand(ConsoleWriter consoleWriter, ReadmeGenerator readmeGenerator)
+        public HelpCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, ReadmeGenerator readmeGenerator)
         {
             this.consoleWriter = consoleWriter;
+            this.featureFlags = featureFlags;
             this.readmeGenerator = readmeGenerator;
         }
 
@@ -38,7 +40,7 @@ namespace Commands
                 return 0;
             }
 
-            var commands = new CommandsList(consoleWriter);
+            var commands = new CommandsList(consoleWriter, featureFlags);
             if (args.Length == 1)
             {
                 commands.Print();

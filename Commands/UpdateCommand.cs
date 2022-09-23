@@ -18,8 +18,8 @@ namespace Commands
         private LocalChangesPolicy policy;
         private int? gitDepth;
 
-        public UpdateCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public UpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

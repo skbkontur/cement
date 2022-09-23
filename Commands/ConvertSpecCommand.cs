@@ -17,8 +17,8 @@ namespace Commands
 
         private readonly ConsoleWriter consoleWriter;
 
-        public ConvertSpecCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public ConvertSpecCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

@@ -10,17 +10,14 @@ public sealed class PackagesCommand : ICommand
     private readonly ConsoleWriter consoleWriter;
     private readonly IDictionary<string, ICommand> subcommands;
 
-    public PackagesCommand(ConsoleWriter consoleWriter)
+    public PackagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
     {
         this.consoleWriter = consoleWriter;
-
-        //dstarasov: осознано не используем consoleWriter из аргументов конструктора, т.к. PackagesCommand вообще ничего
-        //dstarasov: не должен знать про то, как создавать его подкомманды и в будущем эта ответственность отсюда уедет
         subcommands = new Dictionary<string, ICommand>
         {
-            {"list", new ListPackagesCommand(consoleWriter)},
-            {"add", new AddPackageCommand(consoleWriter)},
-            {"remove", new RemovePackageCommand(consoleWriter)}
+            {"list", new ListPackagesCommand(consoleWriter, featureFlags)},
+            {"add", new AddPackageCommand(consoleWriter, featureFlags)},
+            {"remove", new RemovePackageCommand(consoleWriter, featureFlags)}
         };
     }
 

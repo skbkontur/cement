@@ -18,6 +18,7 @@ namespace Commands
             Location = CommandSettings.CommandLocation.InsideModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
+        private readonly FeatureFlags featureFlags;
         private readonly GetCommand getCommand;
 
         private string project;
@@ -26,10 +27,11 @@ namespace Commands
         private bool hasReplaces;
         private bool force;
 
-        public RefAddCommand(ConsoleWriter consoleWriter, GetCommand getCommand)
-            : base(consoleWriter, Settings)
+        public RefAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
+            this.featureFlags = featureFlags;
             this.getCommand = getCommand;
         }
 
@@ -123,11 +125,11 @@ namespace Commands
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
             {
                 consoleWriter.WriteInfo("cm build-deps " + module);
-                if (new BuildDepsCommand(consoleWriter).Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
+                if (new BuildDepsCommand(consoleWriter, featureFlags).Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + dep);
                 consoleWriter.ResetProgress();
                 consoleWriter.WriteInfo("cm build " + module);
-                if (new BuildCommand(consoleWriter).Run(new[] {"build", "-c", module.Configuration}) != 0)
+                if (new BuildCommand(consoleWriter, featureFlags).Run(new[] {"build", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build " + dep);
                 consoleWriter.ResetProgress();
             }

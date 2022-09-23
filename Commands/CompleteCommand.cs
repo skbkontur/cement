@@ -18,8 +18,8 @@ namespace Commands
         private readonly ConsoleWriter consoleWriter;
         private string[] otherArgs;
 
-        public CompleteCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public CompleteCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

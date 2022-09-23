@@ -19,8 +19,8 @@ namespace Commands
         private readonly ArborJs arborJs;
         private string configuration;
 
-        public ShowDepsCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public ShowDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             arborJs = new ArborJs();
         }
@@ -65,6 +65,34 @@ namespace Commands
             return 0;
         }
 
+        private static void ColorDep(List<string> tree, Dep dep, string color)
+        {
+            tree.Add($"{dep} {{color:{color}}}");
+        }
+
+        private static bool WasSmallerConfig(IEnumerable<Dep> deps, Dep dep)
+        {
+            var withSameName = deps.Where(d => d.Name == dep.Name);
+            var configurationManager = new ConfigurationManager(dep.Name, withSameName);
+            if (configurationManager.ProcessedParent(dep))
+                return true;
+            return false;
+        }
+
+        private static List<Dep> GetDeps(Dep root)
+        {
+            var deps = new DepsParser(
+                    Path.Combine(Helper.CurrentWorkspace, root.Name))
+                .Get(root.Configuration).Deps ?? new List<Dep>();
+            foreach (var dep in deps)
+            {
+                dep.UpdateConfigurationIfNull();
+                dep.Treeish = null;
+            }
+
+            return deps;
+        }
+
         private void Bfs(Dep root, List<string> tree)
         {
             var used = new HashSet<Dep>();
@@ -101,20 +129,6 @@ namespace Commands
             }
         }
 
-        private static void ColorDep(List<string> tree, Dep dep, string color)
-        {
-            tree.Add($"{dep} {{color:{color}}}");
-        }
-
-        private static bool WasSmallerConfig(IEnumerable<Dep> deps, Dep dep)
-        {
-            var withSameName = deps.Where(d => d.Name == dep.Name);
-            var configurationManager = new ConfigurationManager(dep.Name, withSameName);
-            if (configurationManager.ProcessedParent(dep))
-                return true;
-            return false;
-        }
-
         private void AddEdge(Dep from, Dep to, List<string> result)
         {
             var edge = $"{from} -> {to}";
@@ -142,20 +156,6 @@ namespace Commands
             var overhead = checker.GetCheckDepsResult(false).ConfigOverhead;
             var names = overhead.Select(path => path.Split('/', '\\').FirstOrDefault()).Distinct().ToList();
             return overheadCache[dep] = names;
-        }
-
-        private static List<Dep> GetDeps(Dep root)
-        {
-            var deps = new DepsParser(
-                    Path.Combine(Helper.CurrentWorkspace, root.Name))
-                .Get(root.Configuration).Deps ?? new List<Dep>();
-            foreach (var dep in deps)
-            {
-                dep.UpdateConfigurationIfNull();
-                dep.Treeish = null;
-            }
-
-            return deps;
         }
     }
 }

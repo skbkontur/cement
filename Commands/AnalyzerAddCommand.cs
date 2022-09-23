@@ -22,8 +22,8 @@ namespace Commands
         private string moduleSolutionName;
         private Dep analyzerModule;
 
-        public AnalyzerAddCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public AnalyzerAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

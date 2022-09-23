@@ -22,8 +22,8 @@ namespace Commands
         private bool verbose;
         private int? gitDepth;
 
-        public UpdateDepsCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public UpdateDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

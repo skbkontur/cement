@@ -20,8 +20,8 @@ namespace Commands
         private bool findExternal;
         private bool showShort;
 
-        public CheckDepsCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public CheckDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

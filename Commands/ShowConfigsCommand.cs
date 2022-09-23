@@ -19,8 +19,8 @@ namespace Commands
         private readonly ConsoleWriter consoleWriter;
         private string moduleNameArg;
 
-        public ShowConfigsCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public ShowConfigsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

@@ -8,14 +8,14 @@ namespace Commands
         private readonly ConsoleWriter consoleWriter;
         private readonly Dictionary<string, ICommand> commands;
 
-        public UsagesCommand(ConsoleWriter consoleWriter, IUsagesProvider usagesProvider, GetCommand getCommand)
+        public UsagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider, GetCommand getCommand)
         {
             this.consoleWriter = consoleWriter;
             commands = new Dictionary<string, ICommand>
             {
-                {"show", new UsagesShowCommand(consoleWriter)},
-                {"build", new UsagesBuildCommand(consoleWriter, usagesProvider, getCommand)},
-                {"grep", new UsagesGrepCommand(consoleWriter)}
+                {"show", new UsagesShowCommand(consoleWriter, featureFlags)},
+                {"build", new UsagesBuildCommand(consoleWriter, featureFlags, usagesProvider, getCommand)},
+                {"grep", new UsagesGrepCommand(consoleWriter, featureFlags)}
             };
         }
 

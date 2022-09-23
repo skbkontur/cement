@@ -5,6 +5,7 @@ using Commands;
 using Common;
 using Common.Exceptions;
 using Common.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace cm
@@ -15,21 +16,31 @@ namespace cm
 
         private static int Main(string[] args)
         {
+            args = FixArgs(args);
+            ThreadPoolSetUp(Helper.MaxDegreeOfParallelism);
+
+            var consoleWriter = ConsoleWriter.Shared;
+
+            var services = new ServiceCollection();
+            services.AddSingleton(consoleWriter);
+
             logger = LogManager.GetLogger(typeof(EntryPoint));
 
-            ThreadPoolSetUp(Helper.MaxDegreeOfParallelism);
-            args = FixArgs(args);
-            var exitCode = TryRun(args);
+            var featureFlagsProvider = new FeatureFlagsProvider(consoleWriter);
+            var featureFlags = featureFlagsProvider.Get();
 
-            ConsoleWriter.Shared.ResetProgress();
+            var exitCode = TryRun(consoleWriter, featureFlags, args);
+
+            consoleWriter.ResetProgress();
 
             var command = args[0];
             if (command != "complete" && command != "check-pre-commit"
                                       && (command != "help" || !args.Contains("--gen")))
-                SelfUpdateCommand.UpdateIfOld();
+            {
+                SelfUpdateCommand.UpdateIfOld(featureFlags);
+            }
 
-            logger.LogInformation($"Exit code: {exitCode}");
-
+            logger.LogInformation("Exit code: {ExitCode}", exitCode);
             LogManager.DisposeLoggers();
 
             return exitCode == 0 ? 0 : 13;
@@ -39,22 +50,25 @@ namespace cm
         {
             if (args.Length > 0 && args[0].Equals("cm"))
                 args = args.Skip(1).ToArray();
+
             if (args.Length == 0)
                 args = new[] {"help"};
+
             if (args.Contains("--help") || args.Contains("/?"))
                 args = new[] {"help", args[0]};
+
             return args;
         }
 
-        private static int TryRun(string[] args)
+        private static int TryRun(ConsoleWriter consoleWriter, FeatureFlags featureFlags, string[] args)
         {
             try
             {
-                return Run(args);
+                return Run(consoleWriter, featureFlags, args);
             }
             catch (CementException e)
             {
-                ConsoleWriter.Shared.WriteError(e.Message);
+                consoleWriter.WriteError(e.Message);
                 logger.LogError(e, e.Message);
                 return -1;
             }
@@ -62,13 +76,13 @@ namespace cm
             {
                 if (e.InnerException != null && e.InnerException is CementException cementException)
                 {
-                    ConsoleWriter.Shared.WriteError(cementException.Message);
+                    consoleWriter.WriteError(cementException.Message);
                     logger.LogError(e.InnerException, e.InnerException.Message);
                 }
                 else
                 {
-                    ConsoleWriter.Shared.WriteError(e.Message);
-                    ConsoleWriter.Shared.WriteError(e.StackTrace);
+                    consoleWriter.WriteError(e.Message);
+                    consoleWriter.WriteError(e.StackTrace);
                     logger.LogError(e, e.Message);
                 }
 
@@ -76,17 +90,17 @@ namespace cm
             }
         }
 
-        private static int Run(string[] args)
+        private static int Run(ConsoleWriter consoleWriter, FeatureFlags featureFlags, string[] args)
         {
-            var consoleWriter = ConsoleWriter.Shared;
-            var commands = new CommandsList(consoleWriter);
+            // ReSharper disable once CollectionNeverUpdated.Local
+            var commands = new CommandsList(consoleWriter, featureFlags);
             if (commands.ContainsKey(args[0]))
             {
                 return commands[args[0]].Run(args);
             }
 
             if (CementSettingsRepository.Get().UserCommands.ContainsKey(args[0]))
-                return new UserCommand(consoleWriter).Run(args);
+                return new UserCommand(consoleWriter, featureFlags).Run(args);
 
             consoleWriter.WriteError("Bad command: '" + args[0] + "'");
             return -1;

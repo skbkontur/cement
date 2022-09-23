@@ -4,7 +4,6 @@ using System.IO;
 using Common;
 using Common.Exceptions;
 using Common.Logging;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Commands
@@ -12,14 +11,12 @@ namespace Commands
     public abstract class Command : ICommand
     {
         protected static ILogger Log;
-        protected ConsoleWriter ConsoleWriter { get; }
-        protected CommandSettings CommandSettings { get; }
-        protected FeatureFlags FeatureFlags { get; private set; }
 
-        protected Command(ConsoleWriter consoleWriter, CommandSettings settings)
+        protected Command(ConsoleWriter consoleWriter, CommandSettings settings, FeatureFlags featureFlags)
         {
             ConsoleWriter = consoleWriter;
             CommandSettings = settings;
+            FeatureFlags = featureFlags;
         }
 
         public abstract string HelpMessage { get; }
@@ -32,7 +29,6 @@ namespace Commands
             {
                 var sw = Stopwatch.StartNew();
 
-                ReadFeatureFlags();
                 SetWorkspace();
                 CheckRequireYaml();
                 InitLogging();
@@ -72,23 +68,12 @@ namespace Commands
             }
         }
 
+        protected ConsoleWriter ConsoleWriter { get; }
+        protected CommandSettings CommandSettings { get; }
+        protected FeatureFlags FeatureFlags { get; }
+
         protected abstract int Execute();
         protected abstract void ParseArgs(string[] args);
-
-        private void ReadFeatureFlags()
-        {
-            var featureFlagsConfigPath = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "featureFlags.json");
-            if (File.Exists(featureFlagsConfigPath))
-            {
-                var configuration = new ConfigurationBuilder().AddJsonFile(featureFlagsConfigPath).Build();
-                FeatureFlags = configuration.Get<FeatureFlags>();
-            }
-            else
-            {
-                ConsoleWriter.WriteWarning($"File with feature flags not found in '{featureFlagsConfigPath}'. Reinstalling cement may fix that issue");
-                FeatureFlags = FeatureFlags.Default;
-            }
-        }
 
         private void CheckRequireYaml()
         {

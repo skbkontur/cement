@@ -13,7 +13,6 @@ namespace Commands
 {
     public sealed class RefFixCommand : Command
     {
-        private readonly ConsoleWriter consoleWriter;
         private static readonly CommandSettings Settings = new CommandSettings
         {
             LogFileName = "fixing-refs",
@@ -21,17 +20,18 @@ namespace Commands
             RequireModuleYaml = true,
             Location = CommandSettings.CommandLocation.RootModuleDirectory
         };
+        private readonly ConsoleWriter consoleWriter;
 
         private readonly FixReferenceResult fixReferenceResult = new();
         private readonly HashSet<string> missingModules = new();
+        private readonly FixReferenceResultPrinter fixReferenceResultPrinter;
         private bool hasFixedReferences;
         private bool fixExternal;
         private string rootModuleName;
         private string oldYamlContent;
-        private readonly FixReferenceResultPrinter fixReferenceResultPrinter;
 
-        public RefFixCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public RefFixCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
             fixReferenceResultPrinter = new FixReferenceResultPrinter(consoleWriter);

@@ -17,8 +17,8 @@ namespace Commands
         };
         private readonly ConsoleWriter consoleWriter;
 
-        public CheckPreCommitCommand(ConsoleWriter consoleWriter)
-            : base(consoleWriter, Settings)
+        public CheckPreCommitCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+            : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
         }

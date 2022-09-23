@@ -9,6 +9,7 @@ namespace Common
         {
             CleanBeforeBuild = false
         };
+
         [JsonProperty]
         public bool CleanBeforeBuild { get; set; }
     }
