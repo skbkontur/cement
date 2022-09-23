@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.DepsValidators;
 using Common.YamlParsers;
 
 namespace Common
@@ -59,7 +60,10 @@ namespace Common
 
         private bool TryReplaceFromParent(string patchConfiguration)
         {
-            var parser = new DepsYamlParser(new FileInfo(Directory.GetParent(yamlPath).FullName));
+            var parser = new DepsYamlParser(
+                ConsoleWriter.Shared, DepsValidatorFactory.Shared,
+                new FileInfo(Directory.GetParent(yamlPath).FullName));
+
             var had = parser.Get(patchConfiguration).Deps.Where(d => d.Name == patchDep.Name).ToList();
             if (!had.Any())
                 return false;
@@ -76,7 +80,10 @@ namespace Common
 
         private bool TryReplaceInSameSection(string patchConfiguration)
         {
-            var parser = new DepsYamlParser(new FileInfo(Directory.GetParent(yamlPath).FullName));
+            var parser = new DepsYamlParser(
+                ConsoleWriter.Shared, DepsValidatorFactory.Shared,
+                new FileInfo(Directory.GetParent(yamlPath).FullName));
+
             var hadInSameSection = parser.GetDepsFromConfig(patchConfiguration).Deps.Where(d => d.Name == patchDep.Name).Distinct().ToList();
             if (!hadInSameSection.Any())
                 return false;
@@ -91,7 +98,10 @@ namespace Common
 
         private void FixChildren(string patchConfiguration)
         {
-            var parser = new DepsYamlParser(new FileInfo(Directory.GetParent(yamlPath).FullName));
+            var parser = new DepsYamlParser(
+                ConsoleWriter.Shared, DepsValidatorFactory.Shared,
+                new FileInfo(Directory.GetParent(yamlPath).FullName));
+
             var hadDepsInThisSectionAndParrents = parser.Get(patchConfiguration).Deps.Where(d => d.Name == patchDep.Name).ToList();
             if (!hadDepsInThisSectionAndParrents.Any())
                 return;
@@ -109,7 +119,10 @@ namespace Common
         private void FixChild(Dep currentParrentDep, string childConfiguration)
         {
             RemoveDepLine(childConfiguration, currentParrentDep, false);
-            var parser = new DepsYamlParser(new FileInfo(Directory.GetParent(yamlPath).FullName));
+            var parser = new DepsYamlParser(
+                ConsoleWriter.Shared, DepsValidatorFactory.Shared,
+                new FileInfo(Directory.GetParent(yamlPath).FullName));
+
             var hadInSameSection = parser.GetDepsFromConfig(childConfiguration).Deps.Where(d => d.Name == patchDep.Name).ToList();
             if (!hadInSameSection.Any())
                 return;

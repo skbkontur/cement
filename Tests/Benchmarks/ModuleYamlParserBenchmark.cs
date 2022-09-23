@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
+using Common;
+using Common.DepsValidators;
 using Common.YamlParsers;
 using Common.YamlParsers.Models;
 using Common.YamlParsers.V2.Factories;
@@ -256,7 +258,7 @@ full-build > webapi-service-local, jobs-service-local, webapi-plugin, jobs-plugi
         [Benchmark]
         public Dictionary<string, DepsData> OldDepsParser()
         {
-            var parser = new DepsYamlParser("fakename", Content);
+            var parser = new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, "fakename", Content);
             var configs = parser.GetConfigurations();
 
             return configs.ToDictionary(c => c, c => parser.Get(c));

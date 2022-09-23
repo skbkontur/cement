@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.DepsValidators;
 using Common.YamlParsers;
 
 namespace Common
@@ -13,7 +14,7 @@ namespace Common
         public DepsReferencesCollector(string modulePath, string config)
         {
             workspace = Directory.GetParent(modulePath).FullName;
-            deps = new DepsYamlParser(new FileInfo(modulePath)).Get(config).Deps;
+            deps = new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, new FileInfo(modulePath)).Get(config).Deps;
         }
 
         public DepsReferenceSearchModel GetRefsFromDeps()

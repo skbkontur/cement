@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Common;
+using Common.DepsValidators;
 using Common.YamlParsers;
 
 namespace Tests.Helpers
@@ -18,7 +19,7 @@ namespace Tests.Helpers
             {
                 var yamlPath = Path.Combine(dir.Path, Helper.YamlSpecFile);
                 File.WriteAllText(yamlPath, text);
-                return new DepsYamlParser(new FileInfo(dir.Path));
+                return new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, new FileInfo(dir.Path));
             }
         }
 

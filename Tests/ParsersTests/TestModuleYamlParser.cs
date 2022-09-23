@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common;
+using Common.DepsValidators;
 using Common.YamlParsers;
 using Common.YamlParsers.V2.Factories;
 using FluentAssertions;
@@ -48,7 +50,7 @@ namespace Tests.ParsersTests
         {
             var text = pathToContentMap[path];
 
-            var depsSectionParser = new DepsYamlParser("fake", text);
+            var depsSectionParser = new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, "fake", text);
             var installSectionParser = new InstallYamlParser("fake", text);
             var buildSectionParser = new BuildYamlParser("fake", text);
 
@@ -71,7 +73,7 @@ namespace Tests.ParsersTests
         {
             var text = pathToContentMap[path];
             var parser = ModuleYamlParserFactory.Get();
-            var depsSectionParser = new DepsYamlParser("fake", text);
+            var depsSectionParser = new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, "fake", text);
 
             var md = parser.Parse(text);
 
@@ -90,7 +92,7 @@ namespace Tests.ParsersTests
         {
             var text = pathToContentMap[path];
             var parser = ModuleYamlParserFactory.Get();
-            var depsSectionParser = new DepsYamlParser("fake", text);
+            var depsSectionParser = new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, "fake", text);
 
             var md = parser.Parse(text);
             var configs = md.AllConfigurations.Keys.ToArray();

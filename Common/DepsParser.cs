@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Common.DepsValidators;
 using Common.YamlParsers;
 
 namespace Common
@@ -16,7 +17,11 @@ namespace Common
         public DepsData Get(string config = null)
         {
             if (File.Exists(Path.Combine(modulePath, Helper.YamlSpecFile)))
-                return new DepsYamlParser(new FileInfo(modulePath)).Get(config);
+            {
+                return new DepsYamlParser(
+                    ConsoleWriter.Shared, DepsValidatorFactory.Shared,
+                    new FileInfo(modulePath)).Get(config);
+            }
 
             if (File.Exists(
                     Path.Combine(

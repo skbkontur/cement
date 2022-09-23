@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.DepsValidators;
 using Common.Extensions;
 
 namespace Common.YamlParsers
@@ -25,7 +26,8 @@ namespace Common.YamlParsers
 
         public static DepsYamlParser DepsParser(string moduleName)
         {
-            return new DepsYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
+            return new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared,
+                new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
         }
 
         public static InstallYamlParser InstallParser(string moduleName)

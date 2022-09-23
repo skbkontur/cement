@@ -8,20 +8,22 @@ namespace Common.YamlParsers
 {
     public sealed class DepsYamlParser : ConfigurationYamlParser
     {
+        private readonly ConsoleWriter consoleWriter;
         private readonly IDepsValidatorFactory depsValidatorFactory;
 
-        public DepsYamlParser(FileInfo moduleName)
+        public DepsYamlParser(ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory, FileInfo moduleName)
             : base(moduleName)
         {
-            // TODO: use dependency injection
-            depsValidatorFactory = new DepsValidatorFactory();
+            this.consoleWriter = consoleWriter;
+            this.depsValidatorFactory = depsValidatorFactory;
         }
 
-        public DepsYamlParser(string moduleName, string contents)
+        public DepsYamlParser(ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory, string moduleName,
+                              string contents)
             : base(moduleName, contents)
         {
-            // TODO: use dependency injection
-            depsValidatorFactory = new DepsValidatorFactory();
+            this.consoleWriter = consoleWriter;
+            this.depsValidatorFactory = depsValidatorFactory;
         }
 
         public DepsData Get(string configuration = null)
@@ -29,7 +31,7 @@ namespace Common.YamlParsers
             configuration = configuration ?? GetDefaultConfigurationName();
             if (!ConfigurationExists(configuration))
             {
-                ConsoleWriter.Shared.WriteWarning(
+                consoleWriter.WriteWarning(
                     $"Configuration '{configuration}' was not found in {ModuleName}. Will take full-build config");
                 if (!ConfigurationExists("full-build"))
                     throw new NoSuchConfigurationException(ModuleName, "full-build and " + configuration);
@@ -132,7 +134,7 @@ namespace Common.YamlParsers
             foreach (var dep in relaxedDeps)
                 if (relaxedDeps.Count(d => d.Name.Equals(dep.Name)) > 1)
                 {
-                    ConsoleWriter.Shared.WriteError(
+                    consoleWriter.WriteError(
                         string.Format(
                             @"Module duplication found in 'module.yaml' for dep {0}. To depend on different variations of same dep, you must turn it off.
 Example:
@@ -198,7 +200,7 @@ sdk:
                 if (depsValidator.Validate(currentDeps, out var validateErrors) != DepsValidateResult.Valid)
                 {
                     foreach (var validateError in validateErrors)
-                        ConsoleWriter.Shared.WriteWarning(validateError);
+                        consoleWriter.WriteWarning(validateError);
 
                     var variable = Environment.GetEnvironmentVariable("CEMENT__STRICT_DEPS");
                     if (bool.TryParse(variable, out var strict) && strict)
