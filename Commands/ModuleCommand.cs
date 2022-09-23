@@ -1,77 +1,23 @@
 using System;
-using System.IO;
 using System.Linq;
 using Common;
-using Common.Logging;
-using Microsoft.Extensions.Logging;
 
 namespace Commands
 {
     public sealed class ModuleCommand : ICommand
     {
-        private static readonly ILogger Log = LogManager.GetLogger<ModuleCommand>();
+        private readonly ConsoleWriter consoleWriter;
+        private readonly ModuleHelper moduleHelper;
+
         private string command;
         private string moduleName;
         private string pushUrl, fetchUrl;
         private Package package;
 
-        public static int AddModule(Package package, string moduleName, string pushUrl, string fetchUrl)
+        public ModuleCommand(ConsoleWriter consoleWriter, ModuleHelper moduleHelper)
         {
-            if (fetchUrl.StartsWith("https://git.skbkontur.ru/"))
-                throw new CementException("HTTPS url not allowed for gitlab. You should use SSH url.");
-            using (var tempDir = new TempDirectory())
-            {
-                var repo = new GitRepository("modules_git", tempDir.Path, Log);
-                repo.Clone(package.Url);
-                if (FindModule(repo, moduleName) != null)
-                {
-                    ConsoleWriter.Shared.WriteError("Module " + moduleName + " already exists in " + package.Name);
-                    return -1;
-                }
-
-                WriteModuleDescription(moduleName, pushUrl, fetchUrl, repo);
-
-                var message = "(!)cement comment: added module '" + moduleName + "'";
-                repo.Commit(new[] {"-am", message});
-                repo.Push("master");
-            }
-
-            ConsoleWriter.Shared.WriteOk($"Successfully added {moduleName} to {package.Name} package.");
-
-            PackageUpdater.Shared.UpdatePackages();
-
-            return 0;
-        }
-
-        public static int ChangeModule(Package package, string moduleName, string pushUrl, string fetchUrl)
-        {
-            using (var tempDir = new TempDirectory())
-            {
-                var repo = new GitRepository("modules_git", tempDir.Path, Log);
-                repo.Clone(package.Url);
-
-                var toChange = FindModule(repo, moduleName);
-                if (toChange == null)
-                {
-                    ConsoleWriter.Shared.WriteError("Unable to find module " + moduleName + " in package " + package.Name);
-                    return -1;
-                }
-
-                if (toChange.Url == fetchUrl && toChange.Pushurl == pushUrl)
-                {
-                    ConsoleWriter.Shared.WriteInfo("Your changes were already made");
-                    return 0;
-                }
-
-                ChangeModuleDescription(repo, toChange, new Module(moduleName, fetchUrl, pushUrl));
-
-                var message = "(!)cement comment: changed module '" + moduleName + "'";
-                repo.Commit(new[] {"-am", message});
-                repo.Push("master");
-            }
-
-            ConsoleWriter.Shared.WriteOk("Success changed " + moduleName + " in " + package.Name);
-            return 0;
+            this.consoleWriter = consoleWriter;
+            this.moduleHelper = moduleHelper;
         }
 
         public string HelpMessage => @"
@@ -95,53 +41,15 @@ namespace Commands
             }
             catch (CementException e)
             {
-                ConsoleWriter.Shared.WriteError(e.Message);
+                consoleWriter.WriteError(e.Message);
                 return -1;
             }
             catch (Exception e)
             {
-                ConsoleWriter.Shared.WriteError(e.Message);
-                ConsoleWriter.Shared.WriteError(e.StackTrace);
+                consoleWriter.WriteError(e.Message);
+                consoleWriter.WriteError(e.StackTrace);
                 return -1;
             }
-        }
-
-        private static Module FindModule(GitRepository repo, string moduleName)
-        {
-            var content = File.ReadAllText(Path.Combine(repo.RepoPath, "modules"));
-            var modules = ModuleIniParser.Parse(content);
-            return modules.FirstOrDefault(m => m.Name == moduleName);
-        }
-
-        private static void WriteModuleDescription(string moduleName, string pushUrl, string fetchUrl, GitRepository repo)
-        {
-            var filePath = Path.Combine(repo.RepoPath, "modules");
-            if (!File.Exists(filePath))
-                File.Create(filePath).Close();
-            File.AppendAllLines(
-                filePath, new[]
-                {
-                    "",
-                    "[module " + moduleName + "]",
-                    "url = " + fetchUrl,
-                    pushUrl != null ? "pushurl = " + pushUrl : ""
-                });
-        }
-
-        private static void ChangeModuleDescription(GitRepository repo, Module old, Module changed)
-        {
-            var filePath = Path.Combine(repo.RepoPath, "modules");
-            var lines = File.ReadAllLines(filePath);
-
-            for (var i = 0; i < lines.Length; i++)
-            {
-                if (lines[i] != "[module " + old.Name + "]")
-                    continue;
-                lines[i + 1] = "url = " + changed.Url;
-                lines[i + 2] = changed.Pushurl == null ? "" : "pushurl = " + changed.Pushurl;
-            }
-
-            File.WriteAllLines(filePath, lines);
         }
 
         private static Package GetPackage(string packageName)
@@ -164,7 +72,7 @@ namespace Commands
         {
             if (package.Type != "git")
             {
-                ConsoleWriter.Shared.WriteError("You should add/change local modules file manually");
+                consoleWriter.WriteError("You should add/change local modules file manually");
                 {
                     return -1;
                 }
@@ -187,12 +95,12 @@ namespace Commands
 
         private int AddModule()
         {
-            return AddModule(package, moduleName, pushUrl, fetchUrl);
+            return moduleHelper.AddModule(package, moduleName, pushUrl, fetchUrl);
         }
 
         private int ChangeModule()
         {
-            return ChangeModule(package, moduleName, pushUrl, fetchUrl);
+            return moduleHelper.ChangeModule(package, moduleName, pushUrl, fetchUrl);
         }
 
         private void ParseArgs(string[] args)
