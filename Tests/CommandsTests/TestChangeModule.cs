@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Commands;
 using Common;
+using Common.Exceptions;
 using Common.Logging;
 using NUnit.Framework;
 using Tests.Helpers;

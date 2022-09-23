@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Common;
+using Common.Exceptions;
 using NSubstitute;
 using NUnit.Framework;
 

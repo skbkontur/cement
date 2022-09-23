@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using Common;
+using Common.Exceptions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;

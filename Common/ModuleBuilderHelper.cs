@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Common.Exceptions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 

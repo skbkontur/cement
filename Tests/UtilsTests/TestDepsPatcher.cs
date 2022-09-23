@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Common;
+using Common.Exceptions;
 using NUnit.Framework;
 
 namespace Tests.UtilsTests

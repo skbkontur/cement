@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Common.Exceptions;
 using Common.Logging;
 using Common.YamlParsers;
 using Microsoft.Extensions.Logging;

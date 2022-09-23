@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using Common;
+using Common.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;

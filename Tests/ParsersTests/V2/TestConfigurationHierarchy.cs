@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common;
+using Common.Exceptions;
 using Common.YamlParsers.V2;
 using Common.YamlParsers.V2.Factories;
 using NUnit.Framework;

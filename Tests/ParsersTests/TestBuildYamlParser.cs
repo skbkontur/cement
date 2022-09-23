@@ -1,4 +1,5 @@
 ﻿using Common;
+using Common.Exceptions;
 using NUnit.Framework;
 using Tests.Helpers;
 

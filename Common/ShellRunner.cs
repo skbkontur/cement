@@ -6,8 +6,10 @@ using System.Management;
 using System.Security;
 using System.Text;
 using System.Threading;
+using Common.Exceptions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
+using TimeoutException = Common.Exceptions.TimeoutException;
 
 namespace Common
 {

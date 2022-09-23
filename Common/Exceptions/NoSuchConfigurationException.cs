@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace Common.Exceptions
 {
     public sealed class NoSuchConfigurationException : CementException
     {

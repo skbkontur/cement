@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Common.Exceptions;
 using Common.Logging;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;

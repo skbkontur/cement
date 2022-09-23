@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.Exceptions;
 using Common.Logging;
 using Common.YamlParsers;
 using Microsoft.Extensions.Logging;

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using Common;
+using Common.Exceptions;
 using Common.YamlParsers;
 
 namespace Commands

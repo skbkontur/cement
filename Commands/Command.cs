@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using Common;
+using Common.Exceptions;
 using Common.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

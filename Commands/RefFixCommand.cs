@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using Common;
+using Common.Exceptions;
 using Common.Extensions;
 using Common.YamlParsers;
 using Microsoft.Extensions.Logging;

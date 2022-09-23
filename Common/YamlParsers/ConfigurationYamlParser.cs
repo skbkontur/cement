@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.Exceptions;
 using SharpYaml.Serialization;
 
 namespace Common.YamlParsers

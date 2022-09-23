@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common.Exceptions;
 using Common.YamlParsers.Models;
 using JetBrains.Annotations;
 

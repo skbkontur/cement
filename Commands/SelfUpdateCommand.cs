@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using Common;
+using Common.Exceptions;
 using Common.Updaters;
 using Microsoft.Extensions.Logging;
 

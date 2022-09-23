@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Common;
+using Common.Exceptions;
 using Common.YamlParsers.V2;
 using FluentAssertions;
 using NUnit.Framework;

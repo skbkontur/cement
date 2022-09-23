@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Common.Exceptions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 

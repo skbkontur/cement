@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Common.Exceptions;
 using Microsoft.Extensions.Logging;
 using NuGet.CommandLine;
 using NuGet.Common;
