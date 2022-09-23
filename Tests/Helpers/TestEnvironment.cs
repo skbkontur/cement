@@ -52,6 +52,7 @@ namespace Tests.Helpers
         public void Get(string module, string treeish = null, LocalChangesPolicy localChangesPolicy = LocalChangesPolicy.FailOnLocalChanges)
         {
             var getter = new ModuleGetter(
+                ConsoleWriter.Shared,
                 GetModules().ToList(),
                 new Dep(module, treeish),
                 localChangesPolicy,

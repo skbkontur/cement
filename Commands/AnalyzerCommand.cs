@@ -6,10 +6,17 @@ namespace Commands
 {
     public sealed class AnalyzerCommand : ICommand
     {
-        private readonly Dictionary<string, ICommand> subCommands = new()
+        private readonly ConsoleWriter consoleWriter;
+        private readonly Dictionary<string, ICommand> subCommands;
+
+        public AnalyzerCommand(ConsoleWriter consoleWriter)
         {
-            {"add", new AnalyzerAddCommand()}
-        };
+            this.consoleWriter = consoleWriter;
+            subCommands = new Dictionary<string, ICommand>
+            {
+                {"add", new AnalyzerAddCommand(consoleWriter)}
+            };
+        }
 
         public string HelpMessage => @"
     Adds analyzers in *.sln
@@ -40,8 +47,8 @@ namespace Commands
             if (subCommand != null && subCommands.ContainsKey(subCommand))
                 return subCommands[subCommand].Run(args);
 
-            ConsoleWriter.Shared.WriteError($"Bad arguments: cm analyzer [{subCommand}]");
-            ConsoleWriter.Shared.WriteInfo($"Possible arguments: [{string.Join("|", subCommands.Keys)}]");
+            consoleWriter.WriteError($"Bad arguments: cm analyzer [{subCommand}]");
+            consoleWriter.WriteInfo($"Possible arguments: [{string.Join("|", subCommands.Keys)}]");
             return -1;
         }
     }

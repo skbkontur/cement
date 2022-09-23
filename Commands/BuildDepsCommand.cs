@@ -12,12 +12,13 @@ namespace Commands
 {
     public sealed class BuildDepsCommand : Command
     {
+        private readonly ConsoleWriter consoleWriter;
         private string configuration;
         private bool rebuild;
         private bool parallel;
         private BuildSettings buildSettings;
 
-        public BuildDepsCommand()
+        public BuildDepsCommand(ConsoleWriter consoleWriter)
             : base(
                 new CommandSettings
                 {
@@ -26,12 +27,15 @@ namespace Commands
                     Location = CommandSettings.CommandLocation.RootModuleDirectory
                 })
         {
+            this.consoleWriter = consoleWriter;
         }
 
         public static void TryNugetRestore(List<Dep> modulesToUpdate, ModuleBuilder builder)
         {
             Log.LogDebug("Restoring NuGet packages");
-            ConsoleWriter.Shared.ResetProgress();
+
+            var consoleWriter = ConsoleWriter.Shared;
+            consoleWriter.ResetProgress();
             try
             {
                 var nugetRunCommand = NuGetHelper.GetNugetRunCommand();
@@ -42,9 +46,9 @@ namespace Commands
                 Parallel.ForEach(
                     deps, Helper.ParallelOptions, group =>
                     {
-                        ConsoleWriter.Shared.WriteProgress($"{group.Key,-30} nuget restoring");
+                        consoleWriter.WriteProgress($"{group.Key,-30} nuget restoring");
                         builder.NugetRestore(group.Key, group.Select(d => d.Configuration).ToList(), nugetRunCommand);
-                        ConsoleWriter.Shared.SaveToProcessedModules(group.Key);
+                        consoleWriter.SaveToProcessedModules(group.Key);
                     });
             }
             catch (AggregateException ae)
@@ -57,7 +61,7 @@ namespace Commands
             }
 
             Log.LogDebug("OK NuGet packages restored");
-            ConsoleWriter.Shared.ResetProgress();
+            consoleWriter.ResetProgress();
         }
 
         public override string HelpMessage => @"
@@ -104,7 +108,6 @@ namespace Commands
 
             var cleanerLogger = LogManager.GetLogger<Cleaner>();
             var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
-            var consoleWriter = ConsoleWriter.Shared;
             var cleaner = new Cleaner(cleanerLogger, shellRunner, consoleWriter);
             var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
             var builder = new ModuleBuilder(Log, buildSettings, buildYamlScriptsMaker);
@@ -135,7 +138,7 @@ namespace Commands
             return isSuccessful ? 0 : -1;
         }
 
-        private static bool BuildDepsSequential(ModulesOrder modulesOrder, BuildInfoStorage buildStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
+        private bool BuildDepsSequential(ModulesOrder modulesOrder, BuildInfoStorage buildStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
         {
             var built = 1;
             for (var i = 0; i < modulesOrder.BuildOrder.Count - 1; i++)
@@ -148,7 +151,7 @@ namespace Commands
                     continue;
                 }
 
-                ConsoleWriter.Shared.WriteProgress($"{dep.ToBuildString(),-49} {$"{built}/{modulesToBuild.Count}",10}");
+                consoleWriter.WriteProgress($"{dep.ToBuildString(),-49} {$"{built}/{modulesToBuild.Count}",10}");
                 try
                 {
                     if (!builder.Build(dep))
@@ -172,7 +175,7 @@ namespace Commands
             return true;
         }
 
-        private static bool BuildDepsParallel(ModulesOrder modulesOrder, BuildInfoStorage buildStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
+        private bool BuildDepsParallel(ModulesOrder modulesOrder, BuildInfoStorage buildStorage, List<Dep> modulesToBuild, ModuleBuilder builder)
         {
             var logger = LogManager.GetLogger<ParallelBuilder>();
             var graphHelper = new GraphHelper();
@@ -210,7 +213,7 @@ namespace Commands
                                     continue;
                                 }
 
-                                ConsoleWriter.Shared.WriteProgress($"{dep.ToBuildString(),-49} {$"{builtCount}/{modulesToBuild.Count}",10}");
+                                consoleWriter.WriteProgress($"{dep.ToBuildString(),-49} {$"{builtCount}/{modulesToBuild.Count}",10}");
                                 var success = builder.Build(dep);
 
                                 parallelBuilder.EndBuild(dep, !success);
@@ -232,12 +235,12 @@ namespace Commands
             return !parallelBuilder.IsFailed;
         }
 
-        private static bool NoNeedToBuild(Dep dep, List<Dep> modulesToBuild)
+        private bool NoNeedToBuild(Dep dep, List<Dep> modulesToBuild)
         {
             if (!modulesToBuild.Contains(dep))
             {
                 Log.LogDebug($"{dep.ToBuildString(),-40} *build skipped");
-                ConsoleWriter.Shared.WriteSkip($"{dep.ToBuildString(),-40}");
+                consoleWriter.WriteSkip($"{dep.ToBuildString(),-40}");
                 return true;
             }
 

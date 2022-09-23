@@ -8,9 +8,10 @@ namespace Commands
 {
     public sealed class ShowConfigsCommand : Command
     {
+        private readonly ConsoleWriter consoleWriter;
         private string moduleNameArg;
 
-        public ShowConfigsCommand()
+        public ShowConfigsCommand(ConsoleWriter consoleWriter)
             : base(
                 new CommandSettings
                 {
@@ -20,6 +21,7 @@ namespace Commands
                     RequireModuleYaml = true
                 })
         {
+            this.consoleWriter = consoleWriter;
         }
 
         public override string HelpMessage => @"
@@ -61,11 +63,11 @@ namespace Commands
                 if (config == defaultConfig)
                 {
                     sb.Append("  *default");
-                    ConsoleWriter.Shared.PrintLn(sb.ToString(), ConsoleColor.Green);
+                    consoleWriter.PrintLn(sb.ToString(), ConsoleColor.Green);
                 }
                 else
                 {
-                    ConsoleWriter.Shared.WriteLine(sb.ToString());
+                    consoleWriter.WriteLine(sb.ToString());
                 }
             }
 

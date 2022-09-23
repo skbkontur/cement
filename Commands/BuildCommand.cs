@@ -8,11 +8,12 @@ namespace Commands
 {
     public sealed class BuildCommand : Command
     {
+        private readonly ConsoleWriter consoleWriter;
         private string configuration;
         private BuildSettings buildSettings;
         private bool restore;
 
-        public BuildCommand()
+        public BuildCommand(ConsoleWriter consoleWriter)
             : base(
                 new CommandSettings
                 {
@@ -21,6 +22,7 @@ namespace Commands
                     Location = CommandSettings.CommandLocation.RootModuleDirectory
                 })
         {
+            this.consoleWriter = consoleWriter;
         }
 
         public override string HelpMessage => @"
@@ -63,13 +65,12 @@ namespace Commands
 
             if (!new ConfigurationParser(new FileInfo(cwd)).ConfigurationExists(configuration))
             {
-                ConsoleWriter.Shared.WriteError($"Configuration '{configuration}' was not found in {moduleName}.");
+                consoleWriter.WriteError($"Configuration '{configuration}' was not found in {moduleName}.");
                 return -1;
             }
 
             var cleanerLogger = LogManager.GetLogger<Cleaner>();
             var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
-            var consoleWriter = ConsoleWriter.Shared;
             var cleaner = new Cleaner(cleanerLogger, shellRunner, consoleWriter);
             var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
             var builder = new ModuleBuilder(Log, buildSettings, buildYamlScriptsMaker);

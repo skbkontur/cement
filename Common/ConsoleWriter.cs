@@ -58,6 +58,11 @@ namespace Common
             PrintLn(text, defaultColor);
         }
 
+        public void WriteLine(string format, params object[] args)
+        {
+            PrintLn(string.Format(format, args), defaultColor);
+        }
+
         public void WriteLine()
         {
             PrintLn("", defaultColor);
@@ -66,6 +71,11 @@ namespace Common
         public void Write(string text)
         {
             Print(text, defaultColor);
+        }
+
+        public void Write(string format, params object[] args)
+        {
+            Print(string.Format(format, args), defaultColor);
         }
 
         public void WriteWarning(string warning)

@@ -11,6 +11,7 @@ namespace Commands
 {
     public sealed class UsagesGrepCommand : Command
     {
+        private readonly ConsoleWriter consoleWriter;
         private static readonly string[] GrepParametersWithValue =
             {"-A", "-B", "-C", "--threads", "-f", "-e", "--parent-basename", "--max-depth"};
         private static readonly string[] NewLine = {"\r\n", "\r", "\n"};
@@ -28,7 +29,7 @@ namespace Commands
         private bool skipGet;
         private string checkingBranch;
 
-        public UsagesGrepCommand()
+        public UsagesGrepCommand(ConsoleWriter consoleWriter)
             : base(
                 new CommandSettings
                 {
@@ -37,6 +38,7 @@ namespace Commands
                     Location = CommandSettings.CommandLocation.RootModuleDirectory
                 })
         {
+            this.consoleWriter = consoleWriter;
             runner = new ShellRunner(Log);
             var logger = LogManager.GetLogger<UsagesProvider>();
             usagesProvider = new UsagesProvider(logger, CementSettingsRepository.Get);
@@ -171,6 +173,7 @@ namespace Commands
         private void GetWithoutDependencies(Dep dep, List<Module> modules)
         {
             var getter = new ModuleGetter(
+                consoleWriter,
                 modules,
                 dep,
                 LocalChangesPolicy.FailOnLocalChanges,

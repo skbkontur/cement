@@ -10,10 +10,11 @@ namespace Commands
 {
     public sealed class AnalyzerAddCommand : Command
     {
+        private readonly ConsoleWriter consoleWriter;
         private string moduleSolutionName;
         private Dep analyzerModule;
 
-        public AnalyzerAddCommand()
+        public AnalyzerAddCommand(ConsoleWriter consoleWriter)
             : base(
                 new CommandSettings
                 {
@@ -22,6 +23,7 @@ namespace Commands
                     Location = CommandSettings.CommandLocation.InsideModuleDirectory
                 })
         {
+            this.consoleWriter = consoleWriter;
         }
 
         public override string HelpMessage => @"";
@@ -68,7 +70,7 @@ namespace Commands
             var installData = InstallParser.Get(analyzerModuleName, configuration);
             if (!installData.InstallFiles.Any())
             {
-                ConsoleWriter.Shared.WriteWarning($"No install files found in '{analyzerModuleName}'");
+                consoleWriter.WriteWarning($"No install files found in '{analyzerModuleName}'");
                 return 0;
             }
 
@@ -115,7 +117,7 @@ namespace Commands
                 pair.Ruleset.Save();
             }
 
-            ConsoleWriter.Shared.WriteOk($"Add {analyzerModuleName} to {Path.GetFileName(moduleSolutionPath)} successfully completed");
+            consoleWriter.WriteOk($"Add {analyzerModuleName} to {Path.GetFileName(moduleSolutionPath)} successfully completed");
             return 0;
         }
 
@@ -129,7 +131,7 @@ namespace Commands
                 var repo = new GitRepository(analyzerModule.Name, Helper.CurrentWorkspace, Log);
                 var current = repo.CurrentLocalTreeish().Value;
                 if (current != analyzerModule.Treeish)
-                    ConsoleWriter.Shared.WriteWarning($"{analyzerModule.Name} on @{current} but adding @{analyzerModule.Treeish}");
+                    consoleWriter.WriteWarning($"{analyzerModule.Name} on @{current} but adding @{analyzerModule.Treeish}");
             }
             catch (Exception e)
             {

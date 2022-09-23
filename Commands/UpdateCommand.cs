@@ -6,12 +6,13 @@ namespace Commands
 {
     public sealed class UpdateCommand : Command
     {
+        private readonly ConsoleWriter consoleWriter;
         private string treeish = "master";
         private bool verbose;
         private LocalChangesPolicy policy;
         private int? gitDepth;
 
-        public UpdateCommand()
+        public UpdateCommand(ConsoleWriter consoleWriter)
             : base(
                 new CommandSettings
                 {
@@ -19,6 +20,7 @@ namespace Commands
                     Location = CommandSettings.CommandLocation.RootModuleDirectory
                 })
         {
+            this.consoleWriter = consoleWriter;
         }
 
         public override string HelpMessage => @"
@@ -51,6 +53,7 @@ namespace Commands
                 treeish = curRepo.CurrentLocalTreeish().Value;
 
             var getter = new ModuleGetter(
+                consoleWriter,
                 Helper.GetModules(),
                 new Dep(module, treeish),
                 policy,

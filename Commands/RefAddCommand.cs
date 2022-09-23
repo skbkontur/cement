@@ -94,7 +94,7 @@ namespace Commands
             return 0;
         }
 
-        private static void SafeAddRef(ProjectFile csproj, string refName, string hintPath)
+        private void SafeAddRef(ProjectFile csproj, string refName, string hintPath)
         {
             try
             {
@@ -102,7 +102,7 @@ namespace Commands
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                consoleWriter.WriteLine(e.ToString());
                 Log.LogError("Fail to add reference", e);
             }
         }
@@ -122,16 +122,16 @@ namespace Commands
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
             {
                 consoleWriter.WriteInfo("cm build-deps " + module);
-                if (new BuildDepsCommand().Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
+                if (new BuildDepsCommand(consoleWriter).Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + dep);
                 consoleWriter.ResetProgress();
                 consoleWriter.WriteInfo("cm build " + module);
-                if (new BuildCommand().Run(new[] {"build", "-c", module.Configuration}) != 0)
+                if (new BuildCommand(consoleWriter).Run(new[] {"build", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build " + dep);
                 consoleWriter.ResetProgress();
             }
 
-            Console.WriteLine();
+            consoleWriter.WriteLine();
         }
 
         private void CheckBranch()

@@ -94,6 +94,7 @@ namespace Commands
         private void GetModule()
         {
             var getter = new ModuleGetter(
+                consoleWriter,
                 Helper.GetModules(),
                 new Dep(module, treeish, configuration),
                 policy,

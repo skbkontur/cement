@@ -87,7 +87,7 @@ namespace Common
                     while (!processingConfigs.First().Equals(d))
                         processingConfigs = processingConfigs.Skip(1).ToList();
                     processingConfigs.Add(d);
-                    Console.WriteLine(string.Join(" ->\n", processingConfigs));
+                    ConsoleWriter.Shared.WriteLine(string.Join(" ->\n", processingConfigs));
                     throw new CementException("Unable to build! Circular dependency found!");
                 }
 

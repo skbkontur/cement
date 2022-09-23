@@ -11,9 +11,9 @@ namespace Commands
         {
             commands = new Dictionary<string, ICommand>
             {
-                {"show", new UsagesShowCommand()},
+                {"show", new UsagesShowCommand(consoleWriter)},
                 {"build", new UsagesBuildCommand(consoleWriter, usagesProvider, getCommand)},
-                {"grep", new UsagesGrepCommand()}
+                {"grep", new UsagesGrepCommand(consoleWriter)}
             };
         }
 

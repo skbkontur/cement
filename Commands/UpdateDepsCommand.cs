@@ -7,6 +7,7 @@ namespace Commands
 {
     public sealed class UpdateDepsCommand : Command
     {
+        private readonly ConsoleWriter consoleWriter;
         private string configuration;
         private string mergedBranch;
         private LocalChangesPolicy policy;
@@ -14,7 +15,7 @@ namespace Commands
         private bool verbose;
         private int? gitDepth;
 
-        public UpdateDepsCommand()
+        public UpdateDepsCommand(ConsoleWriter consoleWriter)
             : base(
                 new CommandSettings
                 {
@@ -23,6 +24,7 @@ namespace Commands
                     Location = CommandSettings.CommandLocation.RootModuleDirectory
                 })
         {
+            this.consoleWriter = consoleWriter;
         }
 
         public override string HelpMessage => @"
@@ -81,6 +83,7 @@ namespace Commands
             HooksHelper.InstallHooks(moduleName);
 
             var getter = new ModuleGetter(
+                consoleWriter,
                 Helper.GetModules(),
                 new Dep(moduleName, null, configuration),
                 policy,

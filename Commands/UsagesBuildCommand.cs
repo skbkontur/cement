@@ -71,16 +71,16 @@ namespace Commands
             {
                 consoleWriter.WriteOk("Ok builds:");
                 if (!goodParents.Any())
-                    Console.WriteLine("none");
+                    consoleWriter.WriteLine("none");
                 foreach (var dep in goodParents)
                     consoleWriter.WriteOk(dep.ToString());
-                Console.WriteLine();
+                consoleWriter.WriteLine();
                 consoleWriter.WriteError("There were some errors in modules:");
                 foreach (var pair in badParents)
                 {
-                    Console.WriteLine();
+                    consoleWriter.WriteLine();
                     consoleWriter.WriteError(pair.Key.ToString());
-                    Console.WriteLine(pair.Value);
+                    consoleWriter.WriteLine(pair.Value);
                 }
             }
         }
@@ -112,8 +112,8 @@ namespace Commands
                             WaitKey();
                     }
 
-                    Console.WriteLine();
-                    Console.WriteLine();
+                    consoleWriter.WriteLine();
+                    consoleWriter.WriteLine();
                 }
             }
 
@@ -122,7 +122,7 @@ namespace Commands
 
         private void WaitKey()
         {
-            Console.WriteLine("Press any key to continue checking");
+            consoleWriter.WriteLine("Press any key to continue checking");
             Console.ReadKey();
         }
 
@@ -138,16 +138,16 @@ namespace Commands
 
             using (new DirectoryJumper(Path.Combine(workspace, depParent.Name)))
             {
-                if (new BuildDepsCommand().Run(new[] {"build-deps", "-c", depParent.Configuration}) != 0)
+                if (new BuildDepsCommand(consoleWriter).Run(new[] {"build-deps", "-c", depParent.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + depParent.Name);
                 consoleWriter.ResetProgress();
-                if (new BuildCommand().Run(new[] {"build"}) != 0)
+                if (new BuildCommand(consoleWriter).Run(new[] {"build"}) != 0)
                     throw new CementException("Failed to build " + depParent.Name);
                 consoleWriter.ResetProgress();
             }
 
             consoleWriter.WriteOk($"{depParent} build fine");
-            Console.WriteLine();
+            consoleWriter.WriteLine();
         }
     }
 }
