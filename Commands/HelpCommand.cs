@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
@@ -43,7 +44,7 @@ namespace Commands
             var commands = new CommandsList(consoleWriter, featureFlags);
             if (args.Length == 1)
             {
-                commands.Print();
+                Print(commands);
                 consoleWriter.WriteLine("");
                 PrintHelpFooter();
                 return 0;
@@ -77,6 +78,27 @@ namespace Commands
         {
             var text = readmeGenerator.Generate();
             File.WriteAllText(file, text);
+        }
+
+        public void Print(IDictionary<string, ICommand> commands)
+        {
+            var commandNames = commands.Keys.OrderBy(x => x);
+            foreach (var commandName in commandNames)
+            {
+                var command = commands[commandName];
+                if (command.IsHiddenCommand)
+                    continue;
+
+                var smallHelp = GetSmallHelp(command);
+                consoleWriter.WriteLine($"{commandName,-25}{smallHelp}");
+            }
+        }
+
+        private static string GetSmallHelp(ICommand command)
+        {
+            var help = command.HelpMessage;
+            var lines = help.Split('\n');
+            return lines.Length < 2 ? "???" : lines[1].Trim();
         }
     }
 }

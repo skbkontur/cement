@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Common;
 using Common.Logging;
 
@@ -7,12 +6,8 @@ namespace Commands
 {
     public sealed class CommandsList : Dictionary<string, ICommand>
     {
-        private readonly ConsoleWriter consoleWriter;
-
         public CommandsList(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
         {
-            this.consoleWriter = consoleWriter;
-
             var readmeGenerator = new ReadmeGenerator(this);
             var cycleDetector = new CycleDetector();
             var usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);
@@ -46,25 +41,6 @@ namespace Commands
             Add("complete", new CompleteCommand(consoleWriter, featureFlags));
             Add("pack", new PackCommand(consoleWriter, featureFlags));
             Add("packages", new PackagesCommand(consoleWriter, featureFlags));
-        }
-
-        public void Print()
-        {
-            var commandNames = Keys.OrderBy(x => x);
-            foreach (var commandName in commandNames)
-            {
-                if (this[commandName].IsHiddenCommand)
-                    continue;
-
-                consoleWriter.WriteLine($"{commandName,-25}{GetSmallHelp(commandName)}");
-            }
-        }
-
-        private string GetSmallHelp(string commandName)
-        {
-            var help = this[commandName].HelpMessage;
-            var lines = help.Split('\n');
-            return lines.Length < 2 ? "???" : lines[1].Trim();
         }
     }
 }
