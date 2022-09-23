@@ -12,23 +12,28 @@ namespace Commands
 {
     public sealed class RefFixCommand : Command
     {
+        private readonly ConsoleWriter consoleWriter;
+        private static readonly CommandSettings Settings = new CommandSettings
+        {
+            LogFileName = "fixing-refs",
+            MeasureElapsedTime = false,
+            RequireModuleYaml = true,
+            Location = CommandSettings.CommandLocation.RootModuleDirectory
+        };
+
         private readonly FixReferenceResult fixReferenceResult = new();
         private readonly HashSet<string> missingModules = new();
         private bool hasFixedReferences;
         private bool fixExternal;
         private string rootModuleName;
         private string oldYamlContent;
+        private readonly FixReferenceResultPrinter fixReferenceResultPrinter;
 
-        public RefFixCommand()
-            : base(
-                new CommandSettings
-                {
-                    LogFileName = "fixing-refs",
-                    MeasureElapsedTime = false,
-                    RequireModuleYaml = true,
-                    Location = CommandSettings.CommandLocation.RootModuleDirectory
-                })
+        public RefFixCommand(ConsoleWriter consoleWriter)
+            : base(consoleWriter, Settings)
         {
+            this.consoleWriter = consoleWriter;
+            fixReferenceResultPrinter = new FixReferenceResultPrinter(consoleWriter);
         }
 
         public override string HelpMessage => @"";
@@ -46,17 +51,17 @@ namespace Commands
         {
             rootModuleName = Path.GetFileName(Directory.GetCurrentDirectory());
             Fix();
-            fixReferenceResult.Print();
+            fixReferenceResultPrinter.Print(fixReferenceResult);
 
             if (!Yaml.ReadAllText(rootModuleName).Equals(oldYamlContent))
-                ConsoleWriter.Shared.WriteOk("Check and commit modified module.yaml.");
+                consoleWriter.WriteOk("Check and commit modified module.yaml.");
 
             if (!hasFixedReferences)
-                ConsoleWriter.Shared.WriteInfo("No fixed references.");
+                consoleWriter.WriteInfo("No fixed references.");
             else
-                ConsoleWriter.Shared.WriteOk("Check and commit new references.");
+                consoleWriter.WriteOk("Check and commit new references.");
 
-            ConsoleWriter.Shared.WriteInfo("See also 'check-deps' command.");
+            consoleWriter.WriteInfo("See also 'check-deps' command.");
 
             return 0;
         }
@@ -104,7 +109,7 @@ namespace Commands
             {
                 if (!missingModules.Contains(moduleName))
                 {
-                    ConsoleWriter.Shared.WriteError($"Can't find module '{moduleName}'");
+                    consoleWriter.WriteError($"Can't find module '{moduleName}'");
                     missingModules.Add(moduleName);
                 }
 
@@ -148,14 +153,14 @@ namespace Commands
 
         private string UserChoseReplace(string project, string oldReference, List<string> withSameName)
         {
-            ConsoleWriter.Shared.WriteWarning($"{project}\n\tMultiple choise for replace '{oldReference}':");
+            consoleWriter.WriteWarning($"{project}\n\tMultiple choise for replace '{oldReference}':");
             withSameName = new[] {"don't replace"}.Concat(withSameName).ToList();
             for (var i = 0; i < withSameName.Count; i++)
             {
-                ConsoleWriter.Shared.WriteLine($"\t{i}. {withSameName[i].Replace("/", "\\")}");
+                consoleWriter.WriteLine($"\t{i}. {withSameName[i].Replace("/", "\\")}");
             }
 
-            ConsoleWriter.Shared.WriteLine($"Print 0-{withSameName.Count - 1} for choose");
+            consoleWriter.WriteLine($"Print 0-{withSameName.Count - 1} for choose");
 
             var answer = Console.ReadLine();
             int index;
@@ -217,41 +222,6 @@ namespace Commands
             }
 
             return "";
-        }
-    }
-
-    internal class FixReferenceResult
-    {
-        public readonly Dictionary<string, List<string>> NotFound = new();
-        public readonly Dictionary<string, List<string>> Replaced = new();
-        public readonly HashSet<string> NoYamlModules = new();
-
-        public void Print()
-        {
-            if (NoYamlModules.Any())
-            {
-                ConsoleWriter.Shared.WriteWarning("No 'install' section in modules:");
-                foreach (var m in NoYamlModules)
-                    ConsoleWriter.Shared.WriteBuildWarning("\t- " + m);
-            }
-
-            foreach (var key in Replaced.Keys)
-            {
-                if (!Replaced[key].Any())
-                    continue;
-                ConsoleWriter.Shared.WriteOk(key + " replaces:");
-                foreach (var value in Replaced[key])
-                    ConsoleWriter.Shared.WriteLine("\t" + value);
-            }
-
-            foreach (var key in NotFound.Keys)
-            {
-                if (!NotFound[key].Any())
-                    continue;
-                ConsoleWriter.Shared.WriteError(key + "\n\tnot found references in install/artifacts section of any module:");
-                foreach (var value in NotFound[key])
-                    ConsoleWriter.Shared.WriteLine("\t" + value);
-            }
         }
     }
 }
