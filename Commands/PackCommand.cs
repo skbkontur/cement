@@ -16,6 +16,7 @@ namespace Commands
             RequireModuleYaml = true,
             Location = CommandSettings.CommandLocation.InsideModuleDirectory
         };
+        private readonly ConsoleWriter consoleWriter;
 
         private string project;
         private string configuration;
@@ -25,6 +26,7 @@ namespace Commands
         public PackCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
             : base(consoleWriter, Settings, featureFlags)
         {
+            this.consoleWriter = consoleWriter;
         }
 
         public override string HelpMessage => @"
@@ -56,7 +58,7 @@ namespace Commands
             var projectPath = Path.GetFullPath(project);
             var csproj = new ProjectFile(projectPath);
             var deps = new DepsParser(modulePath).Get(configuration);
-            ConsoleWriter.Shared.WriteInfo("patching csproj");
+            consoleWriter.WriteInfo("patching csproj");
             var patchedDocument = csproj.CreateCsProjWithNugetReferences(deps.Deps, preRelease);
             var backupFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "backup." + Path.GetFileName(projectPath));
             if (File.Exists(backupFileName))
@@ -66,9 +68,9 @@ namespace Commands
             {
                 XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
                 var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
-                var moduleBuilder = new ModuleBuilder(Log, buildSettings, buildYamlScriptsMaker);
+                var moduleBuilder = new ModuleBuilder(consoleWriter, Log, buildSettings, buildYamlScriptsMaker);
                 moduleBuilder.Init();
-                ConsoleWriter.Shared.WriteInfo("start pack");
+                consoleWriter.WriteInfo("start pack");
                 if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))
                     return -1;
             }
