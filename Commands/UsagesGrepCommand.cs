@@ -16,7 +16,7 @@ namespace Commands
         {
             LogFileName = "usages-grep",
             MeasureElapsedTime = true,
-            Location = CommandSettings.CommandLocation.RootModuleDirectory
+            Location = CommandLocation.RootModuleDirectory
         };
         private static readonly string[] GrepParametersWithValue =
         {
@@ -46,6 +46,7 @@ namespace Commands
             usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);
         }
 
+        public override string Name => "grep";
         public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)

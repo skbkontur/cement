@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace cm
 {
-    internal static class EntryPoint
+    internal sealed class EntryPoint
     {
         private static ILogger logger;
 
@@ -21,15 +21,63 @@ namespace cm
 
             var consoleWriter = ConsoleWriter.Shared;
 
-            var services = new ServiceCollection();
-            services.AddSingleton(consoleWriter);
-
-            logger = LogManager.GetLogger(typeof(EntryPoint));
-
             var featureFlagsProvider = new FeatureFlagsProvider(consoleWriter);
             var featureFlags = featureFlagsProvider.Get();
 
-            var exitCode = TryRun(consoleWriter, featureFlags, args);
+            var services = new ServiceCollection();
+            services.AddSingleton(consoleWriter);
+            services.AddSingleton(typeof(ILogger<>), typeof(DefaultLogger<>));
+            services.AddSingleton(typeof(Lazy<>), typeof(Lazy<>));
+            services.AddSingleton<ReadmeGenerator>();
+
+            services.AddSingleton<CycleDetector>();
+            services.AddSingleton(CementSettingsRepository.Get);
+            services.AddSingleton<IUsagesProvider, UsagesProvider>();
+            services.AddSingleton<ModuleHelper>();
+
+            services.AddSingleton(consoleWriter);
+            services.AddSingleton(featureFlags);
+
+            services.AddCommand<HelpCommand>();
+            services.AddCommand<GetCommand>();
+            services.AddCommand<UpdateDepsCommand>();
+            services.AddCommand<RefCommand>();
+            services.AddCommand<AnalyzerCommand>();
+            services.AddCommand<LsCommand>();
+            services.AddCommand<ShowConfigsCommand>();
+            services.AddCommand<ShowDepsCommand>();
+            services.AddCommand<SelfUpdateCommand>();
+            services.AddCommand<VersionCommand>();
+            services.AddCommand<BuildDepsCommand>();
+            services.AddCommand<BuildCommand>();
+            services.AddCommand<CheckDepsCommand>();
+            services.AddCommand<CheckPreCommitCommand>();
+            services.AddCommand<UsagesCommand>();
+            services.AddCommand<InitCommand>();
+            services.AddCommand<IdCommand>();
+            services.AddCommand<StatusCommand>();
+            services.AddCommand<ModuleCommand>();
+            services.AddCommand<UpdateCommand>();
+            services.AddCommand<ConvertSpecCommand>();
+            services.AddCommand<ReInstallCommand>();
+            services.AddCommand<CompleteCommand>();
+            services.AddCommand<PackCommand>();
+            services.AddCommand<PackagesCommand>();
+            services.AddCommand<UserCommand>();
+
+            var options = new ServiceProviderOptions
+            {
+#if DEBUG
+                ValidateOnBuild = true,
+                ValidateScopes = true
+#endif
+            };
+
+            var sp = services.BuildServiceProvider(options);
+
+            logger = sp.GetRequiredService<ILogger<EntryPoint>>();
+
+            var exitCode = TryRun(consoleWriter, sp, args);
 
             consoleWriter.ResetProgress();
 
@@ -37,7 +85,7 @@ namespace cm
             if (command != "complete" && command != "check-pre-commit"
                                       && (command != "help" || !args.Contains("--gen")))
             {
-                SelfUpdateCommand.UpdateIfOld(featureFlags);
+                SelfUpdate.UpdateIfOld(featureFlags);
             }
 
             logger.LogInformation("Exit code: {ExitCode}", exitCode);
@@ -60,11 +108,11 @@ namespace cm
             return args;
         }
 
-        private static int TryRun(ConsoleWriter consoleWriter, FeatureFlags featureFlags, string[] args)
+        private static int TryRun(ConsoleWriter consoleWriter, IServiceProvider sp, string[] args)
         {
             try
             {
-                return Run(consoleWriter, featureFlags, args);
+                return Run(consoleWriter, sp, args);
             }
             catch (CementException e)
             {
@@ -90,17 +138,21 @@ namespace cm
             }
         }
 
-        private static int Run(ConsoleWriter consoleWriter, FeatureFlags featureFlags, string[] args)
+        private static int Run(ConsoleWriter consoleWriter, IServiceProvider sp, string[] args)
         {
-            // ReSharper disable once CollectionNeverUpdated.Local
-            var commands = new CommandsList(consoleWriter, featureFlags);
+            var commands = sp.GetServices<ICommand>()
+                .ToDictionary(c => c.Name);
+
             if (commands.ContainsKey(args[0]))
             {
                 return commands[args[0]].Run(args);
             }
 
             if (CementSettingsRepository.Get().UserCommands.ContainsKey(args[0]))
-                return new UserCommand(consoleWriter, featureFlags).Run(args);
+            {
+                var userCommand = sp.GetRequiredService<UserCommand>();
+                return userCommand.Run(args);
+            }
 
             consoleWriter.WriteError("Bad command: '" + args[0] + "'");
             return -1;

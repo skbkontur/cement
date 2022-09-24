@@ -15,7 +15,7 @@ namespace Commands
         {
             LogFileName = "analyzer-add",
             MeasureElapsedTime = false,
-            Location = CommandSettings.CommandLocation.InsideModuleDirectory
+            Location = CommandLocation.InsideModuleDirectory
         };
 
         private readonly ConsoleWriter consoleWriter;
@@ -28,6 +28,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "add";
         public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)

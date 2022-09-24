@@ -13,7 +13,7 @@ namespace Commands
         {
             LogFileName = "usages-build",
             MeasureElapsedTime = true,
-            Location = CommandSettings.CommandLocation.RootModuleDirectory
+            Location = CommandLocation.RootModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
         private readonly FeatureFlags featureFlags;
@@ -38,6 +38,7 @@ namespace Commands
             this.getCommand = getCommand;
         }
 
+        public override string Name => "build";
         public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)

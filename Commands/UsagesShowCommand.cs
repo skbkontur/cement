@@ -12,7 +12,7 @@ namespace Commands
         {
             LogFileName = "usages-show",
             MeasureElapsedTime = false,
-            Location = CommandSettings.CommandLocation.Any
+            Location = CommandLocation.Any
         };
 
         private readonly ConsoleWriter consoleWriter;
@@ -29,6 +29,7 @@ namespace Commands
             usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);
         }
 
+        public override string Name => "show";
         public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)

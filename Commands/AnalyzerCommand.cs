@@ -36,6 +36,7 @@ namespace Commands
                 in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
 ";
 
+        public string Name => "analyzer";
         public bool IsHiddenCommand => false;
 
         public int Run(string[] args)

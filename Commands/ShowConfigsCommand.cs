@@ -13,7 +13,7 @@ namespace Commands
         {
             LogFileName = "show-configs",
             MeasureElapsedTime = false,
-            Location = CommandSettings.CommandLocation.Any,
+            Location = CommandLocation.Any,
             RequireModuleYaml = true
         };
         private readonly ConsoleWriter consoleWriter;
@@ -25,6 +25,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "show-configs";
         public override string HelpMessage => @"
     Shows configurations of module
 

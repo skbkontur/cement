@@ -14,7 +14,7 @@ namespace Commands
             LogFileName = "pack",
             MeasureElapsedTime = false,
             RequireModuleYaml = true,
-            Location = CommandSettings.CommandLocation.InsideModuleDirectory
+            Location = CommandLocation.InsideModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
 
@@ -29,6 +29,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "pack";
         public override string HelpMessage => @"
     Packs project to nuget package.
     Replaces file references to package references in csproj file and runs 'dotnet pack' command.

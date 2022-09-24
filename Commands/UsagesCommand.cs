@@ -66,6 +66,7 @@ namespace Commands
                 show lines contains ""new Class"" or ""Class.New"" in modules linked to the current, only in *.cs files
 ";
 
+        public string Name => "usages";
         public bool IsHiddenCommand => CementSettingsRepository.Get().CementServer == null;
 
         public int Run(string[] args)

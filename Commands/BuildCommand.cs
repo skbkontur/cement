@@ -12,7 +12,7 @@ namespace Commands
         {
             LogFileName = "build",
             MeasureElapsedTime = false,
-            Location = CommandSettings.CommandLocation.RootModuleDirectory
+            Location = CommandLocation.RootModuleDirectory
         };
 
         private readonly ConsoleWriter consoleWriter;
@@ -25,6 +25,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "build";
         public override string HelpMessage => @"
     Performs build for the current module
 

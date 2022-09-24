@@ -31,6 +31,7 @@ namespace Commands
         --package        - name of repository with modules description, specify if multiple
 ";
 
+        public string Name => "module";
         public bool IsHiddenCommand => false;
 
         public int Run(string[] args)

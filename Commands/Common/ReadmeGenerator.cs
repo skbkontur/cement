@@ -1,18 +1,23 @@
 using System;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Commands
 {
     public sealed class ReadmeGenerator
     {
-        private readonly CommandsList commandsList;
+        private readonly IServiceProvider serviceProvider;
 
-        public ReadmeGenerator(CommandsList commandsList)
+        public ReadmeGenerator(IServiceProvider serviceProvider)
         {
-            this.commandsList = commandsList;
+            this.serviceProvider = serviceProvider;
         }
 
         public string Generate()
         {
+            var commandsList = serviceProvider.GetServices<ICommand>()
+                .ToDictionary(c => c.Name);
+
             var result = $@"
 ### cm help
 {commandsList["help"].HelpMessage}

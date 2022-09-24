@@ -12,7 +12,7 @@ namespace Commands
         private static readonly CommandSettings Settings = new()
         {
             LogFileName = "convert-spec",
-            Location = CommandSettings.CommandLocation.RootModuleDirectory
+            Location = CommandLocation.RootModuleDirectory
         };
 
         private readonly ConsoleWriter consoleWriter;
@@ -23,6 +23,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "convert-spec";
         public override string HelpMessage => @"
     Converts information about module from old dep format to new format - module.yaml
 

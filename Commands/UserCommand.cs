@@ -11,7 +11,8 @@ namespace Commands
         {
             LogFileName = "user",
             MeasureElapsedTime = false,
-            Location = CommandSettings.CommandLocation.Any
+            Location = CommandLocation.Any,
+            IsHiddenCommand = true
         };
         private readonly ConsoleWriter consoleWriter;
         private string[] arguments;
@@ -22,6 +23,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "";
         public override string HelpMessage => @"";
 
         protected override int Execute()

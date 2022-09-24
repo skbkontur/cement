@@ -11,7 +11,7 @@ public sealed class AddPackageCommand : Command
     {
         LogFileName = "package-add",
         MeasureElapsedTime = false,
-        Location = CommandSettings.CommandLocation.Any
+        Location = CommandLocation.Any
     };
 
     private string packageName = null!;
@@ -22,6 +22,7 @@ public sealed class AddPackageCommand : Command
     {
     }
 
+    public override string Name => "add";
     public override string HelpMessage => @"usage: cm packages add <name> <url>";
 
     protected override int Execute()

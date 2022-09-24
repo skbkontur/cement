@@ -9,7 +9,7 @@ namespace Commands
         private static readonly CommandSettings Settings = new()
         {
             LogFileName = "update",
-            Location = CommandSettings.CommandLocation.RootModuleDirectory
+            Location = CommandLocation.RootModuleDirectory
         };
 
         private readonly ConsoleWriter consoleWriter;
@@ -24,6 +24,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "update";
         public override string HelpMessage => @"
     Updates module for current directory
 

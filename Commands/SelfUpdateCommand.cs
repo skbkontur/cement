@@ -7,36 +7,18 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using Common;
 using Common.Exceptions;
+using Common.Logging;
 using Common.Updaters;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public class SelfUpdateCommand : Command
+public static class SelfUpdate
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        LogFileName = "self-update",
-        MeasureElapsedTime = false,
-        Location = CommandSettings.CommandLocation.Any
-    };
-    private static bool isAutoUpdate;
-    protected bool IsInstallingCement;
-    private readonly ConsoleWriter consoleWriter;
-    private readonly FeatureFlags featureFlags;
-    private string branch;
-    private string server;
-
-    public SelfUpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, Settings, featureFlags)
-    {
-        this.consoleWriter = consoleWriter;
-        this.featureFlags = featureFlags;
-    }
-
     public static void UpdateIfOld(FeatureFlags featureFlags)
     {
         var consoleWriter = ConsoleWriter.Shared;
+        var log = LogManager.GetLogger(nameof(SelfUpdate));
 
         try
         {
@@ -48,21 +30,50 @@ public class SelfUpdateCommand : Command
             var diff = now - lastUpdate;
             if (diff <= TimeSpan.FromHours(5))
                 return;
-            isAutoUpdate = true;
-            var exitCode = new SelfUpdateCommand(consoleWriter, featureFlags).Run(new[] {"self-update"});
+
+            var selfUpdateCommand = new SelfUpdateCommand(consoleWriter, featureFlags)
+            {
+                IsAutoUpdate = true
+            };
+
+            var exitCode = selfUpdateCommand.Run(new[] {"self-update"});
             if (exitCode != 0)
             {
-                Log.LogError("Auto update cement failed. 'self-update' exited with code '{Code}'", exitCode);
+                log.LogError("Auto update cement failed. 'self-update' exited with code '{Code}'", exitCode);
                 consoleWriter.WriteWarning("Auto update failed. Check previous warnings for details");
             }
         }
         catch (Exception exception)
         {
-            Log.LogError(exception, "Auto update failed, error: '{ErrorMessage}'", exception.Message);
+            log.LogError(exception, "Auto update failed, error: '{ErrorMessage}'", exception.Message);
             consoleWriter.WriteWarning("Auto update failed. Check logs for details");
         }
     }
+}
 
+public sealed class SelfUpdateCommand : Command
+{
+    private static readonly CommandSettings Settings = new()
+    {
+        LogFileName = "self-update",
+        MeasureElapsedTime = false,
+        Location = CommandLocation.Any
+    };
+
+    private readonly ConsoleWriter consoleWriter;
+    private string branch;
+    private string server;
+
+    public SelfUpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        : base(consoleWriter, Settings, featureFlags)
+    {
+        this.consoleWriter = consoleWriter;
+    }
+
+    public bool IsAutoUpdate { get; set; }
+    public bool IsInstallingCement { get; set; }
+
+    public override string Name => "self-update";
     public override string HelpMessage => @"
     Updates cement itself (automatically updated every 5 hours)
     Usage:
@@ -77,8 +88,9 @@ public class SelfUpdateCommand : Command
 
         SearchAndSaveBranchInSettings(ref server, ref branch);
 
-        if (isAutoUpdate)
+        if (IsAutoUpdate)
             Log.LogDebug("Auto updating cement");
+
         IsInstallingCement |= !HasInstalledCement();
         if (IsInstallingCement)
         {

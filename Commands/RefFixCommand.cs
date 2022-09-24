@@ -13,12 +13,12 @@ namespace Commands
 {
     public sealed class RefFixCommand : Command
     {
-        private static readonly CommandSettings Settings = new CommandSettings
+        private static readonly CommandSettings Settings = new()
         {
             LogFileName = "fixing-refs",
             MeasureElapsedTime = false,
             RequireModuleYaml = true,
-            Location = CommandSettings.CommandLocation.RootModuleDirectory
+            Location = CommandLocation.RootModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
 
@@ -37,6 +37,7 @@ namespace Commands
             fixReferenceResultPrinter = new FixReferenceResultPrinter(consoleWriter);
         }
 
+        public override string Name => "fix";
         public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)

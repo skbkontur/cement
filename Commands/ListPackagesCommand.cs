@@ -10,7 +10,7 @@ public sealed class ListPackagesCommand : Command
     {
         LogFileName = "packages-list",
         MeasureElapsedTime = false,
-        Location = CommandSettings.CommandLocation.Any
+        Location = CommandLocation.Any
     };
     private readonly ConsoleWriter consoleWriter;
 
@@ -20,6 +20,7 @@ public sealed class ListPackagesCommand : Command
         this.consoleWriter = consoleWriter;
     }
 
+    public override string Name => "list";
     public override string HelpMessage => "";
 
     protected override int Execute()

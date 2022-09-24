@@ -22,6 +22,7 @@ namespace Commands
         $HOME directory cannot be used with this command
 ";
 
+        public string Name => "init";
         public bool IsHiddenCommand => false;
 
         public int Run(string[] args)

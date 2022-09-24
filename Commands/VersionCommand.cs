@@ -18,6 +18,7 @@ namespace Commands
         cm --version
 ";
 
+        public string Name => "--version";
         public bool IsHiddenCommand => false;
 
         public int Run(string[] args)

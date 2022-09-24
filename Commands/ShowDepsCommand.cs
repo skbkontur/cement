@@ -12,7 +12,7 @@ namespace Commands
         {
             LogFileName = "show-deps",
             MeasureElapsedTime = false,
-            Location = CommandSettings.CommandLocation.RootModuleDirectory
+            Location = CommandLocation.RootModuleDirectory
         };
 
         private readonly Dictionary<Dep, List<string>> overheadCache = new();
@@ -25,6 +25,7 @@ namespace Commands
             arborJs = new ArborJs();
         }
 
+        public override string Name => "show-deps";
         public override string HelpMessage => @"
     Shows module deps in arbor.js
 

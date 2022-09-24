@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Commands
 {
     public sealed class HelpCommand : ICommand
     {
         private readonly ConsoleWriter consoleWriter;
-        private readonly FeatureFlags featureFlags;
+        private readonly IServiceProvider serviceProvider;
         private readonly ReadmeGenerator readmeGenerator;
 
-        public HelpCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, ReadmeGenerator readmeGenerator)
+        public HelpCommand(ConsoleWriter consoleWriter, IServiceProvider serviceProvider, ReadmeGenerator readmeGenerator)
         {
             this.consoleWriter = consoleWriter;
-            this.featureFlags = featureFlags;
+            this.serviceProvider = serviceProvider;
             this.readmeGenerator = readmeGenerator;
         }
 
@@ -31,6 +32,7 @@ namespace Commands
         cm help init
 ";
 
+        public string Name => "help";
         public bool IsHiddenCommand => false;
 
         public int Run(string[] args)
@@ -41,7 +43,9 @@ namespace Commands
                 return 0;
             }
 
-            var commands = new CommandsList(consoleWriter, featureFlags);
+            var commands = serviceProvider.GetServices<ICommand>()
+                .ToDictionary(c => c.Name);
+
             if (args.Length == 1)
             {
                 Print(commands);
@@ -69,17 +73,6 @@ namespace Commands
             return -1;
         }
 
-        private void PrintHelpFooter()
-        {
-            consoleWriter.WriteLine($"Cement. {DateTime.Now.Year}.");
-        }
-
-        private void GenerateReadme(string file)
-        {
-            var text = readmeGenerator.Generate();
-            File.WriteAllText(file, text);
-        }
-
         public void Print(IDictionary<string, ICommand> commands)
         {
             var commandNames = commands.Keys.OrderBy(x => x);
@@ -99,6 +92,17 @@ namespace Commands
             var help = command.HelpMessage;
             var lines = help.Split('\n');
             return lines.Length < 2 ? "???" : lines[1].Trim();
+        }
+
+        private void PrintHelpFooter()
+        {
+            consoleWriter.WriteLine($"Cement. {DateTime.Now.Year}.");
+        }
+
+        private void GenerateReadme(string file)
+        {
+            var text = readmeGenerator.Generate();
+            File.WriteAllText(file, text);
         }
     }
 }

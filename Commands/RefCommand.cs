@@ -5,10 +5,12 @@ namespace Commands
 {
     public sealed class RefCommand : ICommand
     {
+        private readonly ConsoleWriter consoleWriter;
         private readonly Dictionary<string, ICommand> commands;
 
         public RefCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand)
         {
+            this.consoleWriter = consoleWriter;
             commands = new Dictionary<string, ICommand>
             {
                 {"add", new RefAddCommand(consoleWriter, featureFlags, getCommand)},
@@ -41,13 +43,14 @@ namespace Commands
             to		<HintPath>..\..\core\bin\Release\Kontur.Core.dll</HintPath>
 ";
 
+        public string Name => "ref";
         public bool IsHiddenCommand => false;
 
         public int Run(string[] args)
         {
             if (args.Length < 2 || !commands.ContainsKey(args[1]))
             {
-                ConsoleWriter.Shared.WriteError("Bad arguments");
+                consoleWriter.WriteError("Bad arguments");
                 return -1;
             }
 

@@ -16,7 +16,7 @@ namespace Commands
         {
             LogFileName = "build-deps",
             MeasureElapsedTime = true,
-            Location = CommandSettings.CommandLocation.RootModuleDirectory
+            Location = CommandLocation.RootModuleDirectory
         };
 
         private readonly ConsoleWriter consoleWriter;
@@ -65,6 +65,7 @@ namespace Commands
             consoleWriter.ResetProgress();
         }
 
+        public override string Name => "build-deps";
         public override string HelpMessage => @"
     Performs build for current module dependencies
 

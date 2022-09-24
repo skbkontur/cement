@@ -11,7 +11,7 @@ namespace Commands
         {
             LogFileName = "update-deps",
             MeasureElapsedTime = true,
-            Location = CommandSettings.CommandLocation.RootModuleDirectory
+            Location = CommandLocation.RootModuleDirectory
         };
 
         private readonly ConsoleWriter consoleWriter;
@@ -28,6 +28,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "update-deps";
         public override string HelpMessage => @"
     Updates deps for current directory
 

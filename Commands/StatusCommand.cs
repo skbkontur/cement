@@ -26,6 +26,7 @@ namespace Commands
     Runs anywhere in the cement tracked tree
 ";
 
+        public string Name => "status";
         public bool IsHiddenCommand => false;
 
         public int Run(string[] args)

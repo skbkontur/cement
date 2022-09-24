@@ -21,6 +21,7 @@ public sealed class PackagesCommand : ICommand
         };
     }
 
+    public string Name => "packages";
     public bool IsHiddenCommand => true;
     public string HelpMessage => @"
 usage: cm packages list

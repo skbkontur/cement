@@ -11,7 +11,7 @@ namespace Commands
         {
             LogFileName = "complete",
             MeasureElapsedTime = false,
-            Location = CommandSettings.CommandLocation.Any,
+            Location = CommandLocation.Any,
             IsHiddenCommand = true,
             NoElkLog = true
         };
@@ -24,6 +24,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "complete";
         public override string HelpMessage => "";
 
         protected override int Execute()

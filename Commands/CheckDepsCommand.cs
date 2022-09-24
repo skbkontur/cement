@@ -12,7 +12,7 @@ namespace Commands
             LogFileName = "check-deps",
             MeasureElapsedTime = false,
             RequireModuleYaml = true,
-            Location = CommandSettings.CommandLocation.RootModuleDirectory
+            Location = CommandLocation.RootModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
         private string configuration;
@@ -26,6 +26,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "check-deps";
         public override string HelpMessage => @"
     Checks deps in module.yaml and references in *.csproj
 

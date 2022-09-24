@@ -12,7 +12,7 @@ namespace Commands
             LogFileName = "pre-commit-check",
             MeasureElapsedTime = false,
             RequireModuleYaml = false,
-            Location = CommandSettings.CommandLocation.RootModuleDirectory,
+            Location = CommandLocation.RootModuleDirectory,
             IsHiddenCommand = true
         };
         private readonly ConsoleWriter consoleWriter;
@@ -23,6 +23,7 @@ namespace Commands
             this.consoleWriter = consoleWriter;
         }
 
+        public override string Name => "check-pre-commit";
         public override string HelpMessage => @"
     Checks that commit is good
 

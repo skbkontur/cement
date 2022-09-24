@@ -15,7 +15,7 @@ namespace Commands
         {
             LogFileName = "ref-add",
             MeasureElapsedTime = false,
-            Location = CommandSettings.CommandLocation.InsideModuleDirectory
+            Location = CommandLocation.InsideModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
         private readonly FeatureFlags featureFlags;
@@ -35,6 +35,7 @@ namespace Commands
             this.getCommand = getCommand;
         }
 
+        public override string Name => "add";
         public override string HelpMessage => @"";
 
         protected override void ParseArgs(string[] args)

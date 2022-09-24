@@ -8,8 +8,8 @@ namespace Commands
 {
     public sealed class IdCommand : ICommand
     {
-        private readonly ConsoleWriter consoleWriter;
         private static readonly ILogger Log = LogManager.GetLogger<IdCommand>();
+        private readonly ConsoleWriter consoleWriter;
 
         public IdCommand(ConsoleWriter consoleWriter)
         {
@@ -23,6 +23,7 @@ namespace Commands
         cm id
 ";
 
+        public string Name => "id";
         public bool IsHiddenCommand => true;
 
         public int Run(string[] args)

@@ -11,7 +11,7 @@ public sealed class RemovePackageCommand : Command
     {
         LogFileName = "package-remove",
         MeasureElapsedTime = false,
-        Location = CommandSettings.CommandLocation.Any
+        Location = CommandLocation.Any
     };
 
     private string packageName = null!;
@@ -21,6 +21,7 @@ public sealed class RemovePackageCommand : Command
     {
     }
 
+    public override string Name => "remove";
     public override string HelpMessage => @"usage: cm packages remove <name>";
 
     protected override int Execute()

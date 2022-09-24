@@ -36,6 +36,7 @@ namespace Commands
         cm ls --all --has-branch=temp --url
 ";
 
+        public string Name => "ls";
         public bool IsHiddenCommand => false;
 
         public int Run(string[] args)
@@ -52,6 +53,7 @@ namespace Commands
             var packages = Helper.GetPackages();
             foreach (var package in packages)
                 PrintPackage(package);
+
             consoleWriter.ClearLine();
             return 0;
         }

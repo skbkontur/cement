@@ -11,7 +11,7 @@ namespace Commands
         {
             LogFileName = "get",
             MeasureElapsedTime = true,
-            Location = CommandSettings.CommandLocation.WorkspaceDirectory
+            Location = CommandLocation.WorkspaceDirectory
         };
 
         private readonly ConsoleWriter consoleWriter;
@@ -32,6 +32,7 @@ namespace Commands
             this.cycleDetector = cycleDetector;
         }
 
+        public override string Name => "get";
         public override string HelpMessage => @"
     Gets module with all deps
 
