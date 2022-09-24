@@ -15,7 +15,6 @@ using NuGet.Packaging.Core;
 using NuGet.ProjectManagement;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
-using Console = NuGet.CommandLine.Console;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Common
@@ -38,7 +37,7 @@ namespace Common
         {
             private readonly List<string> packagesList;
             private readonly ProjectFile projectFile;
-            private readonly Console logger;
+            private readonly NuGet.CommandLine.Console logger;
             private readonly MSBuildNuGetProject project;
             private readonly ConsoleProjectContext projectContext;
             private readonly MSBuildProjectSystem projectSystem;
@@ -56,7 +55,7 @@ namespace Common
                 var sourceRepositoryProvider = new CommandLineSourceRepositoryProvider(sourceProvider);
                 repositories = sourceProvider.LoadPackageSources().Select(sourceRepositoryProvider.CreateRepository)
                     .ToList();
-                logger = new Console();
+                logger = new NuGet.CommandLine.Console();
 
                 var projectFilePath = projectFile.FilePath;
 

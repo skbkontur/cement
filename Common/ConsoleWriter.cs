@@ -1,31 +1,46 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using System.Runtime.InteropServices;
+using Common.Console;
 
 namespace Common
 {
     public sealed class ConsoleWriter
     {
-        private readonly SemaphoreSlim semaphore = new(1, 1);
+        private readonly object lockObject = new();
 
-        private readonly ConsoleColor defaultColor = Console.ForegroundColor;
+        private readonly IConsole @out = IsTerminalSupportsAnsi()
+            ? new WindowsConsole(System.Console.Out)
+            : new AnsiConsole(System.Console.Out);
+
+        private readonly IConsole error = IsTerminalSupportsAnsi()
+            ? new WindowsConsole(System.Console.Error)
+            : new AnsiConsole(System.Console.Error);
+
         private readonly Stack<string> progressMessageStack = new();
         private readonly HashSet<string> processedModules = new();
         public static ConsoleWriter Shared { get; } = new();
 
+        private static bool IsTerminalSupportsAnsi()
+        {
+            return !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        }
+
         public void WriteProgress(string progress)
         {
-            if (!Console.IsOutputRedirected)
-                Print(TakeNoMoreThanConsoleWidth(PROGRESS + " " + progress), ConsoleColor.Cyan);
+            if (System.Console.IsOutputRedirected)
+                return;
+
+            Print(TakeNoMoreThanConsoleWidth(PROGRESS + " " + progress), ConsoleColor.Cyan);
         }
 
         public void WriteProgressWithoutSave(string progress)
         {
-            if (!Console.IsOutputRedirected)
-            {
-                Print(TakeNoMoreThanConsoleWidth(PROGRESS + " " + progress), ConsoleColor.Cyan, false);
-            }
+            if (System.Console.IsOutputRedirected)
+                return;
+
+            Print(TakeNoMoreThanConsoleWidth(PROGRESS + " " + progress), ConsoleColor.Cyan, false);
         }
 
         public void WriteInfo(string info)
@@ -35,7 +50,7 @@ namespace Common
 
         public void WriteSkip(string text)
         {
-            PrintLn(SKIP + text, ConsoleColor.DarkGray);
+            PrintLn(SKIP + text, ConsoleColor.Gray);
         }
 
         public void WriteUpdate(string text)
@@ -50,32 +65,32 @@ namespace Common
 
         public void WriteLines(IEnumerable<string> lines)
         {
-            PrintLn(string.Join(Environment.NewLine, lines), defaultColor);
+            PrintLn(string.Join(Environment.NewLine, lines));
         }
 
         public void WriteLine(string text)
         {
-            PrintLn(text, defaultColor);
+            PrintLn(text);
         }
 
         public void WriteLine(string format, params object[] args)
         {
-            PrintLn(string.Format(format, args), defaultColor);
+            PrintLn(string.Format(format, args));
         }
 
         public void WriteLine()
         {
-            PrintLn("", defaultColor);
+            PrintLn(string.Empty);
         }
 
         public void Write(string text)
         {
-            Print(text, defaultColor);
+            Print(text);
         }
 
         public void Write(string format, params object[] args)
         {
-            Print(string.Format(format, args), defaultColor);
+            Print(string.Format(format, args));
         }
 
         public void WriteWarning(string warning)
@@ -105,55 +120,33 @@ namespace Common
 
         public void ClearLine()
         {
-            if (Console.IsOutputRedirected)
+            if (System.Console.IsOutputRedirected)
                 return;
 
-            var consoleWindowWidth = CalculateWindowWidth();
-            Console.Write($"\r{{0,-{consoleWindowWidth - 1}}}\r", "");
+            @out.ClearLine();
         }
 
-        public void PrintLn(string text, ConsoleColor color)
+        public void PrintLn(string text, ConsoleColor? foregroundColor = default)
         {
-            semaphore.Wait();
-            try
+            lock (lockObject)
             {
-                UnsafePrintLn(text, color);
+                ClearLine();
+
+                @out.Write(text, foregroundColor: foregroundColor);
+                @out.Write(Environment.NewLine);
+
+                SaveToProcessedModules(text);
             }
-            finally
-            {
-                semaphore.Release();
-            }
-        }
-
-        private void UnsafePrintLn(string text, ConsoleColor color)
-        {
-            ClearLine();
-
-            Console.ForegroundColor = color;
-            Console.WriteLine(text);
-            Console.ForegroundColor = defaultColor;
-
-            UnsafeSaveToProcessedModules(text);
         }
 
         public void SaveToProcessedModules(string text)
         {
-            semaphore.Wait();
-            try
+            lock (lockObject)
             {
-                UnsafeSaveToProcessedModules(text);
+                var moduleName = text.Split(']').Last().Trim().Split(' ', '/').First();
+                processedModules.Add(moduleName);
+                PrintLastProgressFromStack();
             }
-            finally
-            {
-                semaphore.Release();
-            }
-        }
-
-        private void UnsafeSaveToProcessedModules(string text)
-        {
-            var moduleName = text.Split(']').Last().Trim().Split(' ', '/').First();
-            processedModules.Add(moduleName);
-            PrintLastProgressFromStack();
         }
 
         public void ResetProgress()
@@ -163,63 +156,36 @@ namespace Common
             ClearLine();
         }
 
-        private int CalculateWindowWidth()
-        {
-            var result = 80;
-            try
-            {
-                result = Math.Max(result, Console.WindowWidth);
-            }
-            catch
-            {
-                // ignored
-            }
-
-            return result;
-        }
-
         private string TakeNoMoreThanConsoleWidth(string line)
         {
-            var consoleWindowWidth = CalculateWindowWidth();
+            var consoleWindowWidth = @out.WindowWidth;
             return line.Length < consoleWindowWidth - 1 ? line : line.Substring(0, consoleWindowWidth - 1);
         }
 
-        private void PrintLnError(string text, ConsoleColor color, bool emptyLineAfter = false)
+        private void PrintLnError(string text, ConsoleColor foregroundColor = default, bool emptyLineAfter = false)
         {
-            var consoleWindowWidth = CalculateWindowWidth();
+            lock (lockObject)
+            {
+                if (!System.Console.IsErrorRedirected)
+                    error.ClearLine();
 
-            semaphore.Wait();
-            try
-            {
-                Console.ForegroundColor = color;
-                if (!Console.IsErrorRedirected)
-                    Console.Error.Write($"\r{{0,-{consoleWindowWidth - 1}}}\r", "");
-                Console.Error.WriteLine(text);
+                error.Write(text, foregroundColor: foregroundColor);
+                error.Write(Environment.NewLine);
+
                 if (emptyLineAfter)
-                    Console.Error.WriteLine();
-                Console.ForegroundColor = defaultColor;
-            }
-            finally
-            {
-                semaphore.Release();
+                    error.Write(Environment.NewLine);
             }
         }
 
-        private void Print(string text, ConsoleColor color, bool saveProgress = true)
+        private void Print(string text, ConsoleColor? foregroundColor = default, bool saveProgress = true)
         {
-            semaphore.Wait();
-            try
+            lock (lockObject)
             {
-                Console.ForegroundColor = color;
-                ClearLine();
-                Console.Write(text);
-                Console.ForegroundColor = defaultColor;
+                @out.ClearLine();
+                @out.Write(text, foregroundColor: foregroundColor);
+
                 if (text.StartsWith(PROGRESS) && saveProgress)
                     progressMessageStack.Push(text);
-            }
-            finally
-            {
-                semaphore.Release();
             }
         }
 

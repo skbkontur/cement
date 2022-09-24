@@ -137,7 +137,7 @@ namespace Common
             };
             while (true)
             {
-                var answer = Console.ReadLine();
+                var answer = System.Console.ReadLine();
                 if (answer == null)
                 {
                     consoleWriter.WriteLine("Unknown choice. Try again");
