@@ -11,12 +11,12 @@ namespace Common
         private readonly object lockObject = new();
 
         private readonly IConsole @out = IsTerminalSupportsAnsi()
-            ? new WindowsConsole(System.Console.Out)
-            : new AnsiConsole(System.Console.Out);
+            ? new AnsiConsole(System.Console.Out)
+            : new WindowsConsole(System.Console.Out);
 
         private readonly IConsole error = IsTerminalSupportsAnsi()
-            ? new WindowsConsole(System.Console.Error)
-            : new AnsiConsole(System.Console.Error);
+            ? new AnsiConsole(System.Console.Error)
+            : new WindowsConsole(System.Console.Error);
 
         private readonly Stack<string> progressMessageStack = new();
         private readonly HashSet<string> processedModules = new();
