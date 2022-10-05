@@ -4,38 +4,38 @@ using Common;
 using Common.DepsValidators;
 using Microsoft.Extensions.Logging;
 
-namespace Commands
+namespace Commands;
+
+public sealed class UpdateDepsCommand : Command
 {
-    public sealed class UpdateDepsCommand : Command
+    private static readonly CommandSettings Settings = new()
     {
-        private static readonly CommandSettings Settings = new()
-        {
-            LogFileName = "update-deps",
-            MeasureElapsedTime = true,
-            Location = CommandLocation.RootModuleDirectory
-        };
+        LogFileName = "update-deps",
+        MeasureElapsedTime = true,
+        Location = CommandLocation.RootModuleDirectory
+    };
 
-        private readonly ConsoleWriter consoleWriter;
-        private readonly CycleDetector cycleDetector;
-        private readonly IDepsValidatorFactory depsValidatorFactory;
-        private string configuration;
-        private string mergedBranch;
-        private LocalChangesPolicy policy;
-        private bool localBranchForce;
-        private bool verbose;
-        private int? gitDepth;
+    private readonly ConsoleWriter consoleWriter;
+    private readonly CycleDetector cycleDetector;
+    private readonly IDepsValidatorFactory depsValidatorFactory;
+    private string configuration;
+    private string mergedBranch;
+    private LocalChangesPolicy policy;
+    private bool localBranchForce;
+    private bool verbose;
+    private int? gitDepth;
 
-        public UpdateDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                                 IDepsValidatorFactory depsValidatorFactory)
-            : base(consoleWriter, Settings, featureFlags)
-        {
-            this.consoleWriter = consoleWriter;
-            this.cycleDetector = cycleDetector;
-            this.depsValidatorFactory = depsValidatorFactory;
-        }
+    public UpdateDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
+                             IDepsValidatorFactory depsValidatorFactory)
+        : base(consoleWriter, Settings, featureFlags)
+    {
+        this.consoleWriter = consoleWriter;
+        this.cycleDetector = cycleDetector;
+        this.depsValidatorFactory = depsValidatorFactory;
+    }
 
-        public override string Name => "update-deps";
-        public override string HelpMessage => @"
+    public override string Name => "update-deps";
+    public override string HelpMessage => @"
     Updates deps for current directory
 
     Usage:
@@ -60,52 +60,51 @@ namespace Commands
         cm update-deps -r --progress
 ";
 
-        protected override void ParseArgs(string[] args)
-        {
-            Helper.RemoveOldKey(ref args, "-n", Log);
+    protected override void ParseArgs(string[] args)
+    {
+        Helper.RemoveOldKey(ref args, "-n", Log);
 
-            var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
-            configuration = (string)parsedArgs["configuration"];
-            mergedBranch = (string)parsedArgs["merged"];
-            localBranchForce = (bool)parsedArgs["localBranchForce"];
-            verbose = (bool)parsedArgs["verbose"];
-            policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
-            gitDepth = (int?)parsedArgs["gitDepth"];
-        }
+        var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
+        configuration = (string)parsedArgs["configuration"];
+        mergedBranch = (string)parsedArgs["merged"];
+        localBranchForce = (bool)parsedArgs["localBranchForce"];
+        verbose = (bool)parsedArgs["verbose"];
+        policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+        gitDepth = (int?)parsedArgs["gitDepth"];
+    }
 
-        protected override int Execute()
-        {
-            var cwd = Directory.GetCurrentDirectory();
+    protected override int Execute()
+    {
+        var cwd = Directory.GetCurrentDirectory();
 
-            configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
+        configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
 
-            Log.LogInformation("Updating packages");
-            PackageUpdater.Shared.UpdatePackages();
-            var modules = Helper.GetModules();
+        Log.LogInformation("Updating packages");
+        PackageUpdater.Shared.UpdatePackages();
+        var modules = Helper.GetModules();
 
-            var moduleName = Path.GetFileName(cwd);
+        var moduleName = Path.GetFileName(cwd);
 
-            var curRepo = new GitRepository(moduleName, Helper.CurrentWorkspace, Log);
-            if (curRepo.IsGitRepo)
-                curRepo.TryUpdateUrl(modules.FirstOrDefault(m => m.Name.Equals(moduleName)));
-            HooksHelper.InstallHooks(moduleName);
+        var curRepo = new GitRepository(moduleName, Helper.CurrentWorkspace, Log);
+        if (curRepo.IsGitRepo)
+            curRepo.TryUpdateUrl(modules.FirstOrDefault(m => m.Name.Equals(moduleName)));
+        HooksHelper.InstallHooks(moduleName);
 
-            var getter = new ModuleGetter(
-                consoleWriter,
-                cycleDetector,
-                depsValidatorFactory,
-                Helper.GetModules(),
-                new Dep(moduleName, null, configuration),
-                policy,
-                mergedBranch,
-                verbose,
-                localBranchForce,
-                gitDepth);
+        var getter = new ModuleGetter(
+            consoleWriter,
+            cycleDetector,
+            depsValidatorFactory,
+            Helper.GetModules(),
+            new Dep(moduleName, null, configuration),
+            policy,
+            mergedBranch,
+            verbose,
+            localBranchForce,
+            gitDepth);
 
-            getter.GetDeps();
+        getter.GetDeps();
 
-            Log.LogInformation("SUCCESS UPDATE DEPS");
-            return 0;
-        }
+        Log.LogInformation("SUCCESS UPDATE DEPS");
+        return 0;
     }
 }

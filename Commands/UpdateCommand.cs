@@ -3,35 +3,35 @@ using Common;
 using Common.DepsValidators;
 using Microsoft.Extensions.Logging;
 
-namespace Commands
+namespace Commands;
+
+public sealed class UpdateCommand : Command
 {
-    public sealed class UpdateCommand : Command
+    private static readonly CommandSettings Settings = new()
     {
-        private static readonly CommandSettings Settings = new()
-        {
-            LogFileName = "update",
-            Location = CommandLocation.RootModuleDirectory
-        };
+        LogFileName = "update",
+        Location = CommandLocation.RootModuleDirectory
+    };
 
-        private readonly ConsoleWriter consoleWriter;
-        private readonly CycleDetector cycleDetector;
-        private readonly IDepsValidatorFactory depsValidatorFactory;
-        private string treeish = "master";
-        private bool verbose;
-        private LocalChangesPolicy policy;
-        private int? gitDepth;
+    private readonly ConsoleWriter consoleWriter;
+    private readonly CycleDetector cycleDetector;
+    private readonly IDepsValidatorFactory depsValidatorFactory;
+    private string treeish = "master";
+    private bool verbose;
+    private LocalChangesPolicy policy;
+    private int? gitDepth;
 
-        public UpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                             IDepsValidatorFactory depsValidatorFactory)
-            : base(consoleWriter, Settings, featureFlags)
-        {
-            this.consoleWriter = consoleWriter;
-            this.cycleDetector = cycleDetector;
-            this.depsValidatorFactory = depsValidatorFactory;
-        }
+    public UpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
+                         IDepsValidatorFactory depsValidatorFactory)
+        : base(consoleWriter, Settings, featureFlags)
+    {
+        this.consoleWriter = consoleWriter;
+        this.cycleDetector = cycleDetector;
+        this.depsValidatorFactory = depsValidatorFactory;
+    }
 
-        public override string Name => "update";
-        public override string HelpMessage => @"
+    public override string Name => "update";
+    public override string HelpMessage => @"
     Updates module for current directory
 
     Usage:
@@ -49,40 +49,39 @@ namespace Commands
     If treeish isn't specified, cement uses current
 ";
 
-        protected override int Execute()
-        {
-            Log.LogInformation("Updating packages");
-            PackageUpdater.Shared.UpdatePackages();
-            var cwd = Directory.GetCurrentDirectory();
-            var module = Path.GetFileName(cwd);
+    protected override int Execute()
+    {
+        Log.LogInformation("Updating packages");
+        PackageUpdater.Shared.UpdatePackages();
+        var cwd = Directory.GetCurrentDirectory();
+        var module = Path.GetFileName(cwd);
 
-            var curRepo = new GitRepository(module, Helper.CurrentWorkspace, Log);
-            if (treeish == null)
-                treeish = curRepo.CurrentLocalTreeish().Value;
+        var curRepo = new GitRepository(module, Helper.CurrentWorkspace, Log);
+        if (treeish == null)
+            treeish = curRepo.CurrentLocalTreeish().Value;
 
-            var getter = new ModuleGetter(
-                consoleWriter,
-                cycleDetector,
-                depsValidatorFactory,
-                Helper.GetModules(),
-                new Dep(module, treeish),
-                policy,
-                null,
-                verbose,
-                gitDepth: gitDepth);
+        var getter = new ModuleGetter(
+            consoleWriter,
+            cycleDetector,
+            depsValidatorFactory,
+            Helper.GetModules(),
+            new Dep(module, treeish),
+            policy,
+            null,
+            verbose,
+            gitDepth: gitDepth);
 
-            getter.GetModule();
+        getter.GetModule();
 
-            return 0;
-        }
+        return 0;
+    }
 
-        protected override void ParseArgs(string[] args)
-        {
-            var parsedArgs = ArgumentParser.ParseUpdate(args);
-            treeish = (string)parsedArgs["treeish"];
-            verbose = (bool)parsedArgs["verbose"];
-            policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
-            gitDepth = (int?)parsedArgs["gitDepth"];
-        }
+    protected override void ParseArgs(string[] args)
+    {
+        var parsedArgs = ArgumentParser.ParseUpdate(args);
+        treeish = (string)parsedArgs["treeish"];
+        verbose = (bool)parsedArgs["verbose"];
+        policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+        gitDepth = (int?)parsedArgs["gitDepth"];
     }
 }

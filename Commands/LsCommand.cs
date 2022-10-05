@@ -4,20 +4,20 @@ using System.Linq;
 using Common;
 using Common.YamlParsers;
 
-namespace Commands
+namespace Commands;
+
+public sealed class LsCommand : ICommand
 {
-    public sealed class LsCommand : ICommand
+    private readonly ConsoleWriter consoleWriter;
+    private Dictionary<string, object> parsedArgs;
+    private bool simple;
+
+    public LsCommand(ConsoleWriter consoleWriter)
     {
-        private readonly ConsoleWriter consoleWriter;
-        private Dictionary<string, object> parsedArgs;
-        private bool simple;
+        this.consoleWriter = consoleWriter;
+    }
 
-        public LsCommand(ConsoleWriter consoleWriter)
-        {
-            this.consoleWriter = consoleWriter;
-        }
-
-        public string HelpMessage => @"
+    public string HelpMessage => @"
     Lists all available modules
 
     Usage:
@@ -36,91 +36,90 @@ namespace Commands
         cm ls --all --has-branch=temp --url
 ";
 
-        public string Name => "ls";
-        public bool IsHiddenCommand => false;
+    public string Name => "ls";
+    public bool IsHiddenCommand => false;
 
-        public int Run(string[] args)
+    public int Run(string[] args)
+    {
+        ParseArgs(args);
+
+        if (simple)
         {
-            ParseArgs(args);
-
-            if (simple)
-            {
-                PrintSimpleLocalWithYaml();
-                return 0;
-            }
-
-            PackageUpdater.Shared.UpdatePackages();
-            var packages = Helper.GetPackages();
-            foreach (var package in packages)
-                PrintPackage(package);
-
-            consoleWriter.ClearLine();
+            PrintSimpleLocalWithYaml();
             return 0;
         }
 
-        private void PrintSimpleLocalWithYaml()
-        {
-            var modules = Helper.GetModules();
-            var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
-            Helper.SetWorkspace(workspace);
-            var local = modules.Where(m => Yaml.Exists(m.Name));
-            consoleWriter.WriteLine(string.Join("\n", local.Select(m => m.Name).OrderBy(x => x)));
-        }
+        PackageUpdater.Shared.UpdatePackages();
+        var packages = Helper.GetPackages();
+        foreach (var package in packages)
+            PrintPackage(package);
 
-        private void PrintPackage(Package package)
+        consoleWriter.ClearLine();
+        return 0;
+    }
+
+    private void PrintSimpleLocalWithYaml()
+    {
+        var modules = Helper.GetModules();
+        var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
+        Helper.SetWorkspace(workspace);
+        var local = modules.Where(m => Yaml.Exists(m.Name));
+        consoleWriter.WriteLine(string.Join("\n", local.Select(m => m.Name).OrderBy(x => x)));
+    }
+
+    private void PrintPackage(Package package)
+    {
+        consoleWriter.WriteLine("[{0}]", package.Name);
+        var modules = Helper.GetModulesFromPackage(package).OrderBy(m => m.Name);
+        foreach (var module in modules)
+            PrintModule(module);
+        consoleWriter.ClearLine();
+    }
+
+    private void PrintModule(Module module)
+    {
+        consoleWriter.WriteProgress(module.Name);
+        var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
+
+        if ((bool)parsedArgs["all"] || ((bool)parsedArgs["local"] &&
+                                        Helper.DirectoryContainsModule(workspace, module.Name)))
         {
-            consoleWriter.WriteLine("[{0}]", package.Name);
-            var modules = Helper.GetModulesFromPackage(package).OrderBy(m => m.Name);
-            foreach (var module in modules)
-                PrintModule(module);
+            if (parsedArgs["branch"] != null && !GitRepository.HasRemoteBranch(module.Url, (string)parsedArgs["branch"]))
+                return;
             consoleWriter.ClearLine();
+            consoleWriter.Write("{0, -30}", module.Name);
+            if ((bool)parsedArgs["url"])
+                consoleWriter.Write("{0, -60}", module.Url);
+            if ((bool)parsedArgs["pushurl"])
+                consoleWriter.Write(module.Url);
+            consoleWriter.WriteLine();
         }
+    }
 
-        private void PrintModule(Module module)
+    private void ParseArgs(string[] args)
+    {
+        parsedArgs = ArgumentParser.ParseLs(args);
+        foreach (var key in new[] {"local", "all", "url", "pushurl"})
         {
-            consoleWriter.WriteProgress(module.Name);
-            var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
-
-            if ((bool)parsedArgs["all"] || ((bool)parsedArgs["local"] &&
-                                            Helper.DirectoryContainsModule(workspace, module.Name)))
-            {
-                if (parsedArgs["branch"] != null && !GitRepository.HasRemoteBranch(module.Url, (string)parsedArgs["branch"]))
-                    return;
-                consoleWriter.ClearLine();
-                consoleWriter.Write("{0, -30}", module.Name);
-                if ((bool)parsedArgs["url"])
-                    consoleWriter.Write("{0, -60}", module.Url);
-                if ((bool)parsedArgs["pushurl"])
-                    consoleWriter.Write(module.Url);
-                consoleWriter.WriteLine();
-            }
+            if (!parsedArgs.ContainsKey(key))
+                parsedArgs[key] = false;
         }
 
-        private void ParseArgs(string[] args)
+        if (!parsedArgs.ContainsKey("branch"))
+            parsedArgs["branch"] = null;
+        if (!(bool)parsedArgs["local"] && !(bool)parsedArgs["all"])
         {
-            parsedArgs = ArgumentParser.ParseLs(args);
-            foreach (var key in new[] {"local", "all", "url", "pushurl"})
+            if (parsedArgs["branch"] == null)
             {
-                if (!parsedArgs.ContainsKey(key))
-                    parsedArgs[key] = false;
+                parsedArgs["all"] = true;
             }
-
-            if (!parsedArgs.ContainsKey("branch"))
-                parsedArgs["branch"] = null;
-            if (!(bool)parsedArgs["local"] && !(bool)parsedArgs["all"])
+            else
             {
-                if (parsedArgs["branch"] == null)
-                {
-                    parsedArgs["all"] = true;
-                }
-                else
-                {
-                    parsedArgs["local"] = true;
-                }
+                parsedArgs["local"] = true;
             }
-
-            if (parsedArgs.ContainsKey("simple"))
-                simple = true;
         }
+
+        if (parsedArgs.ContainsKey("simple"))
+            simple = true;
     }
 }

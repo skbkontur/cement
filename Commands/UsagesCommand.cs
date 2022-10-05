@@ -2,27 +2,27 @@
 using Common;
 using Common.DepsValidators;
 
-namespace Commands
+namespace Commands;
+
+public sealed class UsagesCommand : ICommand
 {
-    public sealed class UsagesCommand : ICommand
+    private readonly ConsoleWriter consoleWriter;
+    private readonly Dictionary<string, ICommand> commands;
+
+    public UsagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
+                         GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
+                         CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory)
     {
-        private readonly ConsoleWriter consoleWriter;
-        private readonly Dictionary<string, ICommand> commands;
-
-        public UsagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
-                             GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
-                             CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory)
+        this.consoleWriter = consoleWriter;
+        commands = new Dictionary<string, ICommand>
         {
-            this.consoleWriter = consoleWriter;
-            commands = new Dictionary<string, ICommand>
-            {
-                {"show", new UsagesShowCommand(consoleWriter, featureFlags)},
-                {"build", new UsagesBuildCommand(consoleWriter, featureFlags, usagesProvider, getCommand, buildDepsCommand, buildCommand)},
-                {"grep", new UsagesGrepCommand(consoleWriter, featureFlags, cycleDetector, depsValidatorFactory)}
-            };
-        }
+            {"show", new UsagesShowCommand(consoleWriter, featureFlags)},
+            {"build", new UsagesBuildCommand(consoleWriter, featureFlags, usagesProvider, getCommand, buildDepsCommand, buildCommand)},
+            {"grep", new UsagesGrepCommand(consoleWriter, featureFlags, cycleDetector, depsValidatorFactory)}
+        };
+    }
 
-        public string HelpMessage => @"
+    public string HelpMessage => @"
     Performs operations with module usages
 
     usages show
@@ -69,18 +69,17 @@ namespace Commands
                 show lines contains ""new Class"" or ""Class.New"" in modules linked to the current, only in *.cs files
 ";
 
-        public string Name => "usages";
-        public bool IsHiddenCommand => CementSettingsRepository.Get().CementServer == null;
+    public string Name => "usages";
+    public bool IsHiddenCommand => CementSettingsRepository.Get().CementServer == null;
 
-        public int Run(string[] args)
+    public int Run(string[] args)
+    {
+        if (args.Length < 2 || !commands.ContainsKey(args[1]))
         {
-            if (args.Length < 2 || !commands.ContainsKey(args[1]))
-            {
-                consoleWriter.WriteError("Bad arguments");
-                return -1;
-            }
-
-            return commands[args[1]].Run(args);
+            consoleWriter.WriteError("Bad arguments");
+            return -1;
         }
+
+        return commands[args[1]].Run(args);
     }
 }

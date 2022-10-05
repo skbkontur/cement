@@ -1,28 +1,28 @@
 ﻿using Common;
 
-namespace Commands
+namespace Commands;
+
+public sealed class ReInstallCommand : Command
 {
-    public sealed class ReInstallCommand : Command
+    private static readonly CommandSettings Settings = new()
     {
-        private static readonly CommandSettings Settings = new()
-        {
-            LogFileName = "reinstall",
-            MeasureElapsedTime = false,
-            Location = CommandLocation.Any,
-            IsHiddenCommand = true
-        };
-        private readonly ConsoleWriter consoleWriter;
-        private readonly FeatureFlags featureFlags;
+        LogFileName = "reinstall",
+        MeasureElapsedTime = false,
+        Location = CommandLocation.Any,
+        IsHiddenCommand = true
+    };
+    private readonly ConsoleWriter consoleWriter;
+    private readonly FeatureFlags featureFlags;
 
-        public ReInstallCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-            : base(consoleWriter, Settings, featureFlags)
-        {
-            this.consoleWriter = consoleWriter;
-            this.featureFlags = featureFlags;
-        }
+    public ReInstallCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        : base(consoleWriter, Settings, featureFlags)
+    {
+        this.consoleWriter = consoleWriter;
+        this.featureFlags = featureFlags;
+    }
 
-        public override string Name => "reinstall";
-        public override string HelpMessage => @"
+    public override string Name => "reinstall";
+    public override string HelpMessage => @"
     Reinstalls cement
 	NOTE: Don't use this command from installed cement.
 
@@ -30,18 +30,17 @@ namespace Commands
         cm reinstall
 ";
 
-        protected override int Execute()
+    protected override int Execute()
+    {
+        var selfUpdateCommand = new SelfUpdateCommand(consoleWriter, featureFlags)
         {
-            var selfUpdateCommand = new SelfUpdateCommand(consoleWriter, featureFlags)
-            {
-                IsInstallingCement = true
-            };
+            IsInstallingCement = true
+        };
 
-            return selfUpdateCommand.Run(new[] {"self-update"});
-        }
+        return selfUpdateCommand.Run(new[] {"self-update"});
+    }
 
-        protected override void ParseArgs(string[] args)
-        {
-        }
+    protected override void ParseArgs(string[] args)
+    {
     }
 }

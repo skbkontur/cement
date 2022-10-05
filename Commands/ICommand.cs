@@ -1,13 +1,12 @@
-﻿namespace Commands
+﻿namespace Commands;
+
+public interface ICommand
 {
-    public interface ICommand
-    {
-        string Name { get; }
+    string Name { get; }
 
-        bool IsHiddenCommand { get; }
+    bool IsHiddenCommand { get; }
 
-        string HelpMessage { get; }
+    string HelpMessage { get; }
 
-        int Run(string[] args);
-    }
+    int Run(string[] args);
 }

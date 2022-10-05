@@ -2,23 +2,23 @@
 using System.Linq;
 using Common;
 
-namespace Commands
+namespace Commands;
+
+public sealed class AnalyzerCommand : ICommand
 {
-    public sealed class AnalyzerCommand : ICommand
+    private readonly ConsoleWriter consoleWriter;
+    private readonly Dictionary<string, ICommand> subCommands;
+
+    public AnalyzerCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
     {
-        private readonly ConsoleWriter consoleWriter;
-        private readonly Dictionary<string, ICommand> subCommands;
-
-        public AnalyzerCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        this.consoleWriter = consoleWriter;
+        subCommands = new Dictionary<string, ICommand>
         {
-            this.consoleWriter = consoleWriter;
-            subCommands = new Dictionary<string, ICommand>
-            {
-                {"add", new AnalyzerAddCommand(consoleWriter, featureFlags)}
-            };
-        }
+            {"add", new AnalyzerAddCommand(consoleWriter, featureFlags)}
+        };
+    }
 
-        public string HelpMessage => @"
+    public string HelpMessage => @"
     Adds analyzers in *.sln
 
     analyzer add
@@ -36,21 +36,20 @@ namespace Commands
                 in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
 ";
 
-        public string Name => "analyzer";
-        public bool IsHiddenCommand => false;
+    public string Name => "analyzer";
+    public bool IsHiddenCommand => false;
 
-        public int Run(string[] args)
-        {
-            var subCommand = args
-                .Skip(1)
-                .FirstOrDefault();
+    public int Run(string[] args)
+    {
+        var subCommand = args
+            .Skip(1)
+            .FirstOrDefault();
 
-            if (subCommand != null && subCommands.ContainsKey(subCommand))
-                return subCommands[subCommand].Run(args);
+        if (subCommand != null && subCommands.ContainsKey(subCommand))
+            return subCommands[subCommand].Run(args);
 
-            consoleWriter.WriteError($"Bad arguments: cm analyzer [{subCommand}]");
-            consoleWriter.WriteInfo($"Possible arguments: [{string.Join("|", subCommands.Keys)}]");
-            return -1;
-        }
+        consoleWriter.WriteError($"Bad arguments: cm analyzer [{subCommand}]");
+        consoleWriter.WriteInfo($"Possible arguments: [{string.Join("|", subCommands.Keys)}]");
+        return -1;
     }
 }

@@ -6,33 +6,33 @@ using Common.Exceptions;
 using Common.Extensions;
 using Common.YamlParsers;
 
-namespace Commands
+namespace Commands;
+
+public sealed class PackCommand : Command
 {
-    public sealed class PackCommand : Command
+    private static readonly CommandSettings Settings = new()
     {
-        private static readonly CommandSettings Settings = new()
-        {
-            LogFileName = "pack",
-            MeasureElapsedTime = false,
-            RequireModuleYaml = true,
-            Location = CommandLocation.InsideModuleDirectory
-        };
-        private readonly ConsoleWriter consoleWriter;
-        private readonly IDepsValidatorFactory depsValidatorFactory;
-        private string project;
-        private string configuration;
-        private BuildSettings buildSettings;
-        private bool preRelease;
+        LogFileName = "pack",
+        MeasureElapsedTime = false,
+        RequireModuleYaml = true,
+        Location = CommandLocation.InsideModuleDirectory
+    };
+    private readonly ConsoleWriter consoleWriter;
+    private readonly IDepsValidatorFactory depsValidatorFactory;
+    private string project;
+    private string configuration;
+    private BuildSettings buildSettings;
+    private bool preRelease;
 
-        public PackCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
-            : base(consoleWriter, Settings, featureFlags)
-        {
-            this.consoleWriter = consoleWriter;
-            this.depsValidatorFactory = depsValidatorFactory;
-        }
+    public PackCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
+        : base(consoleWriter, Settings, featureFlags)
+    {
+        this.consoleWriter = consoleWriter;
+        this.depsValidatorFactory = depsValidatorFactory;
+    }
 
-        public override string Name => "pack";
-        public override string HelpMessage => @"
+    public override string Name => "pack";
+    public override string HelpMessage => @"
     Packs project to nuget package.
     Replaces file references to package references in csproj file and runs 'dotnet pack' command.
     Allows to publish nuget package to use outside of cement.
@@ -49,65 +49,64 @@ namespace Commands
         -p/--progress           - show msbuild output in one line
 ";
 
-        protected override int Execute()
+    protected override int Execute()
+    {
+        var modulePath = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
+        var moduleName = Path.GetFileName(modulePath);
+        project = Yaml.GetProjectFileName(project, moduleName);
+        configuration = configuration ?? "full-build";
+
+        var buildData = Yaml.BuildParser(moduleName).Get(configuration).FirstOrDefault(t => !t.Target.IsFakeTarget());
+
+        var projectPath = Path.GetFullPath(project);
+        var csproj = new ProjectFile(projectPath);
+        var deps = new DepsParser(consoleWriter, depsValidatorFactory, modulePath).Get(configuration);
+        consoleWriter.WriteInfo("patching csproj");
+        var patchedDocument = csproj.CreateCsProjWithNugetReferences(deps.Deps, preRelease);
+        var backupFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "backup." + Path.GetFileName(projectPath));
+        if (File.Exists(backupFileName))
+            File.Delete(backupFileName);
+        File.Move(projectPath, backupFileName);
+        try
         {
-            var modulePath = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
-            var moduleName = Path.GetFileName(modulePath);
-            project = Yaml.GetProjectFileName(project, moduleName);
-            configuration = configuration ?? "full-build";
-
-            var buildData = Yaml.BuildParser(moduleName).Get(configuration).FirstOrDefault(t => !t.Target.IsFakeTarget());
-
-            var projectPath = Path.GetFullPath(project);
-            var csproj = new ProjectFile(projectPath);
-            var deps = new DepsParser(consoleWriter, depsValidatorFactory, modulePath).Get(configuration);
-            consoleWriter.WriteInfo("patching csproj");
-            var patchedDocument = csproj.CreateCsProjWithNugetReferences(deps.Deps, preRelease);
-            var backupFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "backup." + Path.GetFileName(projectPath));
-            if (File.Exists(backupFileName))
-                File.Delete(backupFileName);
-            File.Move(projectPath, backupFileName);
-            try
-            {
-                XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
-                var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
-                var moduleBuilder = new ModuleBuilder(consoleWriter, Log, buildSettings, buildYamlScriptsMaker);
-                moduleBuilder.Init();
-                consoleWriter.WriteInfo("start pack");
-                if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))
-                    return -1;
-            }
-            finally
-            {
-                if (File.Exists(projectPath))
-                    File.Delete(projectPath);
-                File.Move(backupFileName, projectPath);
-            }
-
-            return 0;
+            XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
+            var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
+            var moduleBuilder = new ModuleBuilder(consoleWriter, Log, buildSettings, buildYamlScriptsMaker);
+            moduleBuilder.Init();
+            consoleWriter.WriteInfo("start pack");
+            if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))
+                return -1;
+        }
+        finally
+        {
+            if (File.Exists(projectPath))
+                File.Delete(projectPath);
+            File.Move(backupFileName, projectPath);
         }
 
-        protected override void ParseArgs(string[] args)
+        return 0;
+    }
+
+    protected override void ParseArgs(string[] args)
+    {
+        var parsedArgs = ArgumentParser.ParsePack(args);
+
+        //dep = new Dep((string)parsedArgs["module"]);
+        if (parsedArgs["configuration"] != null)
+            configuration = (string)parsedArgs["configuration"];
+        preRelease = (bool)parsedArgs["prerelease"];
+
+        buildSettings = new BuildSettings
         {
-            var parsedArgs = ArgumentParser.ParsePack(args);
+            ShowAllWarnings = (bool)parsedArgs["warnings"],
+            ShowObsoleteWarnings = (bool)parsedArgs["obsolete"],
+            ShowOutput = (bool)parsedArgs["verbose"],
+            ShowProgress = (bool)parsedArgs["progress"],
+            ShowWarningsSummary = true
+        };
 
-            //dep = new Dep((string)parsedArgs["module"]);
-            if (parsedArgs["configuration"] != null)
-                configuration = (string)parsedArgs["configuration"];
-            preRelease = (bool)parsedArgs["prerelease"];
-
-            buildSettings = new BuildSettings
-            {
-                ShowAllWarnings = (bool)parsedArgs["warnings"],
-                ShowObsoleteWarnings = (bool)parsedArgs["obsolete"],
-                ShowOutput = (bool)parsedArgs["verbose"],
-                ShowProgress = (bool)parsedArgs["progress"],
-                ShowWarningsSummary = true
-            };
-
-            project = (string)parsedArgs["project"];
-            if (!project.EndsWith(".csproj"))
-                throw new BadArgumentException(project + " is not csproj file");
-        }
+        project = (string)parsedArgs["project"];
+        if (!project.EndsWith(".csproj"))
+            throw new BadArgumentException(project + " is not csproj file");
     }
 }

@@ -1,31 +1,30 @@
 ﻿using Common;
 
-namespace Commands
+namespace Commands;
+
+public sealed class VersionCommand : ICommand
 {
-    public sealed class VersionCommand : ICommand
+    private readonly ConsoleWriter consoleWriter;
+
+    public VersionCommand(ConsoleWriter consoleWriter)
     {
-        private readonly ConsoleWriter consoleWriter;
+        this.consoleWriter = consoleWriter;
+    }
 
-        public VersionCommand(ConsoleWriter consoleWriter)
-        {
-            this.consoleWriter = consoleWriter;
-        }
-
-        public string HelpMessage => @"
+    public string HelpMessage => @"
     Shows cement's version
 
     Usage:
         cm --version
 ";
 
-        public string Name => "--version";
-        public bool IsHiddenCommand => false;
+    public string Name => "--version";
+    public bool IsHiddenCommand => false;
 
-        public int Run(string[] args)
-        {
-            var assemblyTitle = Helper.GetAssemblyTitle();
-            consoleWriter.WriteLine(assemblyTitle);
-            return 0;
-        }
+    public int Run(string[] args)
+    {
+        var assemblyTitle = Helper.GetAssemblyTitle();
+        consoleWriter.WriteLine(assemblyTitle);
+        return 0;
     }
 }

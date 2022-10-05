@@ -1,25 +1,25 @@
 using System.Collections.Generic;
 using Common;
 
-namespace Commands
+namespace Commands;
+
+public sealed class RefCommand : ICommand
 {
-    public sealed class RefCommand : ICommand
+    private readonly ConsoleWriter consoleWriter;
+    private readonly Dictionary<string, ICommand> commands;
+
+    public RefCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand,
+                      BuildDepsCommand buildDepsCommand, BuildCommand buildCommand)
     {
-        private readonly ConsoleWriter consoleWriter;
-        private readonly Dictionary<string, ICommand> commands;
-
-        public RefCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand,
-                          BuildDepsCommand buildDepsCommand, BuildCommand buildCommand)
+        this.consoleWriter = consoleWriter;
+        commands = new Dictionary<string, ICommand>
         {
-            this.consoleWriter = consoleWriter;
-            commands = new Dictionary<string, ICommand>
-            {
-                {"add", new RefAddCommand(consoleWriter, featureFlags, getCommand, buildDepsCommand, buildCommand)},
-                {"fix", new RefFixCommand(consoleWriter, featureFlags)}
-            };
-        }
+            {"add", new RefAddCommand(consoleWriter, featureFlags, getCommand, buildDepsCommand, buildCommand)},
+            {"fix", new RefFixCommand(consoleWriter, featureFlags)}
+        };
+    }
 
-        public string HelpMessage => @"
+    public string HelpMessage => @"
     Adds or fixes references in *.csproj
 
     ref add
@@ -44,18 +44,17 @@ namespace Commands
             to		<HintPath>..\..\core\bin\Release\Kontur.Core.dll</HintPath>
 ";
 
-        public string Name => "ref";
-        public bool IsHiddenCommand => false;
+    public string Name => "ref";
+    public bool IsHiddenCommand => false;
 
-        public int Run(string[] args)
+    public int Run(string[] args)
+    {
+        if (args.Length < 2 || !commands.ContainsKey(args[1]))
         {
-            if (args.Length < 2 || !commands.ContainsKey(args[1]))
-            {
-                consoleWriter.WriteError("Bad arguments");
-                return -1;
-            }
-
-            return commands[args[1]].Run(args);
+            consoleWriter.WriteError("Bad arguments");
+            return -1;
         }
+
+        return commands[args[1]].Run(args);
     }
 }

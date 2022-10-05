@@ -2,23 +2,23 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Commands
+namespace Commands;
+
+public sealed class ReadmeGenerator
 {
-    public sealed class ReadmeGenerator
+    private readonly IServiceProvider serviceProvider;
+
+    public ReadmeGenerator(IServiceProvider serviceProvider)
     {
-        private readonly IServiceProvider serviceProvider;
+        this.serviceProvider = serviceProvider;
+    }
 
-        public ReadmeGenerator(IServiceProvider serviceProvider)
-        {
-            this.serviceProvider = serviceProvider;
-        }
+    public string Generate()
+    {
+        var commandsList = serviceProvider.GetServices<ICommand>()
+            .ToDictionary(c => c.Name);
 
-        public string Generate()
-        {
-            var commandsList = serviceProvider.GetServices<ICommand>()
-                .ToDictionary(c => c.Name);
-
-            var result = $@"
+        var result = $@"
 ### cm help
 {commandsList["help"].HelpMessage}
 
@@ -63,20 +63,19 @@ namespace Commands
 ### cm status
 {commandsList["status"].HelpMessage}";
 
-            var menu = "# Commands" + Environment.NewLine + Environment.NewLine;
+        var menu = "# Commands" + Environment.NewLine + Environment.NewLine;
 
-            var lines = result.Split(new[] {"\r\n", "\n"}, StringSplitOptions.None);
-            foreach (var line in lines)
+        var lines = result.Split(new[] {"\r\n", "\n"}, StringSplitOptions.None);
+        foreach (var line in lines)
+        {
+            if (line.StartsWith("### "))
             {
-                if (line.StartsWith("### "))
-                {
-                    var name = line.Substring(4);
-                    menu += $"[{name}](#{name.Replace(' ', '-')})" + Environment.NewLine + Environment.NewLine;
-                }
+                var name = line.Substring(4);
+                menu += $"[{name}](#{name.Replace(' ', '-')})" + Environment.NewLine + Environment.NewLine;
             }
-
-            result = menu + result;
-            return result;
         }
+
+        result = menu + result;
+        return result;
     }
 }

@@ -3,58 +3,57 @@ using System.Linq;
 using Common;
 using Common.Logging;
 
-namespace Commands
+namespace Commands;
+
+public sealed class CompleteCommand : Command
 {
-    public sealed class CompleteCommand : Command
+    private static readonly CommandSettings Settings = new()
     {
-        private static readonly CommandSettings Settings = new()
-        {
-            LogFileName = "complete",
-            MeasureElapsedTime = false,
-            Location = CommandLocation.Any,
-            IsHiddenCommand = true,
-            NoElkLog = true
-        };
-        private readonly ConsoleWriter consoleWriter;
-        private string[] otherArgs;
+        LogFileName = "complete",
+        MeasureElapsedTime = false,
+        Location = CommandLocation.Any,
+        IsHiddenCommand = true,
+        NoElkLog = true
+    };
+    private readonly ConsoleWriter consoleWriter;
+    private string[] otherArgs;
 
-        public CompleteCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-            : base(consoleWriter, Settings, featureFlags)
+    public CompleteCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        : base(consoleWriter, Settings, featureFlags)
+    {
+        this.consoleWriter = consoleWriter;
+    }
+
+    public override string Name => "complete";
+    public override string HelpMessage => "";
+
+    protected override int Execute()
+    {
+        var buffer = otherArgs.Length == 0
+            ? ""
+            : otherArgs[0];
+
+        if (otherArgs.Length > 1)
         {
-            this.consoleWriter = consoleWriter;
+            int pos;
+            if (int.TryParse(otherArgs[1], out pos) && buffer.Length > pos)
+                buffer = buffer.Substring(0, pos);
         }
 
-        public override string Name => "complete";
-        public override string HelpMessage => "";
+        LogHelper.SaveLog($"[COMPLETE] '{buffer}'");
+        var result = new CompleteCommandAutomata(Log).Complete(buffer);
+        PrintList(result);
 
-        protected override int Execute()
-        {
-            var buffer = otherArgs.Length == 0
-                ? ""
-                : otherArgs[0];
+        return 0;
+    }
 
-            if (otherArgs.Length > 1)
-            {
-                int pos;
-                if (int.TryParse(otherArgs[1], out pos) && buffer.Length > pos)
-                    buffer = buffer.Substring(0, pos);
-            }
+    protected override void ParseArgs(string[] args)
+    {
+        otherArgs = args.Skip(1).ToArray();
+    }
 
-            LogHelper.SaveLog($"[COMPLETE] '{buffer}'");
-            var result = new CompleteCommandAutomata(Log).Complete(buffer);
-            PrintList(result);
-
-            return 0;
-        }
-
-        protected override void ParseArgs(string[] args)
-        {
-            otherArgs = args.Skip(1).ToArray();
-        }
-
-        private void PrintList(IEnumerable<string> list)
-        {
-            consoleWriter.WriteLines(list.OrderBy(x => x));
-        }
+    private void PrintList(IEnumerable<string> list)
+    {
+        consoleWriter.WriteLines(list.OrderBy(x => x));
     }
 }

@@ -4,39 +4,39 @@ using Common.DepsValidators;
 using Common.Exceptions;
 using Microsoft.Extensions.Logging;
 
-namespace Commands
+namespace Commands;
+
+public sealed class GetCommand : Command
 {
-    public sealed class GetCommand : Command
+    private static readonly CommandSettings Settings = new()
     {
-        private static readonly CommandSettings Settings = new()
-        {
-            LogFileName = "get",
-            MeasureElapsedTime = true,
-            Location = CommandLocation.WorkspaceDirectory
-        };
+        LogFileName = "get",
+        MeasureElapsedTime = true,
+        Location = CommandLocation.WorkspaceDirectory
+    };
 
-        private readonly ConsoleWriter consoleWriter;
-        private readonly CycleDetector cycleDetector;
-        private readonly IDepsValidatorFactory depsValidatorFactory;
-        private string configuration;
-        private LocalChangesPolicy policy;
-        private string module;
-        private string treeish;
-        private string mergedBranch;
-        private bool verbose;
-        private int? gitDepth;
+    private readonly ConsoleWriter consoleWriter;
+    private readonly CycleDetector cycleDetector;
+    private readonly IDepsValidatorFactory depsValidatorFactory;
+    private string configuration;
+    private LocalChangesPolicy policy;
+    private string module;
+    private string treeish;
+    private string mergedBranch;
+    private bool verbose;
+    private int? gitDepth;
 
-        public GetCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                          IDepsValidatorFactory depsValidatorFactory)
-            : base(consoleWriter, Settings, featureFlags)
-        {
-            this.consoleWriter = consoleWriter;
-            this.cycleDetector = cycleDetector;
-            this.depsValidatorFactory = depsValidatorFactory;
-        }
+    public GetCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
+                      IDepsValidatorFactory depsValidatorFactory)
+        : base(consoleWriter, Settings, featureFlags)
+    {
+        this.consoleWriter = consoleWriter;
+        this.cycleDetector = cycleDetector;
+        this.depsValidatorFactory = depsValidatorFactory;
+    }
 
-        public override string Name => "get";
-        public override string HelpMessage => @"
+    public override string Name => "get";
+    public override string HelpMessage => @"
     Gets module with all deps
 
     Usage:
@@ -61,60 +61,59 @@ namespace Commands
         cm get kanso -c client release -rv
 ";
 
-        protected override void ParseArgs(string[] args)
-        {
-            Helper.RemoveOldKey(ref args, "-n", Log);
+    protected override void ParseArgs(string[] args)
+    {
+        Helper.RemoveOldKey(ref args, "-n", Log);
 
-            var parsedArgs = ArgumentParser.ParseGet(args);
-            module = (string)parsedArgs["module"];
-            if (string.IsNullOrEmpty(module))
-                throw new CementException("You should specify the name of the module");
+        var parsedArgs = ArgumentParser.ParseGet(args);
+        module = (string)parsedArgs["module"];
+        if (string.IsNullOrEmpty(module))
+            throw new CementException("You should specify the name of the module");
 
-            treeish = (string)parsedArgs["treeish"];
-            configuration = (string)parsedArgs["configuration"];
-            mergedBranch = (string)parsedArgs["merged"];
-            verbose = (bool)parsedArgs["verbose"];
-            gitDepth = (int?)parsedArgs["gitDepth"];
-            policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
-        }
+        treeish = (string)parsedArgs["treeish"];
+        configuration = (string)parsedArgs["configuration"];
+        mergedBranch = (string)parsedArgs["merged"];
+        verbose = (bool)parsedArgs["verbose"];
+        gitDepth = (int?)parsedArgs["gitDepth"];
+        policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+    }
 
-        protected override int Execute()
-        {
-            var workspace = Directory.GetCurrentDirectory();
-            if (!Helper.IsCurrentDirectoryModule(Path.Combine(workspace, module)))
-                throw new CementTrackException($"{workspace} is not cement workspace directory.");
+    protected override int Execute()
+    {
+        var workspace = Directory.GetCurrentDirectory();
+        if (!Helper.IsCurrentDirectoryModule(Path.Combine(workspace, module)))
+            throw new CementTrackException($"{workspace} is not cement workspace directory.");
 
-            configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
+        configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
 
-            Log.LogInformation("Updating packages");
-            PackageUpdater.Shared.UpdatePackages();
+        Log.LogInformation("Updating packages");
+        PackageUpdater.Shared.UpdatePackages();
 
-            GetModule();
-            cycleDetector.WarnIfCycle(module, configuration, Log);
+        GetModule();
+        cycleDetector.WarnIfCycle(module, configuration, Log);
 
-            Log.LogInformation("SUCCESS get " + module);
-            return 0;
-        }
+        Log.LogInformation("SUCCESS get " + module);
+        return 0;
+    }
 
-        private void GetModule()
-        {
-            var getter = new ModuleGetter(
-                consoleWriter,
-                cycleDetector,
-                depsValidatorFactory,
-                Helper.GetModules(),
-                new Dep(module, treeish, configuration),
-                policy,
-                mergedBranch,
-                verbose,
-                gitDepth: gitDepth);
+    private void GetModule()
+    {
+        var getter = new ModuleGetter(
+            consoleWriter,
+            cycleDetector,
+            depsValidatorFactory,
+            Helper.GetModules(),
+            new Dep(module, treeish, configuration),
+            policy,
+            mergedBranch,
+            verbose,
+            gitDepth: gitDepth);
 
-            getter.GetModule();
+        getter.GetModule();
 
-            consoleWriter.WriteInfo("Getting deps for " + module);
-            Log.LogInformation("Getting deps list for " + module);
+        consoleWriter.WriteInfo("Getting deps for " + module);
+        Log.LogInformation("Getting deps list for " + module);
 
-            getter.GetDeps();
-        }
+        getter.GetDeps();
     }
 }
