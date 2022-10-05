@@ -1,11 +1,10 @@
-﻿namespace Common
+﻿namespace Common;
+
+public enum LocalChangesPolicy
 {
-    public enum LocalChangesPolicy
-    {
-        FailOnLocalChanges,
-        Reset,
-        ForceLocal,
-        Pull,
-        Interactive
-    }
+    FailOnLocalChanges,
+    Reset,
+    ForceLocal,
+    Pull,
+    Interactive
 }

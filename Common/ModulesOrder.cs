@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace Common
+namespace Common;
+
+public sealed class ModulesOrder
 {
-    public sealed class ModulesOrder
-    {
-        public List<Dep> BuildOrder;
-        public List<Dep> UpdatedModules;
-        public Dictionary<string, string> CurrentCommitHashes;
-        public Dictionary<Dep, List<Dep>> ConfigsGraph;
-    }
+    public List<Dep> BuildOrder;
+    public List<Dep> UpdatedModules;
+    public Dictionary<string, string> CurrentCommitHashes;
+    public Dictionary<Dep, List<Dep>> ConfigsGraph;
 }

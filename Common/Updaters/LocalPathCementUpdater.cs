@@ -2,50 +2,49 @@ using System;
 using System.IO;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Updaters
+namespace Common.Updaters;
+
+public sealed class LocalPathCementUpdater : ICementUpdater
 {
-    public sealed class LocalPathCementUpdater : ICementUpdater
+    private readonly ILogger log;
+
+    public LocalPathCementUpdater(ILogger log)
     {
-        private readonly ILogger log;
+        this.log = log;
+    }
 
-        public LocalPathCementUpdater(ILogger log)
+    public string Name => "fileSystemLocalPath";
+
+    public string GetNewCommitHash()
+    {
+        return DateTime.Now.Ticks.ToString();
+    }
+
+    public byte[] GetNewCementZip()
+    {
+        try
         {
-            this.log = log;
+            return File.ReadAllBytes(Path.Combine(GetZipCementDirectory(), "cement.zip"));
+        }
+        catch (Exception ex)
+        {
+            log.LogError(ex, "Fail self-update, exception: '{ErrorMessage}'", ex.Message);
         }
 
-        public string Name => "fileSystemLocalPath";
+        return null;
+    }
 
-        public string GetNewCommitHash()
-        {
-            return DateTime.Now.Ticks.ToString();
-        }
+    public void Dispose()
+    {
+    }
 
-        public byte[] GetNewCementZip()
-        {
-            try
-            {
-                return File.ReadAllBytes(Path.Combine(GetZipCementDirectory(), "cement.zip"));
-            }
-            catch (Exception ex)
-            {
-                log.LogError(ex, "Fail self-update, exception: '{ErrorMessage}'", ex.Message);
-            }
+    private static string GetZipCementDirectory()
+    {
+        var zipDir = Path.Combine(Helper.HomeDirectory(), "work");
 
-            return null;
-        }
+        if (!Directory.Exists(zipDir))
+            Directory.CreateDirectory(zipDir);
 
-        public void Dispose()
-        {
-        }
-
-        private static string GetZipCementDirectory()
-        {
-            var zipDir = Path.Combine(Helper.HomeDirectory(), "work");
-
-            if (!Directory.Exists(zipDir))
-                Directory.CreateDirectory(zipDir);
-
-            return zipDir;
-        }
+        return zipDir;
     }
 }

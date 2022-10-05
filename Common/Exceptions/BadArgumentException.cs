@@ -1,14 +1,13 @@
-﻿namespace Common.Exceptions
-{
-    public sealed class BadArgumentException : CementException
-    {
-        public BadArgumentException()
-        {
-        }
+﻿namespace Common.Exceptions;
 
-        public BadArgumentException(string message)
-            : base(message)
-        {
-        }
+public sealed class BadArgumentException : CementException
+{
+    public BadArgumentException()
+    {
+    }
+
+    public BadArgumentException(string message)
+        : base(message)
+    {
     }
 }

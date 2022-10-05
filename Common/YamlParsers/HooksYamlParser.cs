@@ -4,46 +4,45 @@ using System.IO;
 using System.Linq;
 using Common.Exceptions;
 
-namespace Common.YamlParsers
+namespace Common.YamlParsers;
+
+public sealed class HooksYamlParser : ConfigurationYamlParser
 {
-    public sealed class HooksYamlParser : ConfigurationYamlParser
+    public HooksYamlParser(FileInfo moduleName)
+        : base(moduleName)
     {
-        public HooksYamlParser(FileInfo moduleName)
-            : base(moduleName)
-        {
-        }
+    }
 
-        public HooksYamlParser(string moduleName, string text)
-            : base(moduleName, text)
-        {
-        }
+    public HooksYamlParser(string moduleName, string text)
+        : base(moduleName, text)
+    {
+    }
 
-        public List<string> Get()
+    public List<string> Get()
+    {
+        try
         {
-            try
-            {
-                var configDict = GetConfigurationSection("default");
-                return GetHooksFromSection(configDict);
-            }
-            catch (BadYamlException)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                throw new BadYamlException(ModuleName, "hooks", exception.Message);
-            }
+            var configDict = GetConfigurationSection("default");
+            return GetHooksFromSection(configDict);
         }
-
-        private static List<string> GetHooksFromSection(Dictionary<string, object> configDict)
+        catch (BadYamlException)
         {
-            if (configDict == null || !configDict.ContainsKey("hooks"))
-                return new List<string>();
-            var hooks = configDict["hooks"] as List<object>;
-            if (hooks == null)
-                return new List<string>();
-
-            return hooks.Select(h => h.ToString()).ToList();
+            throw;
         }
+        catch (Exception exception)
+        {
+            throw new BadYamlException(ModuleName, "hooks", exception.Message);
+        }
+    }
+
+    private static List<string> GetHooksFromSection(Dictionary<string, object> configDict)
+    {
+        if (configDict == null || !configDict.ContainsKey("hooks"))
+            return new List<string>();
+        var hooks = configDict["hooks"] as List<object>;
+        if (hooks == null)
+            return new List<string>();
+
+        return hooks.Select(h => h.ToString()).ToList();
     }
 }

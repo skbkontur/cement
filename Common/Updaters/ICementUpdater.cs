@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace Common.Updaters
-{
-    public interface ICementUpdater : IDisposable
-    {
-        string Name { get; }
+namespace Common.Updaters;
 
-        string GetNewCommitHash();
-        byte[] GetNewCementZip();
-    }
+public interface ICementUpdater : IDisposable
+{
+    string Name { get; }
+
+    string GetNewCommitHash();
+    byte[] GetNewCementZip();
 }

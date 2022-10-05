@@ -1,10 +1,9 @@
-﻿namespace Common.Exceptions
+﻿namespace Common.Exceptions;
+
+public sealed class GitPushException : CementException
 {
-    public sealed class GitPushException : CementException
+    public GitPushException(string s)
+        : base(s)
     {
-        public GitPushException(string s)
-            : base(s)
-        {
-        }
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace Common
+﻿namespace Common;
+
+public enum RetryStrategy
 {
-    public enum RetryStrategy
-    {
-        None,
-        IfTimeout,
-        IfTimeoutOrFailed
-    }
+    None,
+    IfTimeout,
+    IfTimeoutOrFailed
 }

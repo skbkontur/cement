@@ -1,10 +1,9 @@
-﻿namespace Common.Exceptions
+﻿namespace Common.Exceptions;
+
+public sealed class GitInitException : CementException
 {
-    public sealed class GitInitException : CementException
+    public GitInitException(string format)
+        : base(format)
     {
-        public GitInitException(string format)
-            : base(format)
-        {
-        }
     }
 }

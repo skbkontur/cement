@@ -3,36 +3,35 @@ using System.Linq;
 using System.Threading;
 using Common.YamlParsers;
 
-namespace Common
+namespace Common;
+
+public sealed class BuildHelper
 {
-    public sealed class BuildHelper
+    private readonly SemaphoreSlim semaphore = new(1, 1);
+
+    public static BuildHelper Shared { get; } = new();
+
+    public void RemoveModuleFromBuiltInfo(string moduleName)
     {
-        private readonly SemaphoreSlim semaphore = new(1, 1);
-
-        public static BuildHelper Shared { get; } = new();
-
-        public void RemoveModuleFromBuiltInfo(string moduleName)
+        semaphore.Wait();
+        try
         {
-            semaphore.Wait();
-            try
-            {
-                var storage = BuildInfoStorage.Deserialize();
-                storage.RemoveBuildInfo(moduleName);
-                storage.Save();
-            }
-            finally
-            {
-                semaphore.Release();
-            }
+            var storage = BuildInfoStorage.Deserialize();
+            storage.RemoveBuildInfo(moduleName);
+            storage.Save();
         }
-
-        public bool HasAllOutput(string moduleName, string configuration, bool requireYaml)
+        finally
         {
-            var path = Path.Combine(Helper.CurrentWorkspace, moduleName, Helper.YamlSpecFile);
-            if (!File.Exists(path))
-                return !requireYaml;
-            var artifacts = Yaml.InstallParser(moduleName).Get(configuration).Artifacts;
-            return artifacts!.Select(Helper.FixPath).All(art => File.Exists(Path.Combine(Helper.CurrentWorkspace, moduleName, art)));
+            semaphore.Release();
         }
+    }
+
+    public bool HasAllOutput(string moduleName, string configuration, bool requireYaml)
+    {
+        var path = Path.Combine(Helper.CurrentWorkspace, moduleName, Helper.YamlSpecFile);
+        if (!File.Exists(path))
+            return !requireYaml;
+        var artifacts = Yaml.InstallParser(moduleName).Get(configuration).Artifacts;
+        return artifacts!.Select(Helper.FixPath).All(art => File.Exists(Path.Combine(Helper.CurrentWorkspace, moduleName, art)));
     }
 }

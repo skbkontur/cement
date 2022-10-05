@@ -1,36 +1,35 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Common.YamlParsers.Models
+namespace Common.YamlParsers.Models;
+
+public sealed class ConfigSectionTitle : IEquatable<ConfigSectionTitle>
 {
-    public sealed class ConfigSectionTitle : IEquatable<ConfigSectionTitle>
+    public string Name { get; set; }
+
+    [CanBeNull]
+    public string[] Parents { get; set; }
+
+    public bool IsDefault { get; set; }
+
+    public override string ToString()
     {
-        public string Name { get; set; }
+        var result = Name;
 
-        [CanBeNull]
-        public string[] Parents { get; set; }
+        if (Parents != null)
+            result += " > " + string.Join(", ", Parents);
 
-        public bool IsDefault { get; set; }
+        if (IsDefault)
+            result += " *default";
 
-        public override string ToString()
-        {
-            var result = Name;
+        return result;
+    }
 
-            if (Parents != null)
-                result += " > " + string.Join(", ", Parents);
+    public bool Equals(ConfigSectionTitle other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
 
-            if (IsDefault)
-                result += " *default";
-
-            return result;
-        }
-
-        public bool Equals(ConfigSectionTitle other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-
-            return other.ToString().Equals(ToString());
-        }
+        return other.ToString().Equals(ToString());
     }
 }

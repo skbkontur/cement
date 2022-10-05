@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Common
+namespace Common;
+
+public sealed class ShowParentsAnswer
 {
-    public sealed class ShowParentsAnswer
-    {
-        public DateTime UpdatedTime;
-        public List<KeyValuePair<Dep, List<Dep>>> Items = new();
-    }
+    public DateTime UpdatedTime;
+    public List<KeyValuePair<Dep, List<Dep>>> Items = new();
 }

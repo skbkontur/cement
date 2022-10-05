@@ -10,130 +10,129 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace Common.Updaters
+namespace Common.Updaters;
+
+[PublicAPI]
+public sealed class ServerCementUpdater : ICementUpdater
 {
-    [PublicAPI]
-    public sealed class ServerCementUpdater : ICementUpdater
+    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(5);
+
+    private readonly ILogger log;
+    private readonly string branch;
+    private readonly ConsoleWriter consoleWriter;
+    private readonly HttpClient httpClient;
+
+    public ServerCementUpdater(ILogger log, ConsoleWriter consoleWriter, string server, string branch)
     {
-        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(5);
+        Name = server;
+        httpClient = new HttpClient();
+        this.branch = branch;
+        this.log = log;
+        this.consoleWriter = consoleWriter;
+    }
 
-        private readonly ILogger log;
-        private readonly string branch;
-        private readonly ConsoleWriter consoleWriter;
-        private readonly HttpClient httpClient;
+    public string Name { get; private set; }
 
-        public ServerCementUpdater(ILogger log, ConsoleWriter consoleWriter, string server, string branch)
+    public string GetNewCommitHash()
+    {
+        try
         {
-            Name = server;
-            httpClient = new HttpClient();
-            this.branch = branch;
-            this.log = log;
-            this.consoleWriter = consoleWriter;
-        }
+            using var cts = new CancellationTokenSource(DefaultTimeout);
 
-        public string Name { get; private set; }
-
-        public string GetNewCommitHash()
-        {
-            try
+            var requestUri = new Uri(new Uri(Name), $"api/v1/cement/info/head/{branch}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, requestUri)
             {
-                using var cts = new CancellationTokenSource(DefaultTimeout);
-
-                var requestUri = new Uri(new Uri(Name), $"api/v1/cement/info/head/{branch}");
-                using var request = new HttpRequestMessage(HttpMethod.Get, requestUri)
+                Headers =
                 {
-                    Headers =
-                    {
-                        Accept = {MediaTypeWithQualityHeaderValue.Parse("application/json")},
-                        UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
-                    }
-                };
-
-                using var response = httpClient.Send(request, cts.Token);
-                response.EnsureSuccessStatusCode();
-
-                // dstarasov: при редиректе свойство RequestUri в запросе изменится на новый адрес
-                UpdateCementServerIfRequestWasRedirected(requestUri, request.RequestUri);
-
-                using var contentStream = response.Content.ReadAsStream(cts.Token);
-                using var contentStreamReader = new StreamReader(contentStream, Encoding.UTF8);
-
-                var content = contentStreamReader.ReadToEnd();
-                var info = JsonConvert.DeserializeObject<InfoResponseModel>(content);
-
-                return info?.CommitHash;
-            }
-            catch (Exception ex)
-            {
-                log.LogError(ex, "Failed to look for updates on server");
-                consoleWriter.WriteWarning("Failed to look for updates on server: " + ex.Message);
-
-                return null;
-            }
-        }
-
-        public byte[] GetNewCementZip()
-        {
-            try
-            {
-                using var cts = new CancellationTokenSource(DefaultTimeout);
-
-                var requestUri = new Uri(new Uri(Name), $"api/v1/cement/head/{branch}");
-                using var request = new HttpRequestMessage(HttpMethod.Get, requestUri)
-                {
-                    Headers =
-                    {
-                        Accept = {MediaTypeWithQualityHeaderValue.Parse("application/octet-stream")},
-                        UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
-                    }
-                };
-
-                using var response = httpClient.Send(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
-                response.EnsureSuccessStatusCode();
-
-                // dstarasov: при редиректе свойство RequestUri в запросе изменится на новый адрес
-                UpdateCementServerIfRequestWasRedirected(requestUri, request.RequestUri);
-
-                using var contentStream = response.Content.ReadAsStream(cts.Token);
-                return contentStream.ReadAllBytesWithProgress(ReportProgress);
-
-                void ReportProgress(long totalBytes)
-                {
-                    var readableBytes = totalBytes.Bytes().ToString("0.00");
-                    consoleWriter.WriteProgress($"Downloading: {readableBytes}");
+                    Accept = {MediaTypeWithQualityHeaderValue.Parse("application/json")},
+                    UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
                 }
-            }
-            catch (Exception ex)
+            };
+
+            using var response = httpClient.Send(request, cts.Token);
+            response.EnsureSuccessStatusCode();
+
+            // dstarasov: при редиректе свойство RequestUri в запросе изменится на новый адрес
+            UpdateCementServerIfRequestWasRedirected(requestUri, request.RequestUri);
+
+            using var contentStream = response.Content.ReadAsStream(cts.Token);
+            using var contentStreamReader = new StreamReader(contentStream, Encoding.UTF8);
+
+            var content = contentStreamReader.ReadToEnd();
+            var info = JsonConvert.DeserializeObject<InfoResponseModel>(content);
+
+            return info?.CommitHash;
+        }
+        catch (Exception ex)
+        {
+            log.LogError(ex, "Failed to look for updates on server");
+            consoleWriter.WriteWarning("Failed to look for updates on server: " + ex.Message);
+
+            return null;
+        }
+    }
+
+    public byte[] GetNewCementZip()
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(DefaultTimeout);
+
+            var requestUri = new Uri(new Uri(Name), $"api/v1/cement/head/{branch}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, requestUri)
             {
-                log.LogError(ex, "Failed to look for updates on server, channel='{CementServerReleaseChannel}'", branch);
-                consoleWriter.WriteWarning("Failed to look for updates on server: " + ex.Message);
+                Headers =
+                {
+                    Accept = {MediaTypeWithQualityHeaderValue.Parse("application/octet-stream")},
+                    UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
+                }
+            };
 
-                return null;
+            using var response = httpClient.Send(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+            response.EnsureSuccessStatusCode();
+
+            // dstarasov: при редиректе свойство RequestUri в запросе изменится на новый адрес
+            UpdateCementServerIfRequestWasRedirected(requestUri, request.RequestUri);
+
+            using var contentStream = response.Content.ReadAsStream(cts.Token);
+            return contentStream.ReadAllBytesWithProgress(ReportProgress);
+
+            void ReportProgress(long totalBytes)
+            {
+                var readableBytes = totalBytes.Bytes().ToString("0.00");
+                consoleWriter.WriteProgress($"Downloading: {readableBytes}");
             }
         }
-
-        public void Dispose()
+        catch (Exception ex)
         {
-            httpClient.Dispose();
+            log.LogError(ex, "Failed to look for updates on server, channel='{CementServerReleaseChannel}'", branch);
+            consoleWriter.WriteWarning("Failed to look for updates on server: " + ex.Message);
+
+            return null;
         }
+    }
 
-        private void UpdateCementServerIfRequestWasRedirected(Uri requestUri, Uri effectiveRequestUri)
-        {
-            if (requestUri == effectiveRequestUri)
-                return;
+    public void Dispose()
+    {
+        httpClient.Dispose();
+    }
 
-            log.LogDebug("Request was redirected, '{RequestUri}' -> '{NewRequestUri}'", requestUri, effectiveRequestUri);
+    private void UpdateCementServerIfRequestWasRedirected(Uri requestUri, Uri effectiveRequestUri)
+    {
+        if (requestUri == effectiveRequestUri)
+            return;
 
-            var newServerUri = effectiveRequestUri.GetLeftPart(UriPartial.Authority);
-            log.LogDebug("New server url: {CementServerUri}", newServerUri);
+        log.LogDebug("Request was redirected, '{RequestUri}' -> '{NewRequestUri}'", requestUri, effectiveRequestUri);
 
-            var settings = CementSettingsRepository.Get();
-            settings.CementServer = newServerUri;
+        var newServerUri = effectiveRequestUri.GetLeftPart(UriPartial.Authority);
+        log.LogDebug("New server url: {CementServerUri}", newServerUri);
 
-            CementSettingsRepository.Save(settings);
+        var settings = CementSettingsRepository.Get();
+        settings.CementServer = newServerUri;
 
-            consoleWriter.WriteInfo($"CementServer has been updated: {Name} => {newServerUri}");
-            Name = newServerUri;
-        }
+        CementSettingsRepository.Save(settings);
+
+        consoleWriter.WriteInfo($"CementServer has been updated: {Name} => {newServerUri}");
+        Name = newServerUri;
     }
 }

@@ -3,54 +3,53 @@ using System.Collections.Generic;
 using System.IO;
 using Common.Exceptions;
 
-namespace Common.YamlParsers
+namespace Common.YamlParsers;
+
+public sealed class SettingsYamlParser : ConfigurationYamlParser
 {
-    public sealed class SettingsYamlParser : ConfigurationYamlParser
+    public SettingsYamlParser(FileInfo moduleName)
+        : base(moduleName)
     {
-        public SettingsYamlParser(FileInfo moduleName)
-            : base(moduleName)
-        {
-        }
+    }
 
-        public SettingsYamlParser(string moduleName, string text)
-            : base(moduleName, text)
-        {
-        }
+    public SettingsYamlParser(string moduleName, string text)
+        : base(moduleName, text)
+    {
+    }
 
-        public ModuleSettings Get()
+    public ModuleSettings Get()
+    {
+        try
         {
-            try
-            {
-                var configDict = GetConfigurationSection("default");
-                return GetSettingsFromSection(configDict);
-            }
-            catch (BadYamlException)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                throw new BadYamlException(ModuleName, "settings", exception.Message);
-            }
+            var configDict = GetConfigurationSection("default");
+            return GetSettingsFromSection(configDict);
         }
-
-        private static ModuleSettings GetSettingsFromSection(Dictionary<string, object> configDict)
+        catch (BadYamlException)
         {
-            if (configDict == null || !configDict.ContainsKey("settings"))
-                return new ModuleSettings();
-            var settingsDict = configDict["settings"] as Dictionary<object, object>;
-            if (settingsDict == null)
-                return new ModuleSettings();
-
-            return GetSettings(settingsDict);
+            throw;
         }
-
-        private static ModuleSettings GetSettings(Dictionary<object, object> settingsDict)
+        catch (Exception exception)
         {
-            var result = new ModuleSettings();
-            if (settingsDict.ContainsKey("type") && ((string)settingsDict["type"]).Trim() == "content")
-                result.IsContentModule = true;
-            return result;
+            throw new BadYamlException(ModuleName, "settings", exception.Message);
         }
+    }
+
+    private static ModuleSettings GetSettingsFromSection(Dictionary<string, object> configDict)
+    {
+        if (configDict == null || !configDict.ContainsKey("settings"))
+            return new ModuleSettings();
+        var settingsDict = configDict["settings"] as Dictionary<object, object>;
+        if (settingsDict == null)
+            return new ModuleSettings();
+
+        return GetSettings(settingsDict);
+    }
+
+    private static ModuleSettings GetSettings(Dictionary<object, object> settingsDict)
+    {
+        var result = new ModuleSettings();
+        if (settingsDict.ContainsKey("type") && ((string)settingsDict["type"]).Trim() == "content")
+            result.IsContentModule = true;
+        return result;
     }
 }

@@ -4,95 +4,94 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace Common
+namespace Common;
+
+public sealed class BuildInfoStorage
 {
-    public sealed class BuildInfoStorage
+    private readonly BuildPreparer buildPreparer;
+
+    [JsonProperty]
+    private readonly Dictionary<Dep, List<DepWithCommitHash>> modulesWithDeps;
+    private readonly BuildHelper buildHelper;
+
+    private BuildInfoStorage(BuildPreparer buildPreparer, BuildHelper buildHelper)
     {
-        private readonly BuildPreparer buildPreparer;
+        this.buildPreparer = buildPreparer;
+        this.buildHelper = buildHelper;
+        modulesWithDeps = new Dictionary<Dep, List<DepWithCommitHash>>();
+    }
 
-        [JsonProperty]
-        private readonly Dictionary<Dep, List<DepWithCommitHash>> modulesWithDeps;
-        private readonly BuildHelper buildHelper;
-
-        private BuildInfoStorage(BuildPreparer buildPreparer, BuildHelper buildHelper)
+    public static BuildInfoStorage Deserialize()
+    {
+        var buildPreparer = BuildPreparer.Shared;
+        var buildHelper = BuildHelper.Shared;
+        try
         {
-            this.buildPreparer = buildPreparer;
-            this.buildHelper = buildHelper;
-            modulesWithDeps = new Dictionary<Dep, List<DepWithCommitHash>>();
-        }
-
-        public static BuildInfoStorage Deserialize()
-        {
-            var buildPreparer = BuildPreparer.Shared;
-            var buildHelper = BuildHelper.Shared;
-            try
-            {
-                var data = File.ReadAllText(SerializePath());
-                var cfg = new JsonSerializerSettings {ContractResolver = new DictionaryFriendlyContractResolver()};
-                var storage = JsonConvert.DeserializeObject<BuildInfoStorage>(data, cfg);
-                return storage ?? new BuildInfoStorage(buildPreparer, buildHelper);
-            }
-            catch (Exception)
-            {
-                return new BuildInfoStorage(buildPreparer, buildHelper);
-            }
-        }
-
-        public void RemoveBuildInfo(string moduleName)
-        {
-            var keys = modulesWithDeps.Keys.ToList();
-            var toRemove = keys.Where(m => modulesWithDeps[m].Any(dep => dep.Dep.Name == moduleName)).ToList();
-            foreach (var dep in toRemove)
-                modulesWithDeps.Remove(dep);
-        }
-
-        public void AddBuiltModule(Dep module, Dictionary<string, string> currentCommitHashes)
-        {
-            var configs = new ConfigurationParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, module.Name))).GetConfigurations();
-            var childConfigs = new ConfigurationManager(module.Name, configs).ProcessedChildrenConfigurations(module);
-            childConfigs.Add(module.Configuration);
-
-            foreach (var childConfig in childConfigs)
-            {
-                var deps = buildPreparer.BuildConfigsGraph(module.Name, childConfig).Keys.ToList();
-                var depsWithCommit = deps
-                    .Where(dep => currentCommitHashes.ContainsKey(dep.Name) && currentCommitHashes[dep.Name] != null)
-                    .Select(dep => new DepWithCommitHash(dep, currentCommitHashes[dep.Name]))
-                    .ToList();
-                modulesWithDeps[new Dep(module.Name, null, childConfig)] = depsWithCommit;
-            }
-        }
-
-        public void Save()
-        {
+            var data = File.ReadAllText(SerializePath());
             var cfg = new JsonSerializerSettings {ContractResolver = new DictionaryFriendlyContractResolver()};
-            var data = JsonConvert.SerializeObject(this, Formatting.Indented, cfg);
-            var path = SerializePath();
-            var dir = Path.GetDirectoryName(path);
-            if (dir != null && !Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-            File.WriteAllText(path, data);
+            var storage = JsonConvert.DeserializeObject<BuildInfoStorage>(data, cfg);
+            return storage ?? new BuildInfoStorage(buildPreparer, buildHelper);
         }
-
-        public List<Dep> GetUpdatedModules(List<Dep> modules, Dictionary<string, string> currentCommitHashes)
+        catch (Exception)
         {
-            return modules.AsParallel().Where(module => IsModuleUpdate(currentCommitHashes, module)).ToList();
+            return new BuildInfoStorage(buildPreparer, buildHelper);
         }
+    }
 
-        private static string SerializePath()
-        {
-            return Path.Combine(Helper.CurrentWorkspace, ".cement", "builtCache");
-        }
+    public void RemoveBuildInfo(string moduleName)
+    {
+        var keys = modulesWithDeps.Keys.ToList();
+        var toRemove = keys.Where(m => modulesWithDeps[m].Any(dep => dep.Dep.Name == moduleName)).ToList();
+        foreach (var dep in toRemove)
+            modulesWithDeps.Remove(dep);
+    }
 
-        private bool IsModuleUpdate(Dictionary<string, string> currentCommitHashes, Dep module)
+    public void AddBuiltModule(Dep module, Dictionary<string, string> currentCommitHashes)
+    {
+        var configs = new ConfigurationParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, module.Name))).GetConfigurations();
+        var childConfigs = new ConfigurationManager(module.Name, configs).ProcessedChildrenConfigurations(module);
+        childConfigs.Add(module.Configuration);
+
+        foreach (var childConfig in childConfigs)
         {
-            return
-                !modulesWithDeps.ContainsKey(module) ||
-                modulesWithDeps[module].Any(
-                    dep => !currentCommitHashes.ContainsKey(dep.Dep.Name) ||
-                           currentCommitHashes[dep.Dep.Name] != dep.CommitHash ||
-                           !buildHelper.HasAllOutput(dep.Dep.Name, dep.Dep.Configuration, false)) ||
-                !buildHelper.HasAllOutput(module.Name, module.Configuration, false);
+            var deps = buildPreparer.BuildConfigsGraph(module.Name, childConfig).Keys.ToList();
+            var depsWithCommit = deps
+                .Where(dep => currentCommitHashes.ContainsKey(dep.Name) && currentCommitHashes[dep.Name] != null)
+                .Select(dep => new DepWithCommitHash(dep, currentCommitHashes[dep.Name]))
+                .ToList();
+            modulesWithDeps[new Dep(module.Name, null, childConfig)] = depsWithCommit;
         }
+    }
+
+    public void Save()
+    {
+        var cfg = new JsonSerializerSettings {ContractResolver = new DictionaryFriendlyContractResolver()};
+        var data = JsonConvert.SerializeObject(this, Formatting.Indented, cfg);
+        var path = SerializePath();
+        var dir = Path.GetDirectoryName(path);
+        if (dir != null && !Directory.Exists(dir))
+            Directory.CreateDirectory(dir);
+        File.WriteAllText(path, data);
+    }
+
+    public List<Dep> GetUpdatedModules(List<Dep> modules, Dictionary<string, string> currentCommitHashes)
+    {
+        return modules.AsParallel().Where(module => IsModuleUpdate(currentCommitHashes, module)).ToList();
+    }
+
+    private static string SerializePath()
+    {
+        return Path.Combine(Helper.CurrentWorkspace, ".cement", "builtCache");
+    }
+
+    private bool IsModuleUpdate(Dictionary<string, string> currentCommitHashes, Dep module)
+    {
+        return
+            !modulesWithDeps.ContainsKey(module) ||
+            modulesWithDeps[module].Any(
+                dep => !currentCommitHashes.ContainsKey(dep.Dep.Name) ||
+                       currentCommitHashes[dep.Dep.Name] != dep.CommitHash ||
+                       !buildHelper.HasAllOutput(dep.Dep.Name, dep.Dep.Configuration, false)) ||
+            !buildHelper.HasAllOutput(module.Name, module.Configuration, false);
     }
 }

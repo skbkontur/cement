@@ -1,12 +1,11 @@
 using Common.YamlParsers.Models;
 
-namespace Common.YamlParsers.V2
+namespace Common.YamlParsers.V2;
+
+public sealed class ConfigSection
 {
-    public sealed class ConfigSection
-    {
-        public ConfigSectionTitle Title { get; set; }
-        public DepsSection DepsSection { get; set; }
-        public BuildData[] BuildSection { get; set; }
-        public InstallData InstallSection { get; set; }
-    }
+    public ConfigSectionTitle Title { get; set; }
+    public DepsSection DepsSection { get; set; }
+    public BuildData[] BuildSection { get; set; }
+    public InstallData InstallSection { get; set; }
 }

@@ -1,9 +1,8 @@
-﻿namespace Common
+﻿namespace Common;
+
+public enum TreeishType
 {
-    public enum TreeishType
-    {
-        Branch,
-        Tag,
-        CommitHash
-    }
+    Branch,
+    Tag,
+    CommitHash
 }

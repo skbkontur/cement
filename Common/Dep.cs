@@ -6,110 +6,109 @@ using System.Linq;
 using Common.JsonConverters;
 using Newtonsoft.Json;
 
-namespace Common
+namespace Common;
+
+[JsonConverter(typeof(DepJsonConverter))]
+public sealed class Dep : IEquatable<Dep>
 {
-    [JsonConverter(typeof(DepJsonConverter))]
-    public sealed class Dep : IEquatable<Dep>
+    private static readonly ConcurrentDictionary<string, string> DepDefaultConfigurationCache = new();
+
+    public Dep(string name, string treeish = null, string configuration = null)
     {
-        private static readonly ConcurrentDictionary<string, string> DepDefaultConfigurationCache = new();
+        Name = name;
+        Treeish = treeish;
+        Configuration = configuration;
+    }
 
-        public Dep(string name, string treeish = null, string configuration = null)
+    public Dep(string fromYamlString)
+    {
+        var tokens = new List<string>();
+        var currentToken = "";
+        fromYamlString += "@";
+        for (var pos = 0; pos < fromYamlString.Length; pos++)
         {
-            Name = name;
-            Treeish = treeish;
-            Configuration = configuration;
-        }
-
-        public Dep(string fromYamlString)
-        {
-            var tokens = new List<string>();
-            var currentToken = "";
-            fromYamlString += "@";
-            for (var pos = 0; pos < fromYamlString.Length; pos++)
+            if ((fromYamlString[pos] == '/' || fromYamlString[pos] == '@') &&
+                (pos == 0 || fromYamlString[pos - 1] != '\\'))
             {
-                if ((fromYamlString[pos] == '/' || fromYamlString[pos] == '@') &&
-                    (pos == 0 || fromYamlString[pos - 1] != '\\'))
-                {
-                    tokens.Add(currentToken);
-                    currentToken = fromYamlString[pos].ToString();
-                }
-                else
-                    currentToken += fromYamlString[pos];
+                tokens.Add(currentToken);
+                currentToken = fromYamlString[pos].ToString();
             }
-
-            Name = tokens[0];
-            foreach (var token in tokens.Select(UnEscapeBadChars))
-            {
-                if (token.StartsWith("@"))
-                    Treeish = token.Substring(1);
-                if (token.StartsWith("/"))
-                    Configuration = token.Substring(1);
-            }
-
-            if (Treeish == "")
-                Treeish = null;
-            if (Configuration == "")
-                Configuration = null;
+            else
+                currentToken += fromYamlString[pos];
         }
 
-        public string Name { get; }
-        public string Treeish { get; set; }
-        public string Configuration { get; set; }
-
-        public void UpdateConfigurationIfNull()
+        Name = tokens[0];
+        foreach (var token in tokens.Select(UnEscapeBadChars))
         {
-            UpdateConfigurationIfNull(Helper.CurrentWorkspace);
+            if (token.StartsWith("@"))
+                Treeish = token.Substring(1);
+            if (token.StartsWith("/"))
+                Configuration = token.Substring(1);
         }
 
-        public void UpdateConfigurationIfNull(string workspace)
+        if (Treeish == "")
+            Treeish = null;
+        if (Configuration == "")
+            Configuration = null;
+    }
+
+    public string Name { get; }
+    public string Treeish { get; set; }
+    public string Configuration { get; set; }
+
+    public void UpdateConfigurationIfNull()
+    {
+        UpdateConfigurationIfNull(Helper.CurrentWorkspace);
+    }
+
+    public void UpdateConfigurationIfNull(string workspace)
+    {
+        if (!string.IsNullOrEmpty(Configuration)) return;
+        var path = Path.Combine(workspace, Name);
+        if (!DepDefaultConfigurationCache.ContainsKey(path))
         {
-            if (!string.IsNullOrEmpty(Configuration)) return;
-            var path = Path.Combine(workspace, Name);
-            if (!DepDefaultConfigurationCache.ContainsKey(path))
-            {
-                DepDefaultConfigurationCache[path] =
-                    new ConfigurationParser(new FileInfo(Path.Combine(workspace, Name)))
-                        .GetDefaultConfigurationName();
-            }
-
-            Configuration = DepDefaultConfigurationCache[path];
+            DepDefaultConfigurationCache[path] =
+                new ConfigurationParser(new FileInfo(Path.Combine(workspace, Name)))
+                    .GetDefaultConfigurationName();
         }
 
-        public bool Equals(Dep dep)
-        {
-            if (dep == null)
-                return false;
-            return Name == dep.Name && Treeish == dep.Treeish && Configuration == dep.Configuration;
-        }
+        Configuration = DepDefaultConfigurationCache[path];
+    }
 
-        public override int GetHashCode()
-        {
-            return ToString().GetHashCode();
-        }
+    public bool Equals(Dep dep)
+    {
+        if (dep == null)
+            return false;
+        return Name == dep.Name && Treeish == dep.Treeish && Configuration == dep.Configuration;
+    }
 
-        public override string ToString()
-        {
-            return Name +
-                   (string.IsNullOrEmpty(Configuration) ? "" : Helper.ConfigurationDelimiter + Configuration) +
-                   (string.IsNullOrEmpty(Treeish) ? "" : "@" + Treeish);
-        }
+    public override int GetHashCode()
+    {
+        return ToString().GetHashCode();
+    }
 
-        public string ToYamlString()
-        {
-            return Name +
-                   (string.IsNullOrEmpty(Configuration) ? "" : Helper.ConfigurationDelimiter + Configuration) +
-                   (string.IsNullOrEmpty(Treeish) ? "" : "@" + Treeish.Replace("@", "\\@").Replace("/", "\\/"));
-        }
+    public override string ToString()
+    {
+        return Name +
+               (string.IsNullOrEmpty(Configuration) ? "" : Helper.ConfigurationDelimiter + Configuration) +
+               (string.IsNullOrEmpty(Treeish) ? "" : "@" + Treeish);
+    }
 
-        public string ToBuildString()
-        {
-            return Name +
-                   (Configuration == null || Configuration.Equals("full-build") ? "" : "/" + Configuration);
-        }
+    public string ToYamlString()
+    {
+        return Name +
+               (string.IsNullOrEmpty(Configuration) ? "" : Helper.ConfigurationDelimiter + Configuration) +
+               (string.IsNullOrEmpty(Treeish) ? "" : "@" + Treeish.Replace("@", "\\@").Replace("/", "\\/"));
+    }
 
-        private string UnEscapeBadChars(string str)
-        {
-            return str.Replace("\\@", "@").Replace("\\/", "/");
-        }
+    public string ToBuildString()
+    {
+        return Name +
+               (Configuration == null || Configuration.Equals("full-build") ? "" : "/" + Configuration);
+    }
+
+    private string UnEscapeBadChars(string str)
+    {
+        return str.Replace("\\@", "@").Replace("\\/", "/");
     }
 }

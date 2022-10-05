@@ -1,10 +1,9 @@
-﻿namespace Common.Exceptions
+﻿namespace Common.Exceptions;
+
+public sealed class TimeoutException : CementException
 {
-    public sealed class TimeoutException : CementException
+    public TimeoutException(string format)
+        : base(format)
     {
-        public TimeoutException(string format)
-            : base(format)
-        {
-        }
     }
 }

@@ -1,14 +1,13 @@
-﻿namespace Common
-{
-    public sealed class DepWithParent
-    {
-        public DepWithParent(Dep dep, string parentModule)
-        {
-            Dep = dep;
-            ParentModule = parentModule;
-        }
+﻿namespace Common;
 
-        public Dep Dep { get; }
-        public string ParentModule { get; }
+public sealed class DepWithParent
+{
+    public DepWithParent(Dep dep, string parentModule)
+    {
+        Dep = dep;
+        ParentModule = parentModule;
     }
+
+    public Dep Dep { get; }
+    public string ParentModule { get; }
 }

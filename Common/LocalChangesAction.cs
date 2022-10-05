@@ -1,10 +1,9 @@
-﻿namespace Common
+﻿namespace Common;
+
+public enum LocalChangesAction
 {
-    public enum LocalChangesAction
-    {
-        Nothing,
-        Reset,
-        ForceLocal,
-        Pull
-    }
+    Nothing,
+    Reset,
+    ForceLocal,
+    Pull
 }

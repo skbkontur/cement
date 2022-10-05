@@ -1,10 +1,9 @@
-﻿namespace Common.Exceptions
+﻿namespace Common.Exceptions;
+
+public sealed class CementBuildException : CementException
 {
-    public sealed class CementBuildException : CementException
+    public CementBuildException(string message)
+        : base(message)
     {
-        public CementBuildException(string message)
-            : base(message)
-        {
-        }
     }
 }

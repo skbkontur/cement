@@ -10,119 +10,118 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace Common.Updaters
+namespace Common.Updaters;
+
+[PublicAPI]
+public sealed class GitHubReleaseCementUpdater : ICementUpdater
 {
-    [PublicAPI]
-    public sealed class GitHubReleaseCementUpdater : ICementUpdater
+    private const string Owner = "skbkontur";
+    private const string Repository = "cement";
+    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(5);
+
+    private readonly ILogger log;
+    private readonly ConsoleWriter consoleWriter;
+    private readonly HttpClient httpClient;
+
+    public GitHubReleaseCementUpdater(ILogger log, ConsoleWriter consoleWriter)
     {
-        private const string Owner = "skbkontur";
-        private const string Repository = "cement";
-        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(5);
+        this.log = log;
+        this.consoleWriter = consoleWriter;
+        httpClient = new HttpClient();
+    }
 
-        private readonly ILogger log;
-        private readonly ConsoleWriter consoleWriter;
-        private readonly HttpClient httpClient;
+    public string Name => "GitHub";
 
-        public GitHubReleaseCementUpdater(ILogger log, ConsoleWriter consoleWriter)
+    public string GetNewCommitHash()
+    {
+        try
         {
-            this.log = log;
-            this.consoleWriter = consoleWriter;
-            httpClient = new HttpClient();
+            var gitHubRelease = LoadGitHubRelease();
+            if (gitHubRelease.Assets.Count == 1)
+                return gitHubRelease.TargetCommitsh;
+
+            log.LogError(
+                "The GitHub Release '{GitHubReleaseVersion}' has incorrect number of assets: {GitHubReleaseAssetsCount}\n" +
+                "{GitHubReleaseDetails}", gitHubRelease.Name, gitHubRelease.Assets.Count, gitHubRelease);
+
+            throw new CementException($"The GitHub Release '{gitHubRelease.Name}' is invalid");
         }
-
-        public string Name => "GitHub";
-
-        public string GetNewCommitHash()
+        catch (Exception ex)
         {
-            try
+            log.LogError(ex, "Failed to look for updates on github");
+            consoleWriter.WriteWarning("Failed to look for updates on github: " + ex.Message);
+
+            return null;
+        }
+    }
+
+    public byte[] GetNewCementZip()
+    {
+        try
+        {
+            var gitHubRelease = LoadGitHubRelease();
+            var asset = gitHubRelease.Assets[0];
+
+            return LoadGitHubReleaseAsset(asset);
+        }
+        catch (Exception ex)
+        {
+            log.LogError(ex, "Failed to look for updates on github");
+            consoleWriter.WriteWarning("Failed to look for updates on github: " + ex.Message);
+
+            return null;
+        }
+    }
+
+    public void Dispose()
+    {
+        httpClient.Dispose();
+    }
+
+    private byte[] LoadGitHubReleaseAsset(GitHubAsset gitHubAsset)
+    {
+        using var cts = new CancellationTokenSource(DefaultTimeout);
+
+        var uri = new Uri(gitHubAsset.BrowserDownloadUrl);
+        using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
+        {
+            Headers =
             {
-                var gitHubRelease = LoadGitHubRelease();
-                if (gitHubRelease.Assets.Count == 1)
-                    return gitHubRelease.TargetCommitsh;
-
-                log.LogError(
-                    "The GitHub Release '{GitHubReleaseVersion}' has incorrect number of assets: {GitHubReleaseAssetsCount}\n" +
-                    "{GitHubReleaseDetails}", gitHubRelease.Name, gitHubRelease.Assets.Count, gitHubRelease);
-
-                throw new CementException($"The GitHub Release '{gitHubRelease.Name}' is invalid");
+                Accept = {MediaTypeWithQualityHeaderValue.Parse(gitHubAsset.ContentType)},
+                UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
             }
-            catch (Exception ex)
-            {
-                log.LogError(ex, "Failed to look for updates on github");
-                consoleWriter.WriteWarning("Failed to look for updates on github: " + ex.Message);
+        };
 
-                return null;
+        using var httpResponseMessage = httpClient.Send(httpRequestMessage, cts.Token);
+        httpResponseMessage.EnsureSuccessStatusCode();
+
+        using var stream = httpResponseMessage.Content.ReadAsStream(cts.Token);
+        return stream.ReadAllBytes();
+    }
+
+    private GitHubRelease LoadGitHubRelease()
+    {
+        using var cts = new CancellationTokenSource(DefaultTimeout);
+
+        var uri = new Uri($"https://api.github.com/repos/{Owner}/{Repository}/releases/latest");
+        using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
+        {
+            Headers =
+            {
+                Accept = {MediaTypeWithQualityHeaderValue.Parse("application/vnd.github.v3+json")},
+                UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
             }
-        }
+        };
 
-        public byte[] GetNewCementZip()
-        {
-            try
-            {
-                var gitHubRelease = LoadGitHubRelease();
-                var asset = gitHubRelease.Assets[0];
+        using var httpResponseMessage = httpClient.Send(httpRequestMessage, cts.Token);
+        httpResponseMessage.EnsureSuccessStatusCode();
 
-                return LoadGitHubReleaseAsset(asset);
-            }
-            catch (Exception ex)
-            {
-                log.LogError(ex, "Failed to look for updates on github");
-                consoleWriter.WriteWarning("Failed to look for updates on github: " + ex.Message);
+        using var stream = httpResponseMessage.Content.ReadAsStream(cts.Token);
+        using var streamReader = new StreamReader(stream, Encoding.UTF8);
 
-                return null;
-            }
-        }
+        var content = streamReader.ReadToEnd();
+        var gitHubRelease = JsonConvert.DeserializeObject<GitHubRelease>(content);
 
-        public void Dispose()
-        {
-            httpClient.Dispose();
-        }
-
-        private byte[] LoadGitHubReleaseAsset(GitHubAsset gitHubAsset)
-        {
-            using var cts = new CancellationTokenSource(DefaultTimeout);
-
-            var uri = new Uri(gitHubAsset.BrowserDownloadUrl);
-            using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
-            {
-                Headers =
-                {
-                    Accept = {MediaTypeWithQualityHeaderValue.Parse(gitHubAsset.ContentType)},
-                    UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
-                }
-            };
-
-            using var httpResponseMessage = httpClient.Send(httpRequestMessage, cts.Token);
-            httpResponseMessage.EnsureSuccessStatusCode();
-
-            using var stream = httpResponseMessage.Content.ReadAsStream(cts.Token);
-            return stream.ReadAllBytes();
-        }
-
-        private GitHubRelease LoadGitHubRelease()
-        {
-            using var cts = new CancellationTokenSource(DefaultTimeout);
-
-            var uri = new Uri($"https://api.github.com/repos/{Owner}/{Repository}/releases/latest");
-            using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
-            {
-                Headers =
-                {
-                    Accept = {MediaTypeWithQualityHeaderValue.Parse("application/vnd.github.v3+json")},
-                    UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
-                }
-            };
-
-            using var httpResponseMessage = httpClient.Send(httpRequestMessage, cts.Token);
-            httpResponseMessage.EnsureSuccessStatusCode();
-
-            using var stream = httpResponseMessage.Content.ReadAsStream(cts.Token);
-            using var streamReader = new StreamReader(stream, Encoding.UTF8);
-
-            var content = streamReader.ReadToEnd();
-            var gitHubRelease = JsonConvert.DeserializeObject<GitHubRelease>(content);
-
-            return gitHubRelease;
-        }
+        return gitHubRelease;
     }
 }

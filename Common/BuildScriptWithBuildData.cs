@@ -1,15 +1,14 @@
-﻿namespace Common
+﻿namespace Common;
+
+public sealed class BuildScriptWithBuildData
 {
-    public sealed class BuildScriptWithBuildData
+    public BuildScriptWithBuildData(string script, BuildData buildData)
     {
-        public BuildScriptWithBuildData(string script, BuildData buildData)
-        {
-            Script = script;
-            BuildData = buildData;
-        }
-
-        public string Script { get; }
-
-        public BuildData BuildData { get; }
+        Script = script;
+        BuildData = buildData;
     }
+
+    public string Script { get; }
+
+    public BuildData BuildData { get; }
 }

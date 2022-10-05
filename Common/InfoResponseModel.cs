@@ -1,12 +1,11 @@
-﻿namespace Common
-{
-    public sealed class InfoResponseModel
-    {
-        public InfoResponseModel(string commitHash)
-        {
-            CommitHash = commitHash;
-        }
+﻿namespace Common;
 
-        public string CommitHash { get; }
+public sealed class InfoResponseModel
+{
+    public InfoResponseModel(string commitHash)
+    {
+        CommitHash = commitHash;
     }
+
+    public string CommitHash { get; }
 }

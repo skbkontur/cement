@@ -1,10 +1,9 @@
-﻿namespace Common.Exceptions
+﻿namespace Common.Exceptions;
+
+public sealed class GitCheckoutException : CementException
 {
-    public sealed class GitCheckoutException : CementException
+    public GitCheckoutException(string message)
+        : base(message)
     {
-        public GitCheckoutException(string message)
-            : base(message)
-        {
-        }
     }
 }

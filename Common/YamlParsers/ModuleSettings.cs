@@ -1,7 +1,6 @@
-﻿namespace Common.YamlParsers
+﻿namespace Common.YamlParsers;
+
+public sealed class ModuleSettings
 {
-    public sealed class ModuleSettings
-    {
-        public bool IsContentModule;
-    }
+    public bool IsContentModule;
 }

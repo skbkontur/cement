@@ -1,12 +1,11 @@
 using System;
 
-namespace Common
+namespace Common;
+
+public static class Platform
 {
-    public static class Platform
+    public static bool IsUnix()
     {
-        public static bool IsUnix()
-        {
-            return OperatingSystem.IsLinux() || OperatingSystem.IsMacOS();
-        }
+        return OperatingSystem.IsLinux() || OperatingSystem.IsMacOS();
     }
 }

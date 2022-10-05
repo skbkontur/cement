@@ -1,10 +1,9 @@
-﻿namespace Common.Exceptions
+﻿namespace Common.Exceptions;
+
+public sealed class GitLocalChangesException : CementException
 {
-    public sealed class GitLocalChangesException : CementException
+    public GitLocalChangesException(string s)
+        : base(s)
     {
-        public GitLocalChangesException(string s)
-            : base(s)
-        {
-        }
     }
 }

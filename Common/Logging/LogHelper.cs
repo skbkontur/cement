@@ -3,58 +3,57 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Logging
+namespace Common.Logging;
+
+public static class LogHelper
 {
-    public static class LogHelper
+    public static void InitializeFileAndElkLogging(string logFileName, string command)
     {
-        public static void InitializeFileAndElkLogging(string logFileName, string command)
+        LogManager.InitializeFileLogger(logFileName);
+        LogManager.InitializeHerculesLogger(command);
+    }
+
+    public static void InitializeGlobalFileAndElkLogging(string command)
+    {
+        LogManager.InitializeFileLogger(null);
+        LogManager.InitializeHerculesLogger(command);
+    }
+
+    public static void SaveLog(string log)
+    {
+        try
         {
-            LogManager.InitializeFileLogger(logFileName);
-            LogManager.InitializeHerculesLogger(command);
+            var file = Path.Combine(Helper.GetCementInstallDirectory(), "log.log");
+            if (!File.Exists(file))
+                File.Create(file).Close();
+            File.AppendAllText(file, "\n" + log);
         }
-
-        public static void InitializeGlobalFileAndElkLogging(string command)
+        catch (Exception)
         {
-            LogManager.InitializeFileLogger(null);
-            LogManager.InitializeHerculesLogger(command);
+            // ignored
         }
+    }
 
-        public static void SaveLog(string log)
+    public static void SendSavedLog()
+    {
+        try
         {
-            try
+            var file = Path.Combine(Helper.GetCementInstallDirectory(), "log.log");
+            if (!File.Exists(file))
+                File.Create(file).Close();
+            var lines = File.ReadAllLines(file).Where(l => l.Length > 0).ToList();
+            File.WriteAllText(file, "");
+
+            var log = LogManager.GetLogger("SAVED-LOG");
+
+            foreach (var line in lines)
             {
-                var file = Path.Combine(Helper.GetCementInstallDirectory(), "log.log");
-                if (!File.Exists(file))
-                    File.Create(file).Close();
-                File.AppendAllText(file, "\n" + log);
-            }
-            catch (Exception)
-            {
-                // ignored
+                log.LogDebug(line);
             }
         }
-
-        public static void SendSavedLog()
+        catch (Exception)
         {
-            try
-            {
-                var file = Path.Combine(Helper.GetCementInstallDirectory(), "log.log");
-                if (!File.Exists(file))
-                    File.Create(file).Close();
-                var lines = File.ReadAllLines(file).Where(l => l.Length > 0).ToList();
-                File.WriteAllText(file, "");
-
-                var log = LogManager.GetLogger("SAVED-LOG");
-
-                foreach (var line in lines)
-                {
-                    log.LogDebug(line);
-                }
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
+            // ignored
         }
     }
 }
