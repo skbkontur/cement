@@ -90,7 +90,7 @@ namespace Commands
                     cleaner.Clean(module);
             }
 
-            BuildDepsCommand.TryNugetRestore(new List<Dep> {module}, builder);
+            BuildDepsCommand.TryNugetRestore(consoleWriter, new List<Dep> {module}, builder);
 
             if (!builder.Build(module))
             {

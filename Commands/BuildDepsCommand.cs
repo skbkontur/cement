@@ -33,12 +33,11 @@ namespace Commands
             this.buildPreparer = buildPreparer;
         }
 
-        public static void TryNugetRestore(List<Dep> modulesToUpdate, ModuleBuilder builder)
+        public static void TryNugetRestore(ConsoleWriter consoleWriter, List<Dep> modulesToUpdate, ModuleBuilder builder)
         {
             Log.LogDebug("Restoring NuGet packages");
-
-            var consoleWriter = ConsoleWriter.Shared;
             consoleWriter.ResetProgress();
+
             try
             {
                 var nugetRunCommand = NuGetHelper.Shared.GetNugetRunCommand();
@@ -136,7 +135,7 @@ namespace Commands
             if (FeatureFlags.CleanBeforeBuild || buildSettings.CleanBeforeBuild)
                 TryCleanModules(modulesToBuild, cleaner);
 
-            TryNugetRestore(modulesToBuild, builder);
+            TryNugetRestore(consoleWriter, modulesToBuild, builder);
 
             var isSuccessful = parallel ? BuildDepsParallel(modulesOrder, builtStorage, modulesToBuild, builder) : BuildDepsSequential(modulesOrder, builtStorage, modulesToBuild, builder);
             return isSuccessful ? 0 : -1;
