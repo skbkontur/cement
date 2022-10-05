@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Commands;
 using Common;
+using Common.DepsValidators;
 using Common.Exceptions;
 using Common.Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,11 +34,13 @@ namespace cm
             services.AddSingleton<CycleDetector>();
             services.AddSingleton(CementSettingsRepository.Get);
             services.AddSingleton<IUsagesProvider, UsagesProvider>();
+            services.AddSingleton<IDepsValidatorFactory>(DepsValidatorFactory.Shared);
             services.AddSingleton<ModuleHelper>();
 
             services.AddSingleton(consoleWriter);
             services.AddSingleton(featureFlags);
 
+            services.AddSingleton<BuildPreparer>();
             services.AddCommand<HelpCommand>();
             services.AddCommand<GetCommand>();
             services.AddCommand<UpdateDepsCommand>();
