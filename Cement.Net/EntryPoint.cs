@@ -36,6 +36,7 @@ namespace cm
             services.AddSingleton<IUsagesProvider, UsagesProvider>();
             services.AddSingleton<IDepsValidatorFactory>(DepsValidatorFactory.Shared);
             services.AddSingleton<ModuleHelper>();
+            services.AddSingleton<DepsPatcherProject>();
 
             services.AddSingleton(consoleWriter);
             services.AddSingleton(featureFlags);

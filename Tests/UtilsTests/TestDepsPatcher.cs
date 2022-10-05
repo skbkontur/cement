@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Common;
+using Common.DepsValidators;
 using Common.Exceptions;
 using NUnit.Framework;
 
@@ -7,6 +8,15 @@ namespace Tests.UtilsTests
 {
     public class TestDepsPatcher
     {
+        private readonly ConsoleWriter consoleWriter;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
+
+        public TestDepsPatcher()
+        {
+            consoleWriter = ConsoleWriter.Shared;
+            depsValidatorFactory = new DepsValidatorFactory();
+        }
+
         [Test]
         public void SimpleTest()
         {
@@ -775,7 +785,7 @@ full-build:
 
         private string Patch(TempDirectory workspace, string configuration, Dep dep)
         {
-            new DepsPatcher(workspace.Path, "A", dep).Patch(configuration);
+            new DepsPatcher(consoleWriter, depsValidatorFactory, workspace.Path, "A", dep).Patch(configuration);
             var result = File.ReadAllText(Path.Combine(workspace.Path, "A", Helper.YamlSpecFile));
             return result;
         }

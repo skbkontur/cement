@@ -21,19 +21,21 @@ public sealed class RefFixCommand : Command
         Location = CommandLocation.RootModuleDirectory
     };
     private readonly ConsoleWriter consoleWriter;
-
     private readonly FixReferenceResult fixReferenceResult = new();
     private readonly HashSet<string> missingModules = new();
     private readonly FixReferenceResultPrinter fixReferenceResultPrinter;
+    private readonly DepsPatcherProject depsPatcherProject;
+
     private bool hasFixedReferences;
     private bool fixExternal;
     private string rootModuleName;
     private string oldYamlContent;
 
-    public RefFixCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+    public RefFixCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, DepsPatcherProject depsPatcherProject)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
+        this.depsPatcherProject = depsPatcherProject;
         fixReferenceResultPrinter = new FixReferenceResultPrinter(consoleWriter);
     }
 
@@ -210,7 +212,7 @@ public sealed class RefFixCommand : Command
         var toAdd = DepsPatcherProject.GetSmallerCementConfigs(Path.Combine(Helper.CurrentWorkspace, moduleDep), configsWithArtifact);
         foreach (var configDep in toAdd)
         {
-            DepsPatcherProject.PatchDepsForProject(Directory.GetCurrentDirectory(), new Dep(moduleDep, null, configDep), project);
+            depsPatcherProject.PatchDepsForProject(Directory.GetCurrentDirectory(), new Dep(moduleDep, null, configDep), project);
         }
     }
 

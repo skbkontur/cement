@@ -9,12 +9,12 @@ public sealed class AnalyzerCommand : ICommand
     private readonly ConsoleWriter consoleWriter;
     private readonly Dictionary<string, ICommand> subCommands;
 
-    public AnalyzerCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+    public AnalyzerCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, DepsPatcherProject depsPatcherProject)
     {
         this.consoleWriter = consoleWriter;
         subCommands = new Dictionary<string, ICommand>
         {
-            {"add", new AnalyzerAddCommand(consoleWriter, featureFlags)}
+            {"add", new AnalyzerAddCommand(consoleWriter, featureFlags, depsPatcherProject)}
         };
     }
 

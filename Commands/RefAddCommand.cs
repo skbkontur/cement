@@ -21,7 +21,7 @@ public sealed class RefAddCommand : Command
     private readonly GetCommand getCommand;
     private readonly BuildDepsCommand buildDepsCommand;
     private readonly BuildCommand buildCommand;
-
+    private readonly DepsPatcherProject depsPatcherProject;
     private string project;
     private Dep dep;
     private bool testReplaces;
@@ -29,13 +29,14 @@ public sealed class RefAddCommand : Command
     private bool force;
 
     public RefAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand,
-                         BuildDepsCommand buildDepsCommand, BuildCommand buildCommand)
+                         BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.getCommand = getCommand;
         this.buildDepsCommand = buildDepsCommand;
         this.buildCommand = buildCommand;
+        this.depsPatcherProject = depsPatcherProject;
     }
 
     public override string Name => "add";
@@ -97,7 +98,7 @@ public sealed class RefAddCommand : Command
         if (!File.Exists(Path.Combine(currentModuleDirectory, Helper.YamlSpecFile)))
             throw new CementException(
                 "No module.yaml file. You should patch deps file manually or convert old spec to module.yaml (cm convert-spec)");
-        DepsPatcherProject.PatchDepsForProject(currentModuleDirectory, dep, project);
+        depsPatcherProject.PatchDepsForProject(currentModuleDirectory, dep, project);
         return 0;
     }
 

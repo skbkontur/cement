@@ -10,19 +10,26 @@ namespace Common;
 
 public sealed class DepsPatcher
 {
+    private readonly ConsoleWriter consoleWriter;
+    private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly string workspace;
     private readonly string patchModule;
     private readonly Dep patchDep;
     private readonly string yamlPath;
 
-    public DepsPatcher(string workspace, string patchModule, Dep patchDep)
+    public DepsPatcher(ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory,
+                       string workspace, string patchModule, Dep patchDep)
     {
+        this.consoleWriter = consoleWriter;
+        this.depsValidatorFactory = depsValidatorFactory;
         this.workspace = workspace;
         this.patchModule = patchModule;
         this.patchDep = patchDep;
         yamlPath = Path.Combine(workspace, patchModule, Helper.YamlSpecFile);
+
         if (!File.Exists(yamlPath))
             throw new CementException("module.yaml not found in " + yamlPath);
+
         ModuleYamlFile.ReplaceTabs(yamlPath);
     }
 
@@ -61,9 +68,7 @@ public sealed class DepsPatcher
 
     private bool TryReplaceFromParent(string patchConfiguration)
     {
-        var parser = new DepsYamlParser(
-            ConsoleWriter.Shared, DepsValidatorFactory.Shared,
-            new FileInfo(Directory.GetParent(yamlPath).FullName));
+        var parser = new DepsYamlParser(consoleWriter, depsValidatorFactory, new FileInfo(Directory.GetParent(yamlPath).FullName));
 
         var had = parser.Get(patchConfiguration).Deps.Where(d => d.Name == patchDep.Name).ToList();
         if (!had.Any())
@@ -81,9 +86,7 @@ public sealed class DepsPatcher
 
     private bool TryReplaceInSameSection(string patchConfiguration)
     {
-        var parser = new DepsYamlParser(
-            ConsoleWriter.Shared, DepsValidatorFactory.Shared,
-            new FileInfo(Directory.GetParent(yamlPath).FullName));
+        var parser = new DepsYamlParser(consoleWriter, depsValidatorFactory, new FileInfo(Directory.GetParent(yamlPath).FullName));
 
         var hadInSameSection = parser.GetDepsFromConfig(patchConfiguration).Deps.Where(d => d.Name == patchDep.Name).Distinct().ToList();
         if (!hadInSameSection.Any())
@@ -99,9 +102,7 @@ public sealed class DepsPatcher
 
     private void FixChildren(string patchConfiguration)
     {
-        var parser = new DepsYamlParser(
-            ConsoleWriter.Shared, DepsValidatorFactory.Shared,
-            new FileInfo(Directory.GetParent(yamlPath).FullName));
+        var parser = new DepsYamlParser(consoleWriter, depsValidatorFactory, new FileInfo(Directory.GetParent(yamlPath).FullName));
 
         var hadDepsInThisSectionAndParrents = parser.Get(patchConfiguration).Deps.Where(d => d.Name == patchDep.Name).ToList();
         if (!hadDepsInThisSectionAndParrents.Any())
@@ -120,9 +121,7 @@ public sealed class DepsPatcher
     private void FixChild(Dep currentParrentDep, string childConfiguration)
     {
         RemoveDepLine(childConfiguration, currentParrentDep, false);
-        var parser = new DepsYamlParser(
-            ConsoleWriter.Shared, DepsValidatorFactory.Shared,
-            new FileInfo(Directory.GetParent(yamlPath).FullName));
+        var parser = new DepsYamlParser(consoleWriter, depsValidatorFactory, new FileInfo(Directory.GetParent(yamlPath).FullName));
 
         var hadInSameSection = parser.GetDepsFromConfig(childConfiguration).Deps.Where(d => d.Name == patchDep.Name).ToList();
         if (!hadInSameSection.Any())
@@ -257,7 +256,7 @@ public sealed class DepsPatcher
     {
         if (removeIndex == -1)
         {
-            ConsoleWriter.Shared.WriteWarning("Fail to replace " + was + ", not found in module.yaml.");
+            consoleWriter.WriteWarning("Fail to replace " + was + ", not found in module.yaml.");
             return;
         }
 

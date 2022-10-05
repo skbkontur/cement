@@ -19,13 +19,15 @@ public sealed class AnalyzerAddCommand : Command
     };
 
     private readonly ConsoleWriter consoleWriter;
+    private readonly DepsPatcherProject depsPatcherProject;
     private string moduleSolutionName;
     private Dep analyzerModule;
 
-    public AnalyzerAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+    public AnalyzerAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, DepsPatcherProject depsPatcherProject)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
+        this.depsPatcherProject = depsPatcherProject;
     }
 
     public override string Name => "add";
@@ -112,7 +114,8 @@ public sealed class AnalyzerAddCommand : Command
 
         if (!File.Exists(Path.Combine(moduleDirectory, Helper.YamlSpecFile)))
             throw new CementException("No module.yaml file. You should patch deps file manually or convert old spec to module.yaml (cm convert-spec)");
-        DepsPatcherProject.PatchDepsForSolution(moduleDirectory, analyzerModule, moduleSolutionPath);
+
+        depsPatcherProject.PatchDepsForSolution(moduleDirectory, analyzerModule, moduleSolutionPath);
 
         foreach (var pair in csprojAndRulesetPairs)
         {

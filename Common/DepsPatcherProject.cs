@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.DepsValidators;
 using Common.Extensions;
 using Common.Logging;
 using Common.YamlParsers;
@@ -10,17 +11,27 @@ using Microsoft.Extensions.Logging;
 namespace Common;
 
 //TODO: переименовать и порефакторить - класс перегружено выглядит
-public static class DepsPatcherProject
+public sealed class DepsPatcherProject
 {
-    private static readonly ILogger Log = LogManager.GetLogger<DepsPatcher>();
+    private static readonly HashSet<KeyValuePair<string, string>> PatchedDeps = new();
 
-    private static readonly HashSet<KeyValuePair<string, string>> patchedDeps = new();
+    private readonly ILogger<DepsPatcherProject> logger;
+    private readonly ConsoleWriter consoleWriter;
+    private readonly IDepsValidatorFactory depsValidatorFactory;
 
-    public static void PatchDepsForProject(string currentModuleFullPath, Dep dep, string csprojFile)
+    public DepsPatcherProject(ILogger<DepsPatcherProject> logger, ConsoleWriter consoleWriter,
+                              IDepsValidatorFactory depsValidatorFactory)
+    {
+        this.logger = logger;
+        this.consoleWriter = consoleWriter;
+        this.depsValidatorFactory = depsValidatorFactory;
+    }
+
+    public void PatchDepsForProject(string currentModuleFullPath, Dep dep, string csprojFile)
     {
         var installData = InstallParser.Get(dep.Name, dep.Configuration);
-        Log.LogInformation("Adding deps to module.yaml");
-        Log.LogInformation("Getting cement configurations insert to");
+        logger.LogInformation("Adding deps to module.yaml");
+        logger.LogInformation("Getting cement configurations insert to");
         var usedConfigs = GetUsedCementConfigsForProject(currentModuleFullPath, csprojFile);
         var toPatch = GetSmallerCementConfigs(currentModuleFullPath, usedConfigs);
 
@@ -30,11 +41,11 @@ public static class DepsPatcherProject
             toPatch);
     }
 
-    public static void PatchDepsForSolution(string currentModuleFullPath, Dep dep, string solutionFile)
+    public void PatchDepsForSolution(string currentModuleFullPath, Dep dep, string solutionFile)
     {
         var installData = InstallParser.Get(dep.Name, dep.Configuration);
-        Log.LogInformation("Adding deps to module.yaml");
-        Log.LogInformation("Getting cement configurations insert to");
+        logger.LogInformation("Adding deps to module.yaml");
+        logger.LogInformation("Getting cement configurations insert to");
         var usedConfigs = GetUsedCementConfigsForSolution(currentModuleFullPath, solutionFile);
         var toPatch = GetSmallerCementConfigs(currentModuleFullPath, usedConfigs);
 
@@ -53,7 +64,7 @@ public static class DepsPatcherProject
             .ToList();
     }
 
-    private static void PatchDeps(string currentModuleFullPath, List<string> modulesToInsert, List<string> cementConfigs)
+    private void PatchDeps(string currentModuleFullPath, List<string> modulesToInsert, List<string> cementConfigs)
     {
         foreach (var config in cementConfigs)
         {
@@ -64,18 +75,18 @@ public static class DepsPatcherProject
                 var moduleName = Path.GetFileName(currentModuleFullPath);
 
                 var kvp = new KeyValuePair<string, string>(Path.Combine(workspace, moduleName, config), module);
-                if (patchedDeps.Contains(kvp))
+                if (PatchedDeps.Contains(kvp))
                     continue;
-                patchedDeps.Add(kvp);
+                PatchedDeps.Add(kvp);
 
                 try
                 {
-                    new DepsPatcher(workspace, moduleName, dep).Patch(config);
+                    new DepsPatcher(consoleWriter, depsValidatorFactory, workspace, moduleName, dep).Patch(config);
                 }
                 catch (Exception exception)
                 {
                     ConsoleWriter.Shared.WriteError($"Fail adding {dep} to {moduleName}/{config} deps:\n\t{exception.Message}");
-                    Log.LogError($"Fail adding {dep} to deps: {exception.Message}");
+                    logger.LogError($"Fail adding {dep} to deps: {exception.Message}");
                 }
             }
         }
