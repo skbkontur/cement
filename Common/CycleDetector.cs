@@ -7,34 +7,40 @@ namespace Common
 {
     public sealed class CycleDetector
     {
-        private readonly ISet<string> modulesInProcessing = new HashSet<string>();
-        private readonly ISet<string> visitedConfigurations = new HashSet<string>();
+        private readonly ConsoleWriter consoleWriter;
+
+        public CycleDetector(ConsoleWriter consoleWriter)
+        {
+            this.consoleWriter = consoleWriter;
+        }
 
         public void WarnIfCycle(string rootModuleName, string configuration, ILogger log)
         {
             log.LogInformation("Looking for cycles");
-            ConsoleWriter.Shared.WriteProgress("Looking for cycles");
+            consoleWriter.WriteProgress("Looking for cycles");
             var cycle = TryFindCycle(rootModuleName + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration));
             if (cycle != null)
             {
                 log.LogWarning("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
-                ConsoleWriter.Shared.WriteWarning("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
+                consoleWriter.WriteWarning("Detected cycle in deps:\n" + cycle.Aggregate((x, y) => x + "->" + y));
             }
 
-            ConsoleWriter.Shared.ResetProgress();
+            consoleWriter.ResetProgress();
         }
 
         public List<string> TryFindCycle(string moduleName)
         {
             var cycle = new List<string>();
-            modulesInProcessing.Clear();
-            visitedConfigurations.Clear();
-            var cycleFound = Dfs(new Dep(moduleName), cycle);
+
+            var modulesInProcessing = new HashSet<string>();
+            var visitedConfigurations = new HashSet<string>();
+
+            var cycleFound = Dfs(modulesInProcessing, visitedConfigurations, new Dep(moduleName), cycle);
             cycle.Reverse();
             return cycleFound ? cycle : null;
         }
 
-        private bool Dfs(Dep dep, List<string> cycle)
+        private bool Dfs(ISet<string> modulesInProcessing, ISet<string> visitedConfigurations, Dep dep, List<string> cycle)
         {
             dep.UpdateConfigurationIfNull();
             var depNameAndConfig = dep.Name + Helper.ConfigurationDelimiter + dep.Configuration;
@@ -54,7 +60,7 @@ namespace Common
 
                 if (visitedConfigurations.Contains(currentDep))
                     continue;
-                if (Dfs(d, cycle))
+                if (Dfs(modulesInProcessing, visitedConfigurations, d, cycle))
                 {
                     cycle.Add(depNameAndConfig);
                     return true;

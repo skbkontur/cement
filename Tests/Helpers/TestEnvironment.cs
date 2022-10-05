@@ -6,7 +6,6 @@ using System.Text;
 using Common;
 using Common.Logging;
 using Common.YamlParsers;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace Tests.Helpers
@@ -19,14 +18,19 @@ namespace Tests.Helpers
 
     public class TestEnvironment : IDisposable
     {
-        private static ILogger Log = LogManager.GetLogger<TestEnvironment>();
         public readonly TempDirectory WorkingDirectory;
         public readonly string PackageFile;
         public readonly string RemoteWorkspace;
+
         private readonly ShellRunner runner;
+        private readonly CycleDetector cycleDetector;
+        private readonly ConsoleWriter consoleWriter;
 
         public TestEnvironment()
         {
+            consoleWriter = ConsoleWriter.Shared;
+            cycleDetector = new CycleDetector(consoleWriter);
+
             runner = new ShellRunner();
             WorkingDirectory = new TempDirectory();
             Directory.CreateDirectory(Path.Combine(WorkingDirectory.Path, ".cement"));
@@ -52,7 +56,8 @@ namespace Tests.Helpers
         public void Get(string module, string treeish = null, LocalChangesPolicy localChangesPolicy = LocalChangesPolicy.FailOnLocalChanges)
         {
             var getter = new ModuleGetter(
-                ConsoleWriter.Shared,
+                consoleWriter,
+                cycleDetector,
                 GetModules().ToList(),
                 new Dep(module, treeish),
                 localChangesPolicy,

@@ -9,14 +9,15 @@ namespace Commands
         private readonly Dictionary<string, ICommand> commands;
 
         public UsagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
-                             GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand)
+                             GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
+                             CycleDetector cycleDetector)
         {
             this.consoleWriter = consoleWriter;
             commands = new Dictionary<string, ICommand>
             {
                 {"show", new UsagesShowCommand(consoleWriter, featureFlags)},
                 {"build", new UsagesBuildCommand(consoleWriter, featureFlags, usagesProvider, getCommand, buildDepsCommand, buildCommand)},
-                {"grep", new UsagesGrepCommand(consoleWriter, featureFlags)}
+                {"grep", new UsagesGrepCommand(consoleWriter, featureFlags, cycleDetector)}
             };
         }
 

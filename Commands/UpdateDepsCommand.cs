@@ -15,6 +15,7 @@ namespace Commands
         };
 
         private readonly ConsoleWriter consoleWriter;
+        private readonly CycleDetector cycleDetector;
         private string configuration;
         private string mergedBranch;
         private LocalChangesPolicy policy;
@@ -22,10 +23,11 @@ namespace Commands
         private bool verbose;
         private int? gitDepth;
 
-        public UpdateDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        public UpdateDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
+            this.cycleDetector = cycleDetector;
         }
 
         public override string Name => "update-deps";
@@ -86,6 +88,7 @@ namespace Commands
 
             var getter = new ModuleGetter(
                 consoleWriter,
+                cycleDetector,
                 Helper.GetModules(),
                 new Dep(moduleName, null, configuration),
                 policy,

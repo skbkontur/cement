@@ -26,11 +26,12 @@ namespace Common
         private GitRepository rootRepo;
         private string rootRepoTreeish;
 
-        public ModuleGetter(ConsoleWriter consoleWriter, List<Module> modules, Dep rootModule,
+        public ModuleGetter(ConsoleWriter consoleWriter, CycleDetector cycleDetector, List<Module> modules, Dep rootModule,
                             LocalChangesPolicy userLocalChangesPolicy, string mergedBranch, bool verbose = false,
                             bool localBranchForce = false, int? gitDepth = null)
         {
             this.consoleWriter = consoleWriter;
+            this.cycleDetector = cycleDetector;
             this.modules = modules;
             this.rootModule = rootModule;
             this.userLocalChangesPolicy = userLocalChangesPolicy;
@@ -38,7 +39,6 @@ namespace Common
             this.gitDepth = gitDepth;
             this.verbose = verbose;
             this.mergedBranch = mergedBranch;
-            cycleDetector = new CycleDetector();
         }
 
         public void GetModule()

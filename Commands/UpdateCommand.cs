@@ -13,15 +13,17 @@ namespace Commands
         };
 
         private readonly ConsoleWriter consoleWriter;
+        private readonly CycleDetector cycleDetector;
         private string treeish = "master";
         private bool verbose;
         private LocalChangesPolicy policy;
         private int? gitDepth;
 
-        public UpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        public UpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
+            this.cycleDetector = cycleDetector;
         }
 
         public override string Name => "update";
@@ -56,6 +58,7 @@ namespace Commands
 
             var getter = new ModuleGetter(
                 consoleWriter,
+                cycleDetector,
                 Helper.GetModules(),
                 new Dep(module, treeish),
                 policy,

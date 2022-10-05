@@ -9,7 +9,13 @@ namespace Tests.UtilsTests
     [TestFixture]
     public class TestCycleDetector
     {
-        private readonly CycleDetector cycleDetector = new();
+        private readonly CycleDetector cycleDetector;
+
+        public TestCycleDetector()
+        {
+            var consoleWriter = ConsoleWriter.Shared;
+            cycleDetector = new CycleDetector(consoleWriter);
+        }
 
         [Test]
         public void TestSimpleCycle()

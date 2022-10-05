@@ -40,7 +40,9 @@ namespace cm
             services.AddSingleton(consoleWriter);
             services.AddSingleton(featureFlags);
 
+            services.AddSingleton<CycleDetector>();
             services.AddSingleton<BuildPreparer>();
+
             services.AddCommand<HelpCommand>();
             services.AddCommand<GetCommand>();
             services.AddCommand<UpdateDepsCommand>();

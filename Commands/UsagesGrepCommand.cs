@@ -26,6 +26,7 @@ namespace Commands
         private static readonly string[] NewLine = {"\r\n", "\r", "\n"};
         private static readonly Regex Whitespaces = new("\\s");
         private readonly ConsoleWriter consoleWriter;
+        private readonly CycleDetector cycleDetector;
         private readonly ShellRunner runner;
         private readonly IUsagesProvider usagesProvider;
 
@@ -38,10 +39,11 @@ namespace Commands
         private bool skipGet;
         private string checkingBranch;
 
-        public UsagesGrepCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        public UsagesGrepCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
+            this.cycleDetector = cycleDetector;
             runner = new ShellRunner(Log);
             usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);
         }
@@ -177,6 +179,7 @@ namespace Commands
         {
             var getter = new ModuleGetter(
                 consoleWriter,
+                cycleDetector,
                 modules,
                 dep,
                 LocalChangesPolicy.FailOnLocalChanges,

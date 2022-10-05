@@ -9,13 +9,13 @@ namespace Commands
 {
     public sealed class ShowDepsCommand : Command
     {
-        private readonly IDepsValidatorFactory depsValidatorFactory;
         private static readonly CommandSettings Settings = new()
         {
             LogFileName = "show-deps",
             MeasureElapsedTime = false,
             Location = CommandLocation.RootModuleDirectory
         };
+        private readonly IDepsValidatorFactory depsValidatorFactory;
 
         private readonly Dictionary<Dep, List<string>> overheadCache = new();
         private readonly ArborJs arborJs;

@@ -97,6 +97,7 @@ namespace Commands
         {
             var getter = new ModuleGetter(
                 consoleWriter,
+                cycleDetector,
                 Helper.GetModules(),
                 new Dep(module, treeish, configuration),
                 policy,
