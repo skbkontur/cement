@@ -176,7 +176,7 @@ namespace Common
                 throw new Exception("DocumentElement is null at csproj");
             patchedProjDoc.DocumentElement?.AppendChild(itemGroup);
 
-            var nugetRunCommand = NuGetHelper.GetNugetRunCommand();
+            var nugetRunCommand = NuGetHelper.Shared.GetNugetRunCommand();
 
             foreach (var dep in deps)
             {
@@ -196,7 +196,7 @@ namespace Common
                 var includeAttr = patchedProjDoc.CreateAttribute("Include");
                 includeAttr.Value = dep.Name;
                 refElement.Attributes.Append(includeAttr);
-                var packageVersion = NuGetHelper.GetNugetPackageVersion(dep.Name, nugetRunCommand, preRelease);
+                var packageVersion = NuGetHelper.Shared.GetNugetPackageVersion(dep.Name, nugetRunCommand, preRelease);
                 if (!string.IsNullOrEmpty(packageVersion))
                 {
                     var versionAttr = patchedProjDoc.CreateAttribute("Version");

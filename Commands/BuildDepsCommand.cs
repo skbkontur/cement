@@ -39,7 +39,7 @@ namespace Commands
             consoleWriter.ResetProgress();
             try
             {
-                var nugetRunCommand = NuGetHelper.GetNugetRunCommand();
+                var nugetRunCommand = NuGetHelper.Shared.GetNugetRunCommand();
                 if (nugetRunCommand == null)
                     return;
 

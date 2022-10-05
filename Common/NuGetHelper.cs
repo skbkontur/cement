@@ -1,60 +1,70 @@
 using System;
 using System.IO;
 using Common.Logging;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
-namespace Common
+namespace Common;
+
+[PublicAPI]
+public sealed class NuGetHelper
 {
-    public static class NuGetHelper
+    public static NuGetHelper Shared { get; } = new(LogManager.GetLogger<NuGetHelper>(), ConsoleWriter.Shared);
+
+    private readonly ILogger<NuGetHelper> logger;
+    private readonly ConsoleWriter consoleWriter;
+
+    private NuGetHelper(ILogger<NuGetHelper> logger, ConsoleWriter consoleWriter)
     {
-        private static readonly ILogger Log = LogManager.GetLogger(typeof(NuGetHelper));
+        this.logger = logger;
+        this.consoleWriter = consoleWriter;
+    }
 
-        public static string GetNugetPackageVersion(string packageName, string nugetRunCommand, bool preRelease)
+    public string GetNugetPackageVersion(string packageName, string nugetRunCommand, bool preRelease)
+    {
+        var shellRunner = new ShellRunner();
+        consoleWriter.WriteProgressWithoutSave("Get package version for " + packageName);
+
+        shellRunner.Run($"{nugetRunCommand} list {packageName} -NonInteractive" + (preRelease ? " -PreRelease" : ""));
+        foreach (var line in shellRunner.Output.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries))
         {
-            var shellRunner = new ShellRunner();
-            ConsoleWriter.Shared.WriteProgressWithoutSave("Get package version for " + packageName);
-
-            shellRunner.Run($"{nugetRunCommand} list {packageName} -NonInteractive" + (preRelease ? " -PreRelease" : ""));
-            foreach (var line in shellRunner.Output.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries))
+            var lineTokens = line.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+            if (lineTokens.Length == 2 && lineTokens[0].Equals(packageName, StringComparison.InvariantCultureIgnoreCase))
             {
-                var lineTokens = line.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-                if (lineTokens.Length == 2 && lineTokens[0].Equals(packageName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var msg = $"Got package version: {lineTokens[1]} for {packageName}";
-                    Log.LogInformation(msg);
-                    ConsoleWriter.Shared.WriteInfo(msg);
-                    return lineTokens[1];
-                }
+                var msg = $"Got package version: {lineTokens[1]} for {packageName}";
+                logger.LogInformation(msg);
+                consoleWriter.WriteInfo(msg);
+                return lineTokens[1];
             }
+        }
 
-            var message = $"not found package version for package {packageName}. nuget output: " + shellRunner.Output + shellRunner.Errors;
-            Log.LogDebug(message);
-            ConsoleWriter.Shared.WriteWarning(message);
+        var message = $"not found package version for package {packageName}. nuget output: " + shellRunner.Output + shellRunner.Errors;
+        logger.LogDebug(message);
+        consoleWriter.WriteWarning(message);
+        return null;
+    }
+
+    public string GetNugetRunCommand()
+    {
+        var nuGetPath = GetNuGetPath();
+        if (nuGetPath == null)
+            return null;
+        var nugetCommand = $"\"{nuGetPath}\"";
+        if (Platform.IsUnix())
+            nugetCommand = $"mono {nugetCommand}";
+        return nugetCommand;
+    }
+
+    private string GetNuGetPath()
+    {
+        var nuget = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "NuGet.exe");
+        if (!File.Exists(nuget))
+        {
+            logger.LogError($"NuGet.exe not found in {nuget}");
             return null;
         }
 
-        public static string GetNugetRunCommand()
-        {
-            var nuGetPath = GetNuGetPath();
-            if (nuGetPath == null)
-                return null;
-            var nugetCommand = $"\"{nuGetPath}\"";
-            if (Platform.IsUnix())
-                nugetCommand = $"mono {nugetCommand}";
-            return nugetCommand;
-        }
-
-        private static string GetNuGetPath()
-        {
-            var nuget = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "NuGet.exe");
-            if (!File.Exists(nuget))
-            {
-                Log.LogError($"NuGet.exe not found in {nuget}");
-                return null;
-            }
-
-            Log.LogDebug($"NuGet.exe found in {nuget}");
-            return nuget;
-        }
+        logger.LogDebug($"NuGet.exe found in {nuget}");
+        return nuget;
     }
 }
