@@ -8,28 +8,33 @@ namespace Common
 {
     public sealed class BuildInfoStorage
     {
+        private readonly BuildPreparer buildPreparer;
+
         [JsonProperty]
         private readonly Dictionary<Dep, List<DepWithCommitHash>> modulesWithDeps;
         private readonly BuildHelper buildHelper;
 
-        private BuildInfoStorage()
+        private BuildInfoStorage(BuildPreparer buildPreparer, BuildHelper buildHelper)
         {
+            this.buildPreparer = buildPreparer;
+            this.buildHelper = buildHelper;
             modulesWithDeps = new Dictionary<Dep, List<DepWithCommitHash>>();
-            buildHelper = BuildHelper.Shared;
         }
 
         public static BuildInfoStorage Deserialize()
         {
+            var buildPreparer = BuildPreparer.Shared;
+            var buildHelper = BuildHelper.Shared;
             try
             {
                 var data = File.ReadAllText(SerializePath());
                 var cfg = new JsonSerializerSettings {ContractResolver = new DictionaryFriendlyContractResolver()};
                 var storage = JsonConvert.DeserializeObject<BuildInfoStorage>(data, cfg);
-                return storage ?? new BuildInfoStorage();
+                return storage ?? new BuildInfoStorage(buildPreparer, buildHelper);
             }
             catch (Exception)
             {
-                return new BuildInfoStorage();
+                return new BuildInfoStorage(buildPreparer, buildHelper);
             }
         }
 
@@ -49,7 +54,7 @@ namespace Common
 
             foreach (var childConfig in childConfigs)
             {
-                var deps = BuildPreparer.Shared.BuildConfigsGraph(module.Name, childConfig).Keys.ToList();
+                var deps = buildPreparer.BuildConfigsGraph(module.Name, childConfig).Keys.ToList();
                 var depsWithCommit = deps
                     .Where(dep => currentCommitHashes.ContainsKey(dep.Name) && currentCommitHashes[dep.Name] != null)
                     .Select(dep => new DepWithCommitHash(dep, currentCommitHashes[dep.Name]))

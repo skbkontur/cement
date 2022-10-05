@@ -14,6 +14,7 @@ namespace Tests.BuildTests
     public class TestBuildDepsCache
     {
         private static readonly ILogger Log = LogManager.GetLogger<TestBuildDepsCache>();
+        private static readonly BuildPreparer BuildPreparer = BuildPreparer.Shared;
 
         [Test]
         public void TestOneModule()
@@ -129,19 +130,23 @@ namespace Tests.BuildTests
 
         private List<Dep> GetUpdatedModules(Dep moduleToBuild)
         {
-            return new BuildPreparer(Log).GetModulesOrder(moduleToBuild.Name, moduleToBuild.Configuration).UpdatedModules;
+            return BuildPreparer.GetModulesOrder(moduleToBuild.Name, moduleToBuild.Configuration).UpdatedModules;
         }
 
         private void Build(Dep module)
         {
-            using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
-                new BuildCommand(ConsoleWriter.Shared, FeatureFlags.Default).Run(new[] {"build", "-c", module.Configuration});
+            using var jumper = new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name));
+
+            var command = new BuildCommand(ConsoleWriter.Shared, FeatureFlags.Default, BuildPreparer);
+            command.Run(new[] {"build", "-c", module.Configuration});
         }
 
         private void BuildDeps(Dep module)
         {
-            using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
-                new BuildDepsCommand(ConsoleWriter.Shared, FeatureFlags.Default).Run(new[] {"build-deps", "-c", module.Configuration});
+            using var jumper = new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name));
+
+            var command = new BuildDepsCommand(ConsoleWriter.Shared, FeatureFlags.Default, BuildPreparer);
+            command.Run(new[] {"build-deps", "-c", module.Configuration});
         }
     }
 }

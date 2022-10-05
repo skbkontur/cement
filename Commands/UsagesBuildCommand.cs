@@ -16,10 +16,11 @@ namespace Commands
             Location = CommandLocation.RootModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
-        private readonly FeatureFlags featureFlags;
 
         private readonly IUsagesProvider usagesProvider;
         private readonly GetCommand getCommand;
+        private readonly BuildDepsCommand buildDepsCommand;
+        private readonly BuildCommand buildCommand;
 
         private string moduleName, branch;
         private string checkingBranch;
@@ -29,13 +30,14 @@ namespace Commands
         private bool pause;
 
         public UsagesBuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
-                                  GetCommand getCommand)
+                                  GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
-            this.featureFlags = featureFlags;
             this.usagesProvider = usagesProvider;
             this.getCommand = getCommand;
+            this.buildDepsCommand = buildDepsCommand;
+            this.buildCommand = buildCommand;
         }
 
         public override string Name => "build";
@@ -143,10 +145,10 @@ namespace Commands
 
             using (new DirectoryJumper(Path.Combine(workspace, depParent.Name)))
             {
-                if (new BuildDepsCommand(consoleWriter, featureFlags).Run(new[] {"build-deps", "-c", depParent.Configuration}) != 0)
+                if (buildDepsCommand.Run(new[] {"build-deps", "-c", depParent.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + depParent.Name);
                 consoleWriter.ResetProgress();
-                if (new BuildCommand(consoleWriter, featureFlags).Run(new[] {"build"}) != 0)
+                if (buildCommand.Run(new[] {"build"}) != 0)
                     throw new CementException("Failed to build " + depParent.Name);
                 consoleWriter.ResetProgress();
             }

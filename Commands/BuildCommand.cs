@@ -16,13 +16,15 @@ namespace Commands
         };
 
         private readonly ConsoleWriter consoleWriter;
+        private readonly BuildPreparer buildPreparer;
         private string configuration;
         private BuildSettings buildSettings;
 
-        public BuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        public BuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, BuildPreparer buildPreparer)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
+            this.buildPreparer = buildPreparer;
         }
 
         public override string Name => "build";
@@ -75,7 +77,7 @@ namespace Commands
             var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
             var builder = new ModuleBuilder(consoleWriter, Log, buildSettings, buildYamlScriptsMaker);
             var builderInitTask = Task.Run(() => builder.Init());
-            var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration);
+            var modulesOrder = buildPreparer.GetModulesOrder(moduleName, configuration);
             var builtStorage = BuildInfoStorage.Deserialize();
             builtStorage.RemoveBuildInfo(moduleName);
 

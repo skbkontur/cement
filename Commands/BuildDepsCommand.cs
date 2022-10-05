@@ -20,15 +20,17 @@ namespace Commands
         };
 
         private readonly ConsoleWriter consoleWriter;
+        private readonly BuildPreparer buildPreparer;
         private string configuration;
         private bool rebuild;
         private bool parallel;
         private BuildSettings buildSettings;
 
-        public BuildDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        public BuildDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, BuildPreparer buildPreparer)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
+            this.buildPreparer = buildPreparer;
         }
 
         public static void TryNugetRestore(List<Dep> modulesToUpdate, ModuleBuilder builder)
@@ -114,7 +116,7 @@ namespace Commands
             var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
             var builder = new ModuleBuilder(consoleWriter, Log, buildSettings, buildYamlScriptsMaker);
             var builderInitTask = Task.Run(() => builder.Init());
-            var modulesOrder = new BuildPreparer(Log).GetModulesOrder(moduleName, configuration ?? "full-build");
+            var modulesOrder = buildPreparer.GetModulesOrder(moduleName, configuration ?? "full-build");
             var modulesToBuild = modulesOrder.UpdatedModules;
 
             if (rebuild)

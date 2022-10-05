@@ -8,12 +8,13 @@ namespace Commands
         private readonly ConsoleWriter consoleWriter;
         private readonly Dictionary<string, ICommand> commands;
 
-        public RefCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand)
+        public RefCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand,
+                          BuildDepsCommand buildDepsCommand, BuildCommand buildCommand)
         {
             this.consoleWriter = consoleWriter;
             commands = new Dictionary<string, ICommand>
             {
-                {"add", new RefAddCommand(consoleWriter, featureFlags, getCommand)},
+                {"add", new RefAddCommand(consoleWriter, featureFlags, getCommand, buildDepsCommand, buildCommand)},
                 {"fix", new RefFixCommand(consoleWriter, featureFlags)}
             };
         }

@@ -18,8 +18,9 @@ namespace Commands
             Location = CommandLocation.InsideModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
-        private readonly FeatureFlags featureFlags;
         private readonly GetCommand getCommand;
+        private readonly BuildDepsCommand buildDepsCommand;
+        private readonly BuildCommand buildCommand;
 
         private string project;
         private Dep dep;
@@ -27,12 +28,14 @@ namespace Commands
         private bool hasReplaces;
         private bool force;
 
-        public RefAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand)
+        public RefAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand,
+                             BuildDepsCommand buildDepsCommand, BuildCommand buildCommand)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
-            this.featureFlags = featureFlags;
             this.getCommand = getCommand;
+            this.buildDepsCommand = buildDepsCommand;
+            this.buildCommand = buildCommand;
         }
 
         public override string Name => "add";
@@ -126,11 +129,11 @@ namespace Commands
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
             {
                 consoleWriter.WriteInfo("cm build-deps " + module);
-                if (new BuildDepsCommand(consoleWriter, featureFlags).Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
+                if (buildDepsCommand.Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build deps for " + dep);
                 consoleWriter.ResetProgress();
                 consoleWriter.WriteInfo("cm build " + module);
-                if (new BuildCommand(consoleWriter, featureFlags).Run(new[] {"build", "-c", module.Configuration}) != 0)
+                if (buildCommand.Run(new[] {"build", "-c", module.Configuration}) != 0)
                     throw new CementException("Failed to build " + dep);
                 consoleWriter.ResetProgress();
             }
