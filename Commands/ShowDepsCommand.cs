@@ -16,7 +16,7 @@ namespace Commands
             Location = CommandLocation.RootModuleDirectory
         };
         private readonly IDepsValidatorFactory depsValidatorFactory;
-
+        private readonly ConsoleWriter consoleWriter;
         private readonly Dictionary<Dep, List<string>> overheadCache = new();
         private readonly ArborJs arborJs;
         private string configuration;
@@ -24,6 +24,7 @@ namespace Commands
         public ShowDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
             : base(consoleWriter, Settings, featureFlags)
         {
+            this.consoleWriter = consoleWriter;
             this.depsValidatorFactory = depsValidatorFactory;
             arborJs = new ArborJs();
         }
@@ -83,10 +84,10 @@ namespace Commands
             return false;
         }
 
-        private static List<Dep> GetDeps(Dep root)
+        private List<Dep> GetDeps(Dep root)
         {
             var deps = new DepsParser(
-                    Path.Combine(Helper.CurrentWorkspace, root.Name))
+                    consoleWriter, depsValidatorFactory, Path.Combine(Helper.CurrentWorkspace, root.Name))
                 .Get(root.Configuration).Deps ?? new List<Dep>();
             foreach (var dep in deps)
             {

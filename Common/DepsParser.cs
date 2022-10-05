@@ -7,10 +7,14 @@ namespace Common
 {
     public sealed class DepsParser
     {
+        private readonly ConsoleWriter consoleWriter;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
         private readonly string modulePath;
 
-        public DepsParser(string modulePath)
+        public DepsParser(ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory, string modulePath)
         {
+            this.consoleWriter = consoleWriter;
+            this.depsValidatorFactory = depsValidatorFactory;
             this.modulePath = modulePath;
         }
 
@@ -18,24 +22,18 @@ namespace Common
         {
             if (File.Exists(Path.Combine(modulePath, Helper.YamlSpecFile)))
             {
-                return new DepsYamlParser(
-                    ConsoleWriter.Shared, DepsValidatorFactory.Shared,
-                    new FileInfo(modulePath)).Get(config);
+                return new DepsYamlParser(consoleWriter, depsValidatorFactory, new FileInfo(modulePath)).Get(config);
             }
 
-            if (File.Exists(
-                    Path.Combine(
-                        modulePath,
-                        $"deps{(config == null || config.Equals("full-build") ? "" : "." + config)}")))
-                return new DepsIniParser(
-                    new FileInfo(
-                        Path.Combine(
-                            modulePath,
-                            $"deps{(config == null || config.Equals("full-build") ? "" : "." + config)}"))).Get();
+            var path = $"deps{(config is null or "full-build" ? "" : "." + config)}";
+            if (File.Exists(Path.Combine(modulePath, path)))
+            {
+                return new DepsIniParser(new FileInfo(Path.Combine(modulePath, path))).Get();
+            }
 
             if (File.Exists(Path.Combine(modulePath, "deps")))
             {
-                ConsoleWriter.Shared.WriteWarning("Configuration '" + config + "' was not found in " + modulePath + ". Will take full-build config");
+                consoleWriter.WriteWarning("Configuration '" + config + "' was not found in " + modulePath + ". Will take full-build config");
                 return new DepsIniParser(Path.Combine(modulePath, "deps")).Get();
             }
 

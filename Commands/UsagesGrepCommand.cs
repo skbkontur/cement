@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Common;
+using Common.DepsValidators;
 using Common.Exceptions;
 using Common.Logging;
 
@@ -29,7 +30,7 @@ namespace Commands
         private readonly CycleDetector cycleDetector;
         private readonly ShellRunner runner;
         private readonly IUsagesProvider usagesProvider;
-
+        private readonly IDepsValidatorFactory depsValidatorFactory;
         private string moduleName;
         private string cwd;
         private string workspace;
@@ -39,11 +40,13 @@ namespace Commands
         private bool skipGet;
         private string checkingBranch;
 
-        public UsagesGrepCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector)
+        public UsagesGrepCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
+                                 IDepsValidatorFactory depsValidatorFactory)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
             this.cycleDetector = cycleDetector;
+            this.depsValidatorFactory = depsValidatorFactory;
             runner = new ShellRunner(Log);
             usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);
         }
@@ -180,6 +183,7 @@ namespace Commands
             var getter = new ModuleGetter(
                 consoleWriter,
                 cycleDetector,
+                depsValidatorFactory,
                 modules,
                 dep,
                 LocalChangesPolicy.FailOnLocalChanges,

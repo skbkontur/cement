@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Common;
+using Common.DepsValidators;
 using Common.Logging;
 using Common.YamlParsers;
 using NUnit.Framework;
@@ -25,11 +26,13 @@ namespace Tests.Helpers
         private readonly ShellRunner runner;
         private readonly CycleDetector cycleDetector;
         private readonly ConsoleWriter consoleWriter;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
 
         public TestEnvironment()
         {
             consoleWriter = ConsoleWriter.Shared;
-            cycleDetector = new CycleDetector(consoleWriter);
+            depsValidatorFactory = DepsValidatorFactory.Shared;
+            cycleDetector = new CycleDetector(consoleWriter, depsValidatorFactory);
 
             runner = new ShellRunner();
             WorkingDirectory = new TempDirectory();
@@ -58,6 +61,7 @@ namespace Tests.Helpers
             var getter = new ModuleGetter(
                 consoleWriter,
                 cycleDetector,
+                depsValidatorFactory,
                 GetModules().ToList(),
                 new Dep(module, treeish),
                 localChangesPolicy,

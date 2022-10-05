@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Commands;
 using Common;
+using Common.DepsValidators;
 using Common.YamlParsers;
 using NUnit.Framework;
 
@@ -12,8 +13,19 @@ namespace Tests.CommandsTests
     [TestFixture]
     public class TestConvertSpec
     {
+        private readonly ConsoleWriter consoleWriter;
+        private readonly FeatureFlags featureFlags;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
+
         private TempDirectory tempDirectory;
         private string startDirectory;
+
+        public TestConvertSpec()
+        {
+            consoleWriter = ConsoleWriter.Shared;
+            featureFlags = FeatureFlags.Default;
+            depsValidatorFactory = DepsValidatorFactory.Shared;
+        }
 
         [SetUp]
         public void SetUp()
@@ -38,7 +50,7 @@ namespace Tests.CommandsTests
         public void TestGetBuildSection()
         {
             AddBuildScript("kanso.sln", null);
-            new ConvertSpecCommand(ConsoleWriter.Shared, FeatureFlags.Default).Run(new[] {"convert-spec"});
+            new ConvertSpecCommand(consoleWriter, featureFlags, depsValidatorFactory).Run(new[] {"convert-spec"});
 
             var data = Yaml.BuildParser("module").Get();
             Assert.That(data.Count == 1);
@@ -52,7 +64,7 @@ namespace Tests.CommandsTests
             AddBuildScript("kanso.sln", null);
             var deps = new List<Dep> {new("A@branch"), new("B"), new("C@conf"), new("D/conf@branch")};
             AddDeps(deps, null, "%CURRENT_BRANCH%");
-            new ConvertSpecCommand(ConsoleWriter.Shared, FeatureFlags.Default).Run(new[] {"convert-spec"});
+            new ConvertSpecCommand(consoleWriter, featureFlags, depsValidatorFactory).Run(new[] {"convert-spec"});
 
             var yamlDeps = Yaml.DepsParser("module").Get();
             CollectionAssert.AreEqual(deps, yamlDeps.Deps);
@@ -70,7 +82,7 @@ namespace Tests.CommandsTests
             AddBuildScript("kanso.sln", "client");
             AddSpec(new List<string> {"client"});
 
-            new ConvertSpecCommand(ConsoleWriter.Shared, FeatureFlags.Default).Run(new[] {"convert-spec"});
+            new ConvertSpecCommand(consoleWriter, featureFlags, depsValidatorFactory).Run(new[] {"convert-spec"});
             var yamlDeps = Yaml.DepsParser("module").Get();
             var yamlDepsClient = Yaml.DepsParser("module").Get("client");
             CollectionAssert.AreEqual(deps, yamlDeps.Deps);
@@ -88,7 +100,7 @@ namespace Tests.CommandsTests
             AddBuildScript("kanso.sln", "client");
             AddSpec(new List<string> {"client"});
 
-            new ConvertSpecCommand(ConsoleWriter.Shared, FeatureFlags.Default).Run(new[] {"convert-spec"});
+            new ConvertSpecCommand(consoleWriter, featureFlags, depsValidatorFactory).Run(new[] {"convert-spec"});
             var yamlDeps = Yaml.DepsParser("module").Get();
             var yamlDepsClient = Yaml.DepsParser("module").Get("client");
             CollectionAssert.AreEquivalent(deps, yamlDeps.Deps);

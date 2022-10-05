@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Common;
+using Common.DepsValidators;
 
 namespace Commands
 {
@@ -10,14 +11,14 @@ namespace Commands
 
         public UsagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
                              GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
-                             CycleDetector cycleDetector)
+                             CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory)
         {
             this.consoleWriter = consoleWriter;
             commands = new Dictionary<string, ICommand>
             {
                 {"show", new UsagesShowCommand(consoleWriter, featureFlags)},
                 {"build", new UsagesBuildCommand(consoleWriter, featureFlags, usagesProvider, getCommand, buildDepsCommand, buildCommand)},
-                {"grep", new UsagesGrepCommand(consoleWriter, featureFlags, cycleDetector)}
+                {"grep", new UsagesGrepCommand(consoleWriter, featureFlags, cycleDetector, depsValidatorFactory)}
             };
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Common;
+using Common.DepsValidators;
 using Common.YamlParsers;
 using NUnit.Framework;
 using Tests.Helpers;
@@ -14,7 +15,8 @@ namespace Tests.UtilsTests
         public TestCycleDetector()
         {
             var consoleWriter = ConsoleWriter.Shared;
-            cycleDetector = new CycleDetector(consoleWriter);
+            var depsValidatorFactory = DepsValidatorFactory.Shared;
+            cycleDetector = new CycleDetector(consoleWriter, depsValidatorFactory);
         }
 
         [Test]

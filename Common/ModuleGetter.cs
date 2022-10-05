@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Common.DepsValidators;
 using Common.Exceptions;
 using Common.Logging;
 using Common.YamlParsers;
@@ -22,16 +23,18 @@ namespace Common
         private readonly bool verbose;
         private readonly string mergedBranch;
         private readonly CycleDetector cycleDetector;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
         private bool errorOnMerge;
         private GitRepository rootRepo;
         private string rootRepoTreeish;
 
-        public ModuleGetter(ConsoleWriter consoleWriter, CycleDetector cycleDetector, List<Module> modules, Dep rootModule,
-                            LocalChangesPolicy userLocalChangesPolicy, string mergedBranch, bool verbose = false,
-                            bool localBranchForce = false, int? gitDepth = null)
+        public ModuleGetter(ConsoleWriter consoleWriter, CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
+                            List<Module> modules, Dep rootModule, LocalChangesPolicy userLocalChangesPolicy, string mergedBranch,
+                            bool verbose = false, bool localBranchForce = false, int? gitDepth = null)
         {
             this.consoleWriter = consoleWriter;
             this.cycleDetector = cycleDetector;
+            this.depsValidatorFactory = depsValidatorFactory;
             this.modules = modules;
             this.rootModule = rootModule;
             this.userLocalChangesPolicy = userLocalChangesPolicy;
@@ -51,7 +54,9 @@ namespace Common
             rootRepo = new GitRepository(rootModule.Name, Helper.CurrentWorkspace, Log);
             rootRepoTreeish = rootRepo.CurrentLocalTreeish().Value;
 
-            var depsContent = new DepsParser(rootRepo.RepoPath).Get(rootModule.Configuration);
+            var depsContent = new DepsParser(consoleWriter, depsValidatorFactory, rootRepo.RepoPath)
+                .Get(rootModule.Configuration);
+
             depsContent.Force = depsContent.Force?.Select(f => Helper.DefineForce(f, rootRepo)).ToArray();
             Log.LogInformation("OK");
 
@@ -62,21 +67,6 @@ namespace Common
             GetDeps(depsContent.Force, queue, proceed);
 
             cycleDetector.WarnIfCycle(rootModule.Name, rootModule.Configuration, Log);
-        }
-
-        private static void AddNewDeps(DepsQueue queue, ModulesContainer processed, List<DepWithParent> depsPool)
-        {
-            foreach (var dep in depsPool)
-            {
-                var currentModuleDeps = GetCurrentModuleDeps(dep.Dep);
-
-                if (currentModuleDeps.Deps == null)
-                    continue;
-
-                queue.AddRange(
-                    currentModuleDeps.Deps.Where(d => !processed.IsProcessed(d))
-                        .Select(d => new DepWithParent(d, dep.Dep.Name)).ToList());
-            }
         }
 
         private static void MarkProcessedDeps(DepsQueue queue, ModulesContainer processed, List<DepWithParent> depsPool)
@@ -98,11 +88,26 @@ namespace Common
             }
         }
 
-        private static DepsData GetCurrentModuleDeps(Dep dep)
+        private void AddNewDeps(DepsQueue queue, ModulesContainer processed, List<DepWithParent> depsPool)
+        {
+            foreach (var dep in depsPool)
+            {
+                var currentModuleDeps = GetCurrentModuleDeps(dep.Dep);
+
+                if (currentModuleDeps.Deps == null)
+                    continue;
+
+                queue.AddRange(
+                    currentModuleDeps.Deps.Where(d => !processed.IsProcessed(d))
+                        .Select(d => new DepWithParent(d, dep.Dep.Name)).ToList());
+            }
+        }
+
+        private DepsData GetCurrentModuleDeps(Dep dep)
         {
             Log.LogInformation($"{"[" + dep.Name + "]",-30}Getting deps for configuration {dep.Configuration ?? "full-build"}");
-            var deps = new DepsParser(Path.Combine(Helper.CurrentWorkspace, dep.Name)).Get(dep.Configuration);
-            return deps;
+            return new DepsParser(consoleWriter, depsValidatorFactory, Path.Combine(Helper.CurrentWorkspace, dep.Name))
+                .Get(dep.Configuration);
         }
 
         private void Reset(GitRepository repo, Dep dep)

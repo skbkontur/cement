@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using Common;
+using Common.DepsValidators;
 using Microsoft.Extensions.Logging;
 
 namespace Commands
@@ -16,6 +17,7 @@ namespace Commands
 
         private readonly ConsoleWriter consoleWriter;
         private readonly CycleDetector cycleDetector;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
         private string configuration;
         private string mergedBranch;
         private LocalChangesPolicy policy;
@@ -23,11 +25,13 @@ namespace Commands
         private bool verbose;
         private int? gitDepth;
 
-        public UpdateDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector)
+        public UpdateDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
+                                 IDepsValidatorFactory depsValidatorFactory)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
             this.cycleDetector = cycleDetector;
+            this.depsValidatorFactory = depsValidatorFactory;
         }
 
         public override string Name => "update-deps";
@@ -89,6 +93,7 @@ namespace Commands
             var getter = new ModuleGetter(
                 consoleWriter,
                 cycleDetector,
+                depsValidatorFactory,
                 Helper.GetModules(),
                 new Dep(moduleName, null, configuration),
                 policy,

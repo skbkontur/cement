@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using Common;
+using Common.DepsValidators;
 using Common.Exceptions;
 using Common.Extensions;
 using Common.YamlParsers;
@@ -17,16 +18,17 @@ namespace Commands
             Location = CommandLocation.InsideModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
-
+        private readonly IDepsValidatorFactory depsValidatorFactory;
         private string project;
         private string configuration;
         private BuildSettings buildSettings;
         private bool preRelease;
 
-        public PackCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        public PackCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
+            this.depsValidatorFactory = depsValidatorFactory;
         }
 
         public override string Name => "pack";
@@ -58,7 +60,7 @@ namespace Commands
 
             var projectPath = Path.GetFullPath(project);
             var csproj = new ProjectFile(projectPath);
-            var deps = new DepsParser(modulePath).Get(configuration);
+            var deps = new DepsParser(consoleWriter, depsValidatorFactory, modulePath).Get(configuration);
             consoleWriter.WriteInfo("patching csproj");
             var patchedDocument = csproj.CreateCsProjWithNugetReferences(deps.Deps, preRelease);
             var backupFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "backup." + Path.GetFileName(projectPath));

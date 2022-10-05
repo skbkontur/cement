@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
+using Common.DepsValidators;
 using Common.Exceptions;
 
 namespace Commands
@@ -16,11 +17,13 @@ namespace Commands
         };
 
         private readonly ConsoleWriter consoleWriter;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
 
-        public ConvertSpecCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        public ConvertSpecCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
+            this.depsValidatorFactory = depsValidatorFactory;
         }
 
         public override string Name => "convert-spec";
@@ -83,7 +86,7 @@ namespace Commands
 
         private void ConvertDepsSection(TextWriter writer, string configuration, List<string> children)
         {
-            var parser = new DepsParser(Directory.GetCurrentDirectory());
+            var parser = new DepsParser(consoleWriter, depsValidatorFactory, Directory.GetCurrentDirectory());
             var deps = parser.Get(configuration);
             var childrenDeps = children.SelectMany(c => parser.Get(c).Deps).ToList();
             deps.Deps = RelaxDeps(deps.Deps, childrenDeps);

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Common;
+using Common.DepsValidators;
 using Common.Exceptions;
 using Common.YamlParsers;
 using Common.YamlParsers.V2.Factories;
@@ -13,6 +14,15 @@ namespace Tests.ParsersTests
     [TestFixture]
     public class TestDepParser
     {
+        private readonly ConsoleWriter consoleWriter;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
+
+        public TestDepParser()
+        {
+            consoleWriter = ConsoleWriter.Shared;
+            depsValidatorFactory = DepsValidatorFactory.Shared;
+        }
+
         [Test]
         public void TestGetDepsOnlyDefault()
         {
@@ -396,7 +406,7 @@ config3 > config2,config1:
         public void TestNoDepsFile()
         {
             using var tmp = new TempDirectory();
-            var dc = new DepsParser(tmp.Path).Get();
+            var dc = new DepsParser(consoleWriter, depsValidatorFactory, tmp.Path).Get();
             Assert.That(dc.Deps.Count == 0);
         }
 

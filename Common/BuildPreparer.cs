@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.DepsValidators;
 using Common.Exceptions;
 using Common.Logging;
 using Common.YamlParsers;
@@ -17,14 +18,16 @@ public sealed class BuildPreparer
 
     private readonly ILogger logger;
     private readonly ConsoleWriter consoleWriter;
+    private IDepsValidatorFactory depsValidatorFactory;
 
-    public BuildPreparer(ILogger<BuildPreparer> logger, ConsoleWriter consoleWriter)
+    public BuildPreparer(ILogger<BuildPreparer> logger, ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
+        this.depsValidatorFactory = depsValidatorFactory;
     }
 
-    public static BuildPreparer Shared { get; } = new(LogManager.GetLogger<BuildPreparer>(), ConsoleWriter.Shared);
+    public static BuildPreparer Shared { get; } = new(LogManager.GetLogger<BuildPreparer>(), ConsoleWriter.Shared, DepsValidatorFactory.Shared);
 
     public ModulesOrder GetModulesOrder(string moduleName, string configuration)
     {
@@ -134,7 +137,9 @@ public sealed class BuildPreparer
         CheckAndUpdateDepConfiguration(dep);
         visitedConfigurations.Add(dep);
         graph[dep] = new List<Dep>();
-        var currentDeps = new DepsParser(Path.Combine(Helper.CurrentWorkspace, dep.Name)).Get(dep.Configuration).Deps ?? new List<Dep>();
+        var currentDeps = new DepsParser(consoleWriter, depsValidatorFactory, Path.Combine(Helper.CurrentWorkspace, dep.Name))
+            .Get(dep.Configuration).Deps ?? new List<Dep>();
+
         currentDeps = currentDeps.Select(d => new Dep(d.Name, null, d.Configuration)).ToList();
         foreach (var d in currentDeps)
         {

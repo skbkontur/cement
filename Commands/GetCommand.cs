@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Common;
+using Common.DepsValidators;
 using Common.Exceptions;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +17,7 @@ namespace Commands
 
         private readonly ConsoleWriter consoleWriter;
         private readonly CycleDetector cycleDetector;
-
+        private readonly IDepsValidatorFactory depsValidatorFactory;
         private string configuration;
         private LocalChangesPolicy policy;
         private string module;
@@ -25,11 +26,13 @@ namespace Commands
         private bool verbose;
         private int? gitDepth;
 
-        public GetCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector)
+        public GetCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
+                          IDepsValidatorFactory depsValidatorFactory)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
             this.cycleDetector = cycleDetector;
+            this.depsValidatorFactory = depsValidatorFactory;
         }
 
         public override string Name => "get";
@@ -98,6 +101,7 @@ namespace Commands
             var getter = new ModuleGetter(
                 consoleWriter,
                 cycleDetector,
+                depsValidatorFactory,
                 Helper.GetModules(),
                 new Dep(module, treeish, configuration),
                 policy,

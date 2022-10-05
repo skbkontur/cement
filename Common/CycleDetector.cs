@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.DepsValidators;
 using Microsoft.Extensions.Logging;
 
 namespace Common
@@ -8,10 +9,12 @@ namespace Common
     public sealed class CycleDetector
     {
         private readonly ConsoleWriter consoleWriter;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
 
-        public CycleDetector(ConsoleWriter consoleWriter)
+        public CycleDetector(ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory)
         {
             this.consoleWriter = consoleWriter;
+            this.depsValidatorFactory = depsValidatorFactory;
         }
 
         public void WarnIfCycle(string rootModuleName, string configuration, ILogger log)
@@ -46,7 +49,10 @@ namespace Common
             var depNameAndConfig = dep.Name + Helper.ConfigurationDelimiter + dep.Configuration;
             modulesInProcessing.Add(depNameAndConfig);
             visitedConfigurations.Add(depNameAndConfig);
-            var deps = new DepsParser(Path.Combine(Helper.CurrentWorkspace, dep.Name)).Get(dep.Configuration).Deps ?? new List<Dep>();
+
+            var deps = new DepsParser(consoleWriter, depsValidatorFactory, Path.Combine(Helper.CurrentWorkspace, dep.Name))
+                .Get(dep.Configuration).Deps ?? new List<Dep>();
+
             foreach (var d in deps)
             {
                 d.UpdateConfigurationIfNull();
