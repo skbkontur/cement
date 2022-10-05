@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Xml.Linq;
 using Common.Exceptions;
 
 namespace Common;
 
+[Obsolete("This component is deprecated and will be removed soon")]
 public sealed class InstallXmlParser
 {
     private readonly XDocument document;

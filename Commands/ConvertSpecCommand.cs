@@ -8,6 +8,7 @@ using Common.Exceptions;
 
 namespace Commands;
 
+[Obsolete("This component is deprecated and will be removed soon")]
 public sealed class ConvertSpecCommand : Command
 {
     private static readonly CommandSettings Settings = new()

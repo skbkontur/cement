@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common.YamlParsers;
 
 namespace Common;
 
+[Obsolete("This component is deprecated and will be removed soon")]
 public sealed class DepsIniParser
 {
     private readonly IniParser parser;

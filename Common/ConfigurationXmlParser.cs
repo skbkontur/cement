@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
 
 namespace Common;
 
+[Obsolete("This component is deprecated and will be removed soon")]
 public sealed class ConfigurationXmlParser : IConfigurationParser
 {
     private readonly XmlDocument document;
