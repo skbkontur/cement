@@ -7,9 +7,8 @@ namespace Commands;
 
 public static class SelfUpdate
 {
-    public static void UpdateIfOld(FeatureFlags featureFlags)
+    public static void UpdateIfOld(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
     {
-        var consoleWriter = ConsoleWriter.Shared;
         var log = LogManager.GetLogger(nameof(SelfUpdate));
 
         try
