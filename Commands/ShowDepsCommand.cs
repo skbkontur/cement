@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
+using Common.DepsValidators;
 using Common.YamlParsers;
 
 namespace Commands
 {
     public sealed class ShowDepsCommand : Command
     {
+        private readonly IDepsValidatorFactory depsValidatorFactory;
         private static readonly CommandSettings Settings = new()
         {
             LogFileName = "show-deps",
@@ -19,9 +21,10 @@ namespace Commands
         private readonly ArborJs arborJs;
         private string configuration;
 
-        public ShowDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        public ShowDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
             : base(consoleWriter, Settings, featureFlags)
         {
+            this.depsValidatorFactory = depsValidatorFactory;
             arborJs = new ArborJs();
         }
 
@@ -150,6 +153,7 @@ namespace Commands
                 return overheadCache[dep];
 
             var checker = new DepsChecker(
+                ConsoleWriter, depsValidatorFactory,
                 Path.Combine(Helper.CurrentWorkspace, dep.Name),
                 dep.Configuration,
                 Helper.GetModules());

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
+using Common.DepsValidators;
 
 namespace Commands
 {
@@ -15,15 +16,17 @@ namespace Commands
             Location = CommandLocation.RootModuleDirectory
         };
         private readonly ConsoleWriter consoleWriter;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
         private string configuration;
         private bool showAll;
         private bool findExternal;
         private bool showShort;
 
-        public CheckDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+        public CheckDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
             : base(consoleWriter, Settings, featureFlags)
         {
             this.consoleWriter = consoleWriter;
+            this.depsValidatorFactory = depsValidatorFactory;
         }
 
         public override string Name => "check-deps";
@@ -55,7 +58,9 @@ namespace Commands
             configuration = configuration ?? "full-build";
 
             consoleWriter.WriteInfo($"Checking {configuration} configuration result:");
-            var result = new DepsChecker(cwd, configuration, Helper.GetModules()).GetCheckDepsResult(findExternal);
+            var result = new DepsChecker(consoleWriter, depsValidatorFactory, cwd, configuration, Helper.GetModules())
+                .GetCheckDepsResult(findExternal);
+
             if (result.NoYamlInstallSection.Any())
             {
                 ok = false;

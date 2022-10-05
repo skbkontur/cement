@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.DepsValidators;
 using Common.Exceptions;
 using Common.Extensions;
 using Common.YamlParsers;
@@ -15,12 +16,13 @@ namespace Common
         private readonly string moduleDirectory;
         private readonly string moduleName;
 
-        public DepsChecker(string cwd, string config, List<Module> modules)
+        public DepsChecker(ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory,
+                           string cwd, string config, List<Module> modules)
         {
             if (!new ConfigurationParser(new FileInfo(cwd)).ConfigurationExists(config))
                 throw new NoSuchConfigurationException(cwd, config);
             buildData = new BuildYamlParser(new FileInfo(cwd)).Get(config);
-            depsRefsCollector = new DepsReferencesCollector(cwd, config);
+            depsRefsCollector = new DepsReferencesCollector(consoleWriter, depsValidatorFactory, cwd, config);
             this.modules = modules.Select(m => m.Name).ToList();
             moduleDirectory = cwd;
             moduleName = Path.GetFileName(moduleDirectory);

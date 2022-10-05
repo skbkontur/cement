@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
+using Common.DepsValidators;
 using NUnit.Framework;
 
 namespace Tests.CommandsTests
@@ -9,6 +10,9 @@ namespace Tests.CommandsTests
     [TestFixture]
     internal class TestCheckDeps
     {
+        private static readonly ConsoleWriter ConsoleWriter = ConsoleWriter.Shared;
+        private static readonly IDepsValidatorFactory DepsValidatorFactory = Common.DepsValidators.DepsValidatorFactory.Shared;
+
         [Test]
         public void TestCollectReferences()
         {
@@ -92,8 +96,9 @@ full-build:
   deps:
     B");
             Helper.SetWorkspace(tempDir.Path);
-            var depsReferences =
-                new DepsReferencesCollector(Path.Combine(tempDir.Path, "A"), null).GetRefsFromDeps();
+            var depsReferences = new DepsReferencesCollector(ConsoleWriter, DepsValidatorFactory, Path.Combine(tempDir.Path, "A"), null)
+                .GetRefsFromDeps();
+
             Assert.AreEqual(new[] {"C"}, depsReferences.NotFoundInstallSection);
             Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().InstallFiles);
             Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().CurrentConfigurationInstallFiles);
@@ -137,8 +142,9 @@ full-build:
   deps:
     B");
             Helper.SetWorkspace(tempDir.Path);
-            var depsReferences =
-                new DepsReferencesCollector(Path.Combine(tempDir.Path, "A"), null).GetRefsFromDeps();
+            var depsReferences = new DepsReferencesCollector(ConsoleWriter, DepsValidatorFactory, Path.Combine(tempDir.Path, "A"), null)
+                .GetRefsFromDeps();
+
             Assert.AreEqual(new[] {"C"}, depsReferences.NotFoundInstallSection);
             Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll", "B\\bin\\Release\\B.Client.dll"}, depsReferences.FoundReferences.First().InstallFiles);
             Assert.AreEqual(new[] {"B\\bin\\Release\\B.dll"}, depsReferences.FoundReferences.First().CurrentConfigurationInstallFiles);

@@ -11,10 +11,11 @@ namespace Common
         private readonly List<Dep> deps;
         private readonly string workspace;
 
-        public DepsReferencesCollector(string modulePath, string config)
+        public DepsReferencesCollector(ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory,
+                                       string modulePath, string config)
         {
             workspace = Directory.GetParent(modulePath).FullName;
-            deps = new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, new FileInfo(modulePath)).Get(config).Deps;
+            deps = new DepsYamlParser(consoleWriter, depsValidatorFactory, new FileInfo(modulePath)).Get(config).Deps;
         }
 
         public DepsReferenceSearchModel GetRefsFromDeps()

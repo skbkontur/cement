@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Commands;
 using Common;
+using Common.DepsValidators;
 using Common.YamlParsers;
 using NUnit.Framework;
 using Tests.Helpers;
@@ -10,6 +11,10 @@ namespace Tests.CommandsTests
     [TestFixture]
     public class TestDepsPrinter
     {
+        private static readonly ConsoleWriter ConsoleWriter = ConsoleWriter.Shared;
+        private static readonly DepsValidatorFactory DepsValidatorFactory = DepsValidatorFactory.Shared;
+        private static readonly FeatureFlags FeatureFlags = FeatureFlags.Default;
+
         [Test]
         public void TestSimpleTree()
         {
@@ -36,7 +41,7 @@ namespace Tests.CommandsTests
                     {"client", new DepsData(null, new List<Dep>())}
                 });
             Helper.SetWorkspace(env.RemoteWorkspace);
-            var result = new ShowDepsCommand(ConsoleWriter.Shared, FeatureFlags.Default).GetDepsGraph(new Dep("A"));
+            var result = new ShowDepsCommand(ConsoleWriter, FeatureFlags, DepsValidatorFactory).GetDepsGraph(new Dep("A"));
             CollectionAssert.AreEqual(
                 new[]
                 {
