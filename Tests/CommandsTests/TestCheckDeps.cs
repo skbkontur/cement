@@ -10,8 +10,14 @@ namespace Tests.CommandsTests
     [TestFixture]
     internal class TestCheckDeps
     {
-        private static readonly ConsoleWriter ConsoleWriter = ConsoleWriter.Shared;
-        private static readonly IDepsValidatorFactory DepsValidatorFactory = Common.DepsValidators.DepsValidatorFactory.Shared;
+        private readonly ConsoleWriter consoleWriter;
+        private readonly IDepsValidatorFactory depsValidatorFactory;
+
+        public TestCheckDeps()
+        {
+            consoleWriter = ConsoleWriter.Shared;
+            depsValidatorFactory = new DepsValidatorFactory();
+        }
 
         [Test]
         public void TestCollectReferences()
@@ -96,7 +102,7 @@ full-build:
   deps:
     B");
             Helper.SetWorkspace(tempDir.Path);
-            var depsReferences = new DepsReferencesCollector(ConsoleWriter, DepsValidatorFactory, Path.Combine(tempDir.Path, "A"), null)
+            var depsReferences = new DepsReferencesCollector(consoleWriter, depsValidatorFactory, Path.Combine(tempDir.Path, "A"), null)
                 .GetRefsFromDeps();
 
             Assert.AreEqual(new[] {"C"}, depsReferences.NotFoundInstallSection);
@@ -142,7 +148,7 @@ full-build:
   deps:
     B");
             Helper.SetWorkspace(tempDir.Path);
-            var depsReferences = new DepsReferencesCollector(ConsoleWriter, DepsValidatorFactory, Path.Combine(tempDir.Path, "A"), null)
+            var depsReferences = new DepsReferencesCollector(consoleWriter, depsValidatorFactory, Path.Combine(tempDir.Path, "A"), null)
                 .GetRefsFromDeps();
 
             Assert.AreEqual(new[] {"C"}, depsReferences.NotFoundInstallSection);

@@ -6,205 +6,206 @@ using Common.DepsValidators;
 using Common.Exceptions;
 using Common.Logging;
 using Common.YamlParsers;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
-namespace Common;
-
-[PublicAPI]
-public sealed class BuildPreparer
+namespace Common
 {
-    private static readonly Dictionary<string, bool> DepConfigurationExistsCache = new();
-
-    private readonly ILogger logger;
-    private readonly ConsoleWriter consoleWriter;
-    private IDepsValidatorFactory depsValidatorFactory;
-
-    public BuildPreparer(ILogger<BuildPreparer> logger, ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory)
+    public sealed class BuildPreparer
     {
-        this.logger = logger;
-        this.consoleWriter = consoleWriter;
-        this.depsValidatorFactory = depsValidatorFactory;
-    }
+        private static readonly Dictionary<string, bool> DepConfigurationExistsCache = new();
 
-    public static BuildPreparer Shared { get; } = new(LogManager.GetLogger<BuildPreparer>(), ConsoleWriter.Shared, DepsValidatorFactory.Shared);
+        private readonly ILogger log;
 
-    public ModulesOrder GetModulesOrder(string moduleName, string configuration)
-    {
-        var modulesOrder = new ModulesOrder();
-        logger.LogDebug("Building configurations graph");
-        consoleWriter.WriteProgress("Building configurations graph");
-        modulesOrder.ConfigsGraph = BuildConfigsGraph(moduleName, configuration);
-        modulesOrder.ConfigsGraph = EraseExtraChildren(modulesOrder.ConfigsGraph);
-        modulesOrder.BuildOrder = GetTopologicallySortedGraph(modulesOrder.ConfigsGraph, moduleName, configuration);
-
-        logger.LogDebug("Getting current commit hashes");
-        consoleWriter.WriteProgress("Getting current commit hashes");
-        modulesOrder.CurrentCommitHashes = GetCurrentCommitHashes(modulesOrder.ConfigsGraph);
-        modulesOrder.UpdatedModules = BuildInfoStorage.Deserialize().GetUpdatedModules(modulesOrder.BuildOrder, modulesOrder.CurrentCommitHashes);
-        consoleWriter.ResetProgress();
-        return modulesOrder;
-    }
-
-    public List<Dep> GetTopologicallySortedGraph(Dictionary<Dep, List<Dep>> graph, string root, string config, bool printCycle = true)
-    {
-        var visitedConfigurations = new HashSet<Dep>();
-        var processingConfigs = new List<Dep>();
-        var result = new List<Dep>();
-        var rootDep = new Dep(root, null, config);
-        TopSort(rootDep, graph, visitedConfigurations, processingConfigs, result, printCycle);
-        return result;
-    }
-
-    public Dictionary<Dep, List<Dep>> BuildConfigsGraph(string moduleName, string config)
-    {
-        var graph = new Dictionary<Dep, List<Dep>>();
-        var visitedConfigurations = new HashSet<Dep>();
-        Dfs(new Dep(moduleName, null, config), graph, visitedConfigurations);
-        return graph;
-    }
-
-    private static Dictionary<Dep, List<Dep>> EraseChild(Dictionary<Dep, List<Dep>> configsGraph, Dep child, Dep parrent)
-    {
-        var result = new Dictionary<Dep, List<Dep>>();
-        foreach (var kvp in configsGraph)
+        public BuildPreparer(ILogger log)
         {
-            if (kvp.Key.Equals(child))
-                continue;
-            var deps = kvp.Value.Select(to => to.Equals(child) ? parrent : to).ToList();
-            result.Add(kvp.Key, deps);
+            this.log = log;
         }
 
-        return result;
-    }
+        public static BuildPreparer Shared { get; } = new(LogManager.GetLogger<BuildPreparer>());
 
-    private void TopSort(Dep dep, Dictionary<Dep, List<Dep>> graph, ISet<Dep> visitedConfigurations, List<Dep> processingConfigs, List<Dep> result, bool printCycle)
-    {
-        dep.UpdateConfigurationIfNull();
-        visitedConfigurations.Add(dep);
-        processingConfigs.Add(dep);
-
-        foreach (var d in graph[dep])
+        public ModulesOrder GetModulesOrder(string moduleName, string configuration)
         {
-            d.UpdateConfigurationIfNull();
-            if (processingConfigs.Contains(d))
-            {
-                if (!printCycle)
-                    throw new CementException("Unable to build! Circular dependency found!");
+            var modulesOrder = new ModulesOrder();
+            log.LogDebug("Building configurations graph");
+            ConsoleWriter.Shared.WriteProgress("Building configurations graph");
+            modulesOrder.ConfigsGraph = BuildConfigsGraph(moduleName, configuration);
+            modulesOrder.ConfigsGraph = EraseExtraChildren(modulesOrder.ConfigsGraph);
+            modulesOrder.BuildOrder = GetTopologicallySortedGraph(modulesOrder.ConfigsGraph, moduleName, configuration);
 
-                while (!processingConfigs.First().Equals(d))
-                    processingConfigs = processingConfigs.Skip(1).ToList();
-                processingConfigs.Add(d);
-                consoleWriter.WriteLine(string.Join(" ->\n", processingConfigs));
-                throw new CementException("Unable to build! Circular dependency found!");
-            }
-
-            if (!visitedConfigurations.Contains(d))
-            {
-                TopSort(d, graph, visitedConfigurations, processingConfigs, result, printCycle);
-            }
+            log.LogDebug("Getting current commit hashes");
+            ConsoleWriter.Shared.WriteProgress("Getting current commit hashes");
+            modulesOrder.CurrentCommitHashes = GetCurrentCommitHashes(modulesOrder.ConfigsGraph);
+            modulesOrder.UpdatedModules = BuildInfoStorage.Deserialize().GetUpdatedModules(modulesOrder.BuildOrder, modulesOrder.CurrentCommitHashes);
+            ConsoleWriter.Shared.ResetProgress();
+            return modulesOrder;
         }
 
-        processingConfigs.Remove(dep);
-        result.Add(dep);
-    }
-
-    private void CheckAndUpdateDepConfiguration(Dep dep)
-    {
-        dep.UpdateConfigurationIfNull();
-        var key = dep.ToString();
-        if (!DepConfigurationExistsCache.ContainsKey(key))
+        public List<Dep> GetTopologicallySortedGraph(Dictionary<Dep, List<Dep>> graph, string root, string config, bool printCycle = true)
         {
-            if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, dep.Name)))
-            {
-                throw new CementBuildException("Failed to find module '" + dep.Name + "'");
-            }
-
-            DepConfigurationExistsCache[key] = !Yaml.Exists(dep.Name) ||
-                                               Yaml.ConfigurationParser(dep.Name).ConfigurationExists(dep.Configuration);
+            var visitedConfigurations = new HashSet<Dep>();
+            var processingConfigs = new List<Dep>();
+            var result = new List<Dep>();
+            var rootDep = new Dep(root, null, config);
+            TopSort(rootDep, graph, visitedConfigurations, processingConfigs, result, printCycle);
+            return result;
         }
 
-        if (!DepConfigurationExistsCache[key])
+        public Dictionary<Dep, List<Dep>> BuildConfigsGraph(string moduleName, string config)
         {
-            consoleWriter.WriteWarning(
-                $"Configuration '{dep.Configuration}' was not found in {dep.Name}. Will take full-build config");
-            dep.Configuration = "full-build";
+            var graph = new Dictionary<Dep, List<Dep>>();
+            var visitedConfigurations = new HashSet<Dep>();
+            Dfs(new Dep(moduleName, null, config), graph, visitedConfigurations);
+            return graph;
         }
-    }
 
-    private void Dfs(Dep dep, Dictionary<Dep, List<Dep>> graph, HashSet<Dep> visitedConfigurations)
-    {
-        CheckAndUpdateDepConfiguration(dep);
-        visitedConfigurations.Add(dep);
-        graph[dep] = new List<Dep>();
-        var currentDeps = new DepsParser(consoleWriter, depsValidatorFactory, Path.Combine(Helper.CurrentWorkspace, dep.Name))
-            .Get(dep.Configuration).Deps ?? new List<Dep>();
-
-        currentDeps = currentDeps.Select(d => new Dep(d.Name, null, d.Configuration)).ToList();
-        foreach (var d in currentDeps)
+        private static Dictionary<Dep, List<Dep>> EraseChild(Dictionary<Dep, List<Dep>> configsGraph, Dep child, Dep parrent)
         {
-            d.UpdateConfigurationIfNull();
-            graph[dep].Add(d);
-            if (!visitedConfigurations.Contains(d))
+            var result = new Dictionary<Dep, List<Dep>>();
+            foreach (var kvp in configsGraph)
             {
-                Dfs(d, graph, visitedConfigurations);
-            }
-        }
-    }
-
-    private Dictionary<Dep, List<Dep>> EraseExtraChildren(Dictionary<Dep, List<Dep>> configsGraph)
-    {
-        var vertices = configsGraph.Select(e => e.Key).ToList();
-        var deletedChildren = new List<Dep>();
-        foreach (var parrent in vertices)
-        {
-            if (deletedChildren.Contains(parrent))
-                continue;
-            var hierarchyManager = new ConfigurationManager(parrent.Name, vertices.Where(v => v.Name == parrent.Name).ToArray());
-            var childrenConfigurations = hierarchyManager.ProcessedChildrenConfigurations(parrent);
-            foreach (var childConfig in childrenConfigurations)
-            {
-                var child = new Dep(parrent.Name, null, childConfig);
-                if (deletedChildren.Contains(child))
+                if (kvp.Key.Equals(child))
                     continue;
-                var configsGraph2 = EraseChild(configsGraph, child, parrent);
-                try
+                var deps = kvp.Value.Select(to => to.Equals(child) ? parrent : to).ToList();
+                result.Add(kvp.Key, deps);
+            }
+
+            return result;
+        }
+
+        private static void TopSort(Dep dep, Dictionary<Dep, List<Dep>> graph, ISet<Dep> visitedConfigurations, List<Dep> processingConfigs, List<Dep> result, bool printCycle)
+        {
+            dep.UpdateConfigurationIfNull();
+            visitedConfigurations.Add(dep);
+            processingConfigs.Add(dep);
+
+            foreach (var d in graph[dep])
+            {
+                d.UpdateConfigurationIfNull();
+                if (processingConfigs.Contains(d))
                 {
-                    GetTopologicallySortedGraph(configsGraph2, parrent.Name, parrent.Configuration, false);
-                    configsGraph = configsGraph2;
-                    deletedChildren.Add(child);
+                    if (!printCycle)
+                        throw new CementException("Unable to build! Circular dependency found!");
+
+                    while (!processingConfigs.First().Equals(d))
+                        processingConfigs = processingConfigs.Skip(1).ToList();
+                    processingConfigs.Add(d);
+                    ConsoleWriter.Shared.WriteLine(string.Join(" ->\n", processingConfigs));
+                    throw new CementException("Unable to build! Circular dependency found!");
                 }
-                catch (Exception)
+
+                if (!visitedConfigurations.Contains(d))
                 {
-                    // cycle
+                    TopSort(d, graph, visitedConfigurations, processingConfigs, result, printCycle);
+                }
+            }
+
+            processingConfigs.Remove(dep);
+            result.Add(dep);
+        }
+
+        private static void CheckAndUpdateDepConfiguration(Dep dep)
+        {
+            dep.UpdateConfigurationIfNull();
+            var key = dep.ToString();
+            if (!DepConfigurationExistsCache.ContainsKey(key))
+            {
+                if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, dep.Name)))
+                {
+                    throw new CementBuildException("Failed to find module '" + dep.Name + "'");
+                }
+
+                DepConfigurationExistsCache[key] = !Yaml.Exists(dep.Name) ||
+                                                   Yaml.ConfigurationParser(dep.Name).ConfigurationExists(dep.Configuration);
+            }
+
+            if (!DepConfigurationExistsCache[key])
+            {
+                ConsoleWriter.Shared.WriteWarning(
+                    $"Configuration '{dep.Configuration}' was not found in {dep.Name}. Will take full-build config");
+                dep.Configuration = "full-build";
+            }
+        }
+
+        private static void Dfs(Dep dep, Dictionary<Dep, List<Dep>> graph, HashSet<Dep> visitedConfigurations)
+        {
+            CheckAndUpdateDepConfiguration(dep);
+            visitedConfigurations.Add(dep);
+            graph[dep] = new List<Dep>();
+            var currentDeps = new DepsParser(
+                ConsoleWriter.Shared, DepsValidatorFactory.Shared,
+                Path.Combine(Helper.CurrentWorkspace, dep.Name)).Get(dep.Configuration).Deps ?? new List<Dep>();
+            currentDeps = currentDeps.Select(d => new Dep(d.Name, null, d.Configuration)).ToList();
+            foreach (var d in currentDeps)
+            {
+                d.UpdateConfigurationIfNull();
+                graph[dep].Add(d);
+                if (!visitedConfigurations.Contains(d))
+                {
+                    Dfs(d, graph, visitedConfigurations);
                 }
             }
         }
 
-        return configsGraph;
-    }
-
-    private Dictionary<string, string> GetCurrentCommitHashes(Dictionary<Dep, List<Dep>> configsGraph)
-    {
-        var deps = configsGraph.Keys.Select(d => d.Name).Distinct().ToList();
-
-        var result = deps.AsParallel()
-            .Select(d => new KeyValuePair<string, string>(d, GetCurrentCommitHash(d)))
-            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        return result;
-    }
-
-    private string GetCurrentCommitHash(string moduleName)
-    {
-        try
+        private Dictionary<Dep, List<Dep>> EraseExtraChildren(Dictionary<Dep, List<Dep>> configsGraph)
         {
-            var repo = new GitRepository(moduleName, Helper.CurrentWorkspace, logger);
-            return repo.CurrentLocalCommitHash();
+            var vertices = configsGraph.Select(e => e.Key).ToList();
+            var deletedChildren = new List<Dep>();
+            foreach (var parrent in vertices)
+            {
+                if (deletedChildren.Contains(parrent))
+                    continue;
+                var hierarchyManager = new ConfigurationManager(parrent.Name, vertices.Where(v => v.Name == parrent.Name).ToArray());
+                var childrenConfigurations = hierarchyManager.ProcessedChildrenConfigurations(parrent);
+                foreach (var childConfig in childrenConfigurations)
+                {
+                    var child = new Dep(parrent.Name, null, childConfig);
+                    if (deletedChildren.Contains(child))
+                        continue;
+                    var configsGraph2 = EraseChild(configsGraph, child, parrent);
+                    try
+                    {
+                        GetTopologicallySortedGraph(configsGraph2, parrent.Name, parrent.Configuration, false);
+                        configsGraph = configsGraph2;
+                        deletedChildren.Add(child);
+                    }
+                    catch (Exception)
+                    {
+                        // cycle
+                    }
+                }
+            }
+
+            return configsGraph;
         }
-        catch (Exception e)
+
+        private Dictionary<string, string> GetCurrentCommitHashes(Dictionary<Dep, List<Dep>> configsGraph)
         {
-            consoleWriter.WriteWarning($"Failed to retrieve local commit hash for '{moduleName}': {e}");
-            return null;
+            var deps = configsGraph.Keys.Select(d => d.Name).Distinct().ToList();
+
+            var result = deps.AsParallel()
+                .Select(d => new KeyValuePair<string, string>(d, GetCurrentCommitHash(d)))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            return result;
+        }
+
+        private string GetCurrentCommitHash(string moduleName)
+        {
+            try
+            {
+                var logger = LogManager.GetLogger<GitRepository>();
+                var shellRunner = new ShellRunner(logger);
+
+                var workspace = Helper.CurrentWorkspace;
+                var repoPath = Path.Combine(workspace, moduleName);
+
+                var repo = new GitRepository(logger, ConsoleWriter.Shared, BuildHelper.Shared, shellRunner, repoPath, moduleName, workspace);
+                return repo.CurrentLocalCommitHash();
+            }
+            catch (Exception e)
+            {
+                ConsoleWriter.Shared.WriteWarning($"Failed to retrieve local commit hash for '{moduleName}': {e}");
+                return null;
+            }
         }
     }
 }

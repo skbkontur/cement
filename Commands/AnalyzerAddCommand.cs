@@ -20,14 +20,17 @@ public sealed class AnalyzerAddCommand : Command
 
     private readonly ConsoleWriter consoleWriter;
     private readonly DepsPatcherProject depsPatcherProject;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
     private string moduleSolutionName;
     private Dep analyzerModule;
 
-    public AnalyzerAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, DepsPatcherProject depsPatcherProject)
+    public AnalyzerAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, DepsPatcherProject depsPatcherProject,
+                              IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.depsPatcherProject = depsPatcherProject;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public override string Name => "add";
@@ -134,7 +137,7 @@ public sealed class AnalyzerAddCommand : Command
 
         try
         {
-            var repo = new GitRepository(analyzerModule.Name, Helper.CurrentWorkspace, Log);
+            var repo = gitRepositoryFactory.Create(analyzerModule.Name, Helper.CurrentWorkspace);
             var current = repo.CurrentLocalTreeish().Value;
             if (current != analyzerModule.Treeish)
                 consoleWriter.WriteWarning($"{analyzerModule.Name} on @{current} but adding @{analyzerModule.Treeish}");

@@ -2,9 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Common;
 using Common.Exceptions;
-using Common.Logging;
 using Common.YamlParsers;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Tests.Helpers;
 
@@ -13,7 +11,15 @@ namespace Tests.CommandsTests
     [TestFixture]
     public class TestGet
     {
-        private static readonly ILogger Log = LogManager.GetLogger<TestGet>();
+        private readonly GitRepositoryFactory gitRepositoryFactory;
+
+        public TestGet()
+        {
+            var consoleWriter = ConsoleWriter.Shared;
+            var buildHelper = BuildHelper.Shared;
+
+            gitRepositoryFactory = new GitRepositoryFactory(consoleWriter, buildHelper);
+        }
 
         [Test]
         public void TestGetDepsSimple()
@@ -35,7 +41,7 @@ namespace Tests.CommandsTests
             env.CreateRepo("A", null, new[] {"newbranch"});
             env.Get("A", "newbranch");
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("newbranch", new GitRepository("A", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("newbranch", gitRepositoryFactory.Create("A", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -69,7 +75,7 @@ namespace Tests.CommandsTests
             env.CreateRepo("B", null, new[] {"new"});
             env.Get("A");
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("new", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("new", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -84,7 +90,7 @@ namespace Tests.CommandsTests
                 });
             env.CreateRepo("B", null, new[] {"new"});
             env.Get("A");
-            var repo = new GitRepository("B", dir, Log);
+            var repo = gitRepositoryFactory.Create("B", dir);
             var sha1 = repo.CurrentLocalCommitHash();
 
             env.CommitIntoRemote("B", "newFile", "content");
@@ -114,7 +120,7 @@ namespace Tests.CommandsTests
             env.CreateRepo("B", null, new[] {"new"});
             env.Get("A");
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("new", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("new", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -131,7 +137,7 @@ namespace Tests.CommandsTests
             env.CreateRepo("B", null, new[] {"new", "priority"});
             env.Get("A");
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("priority", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("priority", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -148,7 +154,7 @@ namespace Tests.CommandsTests
             env.CreateRepo("B", null, new[] {"new", "priority"});
             env.Get("A");
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("priority", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("priority", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -179,7 +185,7 @@ namespace Tests.CommandsTests
                 });
             env.CreateRepo("B", null, new[] {"new"});
             env.Get("A");
-            var bRepo = new GitRepository("B", dir, Log);
+            var bRepo = gitRepositoryFactory.Create("B", dir);
             env.MakeLocalChanges("B", "file", "some content");
             Assert.AreNotEqual("", bRepo.ShowLocalChanges());
 
@@ -201,7 +207,7 @@ namespace Tests.CommandsTests
                 });
             env.CreateRepo("B", null, new[] {"new"});
             env.Get("A");
-            var bRepo = new GitRepository("B", dir, Log);
+            var bRepo = gitRepositoryFactory.Create("B", dir);
             var remoteSha = bRepo.RemoteCommitHashAtBranch("master");
 
             env.CommitIntoLocal("B", "newfile", "content");
@@ -227,7 +233,7 @@ namespace Tests.CommandsTests
                 });
             env.CreateRepo("B");
             env.Get("A");
-            var bRepo = new GitRepository("B", dir, Log);
+            var bRepo = gitRepositoryFactory.Create("B", dir);
             env.CommitIntoLocal("B", "newfile", "content");
             env.CommitIntoRemote("B", "another_new_file", "text");
             var remoteSha = bRepo.RemoteCommitHashAtBranch("master");
@@ -253,7 +259,7 @@ namespace Tests.CommandsTests
                 });
             env.CreateRepo("B");
             env.Get("A");
-            var bRepo = new GitRepository("B", dir, Log);
+            var bRepo = gitRepositoryFactory.Create("B", dir);
             env.CommitIntoRemote("B", "another_new_file", "text");
             var remoteSha = bRepo.RemoteCommitHashAtBranch("master");
             env.MakeLocalChanges("B", "file", "some content");
@@ -299,7 +305,7 @@ namespace Tests.CommandsTests
 
             env.Get("A", "new");
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("new", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("new", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -322,7 +328,7 @@ namespace Tests.CommandsTests
             env.Get("A", "new");
 
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("new", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("new", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -348,7 +354,7 @@ namespace Tests.CommandsTests
             env.Get("A", "new");
 
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("new1", new GitRepository("C", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("new1", gitRepositoryFactory.Create("C", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -368,7 +374,7 @@ namespace Tests.CommandsTests
 
             env.Get("A", "new");
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("new", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("new", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -469,7 +475,7 @@ namespace Tests.CommandsTests
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "B")));
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "C")));
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "D")));
-            Assert.AreEqual("1", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("1", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -561,7 +567,7 @@ namespace Tests.CommandsTests
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "B")));
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "C")));
-            Assert.AreEqual("notmaster", new GitRepository("C", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("notmaster", gitRepositoryFactory.Create("C", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -689,7 +695,7 @@ namespace Tests.CommandsTests
 
             env.Get("A");
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "C")));
-            Assert.AreEqual("branch1", new GitRepository("C", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("branch1", gitRepositoryFactory.Create("C", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -717,7 +723,7 @@ namespace Tests.CommandsTests
 
             env.Get("A");
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "C")));
-            Assert.AreEqual("branch2", new GitRepository("C", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("branch2", gitRepositoryFactory.Create("C", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -761,7 +767,7 @@ namespace Tests.CommandsTests
 
             env.Get("A");
 
-            Assert.AreEqual("branch", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("branch", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "B1")));
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "B2")));
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "B3")));
@@ -808,7 +814,7 @@ namespace Tests.CommandsTests
 
             env.Get("A");
 
-            Assert.AreEqual("branch", new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual("branch", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
             Assert.IsFalse(Directory.Exists(Path.Combine(dir, "B1")));
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "B2")));
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "B3")));
@@ -822,7 +828,7 @@ namespace Tests.CommandsTests
 
             env.CreateRepo("B");
             env.CommitIntoRemote("B", "file.txt", "new commit");
-            var bRemote = new GitRepository("B", env.RemoteWorkspace, Log);
+            var bRemote = gitRepositoryFactory.Create("B", env.RemoteWorkspace);
             var bHash = bRemote.CurrentLocalCommitHash();
 
             env.CreateRepo(
@@ -833,7 +839,7 @@ namespace Tests.CommandsTests
             env.Get("A");
 
             Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual(bHash, new GitRepository("B", dir, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual(bHash, gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
         }
 
         [Test]
@@ -844,7 +850,7 @@ namespace Tests.CommandsTests
 
             env.CreateRepo("B");
             env.CommitIntoRemote("B", "file.txt", "commit 1");
-            var bRemote = new GitRepository("B", env.RemoteWorkspace, Log);
+            var bRemote = gitRepositoryFactory.Create("B", env.RemoteWorkspace);
             var bHash1 = bRemote.CurrentLocalCommitHash();
 
             env.CreateRepo(
@@ -855,7 +861,7 @@ namespace Tests.CommandsTests
 
             env.Get("A");
             Assert.IsTrue(Directory.Exists(Path.Combine(cwd, "A")));
-            Assert.AreEqual(bHash1, new GitRepository("B", cwd, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual(bHash1, gitRepositoryFactory.Create("B", cwd).CurrentLocalTreeish().Value);
 
             //push new in b
             env.CommitIntoRemote("B", "file.txt", "commit 2");
@@ -870,7 +876,7 @@ namespace Tests.CommandsTests
 
             env.Get("C");
             Assert.IsTrue(Directory.Exists(Path.Combine(cwd, "C")));
-            Assert.AreEqual(bHash2, new GitRepository("B", cwd, Log).CurrentLocalTreeish().Value);
+            Assert.AreEqual(bHash2, gitRepositoryFactory.Create("B", cwd).CurrentLocalTreeish().Value);
         }
 
         [Test]

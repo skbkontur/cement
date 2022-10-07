@@ -18,6 +18,8 @@ public sealed class GetCommand : Command
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
+
     private string configuration;
     private LocalChangesPolicy policy;
     private string module;
@@ -27,12 +29,13 @@ public sealed class GetCommand : Command
     private int? gitDepth;
 
     public GetCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                      IDepsValidatorFactory depsValidatorFactory)
+                      IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public override string Name => "get";
@@ -102,6 +105,7 @@ public sealed class GetCommand : Command
             consoleWriter,
             cycleDetector,
             depsValidatorFactory,
+            gitRepositoryFactory,
             Helper.GetModules(),
             new Dep(module, treeish, configuration),
             policy,

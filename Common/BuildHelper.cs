@@ -11,6 +11,10 @@ public sealed class BuildHelper
 
     public static BuildHelper Shared { get; } = new();
 
+    private BuildHelper()
+    {
+    }
+
     public void RemoveModuleFromBuiltInfo(string moduleName)
     {
         semaphore.Wait();

@@ -24,7 +24,7 @@ namespace Tests.CommandsTests
         {
             consoleWriter = ConsoleWriter.Shared;
             featureFlags = FeatureFlags.Default;
-            depsValidatorFactory = DepsValidatorFactory.Shared;
+            depsValidatorFactory = new DepsValidatorFactory();
         }
 
         [SetUp]

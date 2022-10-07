@@ -1,19 +1,18 @@
 ﻿using System;
 using System.IO;
 using Common;
-using Common.Logging;
-using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
 public sealed class StatusCommand : ICommand
 {
-    private static readonly ILogger Log = LogManager.GetLogger<StatusCommand>();
     private readonly ConsoleWriter consoleWriter;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public StatusCommand(ConsoleWriter consoleWriter)
+    public StatusCommand(ConsoleWriter consoleWriter, IGitRepositoryFactory gitRepositoryFactory)
     {
         this.consoleWriter = consoleWriter;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public string HelpMessage => @"
@@ -56,7 +55,7 @@ public sealed class StatusCommand : ICommand
         var count = 0;
         foreach (var dir in listDir)
         {
-            var repo = new GitRepository(dir, Log);
+            var repo = gitRepositoryFactory.Create(dir);
             PrintStatus(repo);
             consoleWriter.WriteProgress(++count + "/" + listDir.Length + " " + repo.ModuleName);
         }

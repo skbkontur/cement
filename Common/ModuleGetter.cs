@@ -24,17 +24,21 @@ public sealed class ModuleGetter
     private readonly string mergedBranch;
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
+
     private bool errorOnMerge;
     private GitRepository rootRepo;
     private string rootRepoTreeish;
 
     public ModuleGetter(ConsoleWriter consoleWriter, CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
-                        List<Module> modules, Dep rootModule, LocalChangesPolicy userLocalChangesPolicy, string mergedBranch,
-                        bool verbose = false, bool localBranchForce = false, int? gitDepth = null)
+                        IGitRepositoryFactory gitRepositoryFactory, List<Module> modules, Dep rootModule,
+                        LocalChangesPolicy userLocalChangesPolicy, string mergedBranch, bool verbose = false,
+                        bool localBranchForce = false, int? gitDepth = null)
     {
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
+        this.gitRepositoryFactory = gitRepositoryFactory;
         this.modules = modules;
         this.rootModule = rootModule;
         this.userLocalChangesPolicy = userLocalChangesPolicy;
@@ -51,7 +55,7 @@ public sealed class ModuleGetter
 
     public void GetDeps()
     {
-        rootRepo = new GitRepository(rootModule.Name, Helper.CurrentWorkspace, Log);
+        rootRepo = gitRepositoryFactory.Create(rootModule.Name, Helper.CurrentWorkspace);
         rootRepoTreeish = rootRepo.CurrentLocalTreeish().Value;
 
         var depsContent = new DepsParser(consoleWriter, depsValidatorFactory, rootRepo.RepoPath)
@@ -234,7 +238,7 @@ public sealed class ModuleGetter
         if (module == null)
             throw new CementException("Failed to find module " + dep.Name);
 
-        var repo = new GitRepository(dep.Name, Helper.CurrentWorkspace, Log);
+        var repo = gitRepositoryFactory.Create(dep.Name, Helper.CurrentWorkspace);
         if (!repo.IsGitRepo)
         {
             consoleWriter.WriteProgress(dep.Name + "   " + dep.Treeish + " cloning");

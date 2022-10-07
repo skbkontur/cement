@@ -19,6 +19,8 @@ namespace Tests.ParsersTests
         private const string LocalCementDirectory = @"D:\Projects\";
 
         private static readonly Dictionary<string, string> pathToContentMap = new();
+        private readonly ConsoleWriter consoleWriter;
+        private readonly DepsValidatorFactory depsValidatorFactory;
 
         static TestModuleYamlParser()
         {
@@ -36,6 +38,12 @@ namespace Tests.ParsersTests
             }
         }
 
+        public TestModuleYamlParser()
+        {
+            consoleWriter = ConsoleWriter.Shared;
+            depsValidatorFactory = new DepsValidatorFactory();
+        }
+
         [TestCaseSource(nameof(Source))]
         public void ModuleYamlParserDoesNotThrow(string path)
         {
@@ -50,7 +58,7 @@ namespace Tests.ParsersTests
         {
             var text = pathToContentMap[path];
 
-            var depsSectionParser = new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, "fake", text);
+            var depsSectionParser = new DepsYamlParser(consoleWriter, depsValidatorFactory, "fake", text);
             var installSectionParser = new InstallYamlParser("fake", text);
             var buildSectionParser = new BuildYamlParser("fake", text);
 
@@ -73,7 +81,7 @@ namespace Tests.ParsersTests
         {
             var text = pathToContentMap[path];
             var parser = ModuleYamlParserFactory.Get();
-            var depsSectionParser = new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, "fake", text);
+            var depsSectionParser = new DepsYamlParser(consoleWriter, depsValidatorFactory, "fake", text);
 
             var md = parser.Parse(text);
 
@@ -92,7 +100,7 @@ namespace Tests.ParsersTests
         {
             var text = pathToContentMap[path];
             var parser = ModuleYamlParserFactory.Get();
-            var depsSectionParser = new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, "fake", text);
+            var depsSectionParser = new DepsYamlParser(consoleWriter, depsValidatorFactory, "fake", text);
 
             var md = parser.Parse(text);
             var configs = md.AllConfigurations.Keys.ToArray();

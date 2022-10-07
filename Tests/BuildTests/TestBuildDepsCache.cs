@@ -2,9 +2,10 @@ using System.Collections.Generic;
 using System.IO;
 using Commands;
 using Common;
+using Common.DepsValidators;
 using Common.Logging;
 using Common.YamlParsers;
-using Microsoft.Extensions.Logging;
+using FluentAssertions;
 using NUnit.Framework;
 using Tests.Helpers;
 
@@ -13,8 +14,17 @@ namespace Tests.BuildTests
     [TestFixture]
     public class TestBuildDepsCache
     {
-        private static readonly ILogger Log = LogManager.GetLogger<TestBuildDepsCache>();
-        private static readonly BuildPreparer BuildPreparer = BuildPreparer.Shared;
+        private readonly BuildPreparer buildPreparer;
+        private readonly IGitRepositoryFactory gitRepositoryFactory;
+
+        public TestBuildDepsCache()
+        {
+            var consoleWriter = ConsoleWriter.Shared;
+            var buildHelper = BuildHelper.Shared;
+
+            gitRepositoryFactory = new GitRepositoryFactory(consoleWriter, buildHelper);
+            buildPreparer = BuildPreparer.Shared;
+        }
 
         [Test]
         public void TestOneModule()
@@ -36,6 +46,7 @@ namespace Tests.BuildTests
         [Retry(3)]
         public void TestGitClean()
         {
+            // arrange
             using var env = new TestEnvironment();
             env.CreateRepo(
                 "A", new Dictionary<string, DepsData>
@@ -44,20 +55,30 @@ namespace Tests.BuildTests
                 });
             Helper.SetWorkspace(env.RemoteWorkspace);
 
-            CollectionAssert.AreEqual(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
-            Build(new Dep("A/full-build"));
-            Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
+            GetUpdatedModules(new Dep("A")).Should().BeEquivalentTo(new Dep("A/full-build"));
 
-            new GitRepository("A", Helper.CurrentWorkspace, Log).Clean();
-            CollectionAssert.AreEqual(new[] {new Dep("A/full-build")}, GetUpdatedModules(new Dep("A")));
             Build(new Dep("A/full-build"));
-            Assert.That(GetUpdatedModules(new Dep("A")), Is.Empty);
+
+            GetUpdatedModules(new Dep("A")).Should().BeEmpty();
+
+            // act
+
+            gitRepositoryFactory.Create("A", Helper.CurrentWorkspace).Clean();
+
+            // assert
+
+            GetUpdatedModules(new Dep("A")).Should().BeEquivalentTo(new Dep("A/full-build"));
+
+            Build(new Dep("A/full-build"));
+
+            GetUpdatedModules(new Dep("A")).Should().BeEmpty();
         }
 
         [Test]
         public void TestModuleWithDep()
         {
             using var env = new TestEnvironment();
+
             env.CreateRepo(
                 "A", new Dictionary<string, DepsData>
                 {
@@ -130,23 +151,25 @@ namespace Tests.BuildTests
 
         private List<Dep> GetUpdatedModules(Dep moduleToBuild)
         {
-            return BuildPreparer.GetModulesOrder(moduleToBuild.Name, moduleToBuild.Configuration).UpdatedModules;
+            return buildPreparer.GetModulesOrder(moduleToBuild.Name, moduleToBuild.Configuration).UpdatedModules;
         }
 
         private void Build(Dep module)
         {
-            using var jumper = new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name));
-
-            var command = new BuildCommand(ConsoleWriter.Shared, FeatureFlags.Default, BuildPreparer);
-            command.Run(new[] {"build", "-c", module.Configuration});
+            using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
+            {
+                var command = new BuildCommand(ConsoleWriter.Shared, FeatureFlags.Default, buildPreparer);
+                command.Run(new[] {"build", "-c", module.Configuration});
+            }
         }
 
         private void BuildDeps(Dep module)
         {
-            using var jumper = new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name));
-
-            var command = new BuildDepsCommand(ConsoleWriter.Shared, FeatureFlags.Default, BuildPreparer);
-            command.Run(new[] {"build-deps", "-c", module.Configuration});
+            using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
+            {
+                var command = new BuildDepsCommand(ConsoleWriter.Shared, FeatureFlags.Default, buildPreparer);
+                command.Run(new[] {"build-deps", "-c", module.Configuration});
+            }
         }
     }
 }

@@ -9,12 +9,13 @@ public sealed class RefCommand : ICommand
     private readonly Dictionary<string, ICommand> commands;
 
     public RefCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand,
-                      BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject)
+                      BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject,
+                      IGitRepositoryFactory gitRepositoryFactory)
     {
         this.consoleWriter = consoleWriter;
         commands = new Dictionary<string, ICommand>
         {
-            {"add", new RefAddCommand(consoleWriter, featureFlags, getCommand, buildDepsCommand, buildCommand, depsPatcherProject)},
+            {"add", new RefAddCommand(consoleWriter, featureFlags, getCommand, buildDepsCommand, buildCommand, depsPatcherProject, gitRepositoryFactory)},
             {"fix", new RefFixCommand(consoleWriter, featureFlags, depsPatcherProject)}
         };
     }

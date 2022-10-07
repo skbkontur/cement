@@ -16,18 +16,21 @@ public sealed class UpdateCommand : Command
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
+
     private string treeish = "master";
     private bool verbose;
     private LocalChangesPolicy policy;
     private int? gitDepth;
 
     public UpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                         IDepsValidatorFactory depsValidatorFactory)
+                         IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public override string Name => "update";
@@ -56,7 +59,7 @@ public sealed class UpdateCommand : Command
         var cwd = Directory.GetCurrentDirectory();
         var module = Path.GetFileName(cwd);
 
-        var curRepo = new GitRepository(module, Helper.CurrentWorkspace, Log);
+        var curRepo = gitRepositoryFactory.Create(module, Helper.CurrentWorkspace);
         if (treeish == null)
             treeish = curRepo.CurrentLocalTreeish().Value;
 
@@ -64,6 +67,7 @@ public sealed class UpdateCommand : Command
             consoleWriter,
             cycleDetector,
             depsValidatorFactory,
+            gitRepositoryFactory,
             Helper.GetModules(),
             new Dep(module, treeish),
             policy,

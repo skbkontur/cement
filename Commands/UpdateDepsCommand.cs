@@ -18,6 +18,8 @@ public sealed class UpdateDepsCommand : Command
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
+
     private string configuration;
     private string mergedBranch;
     private LocalChangesPolicy policy;
@@ -26,12 +28,13 @@ public sealed class UpdateDepsCommand : Command
     private int? gitDepth;
 
     public UpdateDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                             IDepsValidatorFactory depsValidatorFactory)
+                             IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public override string Name => "update-deps";
@@ -85,7 +88,7 @@ public sealed class UpdateDepsCommand : Command
 
         var moduleName = Path.GetFileName(cwd);
 
-        var curRepo = new GitRepository(moduleName, Helper.CurrentWorkspace, Log);
+        var curRepo = gitRepositoryFactory.Create(moduleName, Helper.CurrentWorkspace);
         if (curRepo.IsGitRepo)
             curRepo.TryUpdateUrl(modules.FirstOrDefault(m => m.Name.Equals(moduleName)));
         HooksHelper.InstallHooks(moduleName);
@@ -94,6 +97,7 @@ public sealed class UpdateDepsCommand : Command
             consoleWriter,
             cycleDetector,
             depsValidatorFactory,
+            gitRepositoryFactory,
             Helper.GetModules(),
             new Dep(moduleName, null, configuration),
             policy,

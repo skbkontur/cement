@@ -16,11 +16,14 @@ public sealed class CheckPreCommitCommand : Command
         IsHiddenCommand = true
     };
     private readonly ConsoleWriter consoleWriter;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public CheckPreCommitCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+    public CheckPreCommitCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+                                 IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public override string Name => "check-pre-commit";
@@ -35,7 +38,7 @@ public sealed class CheckPreCommitCommand : Command
     {
         var cwd = Directory.GetCurrentDirectory();
         var moduleName = Path.GetFileName(cwd);
-        var repo = new GitRepository(moduleName, Helper.CurrentWorkspace, Log);
+        var repo = gitRepositoryFactory.Create(moduleName, Helper.CurrentWorkspace);
 
         var changedFiles = repo.GetFilesForCommit().Where(file => file.EndsWith(".cs") && File.Exists(file)).Distinct().ToList();
         var exitCode = 0;

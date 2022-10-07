@@ -15,7 +15,7 @@ namespace Tests.UtilsTests
         public TestCycleDetector()
         {
             var consoleWriter = ConsoleWriter.Shared;
-            var depsValidatorFactory = DepsValidatorFactory.Shared;
+            var depsValidatorFactory = new DepsValidatorFactory();
             cycleDetector = new CycleDetector(consoleWriter, depsValidatorFactory);
         }
 

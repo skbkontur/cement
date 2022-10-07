@@ -7,16 +7,9 @@ using Common;
 using Common.DepsValidators;
 using Common.Logging;
 using Common.YamlParsers;
-using NUnit.Framework;
 
 namespace Tests.Helpers
 {
-    public enum DepsFormatStyle
-    {
-        Ini,
-        Yaml
-    }
-
     public class TestEnvironment : IDisposable
     {
         public readonly TempDirectory WorkingDirectory;
@@ -27,15 +20,21 @@ namespace Tests.Helpers
         private readonly CycleDetector cycleDetector;
         private readonly ConsoleWriter consoleWriter;
         private readonly IDepsValidatorFactory depsValidatorFactory;
+        private readonly IGitRepositoryFactory gitRepositoryFactory;
 
         public TestEnvironment()
         {
+            WorkingDirectory = new TempDirectory();
+
             consoleWriter = ConsoleWriter.Shared;
-            depsValidatorFactory = DepsValidatorFactory.Shared;
+            depsValidatorFactory = new DepsValidatorFactory();
+            var buildHelper = BuildHelper.Shared;
+
+            gitRepositoryFactory = new GitRepositoryFactory(consoleWriter, buildHelper);
             cycleDetector = new CycleDetector(consoleWriter, depsValidatorFactory);
 
             runner = new ShellRunner();
-            WorkingDirectory = new TempDirectory();
+
             Directory.CreateDirectory(Path.Combine(WorkingDirectory.Path, ".cement"));
             RemoteWorkspace = Path.Combine(WorkingDirectory.Path, "remote");
             Directory.CreateDirectory(Path.Combine(RemoteWorkspace, ".cement"));
@@ -62,6 +61,7 @@ namespace Tests.Helpers
                 consoleWriter,
                 cycleDetector,
                 depsValidatorFactory,
+                gitRepositoryFactory,
                 GetModules().ToList(),
                 new Dep(module, treeish),
                 localChangesPolicy,
@@ -87,6 +87,7 @@ namespace Tests.Helpers
         public void Dispose()
         {
             Helper.SetWorkspace(null);
+            LogManager.DisposeLoggers();
             WorkingDirectory.Dispose();
         }
 
@@ -269,198 +270,6 @@ force = " + string.Join(",", depsByConfig[config].Force) + "\r\n"
                 runner.Run("git add " + fileName);
                 runner.Run("git commit -am \"some commit\"");
             }
-        }
-    }
-
-    [TestFixture]
-    public class TestTestEnvironment
-    {
-        [Test]
-        public void TestRepoCreated()
-        {
-            using var env = new TestEnvironment();
-            env.CreateRepo("A");
-            Assert.IsTrue(Directory.Exists(Path.Combine(env.RemoteWorkspace, "A", ".git")));
-        }
-
-        [Test]
-        public void TestDepsCreatedYamlStyle()
-        {
-            using var env = new TestEnvironment();
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("B")})}
-                });
-            Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")));
-            Assert.AreEqual(
-                @"default:
-full-build:
-  build:
-    target: None
-    configuration: None
-  deps:
-    - B@/
-", File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")));
-        }
-
-        [Test]
-        public void TestDepsCreatedYamlStyleAdditionalConfig()
-        {
-            using var env = new TestEnvironment();
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("B")})},
-                    {"client", new DepsData(null, new List<Dep> {new("C")})}
-                });
-            Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")));
-            Assert.AreEqual(
-                @"default:
-client:
-  build:
-    target: None
-    configuration: None
-  deps:
-    - C@/
-
-full-build:
-  build:
-    target: None
-    configuration: None
-  deps:
-    - B@/
-", File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")));
-        }
-
-        [Test]
-        public void TestDepsCreatedIniStyle()
-        {
-            using var env = new TestEnvironment();
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("B")})}
-                }, null, DepsFormatStyle.Ini);
-            Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps")));
-            Assert.AreEqual(
-                @"[module B]
-", File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", "deps")));
-        }
-
-        [Test]
-        public void TestDepsCreatedIniStyleComplex()
-        {
-            using var env = new TestEnvironment();
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("B", "develop"), new("C", null, "client"), new("D", "release", "sdk")})}
-                }, null, DepsFormatStyle.Ini);
-            Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps")));
-            Assert.AreEqual(
-                @"[module B]
-treeish = develop
-[module C]
-configuration = client
-[module D]
-treeish = release
-configuration = sdk
-", File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", "deps")));
-        }
-
-        [Test]
-        public void TestDepsCreatedIniStyleAddedConfiguration()
-        {
-            using var env = new TestEnvironment();
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", null},
-                    {"client", new DepsData(null, new List<Dep> {new("B")})}
-                }, null, DepsFormatStyle.Ini);
-            Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
-            Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")));
-            Assert.IsTrue(File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")).Contains("<conf name = \"client\"/>"));
-        }
-
-        [Test]
-        public void TestDepsCreatedIniStyleAddedDefaultConfiguration()
-        {
-            using var env = new TestEnvironment();
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", null},
-                    {"*client", new DepsData(null, new List<Dep> {new("B")})}
-                }, null, DepsFormatStyle.Ini);
-            Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
-            Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")));
-            Assert.IsTrue(File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")).Contains("<conf name = \"client\"/>"));
-            Assert.IsTrue(File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", ".cm", "spec.xml")).Contains("<default-config name = \"client\"/>"));
-        }
-
-        [Test]
-        public void TestDepsCreatedIniStyleComplexWithAdditionalConfiguration()
-        {
-            using var env = new TestEnvironment();
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("B", "develop"), new("C", null, "client"), new("D", "release", "sdk")})},
-                    {"client", new DepsData(null, new List<Dep> {new("B", "develop"), new("C", null, "client"), new("D", "release", "sdk")})}
-                }, null, DepsFormatStyle.Ini);
-            Assert.IsTrue(File.Exists(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
-            Assert.AreEqual(
-                @"[module B]
-treeish = develop
-[module C]
-configuration = client
-[module D]
-treeish = release
-configuration = sdk
-", File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", "deps.client")));
-        }
-
-        [Test]
-        public void TestBranchesCreated()
-        {
-            using var env = new TestEnvironment();
-            var branches = new[] {"b1", "b2", "b3"};
-            env.CreateRepo("A", null, branches);
-            var repo = new GitRepository("A", env.RemoteWorkspace, LogManager.GetLogger<TestEnvironment>());
-            Assert.IsTrue(repo.HasLocalBranch("b1"));
-            Assert.IsTrue(repo.HasLocalBranch("b2"));
-            Assert.IsTrue(repo.HasLocalBranch("b3"));
-        }
-
-        [Test]
-        public void TestAppendInPackageConf()
-        {
-            using var env = new TestEnvironment();
-            env.CreateRepo("A");
-            env.CreateRepo("B");
-            Assert.AreEqual(
-                $@"
-[module A]
-url={Path.Combine(env.RemoteWorkspace, "A")}
-
-[module B]
-url={
-    Path.Combine(
-        env.RemoteWorkspace, "B")
-}
-", File.ReadAllText(Path.Combine(env.RemoteWorkspace, env.PackageFile)));
-        }
-
-        [Test]
-        public void TestGetModules()
-        {
-            using var env = new TestEnvironment();
-            env.CreateRepo("A");
-            env.CreateRepo("B");
-            var modules = env.GetModules().Select(m => m.Name).ToArray();
-            Assert.AreEqual(new[] {"A", "B"}, modules);
         }
     }
 }

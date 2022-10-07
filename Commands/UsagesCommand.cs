@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Common;
 using Common.DepsValidators;
+using Common.Logging;
 
 namespace Commands;
 
@@ -11,14 +12,23 @@ public sealed class UsagesCommand : ICommand
 
     public UsagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
                          GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
-                         CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory)
+                         CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
+                         IGitRepositoryFactory gitRepositoryFactory)
     {
         this.consoleWriter = consoleWriter;
+
         commands = new Dictionary<string, ICommand>
         {
             {"show", new UsagesShowCommand(consoleWriter, featureFlags)},
-            {"build", new UsagesBuildCommand(consoleWriter, featureFlags, usagesProvider, getCommand, buildDepsCommand, buildCommand)},
-            {"grep", new UsagesGrepCommand(consoleWriter, featureFlags, cycleDetector, depsValidatorFactory)}
+            {
+                "build", new UsagesBuildCommand(
+                    consoleWriter, featureFlags, usagesProvider, getCommand, buildDepsCommand, buildCommand, gitRepositoryFactory)
+            },
+            {
+                "grep", new UsagesGrepCommand(
+                    consoleWriter, featureFlags, cycleDetector, depsValidatorFactory, gitRepositoryFactory,
+                    new ShellRunner(LogManager.GetLogger<UsagesGrepCommand>()), usagesProvider)
+            }
         };
     }
 

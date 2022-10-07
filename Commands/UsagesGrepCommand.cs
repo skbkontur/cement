@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using Common;
 using Common.DepsValidators;
 using Common.Exceptions;
-using Common.Logging;
 
 namespace Commands;
 
@@ -28,9 +27,11 @@ public sealed class UsagesGrepCommand : Command
     private static readonly Regex Whitespaces = new("\\s");
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
-    private readonly ShellRunner runner;
+    private readonly ShellRunner shellRunner;
     private readonly IUsagesProvider usagesProvider;
     private readonly IDepsValidatorFactory depsValidatorFactory;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
+
     private string moduleName;
     private string cwd;
     private string workspace;
@@ -41,14 +42,16 @@ public sealed class UsagesGrepCommand : Command
     private string checkingBranch;
 
     public UsagesGrepCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                             IDepsValidatorFactory depsValidatorFactory)
+                             IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory,
+                             ShellRunner shellRunner, IUsagesProvider usagesProvider)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
-        runner = new ShellRunner(Log);
-        usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);
+        this.gitRepositoryFactory = gitRepositoryFactory;
+        this.shellRunner = shellRunner;
+        this.usagesProvider = usagesProvider;
     }
 
     public override string Name => "grep";
@@ -69,7 +72,7 @@ public sealed class UsagesGrepCommand : Command
         cwd = Directory.GetCurrentDirectory();
         workspace = Directory.GetParent(cwd).FullName;
         moduleName = Path.GetFileName(cwd);
-        currentRepository = new GitRepository(moduleName, workspace, Log);
+        currentRepository = gitRepositoryFactory.Create(moduleName, workspace);
 
         if (checkingBranch == null)
             checkingBranch = currentRepository.HasLocalBranch("master") ? "master" : currentRepository.CurrentLocalTreeish().Value;
@@ -137,7 +140,7 @@ public sealed class UsagesGrepCommand : Command
 
             foreach (var module in clonedModules)
             {
-                runner.RunInDirectory(module, command);
+                shellRunner.RunInDirectory(module, command);
                 if (string.IsNullOrWhiteSpace(ShellRunner.LastOutput))
                     continue;
                 consoleWriter.WriteLine(AddModuleToOutput(ShellRunner.LastOutput, module));
@@ -184,6 +187,7 @@ public sealed class UsagesGrepCommand : Command
             consoleWriter,
             cycleDetector,
             depsValidatorFactory,
+            gitRepositoryFactory,
             modules,
             dep,
             LocalChangesPolicy.FailOnLocalChanges,

@@ -16,7 +16,7 @@ public sealed class UsagesBuildCommand : Command
         Location = CommandLocation.RootModuleDirectory
     };
     private readonly ConsoleWriter consoleWriter;
-
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
     private readonly IUsagesProvider usagesProvider;
     private readonly GetCommand getCommand;
     private readonly BuildDepsCommand buildDepsCommand;
@@ -30,7 +30,8 @@ public sealed class UsagesBuildCommand : Command
     private bool pause;
 
     public UsagesBuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
-                              GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand)
+                              GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
+                              IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
@@ -38,6 +39,7 @@ public sealed class UsagesBuildCommand : Command
         this.getCommand = getCommand;
         this.buildDepsCommand = buildDepsCommand;
         this.buildCommand = buildCommand;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public override string Name => "build";
@@ -55,7 +57,7 @@ public sealed class UsagesBuildCommand : Command
         cwd = Directory.GetCurrentDirectory();
         workspace = Directory.GetParent(cwd).FullName;
         moduleName = Path.GetFileName(cwd);
-        currentRepository = new GitRepository(moduleName, workspace, Log);
+        currentRepository = gitRepositoryFactory.Create(moduleName, workspace);
 
         if (currentRepository.HasLocalChanges())
             throw new CementException("You have uncommited changes");

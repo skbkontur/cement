@@ -21,6 +21,7 @@ public sealed class RefAddCommand : Command
     private readonly GetCommand getCommand;
     private readonly BuildDepsCommand buildDepsCommand;
     private readonly BuildCommand buildCommand;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
     private readonly DepsPatcherProject depsPatcherProject;
     private string project;
     private Dep dep;
@@ -29,7 +30,8 @@ public sealed class RefAddCommand : Command
     private bool force;
 
     public RefAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand,
-                         BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject)
+                         BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject,
+                         IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
@@ -37,6 +39,7 @@ public sealed class RefAddCommand : Command
         this.buildDepsCommand = buildDepsCommand;
         this.buildCommand = buildCommand;
         this.depsPatcherProject = depsPatcherProject;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public override string Name => "add";
@@ -149,7 +152,7 @@ public sealed class RefAddCommand : Command
 
         try
         {
-            var repo = new GitRepository(dep.Name, Helper.CurrentWorkspace, Log);
+            var repo = gitRepositoryFactory.Create(dep.Name, Helper.CurrentWorkspace);
             var current = repo.CurrentLocalTreeish().Value;
             if (current != dep.Treeish)
                 consoleWriter.WriteWarning($"{dep.Name} on @{current} but adding @{dep.Treeish}");

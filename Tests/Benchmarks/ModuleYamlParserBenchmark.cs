@@ -1,24 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 using Common;
 using Common.DepsValidators;
 using Common.YamlParsers;
 using Common.YamlParsers.Models;
 using Common.YamlParsers.V2.Factories;
-using NUnit.Framework;
 
 namespace Tests.Benchmarks
 {
-    [TestFixture]
-    [Explicit]
-    public class ModuleYamlParserBenchmarkTest
-    {
-        [Test]
-        public void Test() => BenchmarkRunner.Run<ModuleYamlParserBenchmark>();
-    }
-
     public class ModuleYamlParserBenchmark
     {
         private const string SmallModuleYaml = @"notests *default:
@@ -242,6 +232,15 @@ full-build > webapi-service-local, jobs-service-local, webapi-plugin, jobs-plugi
         [ParamsSource(nameof(Yamls))]
         public string Content;
 
+        private readonly ConsoleWriter consoleWriter;
+        private readonly DepsValidatorFactory depsValidatorFactory;
+
+        public ModuleYamlParserBenchmark()
+        {
+            consoleWriter = ConsoleWriter.Shared;
+            depsValidatorFactory = new DepsValidatorFactory();
+        }
+
         public IEnumerable<string> Yamls => new[]
         {
             SmallModuleYaml,
@@ -258,7 +257,7 @@ full-build > webapi-service-local, jobs-service-local, webapi-plugin, jobs-plugi
         [Benchmark]
         public Dictionary<string, DepsData> OldDepsParser()
         {
-            var parser = new DepsYamlParser(ConsoleWriter.Shared, DepsValidatorFactory.Shared, "fakename", Content);
+            var parser = new DepsYamlParser(consoleWriter, depsValidatorFactory, "fakename", Content);
             var configs = parser.GetConfigurations();
 
             return configs.ToDictionary(c => c, c => parser.Get(c));

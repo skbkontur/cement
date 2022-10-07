@@ -10,11 +10,13 @@ public sealed class ModuleHelper
 {
     private readonly ILogger logger;
     private readonly ConsoleWriter consoleWriter;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public ModuleHelper(ILogger<ModuleHelper> logger, ConsoleWriter consoleWriter)
+    public ModuleHelper(ILogger<ModuleHelper> logger, ConsoleWriter consoleWriter, IGitRepositoryFactory gitRepositoryFactory)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public int AddModule(Package package, string moduleName, string pushUrl, string fetchUrl)
@@ -23,7 +25,7 @@ public sealed class ModuleHelper
             throw new CementException("HTTPS url not allowed for gitlab. You should use SSH url.");
         using (var tempDir = new TempDirectory())
         {
-            var repo = new GitRepository("modules_git", tempDir.Path, logger);
+            var repo = gitRepositoryFactory.Create("modules_git", tempDir.Path);
             repo.Clone(package.Url);
             if (FindModule(repo, moduleName) != null)
             {
@@ -49,7 +51,7 @@ public sealed class ModuleHelper
     {
         using (var tempDir = new TempDirectory())
         {
-            var repo = new GitRepository("modules_git", tempDir.Path, logger);
+            var repo = gitRepositoryFactory.Create("modules_git", tempDir.Path);
             repo.Clone(package.Url);
 
             var toChange = FindModule(repo, moduleName);

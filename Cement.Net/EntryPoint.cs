@@ -37,12 +37,15 @@ namespace cm
             services.AddSingleton<IDepsValidatorFactory>(DepsValidatorFactory.Shared);
             services.AddSingleton<ModuleHelper>();
             services.AddSingleton<DepsPatcherProject>();
+            services.AddSingleton<IGitRepositoryFactory, GitRepositoryFactory>();
+            services.AddSingleton<CompleteCommandAutomata>();
 
             services.AddSingleton(consoleWriter);
             services.AddSingleton(featureFlags);
 
             services.AddSingleton<CycleDetector>();
-            services.AddSingleton<BuildPreparer>();
+            services.AddSingleton(BuildPreparer.Shared);
+            services.AddSingleton(BuildHelper.Shared);
 
             services.AddCommand<HelpCommand>();
             services.AddCommand<GetCommand>();

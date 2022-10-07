@@ -1,19 +1,18 @@
 ﻿using System;
 using System.IO;
 using Common;
-using Common.Logging;
-using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
 public sealed class IdCommand : ICommand
 {
-    private static readonly ILogger Log = LogManager.GetLogger<IdCommand>();
     private readonly ConsoleWriter consoleWriter;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public IdCommand(ConsoleWriter consoleWriter)
+    public IdCommand(ConsoleWriter consoleWriter, IGitRepositoryFactory gitRepositoryFactory)
     {
         this.consoleWriter = consoleWriter;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public string HelpMessage => @"
@@ -53,7 +52,7 @@ public sealed class IdCommand : ICommand
             {
                 var moduleName = Path.GetFileName(module);
                 var workspace = Directory.GetParent(module).FullName;
-                var repo = new GitRepository(moduleName, workspace, Log);
+                var repo = gitRepositoryFactory.Create(moduleName, workspace);
                 if (repo.IsGitRepo)
                 {
                     var hash = repo.CurrentLocalCommitHash();

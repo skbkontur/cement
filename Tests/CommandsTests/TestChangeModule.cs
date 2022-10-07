@@ -14,7 +14,12 @@ namespace Tests.CommandsTests
 
         public TestChangeModule()
         {
-            moduleHelper = new ModuleHelper(LogManager.GetLogger<ModuleHelper>(), ConsoleWriter.Shared);
+            var consoleWriter = ConsoleWriter.Shared;
+            var buildHelper = BuildHelper.Shared;
+            var gitRepositoryFactory = new GitRepositoryFactory(consoleWriter, buildHelper);
+
+            var moduleHelperLogger = LogManager.GetLogger<ModuleHelper>();
+            moduleHelper = new ModuleHelper(moduleHelperLogger, consoleWriter, gitRepositoryFactory);
         }
 
         [Test]

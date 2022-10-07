@@ -3,23 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common.YamlParsers;
-using Microsoft.Extensions.Logging;
 
 namespace Common;
 
 public sealed class CompleteCommandAutomata
 {
-    private readonly ILogger log;
+    private readonly IGitRepositoryFactory gitRepositoryFactory;
+    private readonly List<string> modules = Helper.GetModules().Select(m => m.Name).ToList();
 
-    private readonly List<string> modules =
-        Helper.GetModules().Select(m => m.Name).ToList();
     private TokensList root;
-
     private string lastToken;
 
-    public CompleteCommandAutomata(ILogger log)
+    public CompleteCommandAutomata(IGitRepositoryFactory gitRepositoryFactory)
     {
-        this.log = log;
+        this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
     public List<string> Complete(string command)
@@ -127,7 +124,7 @@ public sealed class CompleteCommandAutomata
         if (moduleDirectory == null)
             return null;
 
-        var repo = new GitRepository(moduleDirectory, log);
+        var repo = gitRepositoryFactory.Create(moduleDirectory);
         var branches = repo.GetRemoteBranches().Select(b => b.Name);
         return TokensList.Create(branches);
     }

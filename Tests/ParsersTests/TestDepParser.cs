@@ -20,7 +20,7 @@ namespace Tests.ParsersTests
         public TestDepParser()
         {
             consoleWriter = ConsoleWriter.Shared;
-            depsValidatorFactory = DepsValidatorFactory.Shared;
+            depsValidatorFactory = new DepsValidatorFactory();
         }
 
         [Test]

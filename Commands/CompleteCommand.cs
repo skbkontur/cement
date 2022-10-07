@@ -16,12 +16,14 @@ public sealed class CompleteCommand : Command
         NoElkLog = true
     };
     private readonly ConsoleWriter consoleWriter;
+    private readonly CompleteCommandAutomata completeCommandAutomata;
     private string[] otherArgs;
 
-    public CompleteCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+    public CompleteCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CompleteCommandAutomata completeCommandAutomata)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
+        this.completeCommandAutomata = completeCommandAutomata;
     }
 
     public override string Name => "complete";
@@ -41,7 +43,7 @@ public sealed class CompleteCommand : Command
         }
 
         LogHelper.SaveLog($"[COMPLETE] '{buffer}'");
-        var result = new CompleteCommandAutomata(Log).Complete(buffer);
+        var result = completeCommandAutomata.Complete(buffer);
         PrintList(result);
 
         return 0;

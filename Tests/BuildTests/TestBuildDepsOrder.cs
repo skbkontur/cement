@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
+using Common.DepsValidators;
 using Common.Exceptions;
+using Common.Logging;
 using Common.YamlParsers;
 using NUnit.Framework;
 using Tests.Helpers;
@@ -12,7 +14,12 @@ namespace Tests.BuildTests
     [TestFixture]
     public class TestBuildDepsOrder
     {
-        private static readonly BuildPreparer BuildPreparer = BuildPreparer.Shared;
+        private readonly BuildPreparer buildPreparer;
+
+        public TestBuildDepsOrder()
+        {
+            buildPreparer = BuildPreparer.Shared;
+        }
 
         [Test]
         public void TestBuildOrderCycle()
@@ -24,7 +31,7 @@ namespace Tests.BuildTests
                 {new Dep("C/full-build"), new List<Dep> {new("D/full-build")}},
                 {new Dep("D/full-build"), new List<Dep> {new("A/full-build")}}
             };
-            Assert.Throws<CementException>(() => BuildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build"));
+            Assert.Throws<CementException>(() => buildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build"));
         }
 
         [Test]
@@ -49,7 +56,7 @@ namespace Tests.BuildTests
                     new Dep("D/client"),
                     new Dep("C/client"),
                     new Dep("A/full-build")
-                }, BuildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build").ToArray());
+                }, buildPreparer.GetTopologicallySortedGraph(graph, "A", "full-build").ToArray());
         }
 
         [Test]
@@ -79,7 +86,7 @@ namespace Tests.BuildTests
                     {"client", new DepsData(null, new List<Dep>())}
                 });
             Helper.SetWorkspace(env.RemoteWorkspace);
-            var result = BuildPreparer.BuildConfigsGraph("A", null);
+            var result = buildPreparer.BuildConfigsGraph("A", null);
             Assert.AreEqual(new[] {new Dep("B", null, "full-build"), new Dep("C/client")}, result[new Dep("A", null, "full-build")].ToArray());
             Assert.AreEqual(new[] {new Dep("D", null, "full-build")}, result[new Dep("B", null, "full-build")].ToArray());
             Assert.AreEqual(new Dep[] {}, result[new Dep("D", null, "full-build")].ToArray());
@@ -112,7 +119,7 @@ namespace Tests.BuildTests
             Helper.SetWorkspace(env.RemoteWorkspace);
             Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-            var modulesOrder = BuildPreparer.GetModulesOrder("A", null);
+            var modulesOrder = buildPreparer.GetModulesOrder("A", null);
             Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("C/client")));
             Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("C", null, "full-build")));
             Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
@@ -151,7 +158,7 @@ namespace Tests.BuildTests
             Helper.SetWorkspace(env.RemoteWorkspace);
             Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-            var modulesOrder = BuildPreparer.GetModulesOrder("A", null);
+            var modulesOrder = buildPreparer.GetModulesOrder("A", null);
             Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("X/client")));
             Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
             Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("B", null, "full-build")));
@@ -188,7 +195,7 @@ namespace Tests.BuildTests
             Helper.SetWorkspace(env.RemoteWorkspace);
             Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-            var modulesOrder = BuildPreparer.GetModulesOrder("A", null);
+            var modulesOrder = buildPreparer.GetModulesOrder("A", null);
             Assert.IsFalse(modulesOrder.BuildOrder.Contains(new Dep("X", null, "full-build")));
             Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("X", null, "client")));
             Assert.IsTrue(modulesOrder.BuildOrder.Contains(new Dep("A", null, "full-build")));
@@ -216,7 +223,7 @@ namespace Tests.BuildTests
             Helper.SetWorkspace(env.RemoteWorkspace);
             Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-            var modulesOrder = BuildPreparer.GetModulesOrder("A", null);
+            var modulesOrder = buildPreparer.GetModulesOrder("A", null);
 
             CollectionAssert.AreEqual(
                 new List<Dep>
@@ -263,7 +270,7 @@ namespace Tests.BuildTests
             Helper.SetWorkspace(env.RemoteWorkspace);
             Directory.CreateDirectory(Path.Combine(env.RemoteWorkspace, ".cement"));
 
-            var modulesOrder = BuildPreparer.GetModulesOrder("A", null);
+            var modulesOrder = buildPreparer.GetModulesOrder("A", null);
 
             var xDeps = modulesOrder.BuildOrder.Where(d => d.Name == "X").ToList();
             Assert.IsTrue(xDeps.Any(d => d.Name == "X" && d.Configuration == "parent1"));

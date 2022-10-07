@@ -12,7 +12,7 @@ namespace Tests.CommandsTests
     public class TestDepsPrinter
     {
         private static readonly ConsoleWriter ConsoleWriter = ConsoleWriter.Shared;
-        private static readonly DepsValidatorFactory DepsValidatorFactory = DepsValidatorFactory.Shared;
+        private static readonly DepsValidatorFactory DepsValidatorFactory = new();
         private static readonly FeatureFlags FeatureFlags = FeatureFlags.Default;
 
         [Test]
