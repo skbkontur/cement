@@ -2,19 +2,16 @@
 using System.Linq;
 using Common;
 using Common.Exceptions;
-using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
 public sealed class ModuleHelper
 {
-    private readonly ILogger logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public ModuleHelper(ILogger<ModuleHelper> logger, ConsoleWriter consoleWriter, IGitRepositoryFactory gitRepositoryFactory)
+    public ModuleHelper(ConsoleWriter consoleWriter, IGitRepositoryFactory gitRepositoryFactory)
     {
-        this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.gitRepositoryFactory = gitRepositoryFactory;
     }

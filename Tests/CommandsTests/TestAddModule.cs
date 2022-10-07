@@ -2,7 +2,6 @@
 using Commands;
 using Common;
 using Common.Exceptions;
-using Common.Logging;
 using NUnit.Framework;
 using Tests.Helpers;
 
@@ -19,8 +18,7 @@ namespace Tests.CommandsTests
             var buildHelper = BuildHelper.Shared;
             var gitRepositoryFactory = new GitRepositoryFactory(consoleWriter, buildHelper);
 
-            var moduleHelperLogger = LogManager.GetLogger<ModuleHelper>();
-            moduleHelper = new ModuleHelper(moduleHelperLogger, consoleWriter, gitRepositoryFactory);
+            moduleHelper = new ModuleHelper(consoleWriter, gitRepositoryFactory);
         }
 
         [Test]
