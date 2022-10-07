@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using Commands;
 using Common;
-using Common.DepsValidators;
-using Common.Logging;
 using Common.YamlParsers;
 using FluentAssertions;
 using NUnit.Framework;
