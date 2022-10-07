@@ -124,25 +124,10 @@ namespace cm
             {
                 return Run(consoleWriter, sp, args);
             }
-            catch (CementException e)
+            catch (Exception ex)
             {
-                consoleWriter.WriteError(e.Message);
-                logger.LogError(e, e.Message);
-                return -1;
-            }
-            catch (Exception e)
-            {
-                if (e.InnerException != null && e.InnerException is CementException cementException)
-                {
-                    consoleWriter.WriteError(cementException.Message);
-                    logger.LogError(e.InnerException, e.InnerException.Message);
-                }
-                else
-                {
-                    consoleWriter.WriteError(e.Message);
-                    consoleWriter.WriteError(e.StackTrace);
-                    logger.LogError(e, e.Message);
-                }
+                consoleWriter.WriteError(ex.ToString());
+                logger.LogError(ex, "An unknown error has occurred");
 
                 return -1;
             }
