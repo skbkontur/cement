@@ -14,7 +14,6 @@ public sealed class ShowDepsCommand : Command<ShowDepsCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "show-deps",
-        MeasureElapsedTime = false,
         Location = CommandLocation.RootModuleDirectory
     };
     private readonly IDepsValidatorFactory depsValidatorFactory;

@@ -19,7 +19,6 @@ public sealed class SelfUpdateCommand : Command<SelfUpdateCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "self-update",
-        MeasureElapsedTime = false,
         Location = CommandLocation.Any
     };
 

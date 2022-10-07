@@ -11,7 +11,6 @@ public sealed class ListPackagesCommand : Command<ListPackagesCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "packages-list",
-        MeasureElapsedTime = false,
         Location = CommandLocation.Any
     };
     private readonly ConsoleWriter consoleWriter;

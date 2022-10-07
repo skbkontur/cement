@@ -15,7 +15,6 @@ public sealed class PackCommand : Command<PackCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "pack",
-        MeasureElapsedTime = false,
         RequireModuleYaml = true,
         Location = CommandLocation.InsideModuleDirectory
     };

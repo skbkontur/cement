@@ -12,8 +12,6 @@ public sealed class CheckPreCommitCommand : Command<CheckPreCommitCommandOptions
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "pre-commit-check",
-        MeasureElapsedTime = false,
-        RequireModuleYaml = false,
         Location = CommandLocation.RootModuleDirectory,
         IsHiddenCommand = true
     };

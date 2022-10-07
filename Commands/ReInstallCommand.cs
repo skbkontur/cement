@@ -9,7 +9,6 @@ public sealed class ReInstallCommand : Command<ReInstallCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "reinstall",
-        MeasureElapsedTime = false,
         Location = CommandLocation.Any,
         IsHiddenCommand = true
     };

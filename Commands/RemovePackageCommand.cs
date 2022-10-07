@@ -12,7 +12,6 @@ public sealed class RemovePackageCommand : Command<RemovePackageCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "package-remove",
-        MeasureElapsedTime = false,
         Location = CommandLocation.Any
     };
 

@@ -16,7 +16,6 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "ref-add",
-        MeasureElapsedTime = false,
         Location = CommandLocation.InsideModuleDirectory
     };
     private readonly ConsoleWriter consoleWriter;

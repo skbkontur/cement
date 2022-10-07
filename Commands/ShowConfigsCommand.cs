@@ -14,7 +14,6 @@ public sealed class ShowConfigsCommand : Command<ShowConfigsCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "show-configs",
-        MeasureElapsedTime = false,
         Location = CommandLocation.Any,
         RequireModuleYaml = true
     };

@@ -13,7 +13,6 @@ public sealed class UsagesShowCommand : Command<UsagesShowCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "usages-show",
-        MeasureElapsedTime = false,
         Location = CommandLocation.Any
     };
 

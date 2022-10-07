@@ -13,7 +13,6 @@ public sealed class CheckDepsCommand : Command<CheckDepsCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "check-deps",
-        MeasureElapsedTime = false,
         RequireModuleYaml = true,
         Location = CommandLocation.RootModuleDirectory
     };

@@ -12,7 +12,6 @@ public sealed class UserCommand : Command<UserCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "user",
-        MeasureElapsedTime = false,
         Location = CommandLocation.Any,
         IsHiddenCommand = true
     };

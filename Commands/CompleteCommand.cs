@@ -12,7 +12,6 @@ public sealed class CompleteCommand : Command<CompleteCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "complete",
-        MeasureElapsedTime = false,
         Location = CommandLocation.Any,
         IsHiddenCommand = true,
         NoElkLog = true

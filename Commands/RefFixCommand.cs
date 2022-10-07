@@ -18,7 +18,6 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "fixing-refs",
-        MeasureElapsedTime = false,
         RequireModuleYaml = true,
         Location = CommandLocation.RootModuleDirectory
     };
