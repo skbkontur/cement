@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Common.YamlParsers;
+using JetBrains.Annotations;
 
 namespace Common;
 
@@ -16,10 +17,12 @@ public sealed class InstallCollector
         moduleName = Path.GetFileName(path);
     }
 
+    [NotNull]
     public InstallData Get(string configName = null)
     {
         var proceededModules = new HashSet<string>();
         var proceededNuGetPackages = new HashSet<string>();
+
         if (!File.Exists(Path.Combine(path, Helper.YamlSpecFile)))
             return new InstallData();
 

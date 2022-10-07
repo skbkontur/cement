@@ -1,9 +1,11 @@
 ﻿using System.IO;
+using JetBrains.Annotations;
 
 namespace Common;
 
 public static class InstallParser
 {
+    [NotNull]
     public static InstallData Get(string module, string configuration)
     {
         var yamlSpecFile = Path.Combine(Helper.CurrentWorkspace, module, Helper.YamlSpecFile);

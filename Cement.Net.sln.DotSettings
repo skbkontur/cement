@@ -24,5 +24,6 @@
 	<s:Double x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File6420315A7D13044C85AE3085E751D06B/RelativePriority/@EntryValue">2</s:Double>
 
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Kontur/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Treeish/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Vostok/@EntryIndexedValue">True</s:Boolean>
 </wpf:ResourceDictionary>
