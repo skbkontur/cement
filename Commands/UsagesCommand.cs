@@ -21,16 +21,13 @@ public sealed class UsagesCommand : ICommand
 
         commands = new Dictionary<string, ICommand>
         {
-            {"show", new UsagesShowCommand(consoleWriter, featureFlags)},
-            {
-                "build", new UsagesBuildCommand(
-                    consoleWriter, featureFlags, usagesProvider, getCommand, buildDepsCommand, buildCommand, gitRepositoryFactory)
-            },
-            {
-                "grep", new UsagesGrepCommand(
-                    consoleWriter, featureFlags, cycleDetector, depsValidatorFactory, gitRepositoryFactory,
-                    new ShellRunner(LogManager.GetLogger<UsagesGrepCommand>()), usagesProvider)
-            }
+            ["show"] = new UsagesShowCommand(consoleWriter, featureFlags),
+            ["build"] = new UsagesBuildCommand(
+                consoleWriter, featureFlags, usagesProvider, getCommand, buildDepsCommand, buildCommand, gitRepositoryFactory),
+
+            ["grep"] = new UsagesGrepCommand(
+                consoleWriter, featureFlags, cycleDetector, depsValidatorFactory, gitRepositoryFactory,
+                new ShellRunner(LogManager.GetLogger<UsagesGrepCommand>()), usagesProvider)
         };
     }
 
@@ -82,7 +79,6 @@ public sealed class UsagesCommand : ICommand
 ";
 
     public string Name => "usages";
-    public bool IsHiddenCommand => CementSettingsRepository.Get().CementServer == null;
 
     public int Run(string[] args)
     {

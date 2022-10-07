@@ -1,19 +1,20 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Text;
+using Commands.Attributes;
 using Common;
 using JetBrains.Annotations;
 
 namespace Commands;
 
 [PublicAPI]
+[HiddenCommand]
 public sealed class CheckPreCommitCommand : Command<CheckPreCommitCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "pre-commit-check",
-        Location = CommandLocation.RootModuleDirectory,
-        IsHiddenCommand = true
+        Location = CommandLocation.RootModuleDirectory
     };
     private readonly ConsoleWriter consoleWriter;
     private readonly IGitRepositoryFactory gitRepositoryFactory;

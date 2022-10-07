@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Commands.Attributes;
 using Common;
 using Common.Logging;
 using JetBrains.Annotations;
@@ -7,13 +8,13 @@ using JetBrains.Annotations;
 namespace Commands;
 
 [PublicAPI]
+[HiddenCommand]
 public sealed class CompleteCommand : Command<CompleteCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "complete",
         Location = CommandLocation.Any,
-        IsHiddenCommand = true,
         NoElkLog = true
     };
     private readonly ConsoleWriter consoleWriter;

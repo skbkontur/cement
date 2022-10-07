@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using Commands.Attributes;
 using Common;
 using JetBrains.Annotations;
 
 namespace Commands;
 
 [PublicAPI]
+[HiddenCommand]
 public sealed class IdCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;
@@ -25,7 +27,6 @@ public sealed class IdCommand : ICommand
 ";
 
     public string Name => "id";
-    public bool IsHiddenCommand => true;
 
     public int Run(string[] args)
     {

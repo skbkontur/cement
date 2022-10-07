@@ -20,7 +20,6 @@ public abstract class Command<TCommandOptions> : ICommand
 
     public abstract string Name { get; }
     public abstract string HelpMessage { get; }
-    public bool IsHiddenCommand => CommandSettings.IsHiddenCommand;
 
     public int Run(string[] args)
     {
@@ -78,11 +77,10 @@ public abstract class Command<TCommandOptions> : ICommand
 
     private void CheckRequireYaml()
     {
-        if (CommandSettings.Location == CommandLocation.RootModuleDirectory &&
-            CommandSettings.RequireModuleYaml &&
+        if (CommandSettings.Location == CommandLocation.RootModuleDirectory && CommandSettings.RequireModuleYaml &&
             !File.Exists(Helper.YamlSpecFile))
         {
-            throw new CementException("This command require module.yaml file.\nUse convert-spec for convert old spec to module.yaml.");
+            throw new CementException("No " + Helper.YamlSpecFile + " file found");
         }
     }
 
@@ -116,6 +114,7 @@ public abstract class Command<TCommandOptions> : ICommand
     {
         if (CommandSettings.LogFileName != null)
             LogHelper.InitializeFileAndElkLogging(CommandSettings.LogFileName, GetType().ToString());
+
         else if (!CommandSettings.NoElkLog)
             LogHelper.InitializeGlobalFileAndElkLogging(GetType().ToString());
 
@@ -134,9 +133,10 @@ public abstract class Command<TCommandOptions> : ICommand
     private TCommandOptions LogAndParseArgs(string[] args)
     {
         Log.LogDebug("Parsing args: [{Args}] in {WorkingDirectory}", string.Join(" ", args), Directory.GetCurrentDirectory());
-        var options = ParseArgs(args);
-        Log.LogDebug("OK parsing args");
 
+        var options = ParseArgs(args);
+
+        Log.LogDebug("OK parsing args");
         return options;
     }
 }

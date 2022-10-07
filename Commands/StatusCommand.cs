@@ -28,7 +28,6 @@ public sealed class StatusCommand : ICommand
 ";
 
     public string Name => "status";
-    public bool IsHiddenCommand => false;
 
     public int Run(string[] args)
     {

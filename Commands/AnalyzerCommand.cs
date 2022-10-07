@@ -40,7 +40,6 @@ public sealed class AnalyzerCommand : ICommand
 ";
 
     public string Name => "analyzer";
-    public bool IsHiddenCommand => false;
 
     public int Run(string[] args)
     {

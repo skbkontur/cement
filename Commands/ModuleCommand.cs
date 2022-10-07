@@ -34,7 +34,6 @@ public sealed class ModuleCommand : ICommand
 ";
 
     public string Name => "module";
-    public bool IsHiddenCommand => false;
 
     public int Run(string[] args)
     {

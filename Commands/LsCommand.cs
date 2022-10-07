@@ -39,7 +39,6 @@ public sealed class LsCommand : ICommand
 ";
 
     public string Name => "ls";
-    public bool IsHiddenCommand => false;
 
     public int Run(string[] args)
     {

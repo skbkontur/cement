@@ -21,7 +21,6 @@ public sealed class VersionCommand : ICommand
 ";
 
     public string Name => "--version";
-    public bool IsHiddenCommand => false;
 
     public int Run(string[] args)
     {

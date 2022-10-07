@@ -1,16 +1,17 @@
-﻿using Common;
+﻿using Commands.Attributes;
+using Common;
 using JetBrains.Annotations;
 
 namespace Commands;
 
 [PublicAPI]
+[HiddenCommand]
 public sealed class ReInstallCommand : Command<ReInstallCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "reinstall",
-        Location = CommandLocation.Any,
-        IsHiddenCommand = true
+        Location = CommandLocation.Any
     };
     private readonly ConsoleWriter consoleWriter;
     private readonly FeatureFlags featureFlags;

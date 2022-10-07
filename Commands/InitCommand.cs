@@ -25,7 +25,6 @@ public sealed class InitCommand : ICommand
 ";
 
     public string Name => "init";
-    public bool IsHiddenCommand => false;
 
     public int Run(string[] args)
     {

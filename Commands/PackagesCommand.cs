@@ -24,11 +24,13 @@ public sealed class PackagesCommand : ICommand
     }
 
     public string Name => "packages";
-    public bool IsHiddenCommand => true;
+
     public string HelpMessage => @"
-usage: cm packages list
-   or: cm packages add <name> <url>
-   or: cm packages remove <name>
+    Manage set of packages
+
+    usage: cm packages list
+       or: cm packages add <name> <url>
+       or: cm packages remove <name>
 ";
 
     public int Run(string[] args)

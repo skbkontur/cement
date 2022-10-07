@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using Commands.Attributes;
 using Commands.Common;
 using Common;
 using JetBrains.Annotations;
@@ -36,7 +38,6 @@ public sealed class HelpCommand : ICommand
 ";
 
     public string Name => "help";
-    public bool IsHiddenCommand => false;
 
     public int Run(string[] args)
     {
@@ -82,7 +83,9 @@ public sealed class HelpCommand : ICommand
         foreach (var commandName in commandNames)
         {
             var command = commands[commandName];
-            if (command.IsHiddenCommand)
+            var commandType = command.GetType();
+
+            if (commandType.GetCustomAttribute<HiddenCommandAttribute>() != null)
                 continue;
 
             var smallHelp = GetSmallHelp(command);

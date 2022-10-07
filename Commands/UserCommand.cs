@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Linq;
+using Commands.Attributes;
 using Common;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
@@ -7,13 +8,13 @@ using Microsoft.Extensions.Logging;
 namespace Commands;
 
 [PublicAPI]
+[HiddenCommand]
 public sealed class UserCommand : Command<UserCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
         LogFileName = "user",
-        Location = CommandLocation.Any,
-        IsHiddenCommand = true
+        Location = CommandLocation.Any
     };
     private readonly ConsoleWriter consoleWriter;
 

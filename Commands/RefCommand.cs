@@ -48,7 +48,6 @@ public sealed class RefCommand : ICommand
 ";
 
     public string Name => "ref";
-    public bool IsHiddenCommand => false;
 
     public int Run(string[] args)
     {
