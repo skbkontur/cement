@@ -139,13 +139,17 @@ public static class Helper
         }
     }
 
-    public static string TryFixModuleCase(string module)
+    public static string TryFixModuleCase(string moduleName)
     {
         var modules = GetModules();
-        foreach (var m in modules)
-            if (m.Name.ToLower() == module.ToLower())
-                return m.Name;
-        return module;
+
+        foreach (var module in modules)
+        {
+            if (string.Equals(module.Name, moduleName, StringComparison.OrdinalIgnoreCase))
+                return module.Name;
+        }
+
+        return moduleName;
     }
 
     public static bool HasModule(string module)
