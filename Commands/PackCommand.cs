@@ -5,10 +5,12 @@ using Common.DepsValidators;
 using Common.Exceptions;
 using Common.Extensions;
 using Common.YamlParsers;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class PackCommand : Command
+[PublicAPI]
+public sealed class PackCommand : Command<PackCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -19,10 +21,6 @@ public sealed class PackCommand : Command
     };
     private readonly ConsoleWriter consoleWriter;
     private readonly IDepsValidatorFactory depsValidatorFactory;
-    private string project;
-    private string configuration;
-    private BuildSettings buildSettings;
-    private bool preRelease;
 
     public PackCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
         : base(consoleWriter, Settings, featureFlags)
@@ -49,12 +47,12 @@ public sealed class PackCommand : Command
         -p/--progress           - show msbuild output in one line
 ";
 
-    protected override int Execute()
+    protected override int Execute(PackCommandOptions options)
     {
         var modulePath = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
         var moduleName = Path.GetFileName(modulePath);
-        project = Yaml.GetProjectFileName(project, moduleName);
-        configuration = configuration ?? "full-build";
+        var project = Yaml.GetProjectFileName(options.Project, moduleName);
+        var configuration = options.Configuration ?? "full-build";
 
         var buildData = Yaml.BuildParser(moduleName).Get(configuration).FirstOrDefault(t => !t.Target.IsFakeTarget());
 
@@ -62,7 +60,7 @@ public sealed class PackCommand : Command
         var csproj = new ProjectFile(projectPath);
         var deps = new DepsParser(consoleWriter, depsValidatorFactory, modulePath).Get(configuration);
         consoleWriter.WriteInfo("patching csproj");
-        var patchedDocument = csproj.CreateCsProjWithNugetReferences(deps.Deps, preRelease);
+        var patchedDocument = csproj.CreateCsProjWithNugetReferences(deps.Deps, options.PreRelease);
         var backupFileName = Path.Combine(Path.GetDirectoryName(projectPath) ?? "", "backup." + Path.GetFileName(projectPath));
         if (File.Exists(backupFileName))
             File.Delete(backupFileName);
@@ -71,7 +69,7 @@ public sealed class PackCommand : Command
         {
             XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
             var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
-            var moduleBuilder = new ModuleBuilder(consoleWriter, Log, buildSettings, buildYamlScriptsMaker);
+            var moduleBuilder = new ModuleBuilder(consoleWriter, Log, options.BuildSettings, buildYamlScriptsMaker);
             moduleBuilder.Init();
             consoleWriter.WriteInfo("start pack");
             if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))
@@ -87,16 +85,17 @@ public sealed class PackCommand : Command
         return 0;
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override PackCommandOptions ParseArgs(string[] args)
     {
         var parsedArgs = ArgumentParser.ParsePack(args);
 
-        //dep = new Dep((string)parsedArgs["module"]);
+        string configuration = null;
         if (parsedArgs["configuration"] != null)
             configuration = (string)parsedArgs["configuration"];
-        preRelease = (bool)parsedArgs["prerelease"];
 
-        buildSettings = new BuildSettings
+        var preRelease = (bool)parsedArgs["prerelease"];
+
+        var buildSettings = new BuildSettings
         {
             ShowAllWarnings = (bool)parsedArgs["warnings"],
             ShowObsoleteWarnings = (bool)parsedArgs["obsolete"],
@@ -105,8 +104,10 @@ public sealed class PackCommand : Command
             ShowWarningsSummary = true
         };
 
-        project = (string)parsedArgs["project"];
+        var project = (string)parsedArgs["project"];
         if (!project.EndsWith(".csproj"))
             throw new BadArgumentException(project + " is not csproj file");
+
+        return new PackCommandOptions(project, configuration, buildSettings, preRelease);
     }
 }

@@ -2,10 +2,12 @@
 using System;
 using Common;
 using Common.Exceptions;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class RemovePackageCommand : Command
+[PublicAPI]
+public sealed class RemovePackageCommand : Command<RemovePackageCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -13,8 +15,6 @@ public sealed class RemovePackageCommand : Command
         MeasureElapsedTime = false,
         Location = CommandLocation.Any
     };
-
-    private string packageName = null!;
 
     public RemovePackageCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
         : base(consoleWriter, Settings, featureFlags)
@@ -24,11 +24,11 @@ public sealed class RemovePackageCommand : Command
     public override string Name => "remove";
     public override string HelpMessage => @"usage: cm packages remove <name>";
 
-    protected override int Execute()
+    protected override int Execute(RemovePackageCommandOptions options)
     {
         var settings = CementSettingsRepository.Get();
 
-        var package = settings.Packages.Find(p => p.Name.Equals(packageName, StringComparison.Ordinal));
+        var package = settings.Packages.Find(p => p.Name.Equals(options.PackageName, StringComparison.Ordinal));
         if (package == null)
             return 0;
 
@@ -38,11 +38,12 @@ public sealed class RemovePackageCommand : Command
         return 0;
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override RemovePackageCommandOptions ParseArgs(string[] args)
     {
         if (args.Length < 1)
             throw new BadArgumentException($"error: invalid arguments{Environment.NewLine}{HelpMessage}");
 
-        packageName = args[0];
+        var packageName = args[0];
+        return new RemovePackageCommandOptions(packageName);
     }
 }

@@ -7,11 +7,13 @@ using Common;
 using Common.Exceptions;
 using Common.Extensions;
 using Common.YamlParsers;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public sealed class RefFixCommand : Command
+[PublicAPI]
+public sealed class RefFixCommand : Command<RefFixCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -27,7 +29,6 @@ public sealed class RefFixCommand : Command
     private readonly DepsPatcherProject depsPatcherProject;
 
     private bool hasFixedReferences;
-    private bool fixExternal;
     private string rootModuleName;
     private string oldYamlContent;
 
@@ -42,19 +43,21 @@ public sealed class RefFixCommand : Command
     public override string Name => "fix";
     public override string HelpMessage => @"";
 
-    protected override void ParseArgs(string[] args)
+    protected override RefFixCommandOptions ParseArgs(string[] args)
     {
         if (args.Length < 2 || args[0] != "ref" || args[1] != "fix")
             throw new BadArgumentException("Wrong usage of command.\nUsage: cm ref fix [-e]");
 
         var parsedArgs = ArgumentParser.ParseFixRefs(args);
-        fixExternal = (bool)parsedArgs["external"];
+        var fixExternal = (bool)parsedArgs["external"];
+
+        return new RefFixCommandOptions(fixExternal);
     }
 
-    protected override int Execute()
+    protected override int Execute(RefFixCommandOptions options)
     {
         rootModuleName = Path.GetFileName(Directory.GetCurrentDirectory());
-        Fix();
+        Fix(options.FixExternal);
         fixReferenceResultPrinter.Print(fixReferenceResult);
 
         if (!Yaml.ReadAllText(rootModuleName).Equals(oldYamlContent))
@@ -70,7 +73,7 @@ public sealed class RefFixCommand : Command
         return 0;
     }
 
-    private void Fix()
+    private void Fix(bool fixExternal)
     {
         oldYamlContent = Yaml.ReadAllText(rootModuleName);
 
@@ -81,10 +84,10 @@ public sealed class RefFixCommand : Command
         var processedFiles = new HashSet<string>();
 
         foreach (var buildInfo in buildsInfo)
-            Fix(buildInfo, modules, processedFiles);
+            Fix(fixExternal, buildInfo, modules, processedFiles);
     }
 
-    private void Fix(BuildData buildInfo, List<Module> modules, HashSet<string> processedFiles)
+    private void Fix(bool fixExternal, BuildData buildInfo, List<Module> modules, HashSet<string> processedFiles)
     {
         if (buildInfo.Target.IsFakeTarget())
             throw new TargetNotFoundException(rootModuleName);

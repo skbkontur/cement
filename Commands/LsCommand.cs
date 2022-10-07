@@ -3,9 +3,11 @@ using System.IO;
 using System.Linq;
 using Common;
 using Common.YamlParsers;
+using JetBrains.Annotations;
 
 namespace Commands;
 
+[PublicAPI]
 public sealed class LsCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;

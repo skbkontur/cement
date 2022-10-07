@@ -5,11 +5,13 @@ using System.Linq;
 using Common;
 using Common.DepsValidators;
 using Common.Exceptions;
+using JetBrains.Annotations;
 
 namespace Commands;
 
 [Obsolete("This component is deprecated and will be removed soon")]
-public sealed class ConvertSpecCommand : Command
+[PublicAPI]
+public sealed class ConvertSpecCommand : Command<ConvertSpecCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -35,7 +37,7 @@ public sealed class ConvertSpecCommand : Command
         cm convert-spec
 ";
 
-    protected override int Execute()
+    protected override int Execute(ConvertSpecCommandOptions options)
     {
         if (File.Exists(Helper.YamlSpecFile))
             throw new CementException("module.yaml already exists");
@@ -58,10 +60,12 @@ public sealed class ConvertSpecCommand : Command
         return 0;
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override ConvertSpecCommandOptions ParseArgs(string[] args)
     {
         if (args.Length > 1)
             throw new CementException("Extra arguments. Using: cm convert-spec.");
+
+        return new ConvertSpecCommandOptions();
     }
 
     private void Convert(TextWriter writer, Dictionary<string, IList<string>> hierarchy, string defaultConfiguration)

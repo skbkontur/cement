@@ -3,10 +3,12 @@ using System.IO;
 using System.Linq;
 using Common;
 using Common.DepsValidators;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class CheckDepsCommand : Command
+[PublicAPI]
+public sealed class CheckDepsCommand : Command<CheckDepsCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -17,10 +19,6 @@ public sealed class CheckDepsCommand : Command
     };
     private readonly ConsoleWriter consoleWriter;
     private readonly IDepsValidatorFactory depsValidatorFactory;
-    private string configuration;
-    private bool showAll;
-    private bool findExternal;
-    private bool showShort;
 
     public CheckDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
         : base(consoleWriter, Settings, featureFlags)
@@ -42,24 +40,26 @@ public sealed class CheckDepsCommand : Command
         -e/--external           - check references to not cement modules or to current module
 ";
 
-    protected override void ParseArgs(string[] args)
+    protected override CheckDepsCommandOptions ParseArgs(string[] args)
     {
         var parsedArgs = ArgumentParser.ParseCheckDeps(args);
-        configuration = (string)parsedArgs["configuration"];
-        showAll = (bool)parsedArgs["all"];
-        showShort = (bool)parsedArgs["short"];
-        findExternal = (bool)parsedArgs["external"];
+        var configuration = (string)parsedArgs["configuration"];
+        var showAll = (bool)parsedArgs["all"];
+        var showShort = (bool)parsedArgs["short"];
+        var findExternal = (bool)parsedArgs["external"];
+
+        return new CheckDepsCommandOptions(configuration, showAll, findExternal, showShort);
     }
 
-    protected override int Execute()
+    protected override int Execute(CheckDepsCommandOptions options)
     {
         var cwd = Directory.GetCurrentDirectory();
         var ok = true;
-        configuration = configuration ?? "full-build";
+        var configuration = options.Configuration ?? "full-build";
 
         consoleWriter.WriteInfo($"Checking {configuration} configuration result:");
         var result = new DepsChecker(consoleWriter, depsValidatorFactory, cwd, configuration, Helper.GetModules())
-            .GetCheckDepsResult(findExternal);
+            .GetCheckDepsResult(options.FindExternal);
 
         if (result.NoYamlInstallSection.Any())
         {
@@ -77,14 +77,14 @@ public sealed class CheckDepsCommand : Command
             foreach (var group in refs.OrderBy(g => g.Key))
             {
                 consoleWriter.WriteBuildWarning("\t- " + group.Key);
-                if (!showAll)
+                if (!options.ShowAll)
                     continue;
                 foreach (var file in group)
                     consoleWriter.WriteLine("\t\t" + file.CsprojFile);
             }
         }
 
-        if (result.NotUsedDeps.Any() && !showShort)
+        if (result.NotUsedDeps.Any() && !options.ShowShort)
         {
             ok = false;
             consoleWriter.WriteWarning("Extra deps:");
@@ -93,7 +93,7 @@ public sealed class CheckDepsCommand : Command
         }
 
         var overhead = new SortedSet<string>(result.ConfigOverhead.Where(m => !result.NotUsedDeps.Contains(m)));
-        if (overhead.Any() && !showShort)
+        if (overhead.Any() && !options.ShowShort)
         {
             ok = false;
             consoleWriter.WriteWarning("Config overhead:");

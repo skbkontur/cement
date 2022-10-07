@@ -2,10 +2,12 @@
 using System.Linq;
 using Common;
 using Common.Logging;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class CompleteCommand : Command
+[PublicAPI]
+public sealed class CompleteCommand : Command<CompleteCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -17,7 +19,6 @@ public sealed class CompleteCommand : Command
     };
     private readonly ConsoleWriter consoleWriter;
     private readonly CompleteCommandAutomata completeCommandAutomata;
-    private string[] otherArgs;
 
     public CompleteCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CompleteCommandAutomata completeCommandAutomata)
         : base(consoleWriter, Settings, featureFlags)
@@ -29,8 +30,9 @@ public sealed class CompleteCommand : Command
     public override string Name => "complete";
     public override string HelpMessage => "";
 
-    protected override int Execute()
+    protected override int Execute(CompleteCommandOptions options)
     {
+        var otherArgs = options.OtherArgs;
         var buffer = otherArgs.Length == 0
             ? ""
             : otherArgs[0];
@@ -49,9 +51,10 @@ public sealed class CompleteCommand : Command
         return 0;
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override CompleteCommandOptions ParseArgs(string[] args)
     {
-        otherArgs = args.Skip(1).ToArray();
+        var otherArgs = args.Skip(1).ToArray();
+        return new CompleteCommandOptions(otherArgs);
     }
 
     private void PrintList(IEnumerable<string> list)

@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 using Common;
 using Common.Graph;
 using Common.Logging;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public sealed class BuildDepsCommand : Command
+[PublicAPI]
+public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -21,10 +23,6 @@ public sealed class BuildDepsCommand : Command
 
     private readonly ConsoleWriter consoleWriter;
     private readonly BuildPreparer buildPreparer;
-    private string configuration;
-    private bool rebuild;
-    private bool parallel;
-    private BuildSettings buildSettings;
 
     public BuildDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, BuildPreparer buildPreparer)
         : base(consoleWriter, Settings, featureFlags)
@@ -33,9 +31,9 @@ public sealed class BuildDepsCommand : Command
         this.buildPreparer = buildPreparer;
     }
 
-    public static void TryNugetRestore(ConsoleWriter consoleWriter, List<Dep> modulesToUpdate, ModuleBuilder builder)
+    public static void TryNugetRestore(ILogger log, ConsoleWriter consoleWriter, List<Dep> modulesToUpdate, ModuleBuilder builder)
     {
-        Log.LogDebug("Restoring NuGet packages");
+        log.LogDebug("Restoring NuGet packages");
         consoleWriter.ResetProgress();
 
         try
@@ -55,14 +53,14 @@ public sealed class BuildDepsCommand : Command
         }
         catch (AggregateException ae)
         {
-            Log.LogError(ae.Flatten().InnerExceptions.First(), ae.Flatten().InnerExceptions.First().Message);
+            log.LogError(ae.Flatten().InnerExceptions.First(), ae.Flatten().InnerExceptions.First().Message);
         }
         catch (Exception e)
         {
-            Log.LogError(e, e.Message);
+            log.LogError(e, e.Message);
         }
 
-        Log.LogDebug("OK NuGet packages restored");
+        log.LogDebug("OK NuGet packages restored");
         consoleWriter.ResetProgress();
     }
 
@@ -85,29 +83,32 @@ public sealed class BuildDepsCommand : Command
         --cleanBeforeBuild        - delete all local changes if project's TargetFramework is 'netstandardXX'
 ";
 
-    protected override void ParseArgs(string[] args)
+    protected override BuildDepsCommandOptions ParseArgs(string[] args)
     {
         Helper.RemoveOldKey(ref args, "-t", Log);
 
         var parsedArgs = ArgumentParser.ParseBuildDeps(args);
-        configuration = (string)parsedArgs["configuration"];
-        rebuild = (bool)parsedArgs["rebuild"];
-        parallel = (bool)parsedArgs["quickly"];
-        buildSettings = new BuildSettings
+        var configuration = (string)parsedArgs["configuration"];
+        var rebuild = (bool)parsedArgs["rebuild"];
+        var parallel = (bool)parsedArgs["quickly"];
+        var buildSettings = new BuildSettings
         {
             ShowAllWarnings = (bool)parsedArgs["warnings"],
             ShowOutput = (bool)parsedArgs["verbose"],
             ShowProgress = (bool)parsedArgs["progress"],
             CleanBeforeBuild = (bool)parsedArgs["cleanBeforeBuild"]
         };
+
+        return new BuildDepsCommandOptions(configuration, rebuild, parallel, buildSettings);
     }
 
-    protected override int Execute()
+    protected override int Execute(BuildDepsCommandOptions options)
     {
         var cwd = Directory.GetCurrentDirectory();
         var moduleName = Path.GetFileName(cwd);
 
-        configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
+        var configuration = string.IsNullOrEmpty(options.Configuration) ? "full-build" : options.Configuration;
+        var buildSettings = options.BuildSettings;
 
         var cleanerLogger = LogManager.GetLogger<Cleaner>();
         var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
@@ -118,7 +119,7 @@ public sealed class BuildDepsCommand : Command
         var modulesOrder = buildPreparer.GetModulesOrder(moduleName, configuration ?? "full-build");
         var modulesToBuild = modulesOrder.UpdatedModules;
 
-        if (rebuild)
+        if (options.Rebuild)
             modulesToBuild = modulesOrder.BuildOrder.ToList();
 
         if (modulesToBuild.Count > 0 && modulesToBuild[modulesToBuild.Count - 1].Name == moduleName)
@@ -135,9 +136,12 @@ public sealed class BuildDepsCommand : Command
         if (FeatureFlags.CleanBeforeBuild || buildSettings.CleanBeforeBuild)
             TryCleanModules(modulesToBuild, cleaner);
 
-        TryNugetRestore(consoleWriter, modulesToBuild, builder);
+        TryNugetRestore(Log, consoleWriter, modulesToBuild, builder);
 
-        var isSuccessful = parallel ? BuildDepsParallel(modulesOrder, builtStorage, modulesToBuild, builder) : BuildDepsSequential(modulesOrder, builtStorage, modulesToBuild, builder);
+        var isSuccessful = options.Parallel
+            ? BuildDepsParallel(modulesOrder, builtStorage, modulesToBuild, builder)
+            : BuildDepsSequential(modulesOrder, builtStorage, modulesToBuild, builder);
+
         return isSuccessful ? 0 : -1;
     }
 

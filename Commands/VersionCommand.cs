@@ -1,7 +1,9 @@
 ﻿using Common;
+using JetBrains.Annotations;
 
 namespace Commands;
 
+[PublicAPI]
 public sealed class VersionCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;

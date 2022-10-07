@@ -1,11 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using Common;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public sealed class UserCommand : Command
+[PublicAPI]
+public sealed class UserCommand : Command<UserCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -15,7 +17,6 @@ public sealed class UserCommand : Command
         IsHiddenCommand = true
     };
     private readonly ConsoleWriter consoleWriter;
-    private string[] arguments;
 
     public UserCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
         : base(consoleWriter, Settings, featureFlags)
@@ -26,8 +27,9 @@ public sealed class UserCommand : Command
     public override string Name => "";
     public override string HelpMessage => @"";
 
-    protected override int Execute()
+    protected override int Execute(UserCommandOptions options)
     {
+        var arguments = options.Arguments;
         var cmd = CementSettingsRepository.Get().UserCommands[arguments[0]];
         Log.LogDebug("Run command " + arguments[0] + ": '" + cmd + "'");
         if (arguments.Length > 1)
@@ -39,9 +41,9 @@ public sealed class UserCommand : Command
         return Run(cmd);
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override UserCommandOptions ParseArgs(string[] args)
     {
-        arguments = args;
+        return new UserCommandOptions(args);
     }
 
     private int Run(string cmd)

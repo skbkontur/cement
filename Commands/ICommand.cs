@@ -1,5 +1,8 @@
-﻿namespace Commands;
+﻿using JetBrains.Annotations;
 
+namespace Commands;
+
+[PublicAPI]
 public interface ICommand
 {
     string Name { get; }

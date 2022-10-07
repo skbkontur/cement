@@ -1,5 +1,8 @@
+using JetBrains.Annotations;
+
 namespace Commands;
 
+[PublicAPI]
 public sealed class CommandSettings
 {
     public string LogFileName { get; set; }

@@ -8,11 +8,13 @@ using System.Runtime.CompilerServices;
 using Common;
 using Common.Exceptions;
 using Common.Updaters;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public sealed class SelfUpdateCommand : Command
+[PublicAPI]
+public sealed class SelfUpdateCommand : Command<SelfUpdateCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -22,8 +24,6 @@ public sealed class SelfUpdateCommand : Command
     };
 
     private readonly ConsoleWriter consoleWriter;
-    private string branch;
-    private string server;
 
     public SelfUpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
         : base(consoleWriter, Settings, featureFlags)
@@ -41,11 +41,19 @@ public sealed class SelfUpdateCommand : Command
         cm self-update
 ";
 
-    protected override void ParseArgs(string[] args)
+    protected override SelfUpdateCommandOptions ParseArgs(string[] args)
     {
         var parsedArgs = ArgumentParser.ParseSelfUpdate(args);
-        branch = (string)parsedArgs["branch"];
-        server = (string)parsedArgs["server"];
+        var branch = (string)parsedArgs["branch"];
+        var server = (string)parsedArgs["server"];
+
+        return new SelfUpdateCommandOptions(branch, server);
+    }
+
+    protected override int Execute(SelfUpdateCommandOptions options)
+    {
+        var server = options.Server;
+        var branch = options.Branch;
 
         SearchAndSaveBranchInSettings(ref server, ref branch);
 
@@ -58,10 +66,7 @@ public sealed class SelfUpdateCommand : Command
             consoleWriter.WriteInfo("Installing cement");
             Log.LogDebug("Installing cement");
         }
-    }
 
-    protected override int Execute()
-    {
         consoleWriter.WriteProgressWithoutSave("self-update");
         Helper.SaveLastUpdateTime();
 
@@ -87,10 +92,10 @@ public sealed class SelfUpdateCommand : Command
             : new ServerCementUpdater(Log, consoleWriter, server, branch);
 
         Log.LogInformation("Updater: {CementUpdaterName}", updater.Name);
-        return UpdateBinary(updater);
+        return UpdateBinary(updater, branch);
     }
 
-    private static void CreateRunners()
+    private void CreateRunners()
     {
         var installDirectory = Helper.GetCementInstallDirectory();
 
@@ -211,7 +216,7 @@ cmd /C exit %exit_code% > nul";
         throw new CementException("Unknown operating system. Terminating");
     }
 
-    private int UpdateBinary(ICementUpdater updater)
+    private int UpdateBinary(ICementUpdater updater, string branch)
     {
         var currentCommitHash = Helper.GetCurrentBuildCommitHash();
 
@@ -224,7 +229,7 @@ cmd /C exit %exit_code% > nul";
             currentCommitHash = "(NOT INSTALLED)" + currentCommitHash;
         if (!HasAllCementFiles() || !currentCommitHash.Equals(newCommitHash))
         {
-            if (!UpdateBinaries(updater, currentCommitHash, newCommitHash))
+            if (!UpdateBinaries(updater, branch, currentCommitHash, newCommitHash))
                 return -1;
         }
         else
@@ -236,7 +241,7 @@ cmd /C exit %exit_code% > nul";
         return 0;
     }
 
-    private bool UpdateBinaries(ICementUpdater updater, string oldHash, string newHash)
+    private bool UpdateBinaries(ICementUpdater updater, string branch, string oldHash, string newHash)
     {
         consoleWriter.WriteProgressWithoutSave("Updating cement binaries");
 

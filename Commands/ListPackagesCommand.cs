@@ -1,10 +1,12 @@
 ﻿#nullable enable
 using System.Text;
 using Common;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class ListPackagesCommand : Command
+[PublicAPI]
+public sealed class ListPackagesCommand : Command<ListPackagesCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -23,7 +25,7 @@ public sealed class ListPackagesCommand : Command
     public override string Name => "list";
     public override string HelpMessage => "";
 
-    protected override int Execute()
+    protected override int Execute(ListPackagesCommandOptions options)
     {
         var settings = CementSettingsRepository.Get();
 
@@ -36,7 +38,8 @@ public sealed class ListPackagesCommand : Command
         return 0;
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override ListPackagesCommandOptions ParseArgs(string[] args)
     {
+        return new ListPackagesCommandOptions();
     }
 }

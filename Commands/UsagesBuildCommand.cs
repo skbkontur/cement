@@ -4,10 +4,12 @@ using System.IO;
 using System.Linq;
 using Common;
 using Common.Exceptions;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class UsagesBuildCommand : Command
+[PublicAPI]
+public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -22,12 +24,11 @@ public sealed class UsagesBuildCommand : Command
     private readonly BuildDepsCommand buildDepsCommand;
     private readonly BuildCommand buildCommand;
 
-    private string moduleName, branch;
-    private string checkingBranch;
+    private string moduleName;
+    private string branch;
     private string cwd;
     private string workspace;
     private GitRepository currentRepository;
-    private bool pause;
 
     public UsagesBuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
                               GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
@@ -45,14 +46,16 @@ public sealed class UsagesBuildCommand : Command
     public override string Name => "build";
     public override string HelpMessage => @"";
 
-    protected override void ParseArgs(string[] args)
+    protected override UsagesBuildCommandOptions ParseArgs(string[] args)
     {
         var parsedArgs = ArgumentParser.ParseBuildParents(args);
-        checkingBranch = (string)parsedArgs["branch"];
-        pause = (bool)parsedArgs["pause"];
+        var checkingBranch = (string)parsedArgs["branch"];
+        var pause = (bool)parsedArgs["pause"];
+
+        return new UsagesBuildCommandOptions(pause, checkingBranch);
     }
 
-    protected override int Execute()
+    protected override int Execute(UsagesBuildCommandOptions options)
     {
         cwd = Directory.GetCurrentDirectory();
         workspace = Directory.GetParent(cwd).FullName;
@@ -62,13 +65,15 @@ public sealed class UsagesBuildCommand : Command
         if (currentRepository.HasLocalChanges())
             throw new CementException("You have uncommited changes");
         branch = currentRepository.CurrentLocalTreeish().Value;
+
+        var checkingBranch = options.CheckingBranch;
         if (checkingBranch == null)
             checkingBranch = branch;
 
         var response = usagesProvider.GetUsages(moduleName, checkingBranch);
 
         var toBuild = response.Items.SelectMany(kvp => kvp.Value).Where(d => d.Treeish == "master").ToList();
-        BuildDeps(toBuild);
+        BuildDeps(options.Pause, toBuild);
         return 0;
     }
 
@@ -94,7 +99,7 @@ public sealed class UsagesBuildCommand : Command
         }
     }
 
-    private void BuildDeps(List<Dep> toBuilt)
+    private void BuildDeps(bool pause, List<Dep> toBuilt)
     {
         var badParents = new List<KeyValuePair<Dep, string>>();
         var goodParents = new List<Dep>();

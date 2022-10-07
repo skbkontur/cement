@@ -2,9 +2,11 @@ using System;
 using System.Linq;
 using Common;
 using Common.Exceptions;
+using JetBrains.Annotations;
 
 namespace Commands;
 
+[PublicAPI]
 public sealed class ModuleCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Common;
 using Common.Logging;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class UsagesShowCommand : Command
+[PublicAPI]
+public sealed class UsagesShowCommand : Command<UsagesShowCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -18,10 +20,6 @@ public sealed class UsagesShowCommand : Command
     private readonly ConsoleWriter consoleWriter;
     private readonly IUsagesProvider usagesProvider;
 
-    private string module, branch, configuration;
-    private bool showAll;
-    private bool printEdges;
-
     public UsagesShowCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
         : base(consoleWriter, Settings, featureFlags)
     {
@@ -32,40 +30,42 @@ public sealed class UsagesShowCommand : Command
     public override string Name => "show";
     public override string HelpMessage => @"";
 
-    protected override void ParseArgs(string[] args)
+    protected override UsagesShowCommandOptions ParseArgs(string[] args)
     {
         var parsedArgs = ArgumentParser.ParseShowParents(args);
-        module = (string)parsedArgs["module"];
-        if (Helper.GetModules().All(m => m.Name.ToLower() != module.ToLower()))
+        var module = (string)parsedArgs["module"];
+        if (Helper.GetModules().All(m => !string.Equals(m.Name, module, StringComparison.OrdinalIgnoreCase)))
             consoleWriter.WriteWarning("Module " + module + " not found");
 
-        branch = (string)parsedArgs["branch"];
-        configuration = (string)parsedArgs["configuration"];
-        showAll = (bool)parsedArgs["all"];
-        printEdges = (bool)parsedArgs["edges"];
+        var branch = (string)parsedArgs["branch"];
+        var configuration = (string)parsedArgs["configuration"];
+        var showAll = (bool)parsedArgs["all"];
+        var printEdges = (bool)parsedArgs["edges"];
+
+        return new UsagesShowCommandOptions(module, branch, configuration, showAll, printEdges);
     }
 
-    protected override int Execute()
+    protected override int Execute(UsagesShowCommandOptions options)
     {
-        var response = usagesProvider.GetUsages(module, branch, configuration);
+        var response = usagesProvider.GetUsages(options.Module, options.Branch, options.Configuration);
 
-        if (printEdges)
+        if (options.PrintEdges)
         {
             consoleWriter.WriteLine(";Copy paste this text to http://arborjs.org/halfviz/#");
             foreach (var item in response.Items)
-                PrintArborjsInfo(item);
+                PrintArborjsInfo(options.ShowAll, item);
         }
         else
         {
             foreach (var item in response.Items)
-                PrintInfo(item);
+                PrintInfo(options.ShowAll, item);
             PrintFooter(response.UpdatedTime);
         }
 
         return 0;
     }
 
-    private void PrintArborjsInfo(KeyValuePair<Dep, List<Dep>> item)
+    private void PrintArborjsInfo(bool showAll, KeyValuePair<Dep, List<Dep>> item)
     {
         consoleWriter.WriteLine("{color:black}");
         consoleWriter.WriteLine(item.Key + " {color:red}");
@@ -77,7 +77,7 @@ public sealed class UsagesShowCommand : Command
             consoleWriter.WriteLine(parent + " -> " + item.Key);
     }
 
-    private void PrintInfo(KeyValuePair<Dep, List<Dep>> item)
+    private void PrintInfo(bool showAll, KeyValuePair<Dep, List<Dep>> item)
     {
         var answer = item.Value;
         if (!showAll)

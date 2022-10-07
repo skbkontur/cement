@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace Commands;
 
 [PublicAPI]
-public sealed class AnalyzerAddCommand : Command
+public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -23,9 +23,6 @@ public sealed class AnalyzerAddCommand : Command
     private readonly ConsoleWriter consoleWriter;
     private readonly DepsPatcherProject depsPatcherProject;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
-
-    private string moduleSolutionName;
-    private Dep analyzerModule;
 
     public AnalyzerAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, DepsPatcherProject depsPatcherProject,
                               IGitRepositoryFactory gitRepositoryFactory)
@@ -39,20 +36,25 @@ public sealed class AnalyzerAddCommand : Command
     public override string Name => "add";
     public override string HelpMessage => @"";
 
-    protected override void ParseArgs(string[] args)
+    protected override AnalyzerAddCommandOptions ParseArgs(string[] args)
     {
         var parsedArgs = ArgumentParser.ParseAnalyzerAdd(args);
 
-        analyzerModule = new Dep((string)parsedArgs["module"]);
+        var analyzerModule = new Dep((string)parsedArgs["module"]);
 
         if (parsedArgs["configuration"] != null)
             analyzerModule.Configuration = (string)parsedArgs["configuration"];
 
-        moduleSolutionName = (string)parsedArgs["solution"];
+        var moduleSolutionName = (string)parsedArgs["solution"];
+
+        return new AnalyzerAddCommandOptions(moduleSolutionName, analyzerModule);
     }
 
-    protected override int Execute()
+    protected override int Execute(AnalyzerAddCommandOptions options)
     {
+        var analyzerModule = options.AnalyzerModule;
+        var moduleSolutionName = options.ModuleSolutionName;
+
         var analyzerConfiguration = analyzerModule.Configuration;
 
         Log.LogInformation(
@@ -100,7 +102,7 @@ public sealed class AnalyzerAddCommand : Command
 
         Log.LogDebug("{AnalyzerModuleName} -> {ModuleSolutionName}", analyzerModule, moduleSolutionName);
 
-        CheckBranch();
+        CheckBranch(analyzerModule, moduleSolutionName);
         Log.LogDebug("Branch is OK");
 
         Log.LogInformation("Getting install data for {AnalyzerModule}", analyzerModule);
@@ -179,7 +181,7 @@ public sealed class AnalyzerAddCommand : Command
         return 0;
     }
 
-    private void CheckBranch()
+    private void CheckBranch(Dep analyzerModule, string moduleSolutionName)
     {
         if (string.IsNullOrEmpty(analyzerModule.Treeish))
         {

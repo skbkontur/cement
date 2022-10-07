@@ -2,11 +2,13 @@
 using System.Linq;
 using Common;
 using Common.DepsValidators;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public sealed class UpdateDepsCommand : Command
+[PublicAPI]
+public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -19,13 +21,6 @@ public sealed class UpdateDepsCommand : Command
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
-
-    private string configuration;
-    private string mergedBranch;
-    private LocalChangesPolicy policy;
-    private bool localBranchForce;
-    private bool verbose;
-    private int? gitDepth;
 
     public UpdateDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
                              IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory)
@@ -63,24 +58,26 @@ public sealed class UpdateDepsCommand : Command
         cm update-deps -r --progress
 ";
 
-    protected override void ParseArgs(string[] args)
+    protected override UpdateDepsCommandOptions ParseArgs(string[] args)
     {
         Helper.RemoveOldKey(ref args, "-n", Log);
 
         var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
-        configuration = (string)parsedArgs["configuration"];
-        mergedBranch = (string)parsedArgs["merged"];
-        localBranchForce = (bool)parsedArgs["localBranchForce"];
-        verbose = (bool)parsedArgs["verbose"];
-        policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
-        gitDepth = (int?)parsedArgs["gitDepth"];
+        var configuration = (string)parsedArgs["configuration"];
+        var mergedBranch = (string)parsedArgs["merged"];
+        var localBranchForce = (bool)parsedArgs["localBranchForce"];
+        var verbose = (bool)parsedArgs["verbose"];
+        var policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+        var gitDepth = (int?)parsedArgs["gitDepth"];
+
+        return new UpdateDepsCommandOptions(configuration, mergedBranch, policy, localBranchForce, verbose, gitDepth);
     }
 
-    protected override int Execute()
+    protected override int Execute(UpdateDepsCommandOptions options)
     {
         var cwd = Directory.GetCurrentDirectory();
 
-        configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
+        var configuration = string.IsNullOrEmpty(options.Configuration) ? "full-build" : options.Configuration;
 
         Log.LogInformation("Updating packages");
         PackageUpdater.Shared.UpdatePackages();
@@ -94,17 +91,9 @@ public sealed class UpdateDepsCommand : Command
         HooksHelper.InstallHooks(moduleName);
 
         var getter = new ModuleGetter(
-            consoleWriter,
-            cycleDetector,
-            depsValidatorFactory,
-            gitRepositoryFactory,
-            Helper.GetModules(),
-            new Dep(moduleName, null, configuration),
-            policy,
-            mergedBranch,
-            verbose,
-            localBranchForce,
-            gitDepth);
+            consoleWriter, cycleDetector, depsValidatorFactory, gitRepositoryFactory, Helper.GetModules(),
+            new Dep(moduleName, null, configuration), options.Policy, options.MergedBranch, options.Verbose,
+            options.LocalBranchForce, options.GitDepth);
 
         getter.GetDeps();
 

@@ -2,9 +2,11 @@
 using Common;
 using Common.DepsValidators;
 using Common.Logging;
+using JetBrains.Annotations;
 
 namespace Commands;
 
+[PublicAPI]
 public sealed class UsagesCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;

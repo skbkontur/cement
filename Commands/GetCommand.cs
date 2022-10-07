@@ -2,11 +2,13 @@
 using Common;
 using Common.DepsValidators;
 using Common.Exceptions;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public sealed class GetCommand : Command
+[PublicAPI]
+public sealed class GetCommand : Command<GetCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -19,14 +21,6 @@ public sealed class GetCommand : Command
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
-
-    private string configuration;
-    private LocalChangesPolicy policy;
-    private string module;
-    private string treeish;
-    private string mergedBranch;
-    private bool verbose;
-    private int? gitDepth;
 
     public GetCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
                       IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory)
@@ -64,54 +58,42 @@ public sealed class GetCommand : Command
         cm get kanso -c client release -rv
 ";
 
-    protected override void ParseArgs(string[] args)
+    protected override GetCommandOptions ParseArgs(string[] args)
     {
         Helper.RemoveOldKey(ref args, "-n", Log);
 
         var parsedArgs = ArgumentParser.ParseGet(args);
-        module = (string)parsedArgs["module"];
+        var module = (string)parsedArgs["module"];
         if (string.IsNullOrEmpty(module))
             throw new CementException("You should specify the name of the module");
 
-        treeish = (string)parsedArgs["treeish"];
-        configuration = (string)parsedArgs["configuration"];
-        mergedBranch = (string)parsedArgs["merged"];
-        verbose = (bool)parsedArgs["verbose"];
-        gitDepth = (int?)parsedArgs["gitDepth"];
-        policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+        var treeish = (string)parsedArgs["treeish"];
+        var configuration = (string)parsedArgs["configuration"];
+        var mergedBranch = (string)parsedArgs["merged"];
+        var verbose = (bool)parsedArgs["verbose"];
+        var gitDepth = (int?)parsedArgs["gitDepth"];
+        var policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+
+        return new GetCommandOptions(configuration, policy, module, treeish, mergedBranch, verbose, gitDepth);
     }
 
-    protected override int Execute()
+    protected override int Execute(GetCommandOptions options)
     {
+        var module = options.Module;
+
         var workspace = Directory.GetCurrentDirectory();
         if (!Helper.IsCurrentDirectoryModule(Path.Combine(workspace, module)))
             throw new CementTrackException($"{workspace} is not cement workspace directory.");
 
-        configuration = string.IsNullOrEmpty(configuration) ? "full-build" : configuration;
+        var configuration = string.IsNullOrEmpty(options.Configuration) ? "full-build" : options.Configuration;
 
         Log.LogInformation("Updating packages");
         PackageUpdater.Shared.UpdatePackages();
 
-        GetModule();
-        cycleDetector.WarnIfCycle(module, configuration, Log);
-
-        Log.LogInformation("SUCCESS get " + module);
-        return 0;
-    }
-
-    private void GetModule()
-    {
         var getter = new ModuleGetter(
-            consoleWriter,
-            cycleDetector,
-            depsValidatorFactory,
-            gitRepositoryFactory,
-            Helper.GetModules(),
-            new Dep(module, treeish, configuration),
-            policy,
-            mergedBranch,
-            verbose,
-            gitDepth: gitDepth);
+            consoleWriter, cycleDetector, depsValidatorFactory, gitRepositoryFactory, Helper.GetModules(),
+            new Dep(module, options.Treeish, configuration), options.Policy, options.MergedBranch, options.Verbose,
+            gitDepth: options.GitDepth);
 
         getter.GetModule();
 
@@ -119,5 +101,10 @@ public sealed class GetCommand : Command
         Log.LogInformation("Getting deps list for " + module);
 
         getter.GetDeps();
+
+        cycleDetector.WarnIfCycle(module, configuration, Log);
+
+        Log.LogInformation("SUCCESS get " + module);
+        return 0;
     }
 }

@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Commands.Common;
 using Common;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Commands;
 
+[PublicAPI]
 public sealed class HelpCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;

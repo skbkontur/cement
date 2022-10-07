@@ -4,10 +4,12 @@ using System.Text;
 using Common;
 using Common.Exceptions;
 using Common.YamlParsers;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class ShowConfigsCommand : Command
+[PublicAPI]
+public sealed class ShowConfigsCommand : Command<ShowConfigsCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -17,7 +19,6 @@ public sealed class ShowConfigsCommand : Command
         RequireModuleYaml = true
     };
     private readonly ConsoleWriter consoleWriter;
-    private string moduleNameArg;
 
     public ShowConfigsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
         : base(consoleWriter, Settings, featureFlags)
@@ -33,10 +34,10 @@ public sealed class ShowConfigsCommand : Command
         cm show-configs [<module_name>]
 ";
 
-    protected override int Execute()
+    protected override int Execute(ShowConfigsCommandOptions options)
     {
         var currentDirectory = Directory.GetCurrentDirectory();
-        var moduleName = ResolveModuleName(currentDirectory);
+        var moduleName = ResolveModuleName(options.ModuleName, currentDirectory);
         var workspace = Helper.GetWorkspaceDirectory(currentDirectory);
 
         if (workspace == null)
@@ -76,14 +77,15 @@ public sealed class ShowConfigsCommand : Command
         return 0;
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override ShowConfigsCommandOptions ParseArgs(string[] args)
     {
         var parsedArgs = ArgumentParser.ParseShowConfigs(args);
-        moduleNameArg = (string)parsedArgs["module"];
+        var moduleNameArg = (string)parsedArgs["module"];
+        return new ShowConfigsCommandOptions(moduleNameArg);
     }
 
-    private string ResolveModuleName(string currentDirectory)
+    private string ResolveModuleName(string moduleName, string currentDirectory)
     {
-        return moduleNameArg ?? new DirectoryInfo(Helper.GetModuleDirectory(currentDirectory)).Name;
+        return moduleName ?? new DirectoryInfo(Helper.GetModuleDirectory(currentDirectory)).Name;
     }
 }

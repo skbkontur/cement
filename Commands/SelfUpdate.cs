@@ -1,10 +1,12 @@
 ﻿using System;
 using Common;
 using Common.Logging;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
+[PublicAPI]
 public static class SelfUpdate
 {
     public static void UpdateIfOld(ConsoleWriter consoleWriter, FeatureFlags featureFlags)

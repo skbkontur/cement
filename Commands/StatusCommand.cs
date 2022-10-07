@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
 using Common;
+using JetBrains.Annotations;
 
 namespace Commands;
 
+[PublicAPI]
 public sealed class StatusCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;

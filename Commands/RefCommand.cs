@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using Common;
+using JetBrains.Annotations;
 
 namespace Commands;
 
+[PublicAPI]
 public sealed class RefCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;

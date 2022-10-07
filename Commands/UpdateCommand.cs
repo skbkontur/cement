@@ -1,11 +1,13 @@
 ﻿using System.IO;
 using Common;
 using Common.DepsValidators;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public sealed class UpdateCommand : Command
+[PublicAPI]
+public sealed class UpdateCommand : Command<UpdateCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -17,11 +19,6 @@ public sealed class UpdateCommand : Command
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
-
-    private string treeish = "master";
-    private bool verbose;
-    private LocalChangesPolicy policy;
-    private int? gitDepth;
 
     public UpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
                          IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory)
@@ -52,7 +49,7 @@ public sealed class UpdateCommand : Command
     If treeish isn't specified, cement uses current
 ";
 
-    protected override int Execute()
+    protected override int Execute(UpdateCommandOptions options)
     {
         Log.LogInformation("Updating packages");
         PackageUpdater.Shared.UpdatePackages();
@@ -60,6 +57,8 @@ public sealed class UpdateCommand : Command
         var module = Path.GetFileName(cwd);
 
         var curRepo = gitRepositoryFactory.Create(module, Helper.CurrentWorkspace);
+
+        var treeish = options.Treeish;
         if (treeish == null)
             treeish = curRepo.CurrentLocalTreeish().Value;
 
@@ -70,22 +69,24 @@ public sealed class UpdateCommand : Command
             gitRepositoryFactory,
             Helper.GetModules(),
             new Dep(module, treeish),
-            policy,
+            options.Policy,
             null,
-            verbose,
-            gitDepth: gitDepth);
+            options.Verbose,
+            gitDepth: options.GitDepth);
 
         getter.GetModule();
 
         return 0;
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override UpdateCommandOptions ParseArgs(string[] args)
     {
         var parsedArgs = ArgumentParser.ParseUpdate(args);
-        treeish = (string)parsedArgs["treeish"];
-        verbose = (bool)parsedArgs["verbose"];
-        policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
-        gitDepth = (int?)parsedArgs["gitDepth"];
+        var treeish = (string)parsedArgs["treeish"];
+        var verbose = (bool)parsedArgs["verbose"];
+        var policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
+        var gitDepth = (int?)parsedArgs["gitDepth"];
+
+        return new UpdateCommandOptions(treeish, verbose, policy, gitDepth);
     }
 }

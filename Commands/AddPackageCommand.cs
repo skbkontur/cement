@@ -2,10 +2,12 @@
 using System;
 using Common;
 using Common.Exceptions;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class AddPackageCommand : Command
+[PublicAPI]
+public sealed class AddPackageCommand : Command<AddPackageCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -13,9 +15,6 @@ public sealed class AddPackageCommand : Command
         MeasureElapsedTime = false,
         Location = CommandLocation.Any
     };
-
-    private string packageName = null!;
-    private string packageUrl = null!;
 
     public AddPackageCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
         : base(consoleWriter, Settings, featureFlags)
@@ -25,9 +24,11 @@ public sealed class AddPackageCommand : Command
     public override string Name => "add";
     public override string HelpMessage => @"usage: cm packages add <name> <url>";
 
-    protected override int Execute()
+    protected override int Execute(AddPackageCommandOptions options)
     {
         var settings = CementSettingsRepository.Get();
+        var packageName = options.PackageName;
+        var packageUrl = options.PackageUrl;
 
         var package = settings.Packages.Find(p => p.Name.Equals(packageName, StringComparison.Ordinal));
         if (package != null)
@@ -45,12 +46,14 @@ public sealed class AddPackageCommand : Command
         return 0;
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override AddPackageCommandOptions ParseArgs(string[] args)
     {
         if (args.Length < 2)
             throw new BadArgumentException($"error: invalid arguments{Environment.NewLine}{HelpMessage}");
 
-        packageName = args[0];
-        packageUrl = args[1];
+        var packageName = args[0];
+        var packageUrl = args[1];
+
+        return new AddPackageCommandOptions(packageName, packageUrl);
     }
 }

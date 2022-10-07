@@ -8,7 +8,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public abstract class Command : ICommand
+public abstract class Command<TCommandOptions> : ICommand
+    where TCommandOptions : notnull
 {
     protected Command(ConsoleWriter consoleWriter, CommandSettings settings, FeatureFlags featureFlags)
     {
@@ -30,9 +31,9 @@ public abstract class Command : ICommand
             SetWorkspace();
             CheckRequireYaml();
             InitLogging();
-            LogAndParseArgs(args);
+            var options = LogAndParseArgs(args);
 
-            var exitCode = Execute();
+            var exitCode = Execute(options);
 
             if (!CommandSettings.NoElkLog)
                 LogHelper.SendSavedLog();
@@ -66,14 +67,14 @@ public abstract class Command : ICommand
         }
     }
 
-    protected static ILogger Log { get; private set; }
+    protected ILogger Log { get; private set; }
 
     protected ConsoleWriter ConsoleWriter { get; }
     protected CommandSettings CommandSettings { get; }
     protected FeatureFlags FeatureFlags { get; }
 
-    protected abstract int Execute();
-    protected abstract void ParseArgs(string[] args);
+    protected abstract int Execute(TCommandOptions commandOptions);
+    protected abstract TCommandOptions ParseArgs(string[] args);
 
     private void CheckRequireYaml()
     {
@@ -130,10 +131,12 @@ public abstract class Command : ICommand
         }
     }
 
-    private void LogAndParseArgs(string[] args)
+    private TCommandOptions LogAndParseArgs(string[] args)
     {
         Log.LogDebug("Parsing args: [{Args}] in {WorkingDirectory}", string.Join(" ", args), Directory.GetCurrentDirectory());
-        ParseArgs(args);
+        var options = ParseArgs(args);
         Log.LogDebug("OK parsing args");
+
+        return options;
     }
 }

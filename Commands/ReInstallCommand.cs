@@ -1,8 +1,10 @@
 ﻿using Common;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class ReInstallCommand : Command
+[PublicAPI]
+public sealed class ReInstallCommand : Command<ReInstallCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -30,7 +32,7 @@ public sealed class ReInstallCommand : Command
         cm reinstall
 ";
 
-    protected override int Execute()
+    protected override int Execute(ReInstallCommandOptions options)
     {
         var selfUpdateCommand = new SelfUpdateCommand(consoleWriter, featureFlags)
         {
@@ -40,7 +42,8 @@ public sealed class ReInstallCommand : Command
         return selfUpdateCommand.Run(new[] {"self-update"});
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override ReInstallCommandOptions ParseArgs(string[] args)
     {
+        return new ReInstallCommandOptions();
     }
 }

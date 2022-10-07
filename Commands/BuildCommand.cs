@@ -3,10 +3,12 @@ using System.IO;
 using System.Threading.Tasks;
 using Common;
 using Common.Logging;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class BuildCommand : Command
+[PublicAPI]
+public sealed class BuildCommand : Command<BuildCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -17,8 +19,6 @@ public sealed class BuildCommand : Command
 
     private readonly ConsoleWriter consoleWriter;
     private readonly BuildPreparer buildPreparer;
-    private string configuration;
-    private BuildSettings buildSettings;
 
     public BuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, BuildPreparer buildPreparer)
         : base(consoleWriter, Settings, featureFlags)
@@ -44,11 +44,11 @@ public sealed class BuildCommand : Command
         --cleanBeforeBuild      - delete all local changes if project's TargetFramework is 'netstandardXX'
 ";
 
-    protected override void ParseArgs(string[] args)
+    protected override BuildCommandOptions ParseArgs(string[] args)
     {
         var parsedArgs = ArgumentParser.ParseBuildDeps(args);
-        configuration = (string)parsedArgs["configuration"];
-        buildSettings = new BuildSettings
+        var configuration = (string)parsedArgs["configuration"];
+        var buildSettings = new BuildSettings
         {
             ShowAllWarnings = (bool)parsedArgs["warnings"],
             ShowObsoleteWarnings = (bool)parsedArgs["obsolete"],
@@ -57,13 +57,17 @@ public sealed class BuildCommand : Command
             ShowWarningsSummary = true,
             CleanBeforeBuild = (bool)parsedArgs["cleanBeforeBuild"]
         };
+
+        return new BuildCommandOptions(configuration, buildSettings);
     }
 
-    protected override int Execute()
+    protected override int Execute(BuildCommandOptions options)
     {
         var cwd = Directory.GetCurrentDirectory();
         var moduleName = Path.GetFileName(cwd);
-        configuration = configuration ?? "full-build";
+
+        var configuration = options.Configuration ?? "full-build";
+        var buildSettings = options.BuildSettings;
 
         if (!new ConfigurationParser(new FileInfo(cwd)).ConfigurationExists(configuration))
         {
@@ -90,7 +94,7 @@ public sealed class BuildCommand : Command
                 cleaner.Clean(module);
         }
 
-        BuildDepsCommand.TryNugetRestore(consoleWriter, new List<Dep> {module}, builder);
+        BuildDepsCommand.TryNugetRestore(Log, consoleWriter, new List<Dep> {module}, builder);
 
         if (!builder.Build(module))
         {

@@ -7,10 +7,12 @@ using System.Text.RegularExpressions;
 using Common;
 using Common.DepsValidators;
 using Common.Exceptions;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class UsagesGrepCommand : Command
+[PublicAPI]
+public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -36,10 +38,6 @@ public sealed class UsagesGrepCommand : Command
     private string cwd;
     private string workspace;
     private GitRepository currentRepository;
-    private string[] arguments;
-    private string[] fileMasks;
-    private bool skipGet;
-    private string checkingBranch;
 
     public UsagesGrepCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
                              IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory,
@@ -57,23 +55,26 @@ public sealed class UsagesGrepCommand : Command
     public override string Name => "grep";
     public override string HelpMessage => @"";
 
-    protected override void ParseArgs(string[] args)
+    protected override UsagesGrepCommandOptions ParseArgs(string[] args)
     {
         var parsed = ArgumentParser.ParseGrepParents(args);
-        arguments = (string[])parsed["gitArgs"];
-        fileMasks = (string[])parsed["fileMaskArgs"];
+        var arguments = (string[])parsed["gitArgs"];
+        var fileMasks = (string[])parsed["fileMaskArgs"];
 
-        checkingBranch = (string)parsed["branch"];
-        skipGet = (bool)parsed["skip-get"];
+        var checkingBranch = (string)parsed["branch"];
+        var skipGet = (bool)parsed["skip-get"];
+
+        return new UsagesGrepCommandOptions(arguments, fileMasks, skipGet, checkingBranch);
     }
 
-    protected override int Execute()
+    protected override int Execute(UsagesGrepCommandOptions options)
     {
         cwd = Directory.GetCurrentDirectory();
         workspace = Directory.GetParent(cwd).FullName;
         moduleName = Path.GetFileName(cwd);
         currentRepository = gitRepositoryFactory.Create(moduleName, workspace);
 
+        var checkingBranch = options.CheckingBranch;
         if (checkingBranch == null)
             checkingBranch = currentRepository.HasLocalBranch("master") ? "master" : currentRepository.CurrentLocalTreeish().Value;
 
@@ -84,7 +85,7 @@ public sealed class UsagesGrepCommand : Command
             .Where(d => d.Treeish == "master")
             .DistinctBy(d => d.Name);
 
-        Grep(usages);
+        Grep(options.Arguments, options.FileMasks, options.SkipGet, usages);
         return 0;
     }
 
@@ -125,7 +126,7 @@ public sealed class UsagesGrepCommand : Command
         return s.Replace("\"", "\\\"");
     }
 
-    private void Grep(IEnumerable<Dep> toGrep)
+    private void Grep(string[] arguments, string[] fileMasks, bool skipGet, IEnumerable<Dep> toGrep)
     {
         var modules = Helper.GetModules();
         var command = BuildGitCommand(arguments, fileMasks);

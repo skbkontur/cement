@@ -2,10 +2,12 @@
 using System.Linq;
 using System.Text;
 using Common;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class CheckPreCommitCommand : Command
+[PublicAPI]
+public sealed class CheckPreCommitCommand : Command<CheckPreCommitCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -34,7 +36,7 @@ public sealed class CheckPreCommitCommand : Command
         cm check-pre-commit
 ";
 
-    protected override int Execute()
+    protected override int Execute(CheckPreCommitCommandOptions options)
     {
         var cwd = Directory.GetCurrentDirectory();
         var moduleName = Path.GetFileName(cwd);
@@ -55,8 +57,9 @@ public sealed class CheckPreCommitCommand : Command
         return exitCode;
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override CheckPreCommitCommandOptions ParseArgs(string[] args)
     {
+        return new CheckPreCommitCommandOptions();
     }
 
     private static bool CheckFile(string file)

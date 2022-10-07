@@ -1,9 +1,11 @@
 using System;
 using Common.Logging;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
+[PublicAPI]
 public sealed class DefaultLogger<T> : ILogger<T>
 {
     private readonly ILogger<T> logger;

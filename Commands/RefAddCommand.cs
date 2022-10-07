@@ -5,11 +5,13 @@ using System.Xml;
 using Common;
 using Common.Exceptions;
 using Common.YamlParsers;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
-public sealed class RefAddCommand : Command
+[PublicAPI]
+public sealed class RefAddCommand : Command<RefAddCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -23,11 +25,8 @@ public sealed class RefAddCommand : Command
     private readonly BuildCommand buildCommand;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
     private readonly DepsPatcherProject depsPatcherProject;
-    private string project;
-    private Dep dep;
-    private bool testReplaces;
+
     private bool hasReplaces;
-    private bool force;
 
     public RefAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand,
                          BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject,
@@ -45,31 +44,33 @@ public sealed class RefAddCommand : Command
     public override string Name => "add";
     public override string HelpMessage => @"";
 
-    protected override void ParseArgs(string[] args)
+    protected override RefAddCommandOptions ParseArgs(string[] args)
     {
         var parsedArgs = ArgumentParser.ParseRefAdd(args);
 
-        testReplaces = (bool)parsedArgs["testReplaces"];
-        dep = new Dep((string)parsedArgs["module"]);
+        var testReplaces = (bool)parsedArgs["testReplaces"];
+        var dep = new Dep((string)parsedArgs["module"]);
         if (parsedArgs["configuration"] != null)
             dep.Configuration = (string)parsedArgs["configuration"];
 
-        project = (string)parsedArgs["project"];
-        force = (bool)parsedArgs["force"];
+        var project = (string)parsedArgs["project"];
+        var force = (bool)parsedArgs["force"];
         if (!project.EndsWith(".csproj"))
             throw new BadArgumentException(project + " is not csproj file");
+
+        return new RefAddCommandOptions(project, dep, testReplaces, force);
     }
 
-    protected override int Execute()
+    protected override int Execute(RefAddCommandOptions options)
     {
         var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
         var currentModule = Path.GetFileName(currentModuleDirectory);
 
         PackageUpdater.Shared.UpdatePackages();
-        project = Yaml.GetProjectFileName(project, currentModule);
+        var project = Yaml.GetProjectFileName(options.Project, currentModule);
 
-        var moduleToInsert = Helper.TryFixModuleCase(dep.Name);
-        dep = new Dep(moduleToInsert, dep.Treeish, dep.Configuration);
+        var moduleToInsert = Helper.TryFixModuleCase(options.Dep.Name);
+        var dep = new Dep(moduleToInsert, options.Dep.Treeish, options.Dep.Configuration);
         var configuration = dep.Configuration;
 
         if (!Helper.HasModule(moduleToInsert))
@@ -84,7 +85,7 @@ public sealed class RefAddCommand : Command
         Log.LogDebug(
             $"{moduleToInsert + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration)} -> {project}");
 
-        CheckBranch();
+        CheckBranch(dep);
 
         Log.LogInformation("Getting install data for " + moduleToInsert + Helper.ConfigurationDelimiter + configuration);
         var installData = InstallParser.Get(moduleToInsert, configuration);
@@ -94,8 +95,8 @@ public sealed class RefAddCommand : Command
             return 0;
         }
 
-        AddModuleToCsproj(installData);
-        if (testReplaces)
+        AddModuleToCsproj(dep, project, options.Force, options.TestReplaces, installData);
+        if (options.TestReplaces)
             return hasReplaces ? -1 : 0;
 
         if (!File.Exists(Path.Combine(currentModuleDirectory, Helper.YamlSpecFile)))
@@ -134,18 +135,18 @@ public sealed class RefAddCommand : Command
         {
             consoleWriter.WriteInfo("cm build-deps " + module);
             if (buildDepsCommand.Run(new[] {"build-deps", "-c", module.Configuration}) != 0)
-                throw new CementException("Failed to build deps for " + dep);
+                throw new CementException("Failed to build deps for " + module);
             consoleWriter.ResetProgress();
             consoleWriter.WriteInfo("cm build " + module);
             if (buildCommand.Run(new[] {"build", "-c", module.Configuration}) != 0)
-                throw new CementException("Failed to build " + dep);
+                throw new CementException("Failed to build " + module);
             consoleWriter.ResetProgress();
         }
 
         consoleWriter.WriteLine();
     }
 
-    private void CheckBranch()
+    private void CheckBranch(Dep dep)
     {
         if (string.IsNullOrEmpty(dep.Treeish))
             return;
@@ -163,7 +164,7 @@ public sealed class RefAddCommand : Command
         }
     }
 
-    private void AddModuleToCsproj(InstallData installData)
+    private void AddModuleToCsproj(Dep dep, string project, bool force, bool testReplaces, InstallData installData)
     {
         var projectPath = Path.GetFullPath(project);
         var csproj = new ProjectFile(projectPath);
@@ -192,22 +193,22 @@ public sealed class RefAddCommand : Command
                 hintPath = Helper.UnixPathSlashesToWindows(hintPath);
             }
 
-            AddRef(csproj, refName, hintPath);
-            CheckExistBuildFile(Path.Combine(Helper.CurrentWorkspace, buildItemPath));
+            AddRef(project, force, testReplaces, csproj, refName, hintPath);
+            CheckExistBuildFile(dep, Path.Combine(Helper.CurrentWorkspace, buildItemPath));
         }
 
         if (!testReplaces)
             csproj.Save();
     }
 
-    private void CheckExistBuildFile(string file)
+    private void CheckExistBuildFile(Dep dep, string file)
     {
         if (File.Exists(file))
             return;
         consoleWriter.WriteWarning($"File {file} does not exist. Probably you need to build {dep.Name}.");
     }
 
-    private void AddRef(ProjectFile csproj, string refName, string hintPath)
+    private void AddRef(string project, bool force, bool testReplaces, ProjectFile csproj, string refName, string hintPath)
     {
         if (testReplaces)
         {
@@ -218,7 +219,7 @@ public sealed class RefAddCommand : Command
         XmlNode refXml;
         if (csproj.ContainsRef(refName, out refXml))
         {
-            if (UserChoseReplace(csproj, refXml, refName, hintPath))
+            if (UserChoseReplace(project, force, csproj, refXml, refName, hintPath))
             {
                 csproj.ReplaceRef(refName, hintPath);
                 Log.LogDebug($"'{refName}' ref replaced");
@@ -240,7 +241,7 @@ public sealed class RefAddCommand : Command
             hasReplaces = true;
     }
 
-    private bool UserChoseReplace(ProjectFile csproj, XmlNode refXml, string refName, string refPath)
+    private bool UserChoseReplace(string project, bool force, ProjectFile csproj, XmlNode refXml, string refName, string refPath)
     {
         if (force)
             return true;

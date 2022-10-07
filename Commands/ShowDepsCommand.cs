@@ -4,10 +4,12 @@ using System.Linq;
 using Common;
 using Common.DepsValidators;
 using Common.YamlParsers;
+using JetBrains.Annotations;
 
 namespace Commands;
 
-public sealed class ShowDepsCommand : Command
+[PublicAPI]
+public sealed class ShowDepsCommand : Command<ShowDepsCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
@@ -19,7 +21,6 @@ public sealed class ShowDepsCommand : Command
     private readonly ConsoleWriter consoleWriter;
     private readonly Dictionary<Dep, List<string>> overheadCache = new();
     private readonly ArborJs arborJs;
-    private string configuration;
 
     public ShowDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
         : base(consoleWriter, Settings, featureFlags)
@@ -49,17 +50,19 @@ public sealed class ShowDepsCommand : Command
         return tree;
     }
 
-    protected override void ParseArgs(string[] args)
+    protected override ShowDepsCommandOptions ParseArgs(string[] args)
     {
         var parsed = ArgumentParser.ParseDepsGraph(args);
-        configuration = (string)parsed["configuration"];
+        var configuration = (string)parsed["configuration"];
+        return new ShowDepsCommandOptions(configuration);
     }
 
-    protected override int Execute()
+    protected override int Execute(ShowDepsCommandOptions options)
     {
         var cwd = Directory.GetCurrentDirectory();
         var moduleName = Path.GetFileName(cwd);
 
+        var configuration = options.Configuration;
         var result = GetDepsGraph(new Dep(moduleName, null, configuration));
 
         var full = moduleName;
