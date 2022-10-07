@@ -1,10 +1,11 @@
 ﻿using System.IO;
 using System.Linq;
-using Common;
 using Common.Exceptions;
+using JetBrains.Annotations;
 
-namespace Commands;
+namespace Common;
 
+[PublicAPI]
 public sealed class ModuleHelper
 {
     private readonly ConsoleWriter consoleWriter;
