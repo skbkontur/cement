@@ -15,8 +15,6 @@ public static class ModuleBuilderHelper
 
     private static readonly HashSet<string> PrintedObsolete = new();
 
-    private static List<KeyValuePair<string, string>> msBuildsCache;
-
     public static MsBuildLikeTool FindMsBuild(string version, string moduleName)
     {
         if (Platform.IsUnix())
@@ -48,7 +46,7 @@ public static class ModuleBuilderHelper
 
         Log.LogDebug("MSBUILDS:\n" + string.Join("\n", result.Select(r => $"{r.Key} {r.Value}")));
 
-        return msBuildsCache = result;
+        return result;
     }
 
     public static void KillMsBuild(ILogger log)
