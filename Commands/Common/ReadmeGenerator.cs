@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Commands;
+namespace Commands.Common;
 
 public sealed class ReadmeGenerator
 {
