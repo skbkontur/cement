@@ -51,15 +51,6 @@ public static class Yaml
         return new HooksYamlParser(new FileInfo(Path.Combine(Helper.CurrentWorkspace, moduleName)));
     }
 
-    public static List<string> GetChildrenConfiguration(Dep dep)
-    {
-        var parser = ConfigurationParser(dep.Name);
-        var configs = parser.GetConfigurations();
-        var manager = new ConfigurationManager(dep.Name, configs);
-        var processedChildren = manager.ProcessedChildrenConfigurations(dep).Concat(new[] {dep.Configuration}).Distinct().ToList();
-        return processedChildren;
-    }
-
     public static List<string> GetCsprojsList(string moduleName)
     {
         if (!Exists(moduleName))

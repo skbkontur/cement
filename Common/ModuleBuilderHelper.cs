@@ -124,12 +124,6 @@ public static class ModuleBuilderHelper
         }
     }
 
-    public static void WriteIfError(string line)
-    {
-        if (IsError(line))
-            ConsoleWriter.Shared.WriteBuildError(line);
-    }
-
     public static void WriteIfErrorToStandartStream(string line)
     {
         if (IsError(line))

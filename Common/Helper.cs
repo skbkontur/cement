@@ -97,12 +97,6 @@ public static class Helper
         var path = Path.Combine(GetGlobalCementDirectory(), packageName + ".cmpkg.hash");
         File.WriteAllText(path, commitHash);
     }
-
-    public static string GetServerRepositoriesPath()
-    {
-        return Path.Combine(Directory.GetDirectoryRoot(HomeDirectory()), "CementServer", "Repositories");
-    }
-
     public static bool DirectoryContainsModule(string directory, string moduleName)
     {
         return Directory.EnumerateDirectories(directory)
