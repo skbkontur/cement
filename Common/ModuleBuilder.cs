@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Common.Logging;
 using Common.YamlParsers;
 using Microsoft.Extensions.Logging;
 
@@ -12,28 +13,31 @@ namespace Common;
 public sealed class ModuleBuilder
 {
     public static long TotalMsbuildTime;
+
     private readonly ConsoleWriter consoleWriter;
     private readonly ILogger log;
     private readonly BuildSettings buildSettings;
     private readonly BuildYamlScriptsMaker buildYamlScriptsMaker;
+    private readonly VsDevHelper vsDevHelper;
 
-    public ModuleBuilder(ConsoleWriter consoleWriter, ILogger log, BuildSettings buildSettings,
+    public ModuleBuilder(ILogger log, ConsoleWriter consoleWriter, BuildSettings buildSettings,
                          BuildYamlScriptsMaker buildYamlScriptsMaker)
     {
         this.consoleWriter = consoleWriter;
         this.log = log;
         this.buildSettings = buildSettings;
         this.buildYamlScriptsMaker = buildYamlScriptsMaker;
+        vsDevHelper = new VsDevHelper(LogManager.GetLogger<VsDevHelper>());
     }
 
     public void Init()
     {
-        if (!Platform.IsUnix())
-        {
-            VsDevHelper.ReplaceVariablesToVs();
-            ModuleBuilderHelper.FindMsBuildsWindows();
-            ModuleBuilderHelper.KillMsBuild(log);
-        }
+        if (Platform.IsUnix())
+            return;
+
+        vsDevHelper.ReplaceVariablesToVs();
+        ModuleBuilderHelper.FindMsBuildsWindows();
+        ModuleBuilderHelper.KillMsBuild(log);
     }
 
     public bool DotnetPack(string directory, string projectFileName, string buildConfiguration)
@@ -43,34 +47,41 @@ public sealed class ModuleBuilder
         consoleWriter.Write(runner.Output);
         if (exitCode == 0)
             return true;
-        log.LogWarning($"Failed to build nuget package {projectFileName}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
+
+        log.LogWarning(
+            $"Failed to build nuget package {projectFileName}.\nOutput: \n{runner.Output} \n" +
+            $"Error: \n{runner.Errors} \nExit code: {exitCode}");
+
         return false;
     }
 
     public void NugetRestore(string moduleName, List<string> configurations, string nugetRunCommand)
     {
-        if (Yaml.Exists(moduleName))
+        if (!Yaml.Exists(moduleName))
         {
-            var buildSections = configurations.SelectMany(c => Yaml.BuildParser(moduleName).Get(c)).ToList();
-            var targets = new HashSet<string>();
-            foreach (var buildSection in buildSections)
-            {
-                if (buildSection.Target == null || !buildSection.Target.EndsWith(".sln"))
-                    continue;
-                if (buildSection.Tool.Name != ToolNames.DOTNET)
-                {
-                    var target = Path.Combine(Helper.CurrentWorkspace, moduleName, buildSection.Target);
-                    targets.Add(target);
-                }
-            }
-
-            foreach (var target in targets)
-            {
-                RunNugetRestore(target, nugetRunCommand);
-            }
-        }
-        else
             RunNugetRestore(Path.Combine(Helper.CurrentWorkspace, moduleName, "build.cmd"), nugetRunCommand);
+            return;
+        }
+
+        var buildSections = configurations.SelectMany(c => Yaml.BuildParser(moduleName).Get(c));
+
+        var targets = new HashSet<string>();
+        foreach (var buildSection in buildSections)
+        {
+            if (buildSection.Target == null || !buildSection.Target.EndsWith(".sln"))
+                continue;
+
+            if (buildSection.Tool.Name == ToolNames.DOTNET)
+                continue;
+
+            var target = Path.Combine(Helper.CurrentWorkspace, moduleName, buildSection.Target);
+            targets.Add(target);
+        }
+
+        foreach (var target in targets)
+        {
+            RunNugetRestore(target, nugetRunCommand);
+        }
     }
 
     public bool Build(Dep dep)
@@ -78,8 +89,10 @@ public sealed class ModuleBuilder
         try
         {
             log.LogDebug($"{dep.ToBuildString()}");
+
             if (BuildSingleModule(dep))
                 return true;
+
             log.LogDebug($"{dep.ToBuildString(),-40} *build failed");
             return false;
         }
@@ -93,13 +106,14 @@ public sealed class ModuleBuilder
 
     private void PrintBuildFailResult(Dep dep, string buildName, BuildScriptWithBuildData script, ShellRunner runner)
     {
-        consoleWriter.WriteBuildError(
-            $"Failed to build {dep.Name}{(dep.Configuration == null ? "" : "/" + dep.Configuration)} {buildName}");
+        consoleWriter.WriteBuildError($"Failed to build {dep} {buildName}");
+
         foreach (var line in runner.Output.Split('\n'))
             ModuleBuilderHelper.WriteLine(line);
 
         consoleWriter.WriteLine();
         consoleWriter.WriteInfo("Errors summary:");
+
         foreach (var line in runner.Output.Split('\n'))
             ModuleBuilderHelper.WriteIfErrorToStandartStream(line);
 
@@ -110,6 +124,7 @@ public sealed class ModuleBuilder
     {
         var buildFolder = Directory.GetParent(buildFile).FullName;
         var target = buildFile.EndsWith(".sln") ? Path.GetFileName(buildFile) : "";
+
         var command = $"{nugetRunCommand} restore {target} -Verbosity {(buildSettings.ShowOutput ? "normal" : "quiet")}";
         log.LogInformation(command);
 
@@ -117,7 +132,11 @@ public sealed class ModuleBuilder
         var exitCode = runner.RunInDirectory(buildFolder, command);
         if (exitCode != 0)
         {
-            log.LogWarning($"Failed to nuget restore {buildFile}. \nOutput: \n{runner.Output} \nError: \n{runner.Errors} \nExit code: {exitCode}");
+            log.LogWarning(
+                $"Failed to nuget restore {buildFile}." +
+                $"\nOutput: \n{runner.Output} " +
+                $"\nError: \n{runner.Errors}" +
+                $"\nExit code: {exitCode}");
         }
     }
 
@@ -209,13 +228,16 @@ public sealed class ModuleBuilder
     private void PrintBuildResult(Dep dep, string buildName, int warnCount, string elapsedTime, List<string> obsoleteUsages)
     {
         consoleWriter.WriteOk(
-            $"{dep.ToBuildString() + " " + buildName,-40}{(warnCount == 0 || buildSettings.ShowWarningsSummary ? "" : "warnings: " + warnCount),-15}{elapsedTime,10}");
+            $"{dep.ToBuildString() + " " + buildName,-40}" +
+            $"{(warnCount == 0 || buildSettings.ShowWarningsSummary ? "" : "warnings: " + warnCount),-15}" +
+            $"{elapsedTime,10}");
 
         var obsoleteCount = obsoleteUsages.Count;
         if (buildSettings.ShowWarningsSummary && warnCount > 0)
         {
             consoleWriter.WriteBuildWarning(
-                $"       warnings: {warnCount}{(obsoleteCount == 0 ? "" : ", obsolete usages: " + obsoleteCount)} (Use -w key to print warnings or -W to print obsolete usages. You can also use ReSharper to find them.)");
+                $"       warnings: {warnCount}{(obsoleteCount == 0 ? "" : ", obsolete usages: " + obsoleteCount)} " +
+                $"(Use -w key to print warnings or -W to print obsolete usages. You can also use ReSharper to find them.)");
         }
     }
 
@@ -245,6 +267,7 @@ public sealed class ModuleBuilder
 
         if (buildSettings.ShowWarningsSummary)
             runner.OnOutputChange += ModuleBuilderHelper.WriteIfObsoleteGrouped;
+
         return runner;
     }
 }

@@ -82,7 +82,7 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
         var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
         var cleaner = new Cleaner(cleanerLogger, shellRunner, consoleWriter);
         var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
-        var builder = new ModuleBuilder(consoleWriter, logger, buildSettings, buildYamlScriptsMaker);
+        var builder = new ModuleBuilder(logger, consoleWriter, buildSettings, buildYamlScriptsMaker);
         var builderInitTask = Task.Run(() => builder.Init());
         var modulesOrder = buildPreparer.GetModulesOrder(moduleName, configuration);
         var builtStorage = BuildInfoStorage.Deserialize();

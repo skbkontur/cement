@@ -117,7 +117,7 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
         var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
         var cleaner = new Cleaner(cleanerLogger, shellRunner, consoleWriter);
         var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
-        var builder = new ModuleBuilder(consoleWriter, logger, buildSettings, buildYamlScriptsMaker);
+        var builder = new ModuleBuilder(logger, consoleWriter, buildSettings, buildYamlScriptsMaker);
         var builderInitTask = Task.Run(() => builder.Init());
         var modulesOrder = buildPreparer.GetModulesOrder(moduleName, configuration ?? "full-build");
         var modulesToBuild = modulesOrder.UpdatedModules;

@@ -72,7 +72,7 @@ public sealed class PackCommand : Command<PackCommandOptions>
         {
             XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
             var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
-            var moduleBuilder = new ModuleBuilder(consoleWriter, logger, options.BuildSettings, buildYamlScriptsMaker);
+            var moduleBuilder = new ModuleBuilder(logger, consoleWriter, options.BuildSettings, buildYamlScriptsMaker);
             moduleBuilder.Init();
             consoleWriter.WriteInfo("start pack");
             if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))

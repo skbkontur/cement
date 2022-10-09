@@ -3,20 +3,27 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Common.Logging;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Common;
 
-public static class VsDevHelper
+[PublicAPI]
+public sealed class VsDevHelper
 {
-    private static readonly ILogger Log = LogManager.GetLogger(typeof(VsDevHelper));
+    private readonly ILogger<VsDevHelper> logger;
+
+    public VsDevHelper(ILogger<VsDevHelper> logger)
+    {
+        this.logger = logger;
+    }
 
     public static Dictionary<string, string> GetCurrentSetVariables()
     {
         var result = new Dictionary<string, string>();
-        // ReSharper disable once LoopCanBeConvertedToQuery
-        foreach (DictionaryEntry de in Environment.GetEnvironmentVariables())
+
+        var environmentVariables = Environment.GetEnvironmentVariables();
+        foreach (DictionaryEntry de in environmentVariables)
         {
             result.Add(de.Key.ToString(), de.Value.ToString());
         }
@@ -24,17 +31,17 @@ public static class VsDevHelper
         return result;
     }
 
-    public static void ReplaceVariablesToVs()
+    public void ReplaceVariablesToVs()
     {
         var variables = GetVsSetVariables();
         if (variables == null)
             return;
         foreach (var variable in variables)
             Environment.SetEnvironmentVariable(variable.Key, variable.Value);
-        Log.LogDebug("Successfully set new variables from VsDevCmd.bat");
+        logger.LogDebug("Successfully set new variables from VsDevCmd.bat");
     }
 
-    private static Dictionary<string, string> GetVsSetVariables()
+    private Dictionary<string, string> GetVsSetVariables()
     {
         var text = RunVsDevCmd();
 
@@ -56,21 +63,21 @@ public static class VsDevHelper
         return result;
     }
 
-    private static string RunVsDevCmd()
+    private string RunVsDevCmd()
     {
         var path = FindVsDevCmd();
         if (path == null)
         {
-            Log.LogDebug("VsDevCmd.bat not found");
+            logger.LogDebug("VsDevCmd.bat not found");
             return null;
         }
 
-        Log.LogInformation($"VsDevCmd found in '{path}'");
+        logger.LogInformation($"VsDevCmd found in '{path}'");
         var command = $"\"{path}\" && set";
         var runner = new ShellRunner();
         if (runner.Run(command) != 0)
         {
-            Log.LogDebug("VsDevCmd.bat not working");
+            logger.LogDebug("VsDevCmd.bat not working");
             return null;
         }
 
