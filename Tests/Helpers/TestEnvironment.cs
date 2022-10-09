@@ -80,8 +80,6 @@ namespace Tests.Helpers
         {
             if (depsStyle == DepsFormatStyle.Yaml)
                 CreateDepsYamlStyle(path, depsByConfig);
-            if (depsStyle == DepsFormatStyle.Ini)
-                CreateDepsIniStyle(path, depsByConfig);
         }
 
         public void Dispose()
@@ -190,68 +188,6 @@ full-build:
             File.WriteAllText(Path.Combine(path, "module.yaml"), content);
             runner.Run("git add module.yaml");
             runner.Run("git commit -am \"added deps\"");
-        }
-
-        private void CreateDepsIniStyle(string path, Dictionary<string, DepsData> depsByConfig)
-        {
-            if (depsByConfig == null)
-                return;
-
-            FillSpecFile(path, depsByConfig.Keys.ToList());
-
-            foreach (var config in depsByConfig.Keys.OrderBy(x => x))
-            {
-                var content = "";
-                if (depsByConfig[config] != null)
-                {
-                    content = depsByConfig[config].Force != null
-                        ? @"[main]
-force = " + string.Join(",", depsByConfig[config].Force) + "\r\n"
-                        : "";
-                    foreach (var dep in depsByConfig[config].Deps)
-                    {
-                        content += $"[module {dep.Name}]\r\n";
-                        if (dep.Treeish != null)
-                        {
-                            content += $"treeish = {dep.Treeish}\r\n";
-                        }
-
-                        if (dep.Configuration != null)
-                        {
-                            content += $"configuration = {dep.Configuration}\r\n";
-                        }
-                    }
-                }
-
-                File.WriteAllText(
-                    Path.Combine(
-                        path,
-                        $"deps{(config == "full-build" ? "" : "." + (config.StartsWith("*") ? config.Substring(1) : config))}"), content);
-                runner.Run("git add " + $"deps{(config == "full-build" ? "" : "." + config)}");
-            }
-
-            runner.Run("git add .cm/");
-            runner.Run("git add .cm/spec.xml");
-            runner.Run("git commit -am \"added deps\"");
-        }
-
-        private void FillSpecFile(string path, IList<string> configs)
-        {
-            var defaultConfig = configs.FirstOrDefault(conf => conf.StartsWith("*"));
-            var defaultConfigXmlSection = defaultConfig != null
-                ? $"<default-config name = \"{defaultConfig.Substring(1)}\"/>\r\n"
-                : "";
-            var content = $@"
-<configurations>
-    {defaultConfigXmlSection}";
-            foreach (var config in configs.Select(conf => conf.StartsWith("*") ? conf.Substring(1) : conf).OrderBy(x => x))
-            {
-                content += $"    <conf name = \"{config}\"/>\r\n";
-            }
-
-            content += "</configurations>";
-            Directory.CreateDirectory(Path.Combine(path, ".cm"));
-            File.WriteAllText(Path.Combine(path, ".cm", "spec.xml"), content);
         }
 
         private void CreateRepoAndCommitReadme()

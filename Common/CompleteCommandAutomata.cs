@@ -183,7 +183,6 @@ public sealed class CompleteCommandAutomata
             {"build-deps", ConfigKeyWithConfigs},
             {"check-deps", ConfigKeyWithConfigs},
             "check-pre-commit",
-            "convert-spec",
             {"get", AllModules},
             "help",
             "init",
@@ -199,7 +198,7 @@ public sealed class CompleteCommandAutomata
             {
                 "analyzer", () => new TokensList
                 {
-                    "add" //TODO
+                    "add"
                 }
             },
             "self-update",

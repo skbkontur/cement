@@ -6,14 +6,9 @@ namespace Common;
 public static class InstallParser
 {
     [NotNull]
-    public static InstallData Get(string module, string configuration)
+    public static InstallData Get(string moduleName, string configuration)
     {
-        var yamlSpecFile = Path.Combine(Helper.CurrentWorkspace, module, Helper.YamlSpecFile);
-        var xmlSpecFile = Path.Combine(Helper.CurrentWorkspace, module, ".cm", "spec.xml");
-        return File.Exists(yamlSpecFile)
-            ? new InstallCollector(Directory.GetParent(yamlSpecFile).FullName).Get(configuration)
-            : File.Exists(xmlSpecFile)
-                ? new InstallXmlParser(File.ReadAllText(xmlSpecFile), module).Get(configuration)
-                : new InstallData();
+        var path = Path.Combine(Helper.CurrentWorkspace, moduleName);
+        return new InstallCollector(path, moduleName).Get(configuration);
     }
 }

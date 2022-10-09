@@ -2,6 +2,5 @@
 
 public enum DepsFormatStyle
 {
-    Ini,
-    Yaml
+    Yaml = 1
 }

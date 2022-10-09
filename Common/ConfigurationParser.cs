@@ -12,15 +12,6 @@ public sealed class ConfigurationParser : IConfigurationParser
     {
         if (File.Exists(Path.Combine(modulePath.FullName, Helper.YamlSpecFile)))
             parser = new ConfigurationYamlParser(modulePath);
-        else
-        {
-            if (File.Exists(Path.Combine(modulePath.FullName, ".cm", "spec.xml")))
-                parser = new ConfigurationXmlParser(modulePath);
-            else
-            {
-                parser = null;
-            }
-        }
     }
 
     public IList<string> GetConfigurations()

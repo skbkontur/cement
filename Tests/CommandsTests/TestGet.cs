@@ -289,75 +289,6 @@ namespace Tests.CommandsTests
         }
 
         [Test]
-        public void TestGetDepsOneDepWithCurrentBranchForceOldStyle()
-        {
-            using var env = new TestEnvironment();
-            var dir = env.WorkingDirectory.Path;
-
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(new[] {"%CURRENT_BRANCH%"}, new List<Dep> {new("B")})}
-                }, new[] {"new"}, DepsFormatStyle.Ini);
-            env.Checkout("A", "new");
-
-            env.CreateRepo("B", null, new[] {"new"});
-
-            env.Get("A", "new");
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("new", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
-        }
-
-        [Test]
-        public void TestGetDepsOneDepWithCreatingNewRemoteBranch()
-        {
-            using var env = new TestEnvironment();
-            var dir = env.WorkingDirectory.Path;
-
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(new[] {"%CURRENT_BRANCH%"}, new List<Dep> {new("B")})}
-                }, new[] {"new"}, DepsFormatStyle.Ini);
-            env.Checkout("A", "new");
-
-            env.CreateRepo("B");
-
-            env.Get("A", "new");
-            env.AddBranch("B", "new");
-            env.Get("A", "new");
-
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("new", gitRepositoryFactory.Create("B", dir).CurrentLocalTreeish().Value);
-        }
-
-        [Test]
-        public void TestGetDepsOneDepWithForceAndTreeish()
-        {
-            using var env = new TestEnvironment();
-            var dir = env.WorkingDirectory.Path;
-
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(new[] {"new"}, new List<Dep> {new("B")})}
-                }, new[] {"new"}, DepsFormatStyle.Ini);
-
-            env.CreateRepo(
-                "B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("C", "new1")})}
-                });
-
-            env.CreateRepo("C", null, new[] {"new", "new1"});
-
-            env.Get("A", "new");
-
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.AreEqual("new1", gitRepositoryFactory.Create("C", dir).CurrentLocalTreeish().Value);
-        }
-
-        [Test]
         public void TestGetDepsOneDepWithCurrentBranchForceNewStyle()
         {
             using var env = new TestEnvironment();
@@ -479,98 +410,6 @@ namespace Tests.CommandsTests
         }
 
         [Test]
-        public void TestGetDepsLongChainMixedDepsStyle()
-        {
-            using var env = new TestEnvironment();
-            var dir = env.WorkingDirectory.Path;
-
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("B"), new("C")})}
-                }, null, DepsFormatStyle.Ini);
-            env.CreateRepo(
-                "B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("C")})}
-                });
-            env.CreateRepo(
-                "C", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("D")})}
-                }, null, DepsFormatStyle.Ini);
-            env.CreateRepo(
-                "D", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("B"), new("A")})}
-                });
-            env.Get("A");
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "B")));
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "C")));
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "D")));
-        }
-
-        [Test]
-        public void TestGetDepsLongChainMixedDepsStyleWithConfigurations()
-        {
-            using var env = new TestEnvironment();
-            var dir = env.WorkingDirectory.Path;
-
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("B"), new("C", null, "client")})}
-                }, null, DepsFormatStyle.Ini);
-            env.CreateRepo(
-                "B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("C")})},
-                    {"client *default", new DepsData(null, new List<Dep> {new("C")})}
-                });
-            env.CreateRepo(
-                "C", new Dictionary<string, DepsData>
-                {
-                    {"*full-build", new DepsData(null, new List<Dep> {new("D")})},
-                    {"client", new DepsData(null, new List<Dep>())}
-                }, null, DepsFormatStyle.Ini);
-            env.Get("A");
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "B")));
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "C")));
-        }
-
-        [Test]
-        public void TestGetDepsWithConfigurationsAndTreeishes()
-        {
-            using var env = new TestEnvironment();
-            var dir = env.WorkingDirectory.Path;
-
-            env.CreateRepo(
-                "A", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("B"), new("C", null, "client")})}
-                }, null, DepsFormatStyle.Ini);
-            env.CreateRepo(
-                "B", new Dictionary<string, DepsData>
-                {
-                    {"full-build", new DepsData(null, new List<Dep> {new("C")})},
-                    {"client *default", new DepsData(null, new List<Dep> {new("C", "notmaster")})}
-                });
-            env.CreateRepo(
-                "C", new Dictionary<string, DepsData>
-                {
-                    {"*full-build", new DepsData(null, new List<Dep> {new("D")})},
-                    {"client", new DepsData(null, new List<Dep>())}
-                }, new[] {"notmaster"}, DepsFormatStyle.Ini);
-            env.Get("A");
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "A")));
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "B")));
-            Assert.IsTrue(Directory.Exists(Path.Combine(dir, "C")));
-            Assert.AreEqual("notmaster", gitRepositoryFactory.Create("C", dir).CurrentLocalTreeish().Value);
-        }
-
-        [Test]
         public void TestThrowsOnExplicitTreeishConflict()
         {
             using var env = new TestEnvironment();
@@ -606,7 +445,6 @@ namespace Tests.CommandsTests
             Assert.Throws<TreeishConflictException>(() => env.Get("A"));
         }
 
-        //Fail when running, works fine when debugging
         [Test]
         public void TestDoesNotThrowWhenDefaultTreeishAndNotDefaultTreeish1()
         {

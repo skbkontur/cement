@@ -68,7 +68,6 @@ namespace cm
             services.AddCommand<StatusCommand>();
             services.AddCommand<ModuleCommand>();
             services.AddCommand<UpdateCommand>();
-            services.AddCommand<ConvertSpecCommand>();
             services.AddCommand<ReInstallCommand>();
             services.AddCommand<CompleteCommand>();
             services.AddCommand<PackCommand>();

@@ -17,14 +17,20 @@ public sealed class InstallCollector
         moduleName = Path.GetFileName(path);
     }
 
+    public InstallCollector(string path, string moduleName)
+    {
+        this.path = path;
+        this.moduleName = moduleName;
+    }
+
     [NotNull]
     public InstallData Get(string configName = null)
     {
-        var proceededModules = new HashSet<string>();
-        var proceededNuGetPackages = new HashSet<string>();
-
         if (!File.Exists(Path.Combine(path, Helper.YamlSpecFile)))
             return new InstallData();
+
+        var proceededModules = new HashSet<string>();
+        var proceededNuGetPackages = new HashSet<string>();
 
         var result = new InstallYamlParser(new FileInfo(path)).Get(configName);
         result.InstallFiles = result.InstallFiles.Select(r => Path.Combine(moduleName, r)).ToList();
