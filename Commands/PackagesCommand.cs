@@ -10,16 +10,18 @@ namespace Commands;
 public sealed class PackagesCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;
-    private readonly IDictionary<string, ICommand> subcommands;
+    private readonly ICommandActivator commandActivator;
+    private readonly IDictionary<string, Type> subcommands;
 
-    public PackagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+    public PackagesCommand(ConsoleWriter consoleWriter, ICommandActivator commandActivator)
     {
         this.consoleWriter = consoleWriter;
-        subcommands = new Dictionary<string, ICommand>
+        this.commandActivator = commandActivator;
+        subcommands = new Dictionary<string, Type>
         {
-            {"list", new ListPackagesCommand(consoleWriter, featureFlags)},
-            {"add", new AddPackageCommand(consoleWriter, featureFlags)},
-            {"remove", new RemovePackageCommand(consoleWriter, featureFlags)}
+            {"list", typeof(ListPackagesCommand)},
+            {"add", typeof(AddPackageCommand)},
+            {"remove", typeof(RemovePackageCommand)}
         };
     }
 
@@ -38,7 +40,12 @@ public sealed class PackagesCommand : ICommand
         if (args.Length >= 2)
         {
             if (subcommands.ContainsKey(args[1]))
-                return subcommands[args[1]].Run(args.Skip(2).ToArray());
+            {
+                var commandType = subcommands[args[1]];
+                var command = (ICommand)commandActivator.Create(commandType);
+
+                return command.Run(args.Skip(2).ToArray());
+            }
 
             consoleWriter.WriteError($"Unknown subcommand: {args[1]}{Environment.NewLine}{HelpMessage}");
         }

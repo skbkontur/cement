@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Common;
 using Common.Logging;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
@@ -16,12 +17,15 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
         Location = CommandLocation.RootModuleDirectory
     };
 
+    private readonly ILogger<BuildCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly BuildPreparer buildPreparer;
 
-    public BuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, BuildPreparer buildPreparer)
+    public BuildCommand(ILogger<BuildCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+                        BuildPreparer buildPreparer)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.buildPreparer = buildPreparer;
     }
@@ -78,7 +82,7 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
         var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
         var cleaner = new Cleaner(cleanerLogger, shellRunner, consoleWriter);
         var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
-        var builder = new ModuleBuilder(consoleWriter, Log, buildSettings, buildYamlScriptsMaker);
+        var builder = new ModuleBuilder(consoleWriter, logger, buildSettings, buildYamlScriptsMaker);
         var builderInitTask = Task.Run(() => builder.Init());
         var modulesOrder = buildPreparer.GetModulesOrder(moduleName, configuration);
         var builtStorage = BuildInfoStorage.Deserialize();
@@ -93,7 +97,7 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
                 cleaner.Clean(module);
         }
 
-        BuildDepsCommand.TryNugetRestore(Log, consoleWriter, new List<Dep> {module}, builder);
+        BuildDepsCommand.TryNugetRestore(logger, consoleWriter, new List<Dep> {module}, builder);
 
         if (!builder.Build(module))
         {

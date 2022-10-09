@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Common;
-using Common.DepsValidators;
-using Common.Logging;
 using JetBrains.Annotations;
 
 namespace Commands;
@@ -10,24 +9,19 @@ namespace Commands;
 public sealed class UsagesCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;
-    private readonly Dictionary<string, ICommand> commands;
+    private readonly ICommandActivator commandActivator;
+    private readonly Dictionary<string, Type> commands;
 
-    public UsagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
-                         GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
-                         CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
-                         IGitRepositoryFactory gitRepositoryFactory)
+    public UsagesCommand(ConsoleWriter consoleWriter, ICommandActivator commandActivator)
     {
         this.consoleWriter = consoleWriter;
+        this.commandActivator = commandActivator;
 
-        commands = new Dictionary<string, ICommand>
+        commands = new Dictionary<string, Type>
         {
-            ["show"] = new UsagesShowCommand(consoleWriter, featureFlags),
-            ["build"] = new UsagesBuildCommand(
-                consoleWriter, featureFlags, usagesProvider, getCommand, buildDepsCommand, buildCommand, gitRepositoryFactory),
-
-            ["grep"] = new UsagesGrepCommand(
-                consoleWriter, featureFlags, cycleDetector, depsValidatorFactory, gitRepositoryFactory,
-                new ShellRunner(LogManager.GetLogger<UsagesGrepCommand>()), usagesProvider)
+            ["show"] = typeof(UsagesShowCommand),
+            ["build"] = typeof(UsagesBuildCommand),
+            ["grep"] = typeof(UsagesGrepCommand)
         };
     }
 
@@ -88,6 +82,9 @@ public sealed class UsagesCommand : ICommand
             return -1;
         }
 
-        return commands[args[1]].Run(args);
+        var commandType = commands[args[1]];
+        var command = (ICommand)commandActivator.Create(commandType);
+
+        return command.Run(args);
     }
 }

@@ -21,12 +21,15 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
         Location = CommandLocation.RootModuleDirectory
     };
 
+    private readonly ILogger<BuildDepsCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly BuildPreparer buildPreparer;
 
-    public BuildDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, BuildPreparer buildPreparer)
+    public BuildDepsCommand(ILogger<BuildDepsCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+                            BuildPreparer buildPreparer)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.buildPreparer = buildPreparer;
     }
@@ -85,7 +88,7 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
 
     protected override BuildDepsCommandOptions ParseArgs(string[] args)
     {
-        Helper.RemoveOldKey(ref args, "-t", Log);
+        Helper.RemoveOldKey(ref args, "-t", logger);
 
         var parsedArgs = ArgumentParser.ParseBuildDeps(args);
         var configuration = (string)parsedArgs["configuration"];
@@ -114,7 +117,7 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
         var shellRunner = new ShellRunner(LogManager.GetLogger<ShellRunner>());
         var cleaner = new Cleaner(cleanerLogger, shellRunner, consoleWriter);
         var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
-        var builder = new ModuleBuilder(consoleWriter, Log, buildSettings, buildYamlScriptsMaker);
+        var builder = new ModuleBuilder(consoleWriter, logger, buildSettings, buildYamlScriptsMaker);
         var builderInitTask = Task.Run(() => builder.Init());
         var modulesOrder = buildPreparer.GetModulesOrder(moduleName, configuration ?? "full-build");
         var modulesToBuild = modulesOrder.UpdatedModules;
@@ -136,7 +139,7 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
         if (FeatureFlags.CleanBeforeBuild || buildSettings.CleanBeforeBuild)
             TryCleanModules(modulesToBuild, cleaner);
 
-        TryNugetRestore(Log, consoleWriter, modulesToBuild, builder);
+        TryNugetRestore(logger, consoleWriter, modulesToBuild, builder);
 
         var isSuccessful = options.Parallel
             ? BuildDepsParallel(modulesOrder, builtStorage, modulesToBuild, builder)
@@ -178,7 +181,7 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
         }
 
         buildStorage.Save();
-        Log.LogDebug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
+        logger.LogDebug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
         return true;
     }
 
@@ -238,7 +241,7 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
         Task.WaitAll(tasks.ToArray());
 
         buildStorage.Save();
-        Log.LogDebug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
+        this.logger.LogDebug("msbuild time: " + new TimeSpan(ModuleBuilder.TotalMsbuildTime));
         return !parallelBuilder.IsFailed;
     }
 
@@ -246,7 +249,7 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
     {
         if (!modulesToBuild.Contains(dep))
         {
-            Log.LogDebug($"{dep.ToBuildString(),-40} *build skipped");
+            logger.LogDebug($"{dep.ToBuildString(),-40} *build skipped");
             consoleWriter.WriteSkip($"{dep.ToBuildString(),-40}");
             return true;
         }

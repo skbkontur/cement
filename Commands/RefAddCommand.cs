@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Commands.Extensions;
 using Common;
 using Common.Exceptions;
 using Common.YamlParsers;
@@ -18,26 +19,28 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
         LogFileName = "ref-add",
         Location = CommandLocation.InsideModuleDirectory
     };
+    private readonly ILogger<RefAddCommand> logger;
     private readonly ConsoleWriter consoleWriter;
-    private readonly GetCommand getCommand;
     private readonly BuildDepsCommand buildDepsCommand;
     private readonly BuildCommand buildCommand;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
+    private readonly ICommandActivator commandActivator;
     private readonly DepsPatcherProject depsPatcherProject;
 
     private bool hasReplaces;
 
-    public RefAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand,
+    public RefAddCommand(ILogger<RefAddCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                          BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject,
-                         IGitRepositoryFactory gitRepositoryFactory)
+                         IGitRepositoryFactory gitRepositoryFactory, ICommandActivator commandActivator)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
-        this.getCommand = getCommand;
         this.buildDepsCommand = buildDepsCommand;
         this.buildCommand = buildCommand;
         this.depsPatcherProject = depsPatcherProject;
         this.gitRepositoryFactory = gitRepositoryFactory;
+        this.commandActivator = commandActivator;
     }
 
     public override string Name => "add";
@@ -81,12 +84,12 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
         if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, moduleToInsert)))
             GetAndBuild(dep);
 
-        Log.LogDebug(
+        logger.LogDebug(
             $"{moduleToInsert + (configuration == null ? "" : Helper.ConfigurationDelimiter + configuration)} -> {project}");
 
         CheckBranch(dep);
 
-        Log.LogInformation("Getting install data for " + moduleToInsert + Helper.ConfigurationDelimiter + configuration);
+        logger.LogInformation("Getting install data for " + moduleToInsert + Helper.ConfigurationDelimiter + configuration);
         var installData = InstallParser.Get(moduleToInsert, configuration);
         if (!installData.InstallFiles.Any())
         {
@@ -114,7 +117,7 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
         catch (Exception e)
         {
             consoleWriter.WriteLine(e.ToString());
-            Log.LogError(e, "Fail to add reference");
+            logger.LogError(e, "Fail to add reference");
         }
     }
 
@@ -123,8 +126,11 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
         using (new DirectoryJumper(Helper.CurrentWorkspace))
         {
             consoleWriter.WriteInfo("cm get " + module);
+
+            var getCommand = commandActivator.Create<GetCommand>();
             if (getCommand.Run(new[] {"get", module.ToYamlString()}) != 0)
                 throw new CementException("Failed get module " + module);
+
             consoleWriter.ResetProgress();
         }
 
@@ -159,7 +165,7 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
         }
         catch (Exception e)
         {
-            Log.LogError(e, $"FAILED-TO-CHECK-BRANCH {dep}");
+            logger.LogError(e, $"FAILED-TO-CHECK-BRANCH {dep}");
         }
     }
 
@@ -175,7 +181,7 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
         catch (Exception e)
         {
             consoleWriter.WriteWarning($"Installation of NuGet packages failed: {e.InnerException?.Message ?? e.Message}");
-            Log.LogError(e, "Installation of NuGet packages failed:");
+            logger.LogError(e, "Installation of NuGet packages failed:");
         }
 
         foreach (var buildItem in installData.InstallFiles)
@@ -221,14 +227,14 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
             if (UserChoseReplace(project, force, csproj, refXml, refName, hintPath))
             {
                 csproj.ReplaceRef(refName, hintPath);
-                Log.LogDebug($"'{refName}' ref replaced");
+                logger.LogDebug($"'{refName}' ref replaced");
                 consoleWriter.WriteOk("Successfully replaced " + refName);
             }
         }
         else
         {
             SafeAddRef(csproj, refName, hintPath);
-            Log.LogDebug($"'{refName}' ref added");
+            logger.LogDebug($"'{refName}' ref added");
             consoleWriter.WriteOk("Successfully installed " + refName);
         }
     }

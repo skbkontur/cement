@@ -17,15 +17,18 @@ public sealed class GetCommand : Command<GetCommandOptions>
         Location = CommandLocation.WorkspaceDirectory
     };
 
+    private readonly ILogger<GetCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public GetCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                      IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory)
+    public GetCommand(ILogger<GetCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+                      CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
+                      IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
@@ -60,7 +63,7 @@ public sealed class GetCommand : Command<GetCommandOptions>
 
     protected override GetCommandOptions ParseArgs(string[] args)
     {
-        Helper.RemoveOldKey(ref args, "-n", Log);
+        Helper.RemoveOldKey(ref args, "-n", logger);
 
         var parsedArgs = ArgumentParser.ParseGet(args);
         var module = (string)parsedArgs["module"];
@@ -87,7 +90,7 @@ public sealed class GetCommand : Command<GetCommandOptions>
 
         var configuration = string.IsNullOrEmpty(options.Configuration) ? "full-build" : options.Configuration;
 
-        Log.LogInformation("Updating packages");
+        logger.LogInformation("Updating packages");
         PackageUpdater.Shared.UpdatePackages();
 
         var getter = new ModuleGetter(
@@ -98,13 +101,13 @@ public sealed class GetCommand : Command<GetCommandOptions>
         getter.GetModule();
 
         consoleWriter.WriteInfo("Getting deps for " + module);
-        Log.LogInformation("Getting deps list for " + module);
+        logger.LogInformation("Getting deps list for " + module);
 
         getter.GetDeps();
 
-        cycleDetector.WarnIfCycle(module, configuration, Log);
+        cycleDetector.WarnIfCycle(module, configuration, logger);
 
-        Log.LogInformation("SUCCESS get " + module);
+        logger.LogInformation("SUCCESS get " + module);
         return 0;
     }
 }

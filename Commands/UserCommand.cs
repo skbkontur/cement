@@ -16,11 +16,13 @@ public sealed class UserCommand : Command<UserCommandOptions>
         LogFileName = "user",
         Location = CommandLocation.Any
     };
+    private readonly ILogger<UserCommand> logger;
     private readonly ConsoleWriter consoleWriter;
 
-    public UserCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+    public UserCommand(ILogger<UserCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
     }
 
@@ -31,7 +33,7 @@ public sealed class UserCommand : Command<UserCommandOptions>
     {
         var arguments = options.Arguments;
         var cmd = CementSettingsRepository.Get().UserCommands[arguments[0]];
-        Log.LogDebug("Run command " + arguments[0] + ": '" + cmd + "'");
+        logger.LogDebug("Run command " + arguments[0] + ": '" + cmd + "'");
         if (arguments.Length > 1)
         {
             arguments = arguments.Skip(1).ToArray();

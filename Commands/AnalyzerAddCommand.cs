@@ -19,14 +19,16 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
         Location = CommandLocation.InsideModuleDirectory
     };
 
+    private readonly ILogger logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly DepsPatcherProject depsPatcherProject;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public AnalyzerAddCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, DepsPatcherProject depsPatcherProject,
-                              IGitRepositoryFactory gitRepositoryFactory)
+    public AnalyzerAddCommand(ILogger<AnalyzerAddCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+                              DepsPatcherProject depsPatcherProject, IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.depsPatcherProject = depsPatcherProject;
         this.gitRepositoryFactory = gitRepositoryFactory;
@@ -56,12 +58,12 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
 
         var analyzerConfiguration = analyzerModule.Configuration;
 
-        Log.LogInformation(
+        logger.LogInformation(
             "Module: {AnalyzerModuleName}, configuration: '{AnalyzerModuleConfiguration}', " +
             "solution name: '{ModuleSolutionName}'", analyzerModule, analyzerConfiguration, moduleSolutionName);
 
         var moduleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
-        Log.LogDebug("ModuleDirectory: '{ModuleDirectory}'", moduleDirectory);
+        logger.LogDebug("ModuleDirectory: '{ModuleDirectory}'", moduleDirectory);
 
         if (!File.Exists(Path.Combine(moduleDirectory, Helper.YamlSpecFile)))
             throw new CementException("No " + Helper.YamlSpecFile + " file found");
@@ -69,57 +71,57 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
         if (moduleSolutionName == null)
         {
             var possibleModuleSolutions = Yaml.GetSolutionList(moduleDirectory);
-            Log.LogDebug("Found {PossibleModuleSolutionsCount} possible module solutions", possibleModuleSolutions.Count);
+            logger.LogDebug("Found {PossibleModuleSolutionsCount} possible module solutions", possibleModuleSolutions.Count);
 
             if (possibleModuleSolutions.Count != 1)
                 throw new BadArgumentException("Unable to resolve sln-file, please specify path to one");
 
             moduleSolutionName = possibleModuleSolutions[0];
-            Log.LogDebug("Solution name: '{ModuleSolutionName}'", moduleSolutionName);
+            logger.LogDebug("Solution name: '{ModuleSolutionName}'", moduleSolutionName);
         }
 
         var moduleSolutionPath = Path.GetFullPath(moduleSolutionName);
-        Log.LogDebug("Solution path: '{ModuleSolutionPath}'", moduleSolutionPath);
+        logger.LogDebug("Solution path: '{ModuleSolutionPath}'", moduleSolutionPath);
 
         if (!moduleSolutionPath.EndsWith(".sln"))
             throw new BadArgumentException(moduleSolutionPath + " is not sln-file");
 
-        Log.LogDebug("Module solution file is sln-file");
+        logger.LogDebug("Module solution file is sln-file");
 
         if (!File.Exists(moduleSolutionPath))
             throw new BadArgumentException(moduleSolutionPath + " is not exist");
 
-        Log.LogDebug("Module solution file exists");
+        logger.LogDebug("Module solution file exists");
 
         var analyzerModuleName = Helper.TryFixModuleCase(analyzerModule.Name);
-        Log.LogDebug("Fixed analyzer module name: '{AnalyzerModuleName}'", analyzerModuleName);
+        logger.LogDebug("Fixed analyzer module name: '{AnalyzerModuleName}'", analyzerModuleName);
 
         analyzerModule = new Dep(analyzerModuleName, analyzerModule.Treeish, analyzerConfiguration);
 
         if (!Directory.Exists(Path.Combine(Helper.CurrentWorkspace, analyzerModuleName)) || !Helper.HasModule(analyzerModuleName))
             throw new CementException($"Can't find module '{analyzerModuleName}'");
 
-        Log.LogDebug("{AnalyzerModuleName} -> {ModuleSolutionName}", analyzerModule, moduleSolutionName);
+        logger.LogDebug("{AnalyzerModuleName} -> {ModuleSolutionName}", analyzerModule, moduleSolutionName);
 
         CheckBranch(analyzerModule, moduleSolutionName);
-        Log.LogDebug("Branch is OK");
+        logger.LogDebug("Branch is OK");
 
-        Log.LogInformation("Getting install data for {AnalyzerModule}", analyzerModule);
+        logger.LogInformation("Getting install data for {AnalyzerModule}", analyzerModule);
         var installData = InstallParser.Get(analyzerModuleName, analyzerConfiguration);
 
         var installFiles = installData.InstallFiles;
         if (installFiles == null || !installFiles.Any())
         {
-            Log.LogWarning("No install files found in '{AnalyzerModule}'", analyzerModule);
+            logger.LogWarning("No install files found in '{AnalyzerModule}'", analyzerModule);
             consoleWriter.WriteWarning($"No install files found in '{analyzerModuleName}'");
 
             return 0;
         }
 
-        Log.LogInformation("{InstallFilesCount} install files found", installFiles.Count);
+        logger.LogInformation("{InstallFilesCount} install files found", installFiles.Count);
 
         var csprojFiles = GetCsprojFiles(moduleSolutionPath);
-        Log.LogDebug("{CSProjectFilesCount} csproj files found", installFiles.Count);
+        logger.LogDebug("{CSProjectFilesCount} csproj files found", installFiles.Count);
 
         var csprojAndRulesetPairs = csprojFiles
             .Select(
@@ -132,11 +134,11 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
 
         foreach (var (csproj, ruleset) in csprojAndRulesetPairs)
         {
-            Log.LogDebug("csproj='{CSProjectFilePath}', ruleset={RulesetFilePath}", csproj, ruleset);
+            logger.LogDebug("csproj='{CSProjectFilePath}', ruleset={RulesetFilePath}", csproj, ruleset);
 
             foreach (var installItem in installFiles)
             {
-                Log.LogDebug("installFile='{InstallFile}'", installItem);
+                logger.LogDebug("installFile='{InstallFile}'", installItem);
 
                 if (!installItem.EndsWith(".ruleset"))
                     continue;
@@ -147,11 +149,11 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
 
             csproj.BindRuleset(ruleset);
 
-            Log.LogInformation("Ruleset has bound successfully");
+            logger.LogInformation("Ruleset has bound successfully");
 
             foreach (var installItem in installFiles)
             {
-                Log.LogDebug("installFile='{InstallFile}'", installItem);
+                logger.LogDebug("installFile='{InstallFile}'", installItem);
 
                 if (!installItem.EndsWith(".dll"))
                     continue;
@@ -161,21 +163,21 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
             }
         }
 
-        Log.LogDebug("Patch deps for solution");
+        logger.LogDebug("Patch deps for solution");
         depsPatcherProject.PatchDepsForSolution(moduleDirectory, analyzerModule, moduleSolutionPath);
 
         foreach (var (csproj, ruleset) in csprojAndRulesetPairs)
         {
-            Log.LogDebug("csproj='{CSProjectFilePath}', ruleset={RulesetFilePath}", csproj, ruleset);
+            logger.LogDebug("csproj='{CSProjectFilePath}', ruleset={RulesetFilePath}", csproj, ruleset);
 
             csproj.Save();
-            Log.LogDebug("csproj saved");
+            logger.LogDebug("csproj saved");
 
             ruleset.Save();
-            Log.LogDebug("ruleset saved");
+            logger.LogDebug("ruleset saved");
         }
 
-        Log.LogInformation("Operation has completed successfully");
+        logger.LogInformation("Operation has completed successfully");
         consoleWriter.WriteOk($"Add '{analyzerModuleName}' to '{Path.GetFileName(moduleSolutionPath)}' successfully completed");
         return 0;
     }
@@ -184,11 +186,11 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
     {
         if (string.IsNullOrEmpty(analyzerModule.Treeish))
         {
-            Log.LogDebug("Treeish is not defined");
+            logger.LogDebug("Treeish is not defined");
             return;
         }
 
-        Log.LogDebug("Treeish: '{AnalyzerModuleTreeish}'", analyzerModule.Treeish);
+        logger.LogDebug("Treeish: '{AnalyzerModuleTreeish}'", analyzerModule.Treeish);
 
         try
         {
@@ -200,7 +202,7 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
         }
         catch (Exception ex)
         {
-            Log.LogError(ex, "FAILED-TO-CHECK-BRANCH, module: {AnalyzerModule}", analyzerModule);
+            logger.LogError(ex, "FAILED-TO-CHECK-BRANCH, module: {AnalyzerModule}", analyzerModule);
         }
     }
 

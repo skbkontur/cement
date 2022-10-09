@@ -17,15 +17,18 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
         Location = CommandLocation.RootModuleDirectory
     };
 
+    private readonly ILogger<UpdateDepsCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public UpdateDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                             IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory)
+    public UpdateDepsCommand(ILogger<UpdateDepsCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+                             CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
+                             IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
@@ -60,7 +63,7 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
 
     protected override UpdateDepsCommandOptions ParseArgs(string[] args)
     {
-        Helper.RemoveOldKey(ref args, "-n", Log);
+        Helper.RemoveOldKey(ref args, "-n", logger);
 
         var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
         var configuration = (string)parsedArgs["configuration"];
@@ -79,7 +82,7 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
 
         var configuration = string.IsNullOrEmpty(options.Configuration) ? "full-build" : options.Configuration;
 
-        Log.LogInformation("Updating packages");
+        logger.LogInformation("Updating packages");
         PackageUpdater.Shared.UpdatePackages();
         var modules = Helper.GetModules();
 
@@ -97,7 +100,7 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
 
         getter.GetDeps();
 
-        Log.LogInformation("SUCCESS UPDATE DEPS");
+        logger.LogInformation("SUCCESS UPDATE DEPS");
         return 0;
     }
 }

@@ -156,7 +156,7 @@ public sealed class ShowDepsCommand : Command<ShowDepsCommandOptions>
             return overheadCache[dep];
 
         var checker = new DepsChecker(
-            ConsoleWriter, depsValidatorFactory,
+            consoleWriter, depsValidatorFactory,
             Path.Combine(Helper.CurrentWorkspace, dep.Name),
             dep.Configuration,
             Helper.GetModules());

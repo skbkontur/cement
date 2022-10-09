@@ -6,6 +6,7 @@ using Common.Exceptions;
 using Common.Extensions;
 using Common.YamlParsers;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
@@ -18,12 +19,15 @@ public sealed class PackCommand : Command<PackCommandOptions>
         RequireModuleYaml = true,
         Location = CommandLocation.InsideModuleDirectory
     };
+    private readonly ILogger<PackCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly IDepsValidatorFactory depsValidatorFactory;
 
-    public PackCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
+    public PackCommand(ILogger<PackCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+                       IDepsValidatorFactory depsValidatorFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.depsValidatorFactory = depsValidatorFactory;
     }
@@ -68,7 +72,7 @@ public sealed class PackCommand : Command<PackCommandOptions>
         {
             XmlDocumentHelper.Save(patchedDocument, projectPath, "\n");
             var buildYamlScriptsMaker = new BuildYamlScriptsMaker();
-            var moduleBuilder = new ModuleBuilder(consoleWriter, Log, options.BuildSettings, buildYamlScriptsMaker);
+            var moduleBuilder = new ModuleBuilder(consoleWriter, logger, options.BuildSettings, buildYamlScriptsMaker);
             moduleBuilder.Init();
             consoleWriter.WriteInfo("start pack");
             if (!moduleBuilder.DotnetPack(modulePath, projectPath, buildData?.Configuration ?? "Release"))

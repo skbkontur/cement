@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Common;
 using JetBrains.Annotations;
@@ -8,17 +9,17 @@ namespace Commands;
 public sealed class RefCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;
-    private readonly Dictionary<string, ICommand> commands;
+    private readonly ICommandActivator commandActivator;
+    private readonly Dictionary<string, Type> commands;
 
-    public RefCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, GetCommand getCommand,
-                      BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject,
-                      IGitRepositoryFactory gitRepositoryFactory)
+    public RefCommand(ConsoleWriter consoleWriter, ICommandActivator commandActivator)
     {
         this.consoleWriter = consoleWriter;
-        commands = new Dictionary<string, ICommand>
+        this.commandActivator = commandActivator;
+        commands = new Dictionary<string, Type>
         {
-            {"add", new RefAddCommand(consoleWriter, featureFlags, getCommand, buildDepsCommand, buildCommand, depsPatcherProject, gitRepositoryFactory)},
-            {"fix", new RefFixCommand(consoleWriter, featureFlags, depsPatcherProject)}
+            {"add", typeof(RefAddCommand)},
+            {"fix", typeof(RefFixCommand)}
         };
     }
 
@@ -57,6 +58,9 @@ public sealed class RefCommand : ICommand
             return -1;
         }
 
-        return commands[args[1]].Run(args);
+        var commandType = commands[args[1]];
+        var command = (ICommand)commandActivator.Create(commandType);
+
+        return command.Run(args);
     }
 }

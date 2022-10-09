@@ -15,15 +15,18 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
         Location = CommandLocation.RootModuleDirectory
     };
 
+    private readonly ILogger<UpdateCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public UpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                         IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory)
+    public UpdateCommand(ILogger<UpdateCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+                         CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
+                         IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
@@ -51,7 +54,7 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
 
     protected override int Execute(UpdateCommandOptions options)
     {
-        Log.LogInformation("Updating packages");
+        logger.LogInformation("Updating packages");
         PackageUpdater.Shared.UpdatePackages();
         var cwd = Directory.GetCurrentDirectory();
         var module = Path.GetFileName(cwd);

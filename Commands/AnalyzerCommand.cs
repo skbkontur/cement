@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common;
 using JetBrains.Annotations;
@@ -9,15 +10,16 @@ namespace Commands;
 public sealed class AnalyzerCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;
-    private readonly Dictionary<string, ICommand> subCommands;
+    private readonly ICommandActivator commandActivator;
+    private readonly Dictionary<string, Type> subCommands;
 
-    public AnalyzerCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, DepsPatcherProject depsPatcherProject,
-                           IGitRepositoryFactory gitRepositoryFactory)
+    public AnalyzerCommand(ConsoleWriter consoleWriter, ICommandActivator commandActivator)
     {
         this.consoleWriter = consoleWriter;
-        subCommands = new Dictionary<string, ICommand>
+        this.commandActivator = commandActivator;
+        subCommands = new Dictionary<string, Type>
         {
-            {"add", new AnalyzerAddCommand(consoleWriter, featureFlags, depsPatcherProject, gitRepositoryFactory)}
+            {"add", typeof(AnalyzerAddCommand)}
         };
     }
 
@@ -48,7 +50,12 @@ public sealed class AnalyzerCommand : ICommand
             .FirstOrDefault();
 
         if (subCommand != null && subCommands.ContainsKey(subCommand))
-            return subCommands[subCommand].Run(args);
+        {
+            var commandType = subCommands[subCommand];
+            var command = (ICommand)commandActivator.Create(commandType);
+
+            return command.Run(args);
+        }
 
         consoleWriter.WriteError($"Bad arguments: cm analyzer [{subCommand}]");
         consoleWriter.WriteInfo($"Possible arguments: [{string.Join("|", subCommands.Keys)}]");

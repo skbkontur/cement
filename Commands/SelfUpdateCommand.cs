@@ -22,11 +22,13 @@ public sealed class SelfUpdateCommand : Command<SelfUpdateCommandOptions>
         Location = CommandLocation.Any
     };
 
+    private readonly ILogger<SelfUpdateCommand> logger;
     private readonly ConsoleWriter consoleWriter;
 
-    public SelfUpdateCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+    public SelfUpdateCommand(ILogger<SelfUpdateCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
     }
 
@@ -57,13 +59,13 @@ public sealed class SelfUpdateCommand : Command<SelfUpdateCommandOptions>
         SearchAndSaveBranchInSettings(ref server, ref branch);
 
         if (IsAutoUpdate)
-            Log.LogDebug("Auto updating cement");
+            logger.LogDebug("Auto updating cement");
 
         IsInstallingCement |= !HasInstalledCement();
         if (IsInstallingCement)
         {
             consoleWriter.WriteInfo("Installing cement");
-            Log.LogDebug("Installing cement");
+            logger.LogDebug("Installing cement");
         }
 
         consoleWriter.WriteProgressWithoutSave("self-update");
@@ -80,17 +82,17 @@ public sealed class SelfUpdateCommand : Command<SelfUpdateCommandOptions>
         }
         catch (Exception exception)
         {
-            Log.LogError(exception, "Fail to install cement: '{ErrorMessage}'", exception.Message);
+            logger.LogError(exception, "Fail to install cement: '{ErrorMessage}'", exception.Message);
             consoleWriter.WriteError("Fail to install cement: " + exception);
         }
 
-        Log.LogInformation("Cement server: {CementServerUri}", server);
+        logger.LogInformation("Cement server: {CementServerUri}", server);
 
         using ICementUpdater updater = server == null
-            ? new GitHubReleaseCementUpdater(Log, consoleWriter)
-            : new ServerCementUpdater(Log, consoleWriter, server, branch);
+            ? new GitHubReleaseCementUpdater(logger, consoleWriter)
+            : new ServerCementUpdater(logger, consoleWriter, server, branch);
 
-        Log.LogInformation("Updater: {CementUpdaterName}", updater.Name);
+        logger.LogInformation("Updater: {CementUpdaterName}", updater.Name);
         return UpdateBinary(updater, branch);
     }
 
@@ -103,7 +105,7 @@ public sealed class SelfUpdateCommand : Command<SelfUpdateCommandOptions>
         else
             Helper.CreateFileAndDirectory(Path.Combine(installDirectory, "cm"), GetUnixScript());
 
-        Log.LogDebug("Successfully created cm.cmd & cm");
+        logger.LogDebug("Successfully created cm.cmd & cm");
     }
 
     private static string GetUnixScript()
@@ -234,7 +236,7 @@ cmd /C exit %exit_code% > nul";
         else
         {
             consoleWriter.WriteInfo($"No cement binary updates available ({updater.Name})");
-            Log.LogDebug("Already has {0} version", currentCommitHash);
+            logger.LogDebug("Already has {0} version", currentCommitHash);
         }
 
         return 0;
@@ -263,12 +265,12 @@ cmd /C exit %exit_code% > nul";
 
             var okMessage = $"Update succeeded: {oldHash} -> {newHash} ({updater.Name})";
             consoleWriter.WriteOk(okMessage);
-            Log.LogDebug(okMessage);
+            logger.LogDebug(okMessage);
             return true;
         }
         catch (WebException webException)
         {
-            Log.LogError(webException, "Fail self-update, exception: '{ErrorMessage}'", webException.Message);
+            logger.LogError(webException, "Fail self-update, exception: '{ErrorMessage}'", webException.Message);
 
             if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
             {
@@ -291,14 +293,14 @@ cmd /C exit %exit_code% > nul";
         if (!Directory.Exists(from))
         {
             consoleWriter.WriteError($"Someting bad with self-update: {from} not found.");
-            Log.LogError("Someting bad with self-update.");
+            logger.LogError("Someting bad with self-update.");
             return;
         }
 
         var dotnetInstallFolder = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet");
         if (!Directory.Exists(dotnetInstallFolder))
             Directory.CreateDirectory(dotnetInstallFolder);
-        Log.LogDebug("dotnet install folder: " + dotnetInstallFolder);
+        logger.LogDebug("dotnet install folder: " + dotnetInstallFolder);
 
         var currOsDir = GetCurrentOsDirectory();
         var tempPathToCementBinary = Path.Combine(from, currOsDir);
@@ -317,7 +319,7 @@ cmd /C exit %exit_code% > nul";
             }
         }
 
-        Log.LogDebug($"cement exe in temp folder: {cm}");
+        logger.LogDebug($"cement exe in temp folder: {cm}");
 
         File.Copy(cm, cmNew, true);
         if (!IsInstallingCement && File.Exists(Path.Combine(dotnetInstallFolder, "cm.exe")))
@@ -334,7 +336,7 @@ cmd /C exit %exit_code% > nul";
             File.Copy(file, to, true);
         }
 
-        Log.LogDebug("copy files from temp folder to bin completed");
+        logger.LogDebug("copy files from temp folder to bin completed");
     }
 
     private void AddInstallToPath()
@@ -347,7 +349,7 @@ cmd /C exit %exit_code% > nul";
 
         if (path == null)
         {
-            Log.LogWarning("Path is null");
+            logger.LogWarning("Path is null");
             path = "";
         }
 
@@ -362,7 +364,7 @@ cmd /C exit %exit_code% > nul";
         Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
         consoleWriter.WriteOk(toAdd + " added to $PATH");
         consoleWriter.WriteOk("To finish installation, please restart your terminal process");
-        Log.LogDebug(toAdd + " added to $PATH: " + path);
+        logger.LogDebug(toAdd + " added to $PATH: " + path);
     }
 
     private void InstallPowerShell()

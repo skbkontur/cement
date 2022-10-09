@@ -21,6 +21,7 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
         RequireModuleYaml = true,
         Location = CommandLocation.RootModuleDirectory
     };
+    private readonly ILogger<RefFixCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly FixReferenceResult fixReferenceResult = new();
     private readonly HashSet<string> missingModules = new();
@@ -31,9 +32,11 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
     private string rootModuleName;
     private string oldYamlContent;
 
-    public RefFixCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, DepsPatcherProject depsPatcherProject)
+    public RefFixCommand(ILogger<RefFixCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+                         DepsPatcherProject depsPatcherProject)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.depsPatcherProject = depsPatcherProject;
         fixReferenceResultPrinter = new FixReferenceResultPrinter(consoleWriter);
@@ -190,7 +193,7 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
         if (csproj.ContainsRef(refName, out refXml))
         {
             csproj.ReplaceRef(refName, hintPath);
-            Log.LogInformation($"'{refName}' ref replaced to {hintPath}");
+            logger.LogInformation($"'{refName}' ref replaced to {hintPath}");
             fixReferenceResult.Replaced[project].Add(
                 $"{refName}\n\t\t{GetHintPath(refXml)} ->\n\t\t{hintPath}");
         }

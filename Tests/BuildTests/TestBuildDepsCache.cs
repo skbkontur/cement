@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Commands;
 using Common;
+using Common.Logging;
 using Common.YamlParsers;
 using FluentAssertions;
 using NUnit.Framework;
@@ -156,7 +157,8 @@ namespace Tests.BuildTests
         {
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
             {
-                var command = new BuildCommand(ConsoleWriter.Shared, FeatureFlags.Default, buildPreparer);
+                var logger = LogManager.GetLogger<BuildCommand>();
+                var command = new BuildCommand(logger, ConsoleWriter.Shared, FeatureFlags.Default, buildPreparer);
                 command.Run(new[] {"build", "-c", module.Configuration});
             }
         }
@@ -165,7 +167,8 @@ namespace Tests.BuildTests
         {
             using (new DirectoryJumper(Path.Combine(Helper.CurrentWorkspace, module.Name)))
             {
-                var command = new BuildDepsCommand(ConsoleWriter.Shared, FeatureFlags.Default, buildPreparer);
+                var logger = LogManager.GetLogger<BuildDepsCommand>();
+                var command = new BuildDepsCommand(logger, ConsoleWriter.Shared, FeatureFlags.Default, buildPreparer);
                 command.Run(new[] {"build-deps", "-c", module.Configuration});
             }
         }

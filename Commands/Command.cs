@@ -4,6 +4,7 @@ using System.IO;
 using Common;
 using Common.Exceptions;
 using Common.Logging;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Commands;
@@ -13,7 +14,7 @@ public abstract class Command<TCommandOptions> : ICommand
 {
     protected Command(ConsoleWriter consoleWriter, CommandSettings settings, FeatureFlags featureFlags)
     {
-        ConsoleWriter = consoleWriter;
+        this.consoleWriter = consoleWriter;
         CommandSettings = settings;
         FeatureFlags = featureFlags;
     }
@@ -39,36 +40,34 @@ public abstract class Command<TCommandOptions> : ICommand
 
             if (CommandSettings.MeasureElapsedTime)
             {
-                ConsoleWriter.WriteInfo("Total time: " + sw.Elapsed);
-                Log.LogDebug("Total time: " + sw.Elapsed);
+                consoleWriter.WriteInfo("Total time: " + sw.Elapsed);
+                logger.LogDebug("Total time: " + sw.Elapsed);
             }
 
             return exitCode;
         }
         catch (GitLocalChangesException e)
         {
-            Log?.LogWarning(e, "Failed to " + GetType().Name.ToLower());
-            ConsoleWriter.WriteError(e.Message);
+            logger?.LogWarning(e, "Failed to " + GetType().Name.ToLower());
+            consoleWriter.WriteError(e.Message);
             return -1;
         }
         catch (CementException e)
         {
-            Log?.LogError(e, "Failed to " + GetType().Name.ToLower());
-            ConsoleWriter.WriteError(e.Message);
+            logger?.LogError(e, "Failed to " + GetType().Name.ToLower());
+            consoleWriter.WriteError(e.Message);
             return -1;
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            Log?.LogError(e, "Failed to " + GetType().Name.ToLower());
-            ConsoleWriter.WriteError(e.Message);
-            ConsoleWriter.WriteError(e.StackTrace);
+            logger?.LogError(exception, "Failed to " + GetType().Name.ToLower());
+            consoleWriter.WriteError(exception.ToString());
             return -1;
         }
     }
 
-    protected ILogger Log { get; private set; }
-
-    protected ConsoleWriter ConsoleWriter { get; }
+    private ILogger logger;
+    private ConsoleWriter consoleWriter;
     protected CommandSettings CommandSettings { get; }
     protected FeatureFlags FeatureFlags { get; }
 
@@ -118,11 +117,11 @@ public abstract class Command<TCommandOptions> : ICommand
         else if (!CommandSettings.NoElkLog)
             LogHelper.InitializeGlobalFileAndElkLogging(GetType().ToString());
 
-        Log = LogManager.GetLogger(GetType());
+        logger = LogManager.GetLogger(GetType());
 
         try
         {
-            Log.LogInformation("Cement version: {CementVersion}", Helper.GetAssemblyTitle());
+            logger.LogInformation("Cement version: {CementVersion}", Helper.GetAssemblyTitle());
         }
         catch (Exception)
         {
@@ -132,11 +131,11 @@ public abstract class Command<TCommandOptions> : ICommand
 
     private TCommandOptions LogAndParseArgs(string[] args)
     {
-        Log.LogDebug("Parsing args: [{Args}] in {WorkingDirectory}", string.Join(" ", args), Directory.GetCurrentDirectory());
+        logger.LogDebug("Parsing args: [{Args}] in {WorkingDirectory}", string.Join(" ", args), Directory.GetCurrentDirectory());
 
         var options = ParseArgs(args);
 
-        Log.LogDebug("OK parsing args");
+        logger.LogDebug("OK parsing args");
         return options;
     }
 }

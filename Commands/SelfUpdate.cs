@@ -24,7 +24,8 @@ public static class SelfUpdate
             if (diff <= TimeSpan.FromHours(5))
                 return;
 
-            var selfUpdateCommand = new SelfUpdateCommand(consoleWriter, featureFlags)
+            var logger = LogManager.GetLogger<SelfUpdateCommand>();
+            var selfUpdateCommand = new SelfUpdateCommand(logger, consoleWriter, featureFlags)
             {
                 IsAutoUpdate = true
             };
