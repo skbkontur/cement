@@ -37,7 +37,7 @@ namespace Tests.Helpers
             gitRepositoryFactory = new GitRepositoryFactory(consoleWriter, buildHelper);
             cycleDetector = new CycleDetector(consoleWriter, depsValidatorFactory);
 
-            runner = new ShellRunner();
+            runner = new ShellRunner(NullLogger<ShellRunner>.Instance);
 
             Directory.CreateDirectory(Path.Combine(WorkingDirectory.Path, ".cement"));
             RemoteWorkspace = Path.Combine(WorkingDirectory.Path, "remote");

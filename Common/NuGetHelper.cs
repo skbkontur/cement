@@ -9,8 +9,6 @@ namespace Common;
 [PublicAPI]
 public sealed class NuGetHelper
 {
-    public static NuGetHelper Shared { get; } = new(LogManager.GetLogger<NuGetHelper>(), ConsoleWriter.Shared);
-
     private readonly ILogger<NuGetHelper> logger;
     private readonly ConsoleWriter consoleWriter;
 
@@ -20,9 +18,13 @@ public sealed class NuGetHelper
         this.consoleWriter = consoleWriter;
     }
 
+    public static NuGetHelper Shared { get; } = new(LogManager.GetLogger<NuGetHelper>(), ConsoleWriter.Shared);
+
     public string GetNugetPackageVersion(string packageName, string nugetRunCommand, bool preRelease)
     {
-        var shellRunner = new ShellRunner();
+        var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
+        var shellRunner = new ShellRunner(shellRunnerLogger);
+
         consoleWriter.WriteProgressWithoutSave("Get package version for " + packageName);
 
         shellRunner.Run($"{nugetRunCommand} list {packageName} -NonInteractive" + (preRelease ? " -PreRelease" : ""));

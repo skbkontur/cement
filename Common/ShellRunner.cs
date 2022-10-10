@@ -7,7 +7,6 @@ using System.Security;
 using System.Text;
 using System.Threading;
 using Common.Exceptions;
-using Common.Logging;
 using Microsoft.Extensions.Logging;
 using TimeoutException = Common.Exceptions.TimeoutException;
 
@@ -20,17 +19,15 @@ public sealed class ShellRunner
     public bool HasTimeout;
 
     private readonly ProcessStartInfo startInfo;
-    private readonly ILogger log;
+    private readonly ILogger logger;
 
     public event ReadLineEvent OnOutputChange;
     public event ReadLineEvent OnErrorsChange;
 
-    public ShellRunner(ILogger log = null)
+    public ShellRunner(ILogger<ShellRunner> logger)
     {
-        if (log == null)
-            log = LogManager.GetLogger(typeof(ModuleGetter));
+        this.logger = logger;
 
-        this.log = log;
         startInfo = new ProcessStartInfo
         {
             FileName = Platform.IsUnix() ? "/bin/bash" : "cmd",
@@ -86,7 +83,7 @@ public sealed class ShellRunner
 
                 LastOutput = Output;
                 var exitCode = process.ExitCode;
-                log.LogInformation($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} in {sw.ElapsedMilliseconds}ms with exitCode {exitCode}");
+                logger.LogInformation($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} in {sw.ElapsedMilliseconds}ms with exitCode {exitCode}");
                 return exitCode;
             }
             catch (CementException e)
@@ -95,12 +92,12 @@ public sealed class ShellRunner
                 {
                     if (!commandWithArguments.Equals("git ls-remote --heads"))
                         ConsoleWriter.Shared.WriteWarning(e.Message);
-                    log?.LogWarning(e.Message);
+                    logger.LogWarning(e.Message);
                 }
                 else
                 {
                     ConsoleWriter.Shared.WriteError(e.Message);
-                    log?.LogError(e.Message);
+                    logger.LogError(e.Message);
                 }
 
                 return -1;
@@ -190,7 +187,7 @@ public sealed class ShellRunner
             if (HasTimeout)
                 timeout = TimeoutHelper.IncreaseTimeout(timeout);
             exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
-            log.LogDebug($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} with exitCode {exitCode} and retryStrategy {retryStrategy}");
+            logger.LogDebug($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} with exitCode {exitCode} and retryStrategy {retryStrategy}");
         }
 
         return exitCode;
@@ -225,12 +222,12 @@ public sealed class ShellRunner
             if (!IsCementProcess(proc.ProcessName))
                 return;
 
-            log?.LogDebug("kill " + proc.ProcessName + "#" + proc.Id);
+            logger.LogDebug("kill " + proc.ProcessName + "#" + proc.Id);
             proc.Kill();
         }
         catch (Exception exception)
         {
-            log?.LogDebug("killing already exited process #" + pid, exception);
+            logger.LogDebug("killing already exited process #" + pid, exception);
         }
     }
 

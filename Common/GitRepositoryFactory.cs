@@ -18,22 +18,24 @@ public sealed class GitRepositoryFactory : IGitRepositoryFactory
 
     public GitRepository Create(string moduleName, string workspace)
     {
-        var logger = LogManager.GetLogger<GitRepository>();
-        var shellRunner = new ShellRunner(logger);
+        var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
+        var shellRunner = new ShellRunner(shellRunnerLogger);
 
         var repoPath = Path.Combine(workspace, moduleName);
 
-        return new GitRepository(logger, consoleWriter, buildHelper, shellRunner, repoPath, moduleName, workspace);
+        var gitRepositoryLogger = LogManager.GetLogger<GitRepository>();
+        return new GitRepository(gitRepositoryLogger, consoleWriter, buildHelper, shellRunner, repoPath, moduleName, workspace);
     }
 
     public GitRepository Create(string repoPath)
     {
-        var logger = LogManager.GetLogger<GitRepository>();
-        var shellRunner = new ShellRunner(logger);
+        var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
+        var shellRunner = new ShellRunner(shellRunnerLogger);
 
         var moduleName = Path.GetFileName(repoPath);
         var workspace = Directory.GetParent(repoPath)!.FullName;
 
-        return new GitRepository(logger, consoleWriter, buildHelper, shellRunner, repoPath, moduleName, workspace);
+        var gitRepositoryLogger = LogManager.GetLogger<GitRepository>();
+        return new GitRepository(gitRepositoryLogger, consoleWriter, buildHelper, shellRunner, repoPath, moduleName, workspace);
     }
 }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Common.Exceptions;
+using Common.Logging;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
@@ -36,9 +37,12 @@ public sealed class GitRepository
     {
         if (string.IsNullOrEmpty(branchName))
             return false;
-        var runner = new ShellRunner();
-        runner.Run($"git ls-remote {url} {branchName}");
-        return runner.Output.Contains("refs/heads");
+
+        var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
+        var shellRunner = new ShellRunner(shellRunnerLogger);
+        shellRunner.Run($"git ls-remote {url} {branchName}");
+
+        return shellRunner.Output.Contains("refs/heads");
     }
 
     public string RepoPath { get; }

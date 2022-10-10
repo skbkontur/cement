@@ -237,37 +237,38 @@ public sealed class ModuleBuilder
         {
             consoleWriter.WriteBuildWarning(
                 $"       warnings: {warnCount}{(obsoleteCount == 0 ? "" : ", obsolete usages: " + obsoleteCount)} " +
-                $"(Use -w key to print warnings or -W to print obsolete usages. You can also use ReSharper to find them.)");
+                "(Use -w key to print warnings or -W to print obsolete usages. You can also use ReSharper to find them.)");
         }
     }
 
     private ShellRunner PrepareShellRunner()
     {
-        var runner = new ShellRunner();
+        var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
+        var shellRunner = new ShellRunner(shellRunnerLogger);
         if (buildSettings.ShowOutput)
         {
-            runner.OnOutputChange += ModuleBuilderHelper.WriteLine;
-            return runner;
+            shellRunner.OnOutputChange += ModuleBuilderHelper.WriteLine;
+            return shellRunner;
         }
 
         if (buildSettings.ShowProgress)
-            runner.OnOutputChange += ModuleBuilderHelper.WriteProgress;
+            shellRunner.OnOutputChange += ModuleBuilderHelper.WriteProgress;
 
         if (buildSettings.ShowAllWarnings)
         {
-            runner.OnOutputChange += ModuleBuilderHelper.WriteIfWarning;
-            return runner;
+            shellRunner.OnOutputChange += ModuleBuilderHelper.WriteIfWarning;
+            return shellRunner;
         }
 
         if (buildSettings.ShowObsoleteWarnings)
         {
-            runner.OnOutputChange += ModuleBuilderHelper.WriteIfObsoleteFull;
-            return runner;
+            shellRunner.OnOutputChange += ModuleBuilderHelper.WriteIfObsoleteFull;
+            return shellRunner;
         }
 
         if (buildSettings.ShowWarningsSummary)
-            runner.OnOutputChange += ModuleBuilderHelper.WriteIfObsoleteGrouped;
+            shellRunner.OnOutputChange += ModuleBuilderHelper.WriteIfObsoleteGrouped;
 
-        return runner;
+        return shellRunner;
     }
 }

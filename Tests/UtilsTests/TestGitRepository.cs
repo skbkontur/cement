@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using Common;
 using Common.Exceptions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using Tests.Helpers;
 
@@ -88,7 +89,7 @@ namespace Tests.UtilsTests
             string sha1;
             using (new DirectoryJumper(tempRepo.Path))
             {
-                var runner = new ShellRunner();
+                var runner = new ShellRunner(NullLogger<ShellRunner>.Instance);
                 runner.Run("git rev-parse HEAD");
                 sha1 = runner.Output.Trim();
                 runner.Run("git checkout " + sha1);
@@ -108,7 +109,7 @@ namespace Tests.UtilsTests
             CreateTempRepo(tempRepo);
             using (new DirectoryJumper(tempRepo.Path))
             {
-                var runner = new ShellRunner();
+                var runner = new ShellRunner(NullLogger<ShellRunner>.Instance);
                 runner.Run("git tag testTag");
                 runner.Run("git checkout testTag");
             }
@@ -453,7 +454,7 @@ namespace Tests.UtilsTests
             using (new DirectoryJumper(url.Path))
             {
                 File.WriteAllText(Path.Combine(url.Path, "README.txt"), "README");
-                var runner = new ShellRunner();
+                var runner = new ShellRunner(NullLogger<ShellRunner>.Instance);
                 runner.Run("git init");
                 runner.Run("git add README.txt");
                 runner.Run(@"git commit -am initial");
@@ -464,7 +465,7 @@ namespace Tests.UtilsTests
         {
             using (new DirectoryJumper(url.Path))
             {
-                var runner = new ShellRunner();
+                var runner = new ShellRunner(NullLogger<ShellRunner>.Instance);
                 runner.Run("git branch " + branchName);
             }
         }
@@ -473,7 +474,7 @@ namespace Tests.UtilsTests
         {
             using (new DirectoryJumper(url.Path))
             {
-                var runner = new ShellRunner();
+                var runner = new ShellRunner(NullLogger<ShellRunner>.Instance);
                 runner.Run("git checkout " + branch);
                 File.WriteAllText(Path.Combine(url.Path, "content.txt"), "README");
                 runner.Run("git add content.txt");

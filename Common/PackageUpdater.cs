@@ -14,13 +14,13 @@ public sealed class PackageUpdater
     private readonly ILogger<PackageUpdater> logger;
     private readonly ConsoleWriter consoleWriter;
 
-    public static PackageUpdater Shared { get; } = new(LogManager.GetLogger<PackageUpdater>(), ConsoleWriter.Shared);
-
     public PackageUpdater(ILogger<PackageUpdater> logger, ConsoleWriter consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
     }
+
+    public static PackageUpdater Shared { get; } = new(LogManager.GetLogger<PackageUpdater>(), ConsoleWriter.Shared);
 
     public void UpdatePackages()
     {
@@ -60,7 +60,9 @@ public sealed class PackageUpdater
 
     private void UpdateGitPackage(Package package)
     {
-        var runner = new ShellRunner(logger);
+        var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
+        var shellRunner = new ShellRunner(shellRunnerLogger);
+
         var timeout = TimeSpan.FromMinutes(1);
 
         var remoteHash = GetRepositoryHeadHash(package);
@@ -72,20 +74,20 @@ public sealed class PackageUpdater
         {
             using (var tempDir = new TempDirectory())
             {
-                if (runner.RunOnce(
+                if (shellRunner.RunOnce(
                         $"git clone {package.Url} \"{Path.Combine(tempDir.Path, package.Name)}\"",
                         Directory.GetCurrentDirectory(),
                         timeout)
                     != 0)
                 {
-                    if (runner.HasTimeout && i < 2)
+                    if (shellRunner.HasTimeout && i < 2)
                     {
                         timeout = TimeoutHelper.IncreaseTimeout(timeout);
                         continue;
                     }
 
                     throw new CementException(
-                        $"Failed to update package {package.Name}:\n{runner.Output}\nError message:\n{runner.Errors}\n" +
+                        $"Failed to update package {package.Name}:\n{shellRunner.Output}\nError message:\n{shellRunner.Errors}\n" +
                         $"Ensure that command 'git clone {package.Url}' works in cmd");
                 }
 
@@ -106,21 +108,23 @@ public sealed class PackageUpdater
 
     private string GetRepositoryHeadHash(Package package)
     {
-        var runner = new ShellRunner(logger);
+        var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
+        var shellRunner = new ShellRunner(shellRunnerLogger);
+
         var timeout = TimeSpan.FromMinutes(1);
 
-        var exitCode = runner.RunOnce($"git ls-remote {package.Url} HEAD", Directory.GetCurrentDirectory(), timeout);
+        var exitCode = shellRunner.RunOnce($"git ls-remote {package.Url} HEAD", Directory.GetCurrentDirectory(), timeout);
 
         if (exitCode != 0)
         {
             var errorMessage = $"Cannot get hash code of package '{package.Name}' ({package.Url})\n" +
                                "Git output:\n\n" +
-                               runner.Errors;
+                               shellRunner.Errors;
 
             throw new CementException(errorMessage);
         }
 
-        var output = runner.Output;
+        var output = shellRunner.Output;
 
         return output.Split().FirstOrDefault();
     }

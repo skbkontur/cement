@@ -97,6 +97,7 @@ public static class Helper
         var path = Path.Combine(GetGlobalCementDirectory(), packageName + ".cmpkg.hash");
         File.WriteAllText(path, commitHash);
     }
+
     public static bool DirectoryContainsModule(string directory, string moduleName)
     {
         return Directory.EnumerateDirectories(directory)
@@ -357,7 +358,9 @@ public static class Helper
 
         try
         {
-            var shellRunner = new ShellRunner();
+            var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
+            var shellRunner = new ShellRunner(shellRunnerLogger);
+
             var exitCode = shellRunner.RunOnce(Path.GetFileName(fullPathToMsBuild) + " -version", Path.GetDirectoryName(fullPathToMsBuild), TimeSpan.FromSeconds(10));
             if (exitCode == 0 && !string.IsNullOrEmpty(shellRunner.Output))
             {
