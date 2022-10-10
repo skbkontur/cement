@@ -40,6 +40,7 @@ namespace cm
             services.AddSingleton<DepsPatcherProject>();
             services.AddSingleton<IGitRepositoryFactory, GitRepositoryFactory>();
             services.AddSingleton<CompleteCommandAutomata>();
+            services.AddSingleton<ICommandActivator, DefaultCommandActivator>();
 
             services.AddSingleton(consoleWriter);
             services.AddSingleton(featureFlags);
