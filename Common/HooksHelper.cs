@@ -2,18 +2,27 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Common.Logging;
 using Common.YamlParsers;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Common;
 
-public static class HooksHelper
+[PublicAPI]
+public sealed class HooksHelper
 {
     private const string CementPreCommitHookName = "pre-commit.cement";
-    private static readonly ILogger Log = LogManager.GetLogger(typeof(HooksHelper));
 
-    public static bool InstallHooks(string moduleName)
+    private readonly ILogger logger;
+    private readonly ConsoleWriter consoleWriter;
+
+    public HooksHelper(ILogger<HooksHelper> logger, ConsoleWriter consoleWriter)
+    {
+        this.logger = logger;
+        this.consoleWriter = consoleWriter;
+    }
+
+    public bool InstallHooks(string moduleName)
     {
         if (!Yaml.Exists(moduleName))
             return false;
@@ -38,42 +47,42 @@ public static class HooksHelper
         return updated;
     }
 
-    private static bool IsUniqueHooks(string moduleName, List<string> hooks)
+    private bool IsUniqueHooks(string moduleName, List<string> hooks)
     {
         if (hooks.Contains(CementPreCommitHookName) && hooks.Contains("pre-commit"))
         {
-            ConsoleWriter.Shared.WriteError($"You can't use {CementPreCommitHookName} with custom pre-commit hook in {moduleName}");
-            ConsoleWriter.Shared.WriteLine(
+            consoleWriter.WriteError($"You can't use {CementPreCommitHookName} with custom pre-commit hook in {moduleName}");
+            consoleWriter.WriteLine(
                 @"if you want to use cement hook, add this to your bash hook:
 .git/hooks/pre-commit.cement
 if [ $? -ne 0 ]; then
   exit 1
 fi
 ");
-            Log.LogError("Cement hook with pre-commit found in " + moduleName);
+            logger.LogError("Cement hook with pre-commit found in " + moduleName);
             return false;
         }
 
         if (hooks.Distinct().Count() == hooks.Count)
             return true;
 
-        Log.LogError("Duplicate hook in " + moduleName);
-        ConsoleWriter.Shared.WriteError("Duplicate git hook found in " + moduleName + " module");
+        logger.LogError("Duplicate hook in " + moduleName);
+        consoleWriter.WriteError("Duplicate git hook found in " + moduleName + " module");
         return false;
     }
 
-    private static bool GitFolderExists(string moduleName, string gitFolder)
+    private bool GitFolderExists(string moduleName, string gitFolder)
     {
         if (Directory.Exists(gitFolder))
             return true;
 
-        ConsoleWriter.Shared.WriteWarning(".git folder not found at " + moduleName);
+        consoleWriter.WriteWarning(".git folder not found at " + moduleName);
         return false;
     }
 
-    private static bool InstallHook(string moduleName, string hook, string gitHooksFolder)
+    private bool InstallHook(string moduleName, string hook, string gitHooksFolder)
     {
-        Log.LogDebug("installing hook " + hook + " into " + moduleName);
+        logger.LogDebug("installing hook " + hook + " into " + moduleName);
 
         string hookName, hookSrc;
         if (hook == CementPreCommitHookName)
@@ -91,11 +100,11 @@ fi
         return CopyHook(hookSrc, hookDst);
     }
 
-    private static bool CopyHook(string hookSrc, string hookDst)
+    private bool CopyHook(string hookSrc, string hookDst)
     {
         if (!File.Exists(hookSrc))
         {
-            ConsoleWriter.Shared.WriteWarning("Hook " + hookSrc + " not found.");
+            consoleWriter.WriteWarning("Hook " + hookSrc + " not found.");
             return false;
         }
 

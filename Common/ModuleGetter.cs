@@ -25,13 +25,14 @@ public sealed class ModuleGetter
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
+    private readonly HooksHelper hooksHelper;
 
     private bool errorOnMerge;
     private GitRepository rootRepo;
     private string rootRepoTreeish;
 
     public ModuleGetter(ConsoleWriter consoleWriter, CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
-                        IGitRepositoryFactory gitRepositoryFactory, List<Module> modules, Dep rootModule,
+                        IGitRepositoryFactory gitRepositoryFactory, HooksHelper hooksHelper, List<Module> modules, Dep rootModule,
                         LocalChangesPolicy userLocalChangesPolicy, string mergedBranch, bool verbose = false,
                         bool localBranchForce = false, int? gitDepth = null)
     {
@@ -39,6 +40,7 @@ public sealed class ModuleGetter
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
         this.gitRepositoryFactory = gitRepositoryFactory;
+        this.hooksHelper = hooksHelper;
         this.modules = modules;
         this.rootModule = rootModule;
         this.userLocalChangesPolicy = userLocalChangesPolicy;
@@ -254,7 +256,7 @@ public sealed class ModuleGetter
         GetTreeish(repo, dep, force, dep.Treeish, getInfo);
         if (verbose)
             getInfo.CommitInfo = repo.GetCommitInfo();
-        if (HooksHelper.InstallHooks(dep.Name))
+        if (hooksHelper.InstallHooks(dep.Name))
             getInfo.HookUpdated = true;
         PrintProcessedModuleInfo(dep, getInfo, getInfo.Forced ? getInfo.ForcedBranch : dep.Treeish);
         WarnIfNotMerged(repo);

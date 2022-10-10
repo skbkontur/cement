@@ -7,6 +7,7 @@ using Common;
 using Common.DepsValidators;
 using Common.Logging;
 using Common.YamlParsers;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Tests.Helpers
 {
@@ -21,6 +22,7 @@ namespace Tests.Helpers
         private readonly ConsoleWriter consoleWriter;
         private readonly IDepsValidatorFactory depsValidatorFactory;
         private readonly IGitRepositoryFactory gitRepositoryFactory;
+        private readonly HooksHelper hooksHelper;
 
         public TestEnvironment()
         {
@@ -28,7 +30,9 @@ namespace Tests.Helpers
 
             consoleWriter = ConsoleWriter.Shared;
             depsValidatorFactory = new DepsValidatorFactory();
+
             var buildHelper = BuildHelper.Shared;
+            hooksHelper = new HooksHelper(NullLogger<HooksHelper>.Instance, consoleWriter);
 
             gitRepositoryFactory = new GitRepositoryFactory(consoleWriter, buildHelper);
             cycleDetector = new CycleDetector(consoleWriter, depsValidatorFactory);
@@ -62,6 +66,7 @@ namespace Tests.Helpers
                 cycleDetector,
                 depsValidatorFactory,
                 gitRepositoryFactory,
+                hooksHelper,
                 GetModules().ToList(),
                 new Dep(module, treeish),
                 localChangesPolicy,

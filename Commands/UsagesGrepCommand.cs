@@ -31,6 +31,7 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
     private readonly CycleDetector cycleDetector;
     private readonly ShellRunner shellRunner;
     private readonly IUsagesProvider usagesProvider;
+    private readonly HooksHelper hooksHelper;
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
@@ -41,7 +42,7 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
 
     public UsagesGrepCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
                              IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory,
-                             ShellRunner shellRunner, IUsagesProvider usagesProvider)
+                             ShellRunner shellRunner, IUsagesProvider usagesProvider, HooksHelper hooksHelper)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
@@ -50,6 +51,7 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
         this.gitRepositoryFactory = gitRepositoryFactory;
         this.shellRunner = shellRunner;
         this.usagesProvider = usagesProvider;
+        this.hooksHelper = hooksHelper;
     }
 
     public override string Name => "grep";
@@ -189,6 +191,7 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
             cycleDetector,
             depsValidatorFactory,
             gitRepositoryFactory,
+            hooksHelper,
             modules,
             dep,
             LocalChangesPolicy.FailOnLocalChanges,

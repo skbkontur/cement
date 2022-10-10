@@ -21,10 +21,11 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
+    private readonly HooksHelper hooksHelper;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
     public UpdateDepsCommand(ILogger<UpdateDepsCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
-                             CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
+                             CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory, HooksHelper hooksHelper,
                              IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
@@ -32,6 +33,7 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
+        this.hooksHelper = hooksHelper;
         this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
@@ -91,10 +93,11 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
         var curRepo = gitRepositoryFactory.Create(moduleName, Helper.CurrentWorkspace);
         if (curRepo.IsGitRepo)
             curRepo.TryUpdateUrl(modules.FirstOrDefault(m => m.Name.Equals(moduleName)));
-        HooksHelper.InstallHooks(moduleName);
+
+        hooksHelper.InstallHooks(moduleName);
 
         var getter = new ModuleGetter(
-            consoleWriter, cycleDetector, depsValidatorFactory, gitRepositoryFactory, Helper.GetModules(),
+            consoleWriter, cycleDetector, depsValidatorFactory, gitRepositoryFactory, hooksHelper, Helper.GetModules(),
             new Dep(moduleName, null, configuration), options.Policy, options.MergedBranch, options.Verbose,
             options.LocalBranchForce, options.GitDepth);
 

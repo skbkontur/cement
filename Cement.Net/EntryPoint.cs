@@ -48,6 +48,7 @@ namespace cm
             services.AddSingleton<CycleDetector>();
             services.AddSingleton(BuildPreparer.Shared);
             services.AddSingleton(BuildHelper.Shared);
+            services.AddSingleton<HooksHelper>();
 
             services.AddCommand<HelpCommand>();
             services.AddCommand<GetCommand>();

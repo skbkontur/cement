@@ -19,10 +19,11 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
     private readonly IDepsValidatorFactory depsValidatorFactory;
+    private readonly HooksHelper hooksHelper;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
     public UpdateCommand(ILogger<UpdateCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
-                         CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
+                         CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory, HooksHelper hooksHelper,
                          IGitRepositoryFactory gitRepositoryFactory)
         : base(consoleWriter, Settings, featureFlags)
     {
@@ -30,6 +31,7 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
         this.depsValidatorFactory = depsValidatorFactory;
+        this.hooksHelper = hooksHelper;
         this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
@@ -70,6 +72,7 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
             cycleDetector,
             depsValidatorFactory,
             gitRepositoryFactory,
+            hooksHelper,
             Helper.GetModules(),
             new Dep(module, treeish),
             options.Policy,
