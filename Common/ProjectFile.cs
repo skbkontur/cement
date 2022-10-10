@@ -4,23 +4,33 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using Common.Logging;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Common;
 
+[PublicAPI]
 public sealed class ProjectFile
 {
-    public readonly string LineEndings;
+    public string LineEndings { get; }
+    public string FilePath { get; }
+    public XmlDocument Document { get; }
 
-    public readonly string FilePath;
-    public readonly XmlDocument Document;
     private readonly bool newFormat;
-    private readonly ILogger log;
+    private readonly ILogger logger;
+    private readonly ConsoleWriter consoleWriter;
 
     public ProjectFile(string csprojFilePath)
+        : this(LogManager.GetLogger<ProjectFile>(), ConsoleWriter.Shared, csprojFilePath)
     {
+    }
+
+    public ProjectFile(ILogger<ProjectFile> logger, ConsoleWriter consoleWriter, string csprojFilePath)
+    {
+        this.logger = logger;
+        this.consoleWriter = consoleWriter;
+
         var fileContent = File.ReadAllText(csprojFilePath);
-        log = LogManager.GetLogger(typeof(ProjectFile));
 
         LineEndings = fileContent.Contains("\r\n") ? "\r\n" : "\n";
         FilePath = csprojFilePath;
@@ -224,7 +234,7 @@ public sealed class ProjectFile
                 var splitted = package.Split('/');
                 if (splitted.Length != 2)
                 {
-                    log.LogError("package version is not defined: " + package);
+                    logger.LogError("package version is not defined: " + package);
                 }
                 else
                 {
@@ -236,7 +246,7 @@ public sealed class ProjectFile
         {
             var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
             var packagesDirectory = Path.Combine(currentModuleDirectory, "packages");
-            new NuGetPackageHepler(log).InstallPackages(nuGetPackages, packagesDirectory, this);
+            new NuGetPackageHepler(logger).InstallPackages(nuGetPackages, packagesDirectory, this);
         }
     }
 
@@ -274,7 +284,7 @@ public sealed class ProjectFile
             .FirstOrDefault();
         if (rootNode == null)
         {
-            ConsoleWriter.Shared.WriteError("Really bad cspoj :(");
+            consoleWriter.WriteError("Really bad cspoj :(");
             return null;
         }
 
