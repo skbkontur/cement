@@ -11,12 +11,15 @@ namespace Commands;
 public sealed class LsCommand : ICommand
 {
     private readonly ConsoleWriter consoleWriter;
+    private readonly IPackageUpdater packageUpdater;
+
     private Dictionary<string, object> parsedArgs;
     private bool simple;
 
-    public LsCommand(ConsoleWriter consoleWriter)
+    public LsCommand(ConsoleWriter consoleWriter, IPackageUpdater packageUpdater)
     {
         this.consoleWriter = consoleWriter;
+        this.packageUpdater = packageUpdater;
     }
 
     public string HelpMessage => @"
@@ -50,7 +53,7 @@ public sealed class LsCommand : ICommand
             return 0;
         }
 
-        PackageUpdater.Shared.UpdatePackages();
+        packageUpdater.UpdatePackages();
         var packages = Helper.GetPackages();
         foreach (var package in packages)
             PrintPackage(package);

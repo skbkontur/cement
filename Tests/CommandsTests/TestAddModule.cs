@@ -15,9 +15,10 @@ namespace Tests.CommandsTests
         {
             var consoleWriter = ConsoleWriter.Shared;
             var buildHelper = BuildHelper.Shared;
+            var packageUpdater = PackageUpdater.Shared;
             var gitRepositoryFactory = new GitRepositoryFactory(consoleWriter, buildHelper);
 
-            moduleHelper = new ModuleHelper(consoleWriter, gitRepositoryFactory);
+            moduleHelper = new ModuleHelper(consoleWriter, gitRepositoryFactory, packageUpdater);
         }
 
         [Test]

@@ -21,10 +21,11 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly HooksHelper hooksHelper;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
+    private readonly IPackageUpdater packageUpdater;
 
     public UpdateCommand(ILogger<UpdateCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                          CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory, HooksHelper hooksHelper,
-                         IGitRepositoryFactory gitRepositoryFactory)
+                         IGitRepositoryFactory gitRepositoryFactory, IPackageUpdater packageUpdater)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.logger = logger;
@@ -33,6 +34,7 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
         this.depsValidatorFactory = depsValidatorFactory;
         this.hooksHelper = hooksHelper;
         this.gitRepositoryFactory = gitRepositoryFactory;
+        this.packageUpdater = packageUpdater;
     }
 
     public override string Name => "update";
@@ -57,7 +59,7 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
     protected override int Execute(UpdateCommandOptions options)
     {
         logger.LogInformation("Updating packages");
-        PackageUpdater.Shared.UpdatePackages();
+        packageUpdater.UpdatePackages();
         var cwd = Directory.GetCurrentDirectory();
         var module = Path.GetFileName(cwd);
 

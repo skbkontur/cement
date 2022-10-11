@@ -25,13 +25,15 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
     private readonly BuildCommand buildCommand;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
     private readonly ICommandActivator commandActivator;
+    private readonly IPackageUpdater packageUpdater;
     private readonly DepsPatcherProject depsPatcherProject;
 
     private bool hasReplaces;
 
     public RefAddCommand(ILogger<RefAddCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                          BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject,
-                         IGitRepositoryFactory gitRepositoryFactory, ICommandActivator commandActivator)
+                         IGitRepositoryFactory gitRepositoryFactory, ICommandActivator commandActivator,
+                         IPackageUpdater packageUpdater)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.logger = logger;
@@ -41,6 +43,7 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
         this.depsPatcherProject = depsPatcherProject;
         this.gitRepositoryFactory = gitRepositoryFactory;
         this.commandActivator = commandActivator;
+        this.packageUpdater = packageUpdater;
     }
 
     public override string Name => "add";
@@ -68,7 +71,7 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
         var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
         var currentModule = Path.GetFileName(currentModuleDirectory);
 
-        PackageUpdater.Shared.UpdatePackages();
+        packageUpdater.UpdatePackages();
         var project = Yaml.GetProjectFileName(options.Project, currentModule);
 
         var moduleToInsert = Helper.TryFixModuleCase(options.Dep.Name);

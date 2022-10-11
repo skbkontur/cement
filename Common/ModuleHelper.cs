@@ -10,11 +10,13 @@ public sealed class ModuleHelper
 {
     private readonly ConsoleWriter consoleWriter;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
+    private readonly IPackageUpdater packageUpdater;
 
-    public ModuleHelper(ConsoleWriter consoleWriter, IGitRepositoryFactory gitRepositoryFactory)
+    public ModuleHelper(ConsoleWriter consoleWriter, IGitRepositoryFactory gitRepositoryFactory, IPackageUpdater packageUpdater)
     {
         this.consoleWriter = consoleWriter;
         this.gitRepositoryFactory = gitRepositoryFactory;
+        this.packageUpdater = packageUpdater;
     }
 
     public int AddModule(Package package, string moduleName, string pushUrl, string fetchUrl)
@@ -40,7 +42,7 @@ public sealed class ModuleHelper
 
         consoleWriter.WriteOk($"Successfully added {moduleName} to {package.Name} package.");
 
-        PackageUpdater.Shared.UpdatePackages();
+        packageUpdater.UpdatePackages();
 
         return 0;
     }

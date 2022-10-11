@@ -23,10 +23,11 @@ public sealed class GetCommand : Command<GetCommandOptions>
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly HooksHelper hooksHelper;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
+    private readonly IPackageUpdater packageUpdater;
 
     public GetCommand(ILogger<GetCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                       CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory, HooksHelper hooksHelper,
-                      IGitRepositoryFactory gitRepositoryFactory)
+                      IGitRepositoryFactory gitRepositoryFactory, IPackageUpdater packageUpdater)
         : base(consoleWriter, Settings, featureFlags)
     {
         this.logger = logger;
@@ -35,6 +36,7 @@ public sealed class GetCommand : Command<GetCommandOptions>
         this.depsValidatorFactory = depsValidatorFactory;
         this.hooksHelper = hooksHelper;
         this.gitRepositoryFactory = gitRepositoryFactory;
+        this.packageUpdater = packageUpdater;
     }
 
     public override string Name => "get";
@@ -93,7 +95,7 @@ public sealed class GetCommand : Command<GetCommandOptions>
         var configuration = string.IsNullOrEmpty(options.Configuration) ? "full-build" : options.Configuration;
 
         logger.LogInformation("Updating packages");
-        PackageUpdater.Shared.UpdatePackages();
+        packageUpdater.UpdatePackages();
 
         var getter = new ModuleGetter(
             consoleWriter, cycleDetector, depsValidatorFactory, gitRepositoryFactory, hooksHelper, Helper.GetModules(),
