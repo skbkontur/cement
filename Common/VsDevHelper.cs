@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.Logging;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
@@ -39,49 +40,6 @@ public sealed class VsDevHelper
         foreach (var variable in variables)
             Environment.SetEnvironmentVariable(variable.Key, variable.Value);
         logger.LogDebug("Successfully set new variables from VsDevCmd.bat");
-    }
-
-    private Dictionary<string, string> GetVsSetVariables()
-    {
-        var text = RunVsDevCmd();
-
-        if (text == null)
-            return null;
-
-        var lines = text.Split('\n');
-        var result = new Dictionary<string, string>();
-        foreach (var line in lines)
-        {
-            var equal = line.IndexOf("=", StringComparison.Ordinal);
-            if (equal < 0)
-                continue;
-            var name = line.Substring(0, equal);
-            var value = line.Substring(equal + 1);
-            result.Add(name, value);
-        }
-
-        return result;
-    }
-
-    private string RunVsDevCmd()
-    {
-        var path = FindVsDevCmd();
-        if (path == null)
-        {
-            logger.LogDebug("VsDevCmd.bat not found");
-            return null;
-        }
-
-        logger.LogInformation($"VsDevCmd found in '{path}'");
-        var command = $"\"{path}\" && set";
-        var runner = new ShellRunner();
-        if (runner.Run(command) != 0)
-        {
-            logger.LogDebug("VsDevCmd.bat not working");
-            return null;
-        }
-
-        return runner.Output;
     }
 
     private static string FindVsDevCmd()
@@ -121,5 +79,50 @@ public sealed class VsDevHelper
         if (!paths.Any())
             return null;
         return paths.FirstOrDefault().Value;
+    }
+
+    private Dictionary<string, string> GetVsSetVariables()
+    {
+        var text = RunVsDevCmd();
+
+        if (text == null)
+            return null;
+
+        var lines = text.Split('\n');
+        var result = new Dictionary<string, string>();
+        foreach (var line in lines)
+        {
+            var equal = line.IndexOf("=", StringComparison.Ordinal);
+            if (equal < 0)
+                continue;
+            var name = line.Substring(0, equal);
+            var value = line.Substring(equal + 1);
+            result.Add(name, value);
+        }
+
+        return result;
+    }
+
+    private string RunVsDevCmd()
+    {
+        var path = FindVsDevCmd();
+        if (path == null)
+        {
+            logger.LogDebug("VsDevCmd.bat not found");
+            return null;
+        }
+
+        logger.LogInformation($"VsDevCmd found in '{path}'");
+        var command = $"\"{path}\" && set";
+
+        var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
+        var shellRunner = new ShellRunner(shellRunnerLogger);
+
+        var (exitCode, output, _) = shellRunner.Run(command);
+        if (exitCode == 0)
+            return output;
+
+        logger.LogDebug("VsDevCmd.bat not working");
+        return null;
     }
 }

@@ -22,13 +22,17 @@ public sealed class NuGetHelper
 
     public string GetNugetPackageVersion(string packageName, string nugetRunCommand, bool preRelease)
     {
+        consoleWriter.WriteProgressWithoutSave("Get package version for " + packageName);
+
+        var command = $"{nugetRunCommand} list {packageName} -NonInteractive" + (preRelease ? " -PreRelease" : "");
+
         var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
         var shellRunner = new ShellRunner(shellRunnerLogger);
 
-        consoleWriter.WriteProgressWithoutSave("Get package version for " + packageName);
+        // todo(dstarasov): не проверяется exitCode
+        var (_, output, errors) = shellRunner.Run(command);
 
-        shellRunner.Run($"{nugetRunCommand} list {packageName} -NonInteractive" + (preRelease ? " -PreRelease" : ""));
-        foreach (var line in shellRunner.Output.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries))
+        foreach (var line in output.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries))
         {
             var lineTokens = line.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
             if (lineTokens.Length == 2 && lineTokens[0].Equals(packageName, StringComparison.InvariantCultureIgnoreCase))
@@ -40,7 +44,7 @@ public sealed class NuGetHelper
             }
         }
 
-        var message = $"not found package version for package {packageName}. nuget output: " + shellRunner.Output + shellRunner.Errors;
+        var message = $"not found package version for package {packageName}. nuget output: " + output + errors;
         logger.LogDebug(message);
         consoleWriter.WriteWarning(message);
         return null;

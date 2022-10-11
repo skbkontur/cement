@@ -59,12 +59,15 @@ public sealed class Cleaner
         log.LogInformation($"Start cleaning {dep.Name}");
         consoleWriter.WriteProgress($"Cleaning {dep.Name}");
 
-        var command = "git clean -d -f -x"; // -d               - remove whole directory
+        // -d               - remove whole directory
         // -f               - force delete
         // -x               - remove ignored files, too
+        const string command = "git clean -d -f -x";
 
-        var exitCode = shellRunner.RunInDirectory(Path.Combine(Helper.CurrentWorkspace, dep.Name), command, TimeSpan.FromMinutes(1), RetryStrategy.None);
+        var workingDirectory = Path.Combine(Helper.CurrentWorkspace, dep.Name);
+        var timeout = TimeSpan.FromMinutes(1);
 
+        var (exitCode, _, _) = shellRunner.RunInDirectory(workingDirectory, command, timeout, RetryStrategy.None);
         if (exitCode != 0)
         {
             log.LogWarning($"'git clean' finished with non-zero exit code: '{exitCode}'");

@@ -116,12 +116,13 @@ public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
                 catch (CementException exception)
                 {
                     consoleWriter.WriteError(exception.ToString());
-                    badParents.Add(
-                        new KeyValuePair<Dep, string>(
-                            depParent,
-                            exception.Message +
-                            "\nLast command output:\n" +
-                            ShellRunner.LastOutput));
+
+                    // todo(dstarasov): очень странный код, который неявно зависит от последнего вызова ShellRunner
+                    var reason = exception.Message + "\nLast command output:\n" + ShellRunner.LastOutput;
+
+                    var badParent = new KeyValuePair<Dep, string>(depParent, reason);
+                    badParents.Add(badParent);
+
                     if (pause)
                         WaitKey();
                 }

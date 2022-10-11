@@ -143,10 +143,12 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
 
             foreach (var module in clonedModules)
             {
-                shellRunner.RunInDirectory(module, command);
-                if (string.IsNullOrWhiteSpace(ShellRunner.LastOutput))
+                // todo(dstarasov): не проверяется exitCode
+                var (_, output, _) = shellRunner.RunInDirectory(module, command);
+                if (string.IsNullOrWhiteSpace(output))
                     continue;
-                consoleWriter.WriteLine(AddModuleToOutput(ShellRunner.LastOutput, module));
+
+                consoleWriter.WriteLine(AddModuleToOutput(output, module));
                 consoleWriter.WriteLine();
             }
         }

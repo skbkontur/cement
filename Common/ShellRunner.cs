@@ -7,17 +7,16 @@ using System.Security;
 using System.Text;
 using System.Threading;
 using Common.Exceptions;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using TimeoutException = Common.Exceptions.TimeoutException;
 
 namespace Common;
 
+[PublicAPI]
 public sealed class ShellRunner
 {
-    public static string LastOutput;
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(10);
-    public bool HasTimeout;
-
     private readonly ProcessStartInfo startInfo;
     private readonly ILogger logger;
 
@@ -41,86 +40,96 @@ public sealed class ShellRunner
         AddUserPassword();
     }
 
-    public string Output { get; private set; }
-    public string Errors { get; private set; }
+    public static string LastOutput { get; private set; }
 
-    public int RunOnce(string commandWithArguments, string workingDirectory, TimeSpan timeout)
+    public ShellRunnerResult RunOnce(string commandWithArguments, string workingDirectory,
+                                     TimeSpan timeout)
     {
-        BeforeRun();
-        var quote = '"';
+        startInfo.Arguments = Platform.IsUnix() ? " -lc " : " /D /C ";
+        var hasTimeout = false;
+
+        const char quote = '"';
         startInfo.Arguments = startInfo.Arguments + quote + commandWithArguments + quote;
         startInfo.WorkingDirectory = workingDirectory;
 
+        var output = string.Empty;
+        var errors = string.Empty;
+
         var sw = Stopwatch.StartNew();
-        using (var process = Process.Start(startInfo))
+        using var process = Process.Start(startInfo);
+        try
         {
-            try
+            var threadOutput = new Thread(() => ReadStream(process.StandardOutput, OnOutputChange));
+            var threadErrors = new Thread(() => ReadStream(process.StandardError, OnErrorsChange));
+
+            threadOutput.Start();
+            threadErrors.Start();
+
+            if (!threadOutput.Join(timeout) || !threadErrors.Join(timeout) || !process.WaitForExit((int)timeout.TotalMilliseconds))
             {
-                var threadOutput = new Thread(() => ReadCmdOutput(process));
-                var threadErrors = new Thread(() => ReadCmdError(process));
-                threadOutput.Start();
-                threadErrors.Start();
+                threadOutput.Join();
+                threadErrors.Join();
 
-                if (!threadOutput.Join(timeout) || !threadErrors.Join(timeout) || !process.WaitForExit((int)timeout.TotalMilliseconds))
-                {
-                    threadOutput.Join();
-                    threadErrors.Join();
+                threadOutput.Interrupt();
+                threadErrors.Interrupt();
 
-                    threadOutput.Interrupt();
-                    threadErrors.Interrupt();
+                threadOutput.Join();
+                threadErrors.Join();
 
-                    threadOutput.Join();
-                    threadErrors.Join();
+                KillProcessAndChildren(process.Id, new HashSet<int>());
 
-                    KillProcessAndChildren(process.Id, new HashSet<int>());
+                hasTimeout = true;
 
-                    HasTimeout = true;
-
-                    var message = string.Format("Running timeout at {2} for command {0} in {1}", commandWithArguments, workingDirectory, timeout);
-                    Errors += message;
-                    throw new TimeoutException(message);
-                }
-
-                LastOutput = Output;
-                var exitCode = process.ExitCode;
-                logger.LogInformation($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} in {sw.ElapsedMilliseconds}ms with exitCode {exitCode}");
-                return exitCode;
+                var message = string.Format("Running timeout at {2} for command {0} in {1}", commandWithArguments, workingDirectory, timeout);
+                errors += message;
+                throw new TimeoutException(message);
             }
-            catch (CementException e)
+
+            LastOutput = output;
+            var exitCode = process.ExitCode;
+
+            logger.LogInformation(
+                $"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} " +
+                $"in {sw.ElapsedMilliseconds}ms with exitCode {exitCode}");
+
+            return new ShellRunnerResult(exitCode, output, errors, hasTimeout);
+        }
+        catch (CementException e)
+        {
+            if (e is TimeoutException)
             {
-                if (e is TimeoutException)
-                {
-                    if (!commandWithArguments.Equals("git ls-remote --heads"))
-                        ConsoleWriter.Shared.WriteWarning(e.Message);
-                    logger.LogWarning(e.Message);
-                }
-                else
-                {
-                    ConsoleWriter.Shared.WriteError(e.Message);
-                    logger.LogError(e.Message);
-                }
-
-                return -1;
+                if (!commandWithArguments.Equals("git ls-remote --heads"))
+                    ConsoleWriter.Shared.WriteWarning(e.Message);
+                logger.LogWarning(e.Message);
             }
+            else
+            {
+                ConsoleWriter.Shared.WriteError(e.Message);
+                logger.LogError(e.Message);
+            }
+
+            return new ShellRunnerResult(-1, output, errors, hasTimeout);
         }
     }
 
-    public int Run(string commandWithArguments)
+    public ShellRunnerResult Run(string commandWithArguments)
     {
         return Run(commandWithArguments, DefaultTimeout);
     }
 
-    public int Run(string commandWithArguments, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
+    public ShellRunnerResult Run(string commandWithArguments, TimeSpan timeout,
+                                 RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
     {
         return RunThreeTimes(commandWithArguments, Directory.GetCurrentDirectory(), timeout, retryStrategy);
     }
 
-    public int RunInDirectory(string path, string commandWithArguments)
+    public ShellRunnerResult RunInDirectory(string path, string commandWithArguments)
     {
         return RunInDirectory(path, commandWithArguments, DefaultTimeout);
     }
 
-    public int RunInDirectory(string path, string commandWithArguments, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
+    public ShellRunnerResult RunInDirectory(string path, string commandWithArguments, TimeSpan timeout,
+                                            RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
     {
         return RunThreeTimes(commandWithArguments, path, timeout, retryStrategy);
     }
@@ -146,14 +155,6 @@ public sealed class ShellRunner
         startInfo.Password = password;
     }
 
-    private void BeforeRun()
-    {
-        startInfo.Arguments = Platform.IsUnix() ? " -lc " : " /D /C ";
-        Output = "";
-        Errors = "";
-        HasTimeout = false;
-    }
-
     private string ReadStream(StreamReader output, ReadLineEvent evt)
     {
         var result = new StringBuilder();
@@ -167,37 +168,33 @@ public sealed class ShellRunner
         return result.ToString();
     }
 
-    private void ReadCmdOutput(Process pr)
+    private ShellRunnerResult RunThreeTimes(string commandWithArguments, string workingDirectory,
+                                            TimeSpan timeout,
+                                            RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
     {
-        Output = ReadStream(pr.StandardOutput, OnOutputChange);
-    }
-
-    private void ReadCmdError(Process pr)
-    {
-        Errors = ReadStream(pr.StandardError, OnErrorsChange);
-    }
-
-    private int RunThreeTimes(string commandWithArguments, string workingDirectory, TimeSpan timeout, RetryStrategy retryStrategy = RetryStrategy.IfTimeout)
-    {
-        var exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
+        var (exitCode, output, errors, hasTimeout) = RunOnce(commandWithArguments, workingDirectory, timeout);
         var times = 2;
 
-        while (times-- > 0 && NeedRunAgain(retryStrategy, exitCode))
+        while (times-- > 0 && NeedRunAgain(retryStrategy, exitCode, hasTimeout))
         {
-            if (HasTimeout)
+            if (hasTimeout)
                 timeout = TimeoutHelper.IncreaseTimeout(timeout);
-            exitCode = RunOnce(commandWithArguments, workingDirectory, timeout);
-            logger.LogDebug($"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} with exitCode {exitCode} and retryStrategy {retryStrategy}");
+
+            (exitCode, output, errors, hasTimeout) = RunOnce(commandWithArguments, workingDirectory, timeout);
+
+            logger.LogDebug(
+                $"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} " +
+                $"with exitCode {exitCode} and retryStrategy {retryStrategy}");
         }
 
-        return exitCode;
+        return new ShellRunnerResult(exitCode, output, errors, hasTimeout);
     }
 
-    private bool NeedRunAgain(RetryStrategy retryStrategy, int exitCode)
+    private bool NeedRunAgain(RetryStrategy retryStrategy, int exitCode, bool hasTimeout)
     {
-        if (retryStrategy == RetryStrategy.IfTimeout && HasTimeout)
+        if (retryStrategy == RetryStrategy.IfTimeout && hasTimeout)
             return true;
-        if (retryStrategy == RetryStrategy.IfTimeoutOrFailed && (exitCode != 0 || HasTimeout))
+        if (retryStrategy == RetryStrategy.IfTimeoutOrFailed && (exitCode != 0 || hasTimeout))
             return true;
         return false;
     }

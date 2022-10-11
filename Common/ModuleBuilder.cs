@@ -43,14 +43,16 @@ public sealed class ModuleBuilder
     public bool DotnetPack(string directory, string projectFileName, string buildConfiguration)
     {
         var runner = PrepareShellRunner();
-        var exitCode = runner.RunInDirectory(directory, $"dotnet pack \\\"{projectFileName}\\\" -c {buildConfiguration}");
-        consoleWriter.Write(runner.Output);
+        var (exitCode, output, errors) = runner
+            .RunInDirectory(directory, $"dotnet pack \\\"{projectFileName}\\\" -c {buildConfiguration}");
+
+        consoleWriter.Write(output);
         if (exitCode == 0)
             return true;
 
         log.LogWarning(
-            $"Failed to build nuget package {projectFileName}.\nOutput: \n{runner.Output} \n" +
-            $"Error: \n{runner.Errors} \nExit code: {exitCode}");
+            $"Failed to build nuget package {projectFileName}.\nOutput: \n{output} \n" +
+            $"Error: \n{errors} \nExit code: {exitCode}");
 
         return false;
     }
@@ -104,17 +106,17 @@ public sealed class ModuleBuilder
         }
     }
 
-    private void PrintBuildFailResult(Dep dep, string buildName, BuildScriptWithBuildData script, ShellRunner runner)
+    private void PrintBuildFailResult(Dep dep, string buildName, BuildScriptWithBuildData script, string output)
     {
         consoleWriter.WriteBuildError($"Failed to build {dep} {buildName}");
 
-        foreach (var line in runner.Output.Split('\n'))
+        foreach (var line in output.Split('\n'))
             ModuleBuilderHelper.WriteLine(line);
 
         consoleWriter.WriteLine();
         consoleWriter.WriteInfo("Errors summary:");
 
-        foreach (var line in runner.Output.Split('\n'))
+        foreach (var line in output.Split('\n'))
             ModuleBuilderHelper.WriteIfErrorToStandartStream(line);
 
         consoleWriter.WriteLine($"({script.Script})");
@@ -129,13 +131,13 @@ public sealed class ModuleBuilder
         log.LogInformation(command);
 
         var runner = PrepareShellRunner();
-        var exitCode = runner.RunInDirectory(buildFolder, command);
+        var (exitCode, output, errors) = runner.RunInDirectory(buildFolder, command);
         if (exitCode != 0)
         {
             log.LogWarning(
                 $"Failed to nuget restore {buildFile}." +
-                $"\nOutput: \n{runner.Output} " +
-                $"\nError: \n{runner.Errors}" +
+                $"\nOutput: \n{output} " +
+                $"\nError: \n{errors}" +
                 $"\nExit code: {exitCode}");
         }
     }
@@ -199,25 +201,28 @@ public sealed class ModuleBuilder
         var runner = PrepareShellRunner();
 
         var exitCode = -1;
+        var output = string.Empty;
+
         for (var timesTry = 0; timesTry < 2 && exitCode != 0; timesTry++)
         {
             log.LogDebug("Build command: '{0}'", command);
             if (buildSettings.ShowOutput)
                 consoleWriter.WriteInfo($"BUILDING {command}");
-            exitCode = runner.RunInDirectory(Path.Combine(Helper.CurrentWorkspace, dep.Name), command, TimeSpan.FromMinutes(60));
+            (exitCode, output, _) = runner
+                .RunInDirectory(Path.Combine(Helper.CurrentWorkspace, dep.Name), command, TimeSpan.FromMinutes(60));
         }
 
         sw.Stop();
         Interlocked.Add(ref TotalMsbuildTime, sw.ElapsedTicks);
 
         var elapsedTime = Helper.ConvertTime(sw.ElapsedMilliseconds);
-        var warnCount = runner.Output.Split('\n').Count(ModuleBuilderHelper.IsWarning);
-        var obsoleteUsages = runner.Output.Split('\n').Where(ModuleBuilderHelper.IsObsoleteWarning).ToList();
+        var warnCount = output.Split('\n').Count(ModuleBuilderHelper.IsWarning);
+        var obsoleteUsages = output.Split('\n').Where(ModuleBuilderHelper.IsObsoleteWarning).ToList();
 
         var buildName = script.BuildData?.Name ?? "";
         if (exitCode != 0)
         {
-            PrintBuildFailResult(dep, buildName, script, runner);
+            PrintBuildFailResult(dep, buildName, script, output);
             return false;
         }
 

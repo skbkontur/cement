@@ -90,8 +90,9 @@ namespace Tests.UtilsTests
             using (new DirectoryJumper(tempRepo.Path))
             {
                 var runner = new ShellRunner(NullLogger<ShellRunner>.Instance);
-                runner.Run("git rev-parse HEAD");
-                sha1 = runner.Output.Trim();
+                var (_, output, _) = runner.Run("git rev-parse HEAD");
+
+                sha1 = output.Trim();
                 runner.Run("git checkout " + sha1);
             }
 

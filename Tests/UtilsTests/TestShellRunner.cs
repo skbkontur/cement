@@ -38,15 +38,15 @@ namespace Tests.UtilsTests
         [Test]
         public void TestOutputCommand()
         {
-            var result = runner.Run("echo hello");
-            Assert.AreEqual("hello", runner.Output.Trim());
+            var (_, output, _) = runner.Run("echo hello");
+            Assert.AreEqual("hello", output.Trim());
         }
 
         [Test]
         public void TestRedirectOutputToError()
         {
-            var result = runner.Run("echo error 1>&2");
-            Assert.AreEqual("error", runner.Errors.Trim());
+            var (_, _, errors) = runner.Run("echo error 1>&2");
+            Assert.AreEqual("error", errors.Trim());
         }
 
         [Test]
@@ -99,9 +99,9 @@ namespace Tests.UtilsTests
 @echo off
 FOR /L %%G IN (1,1," + count + @") DO echo %%G");
 
-            runner.Run(bat);
+            var (_, output, _) = runner.Run(bat);
 
-            var lines = runner.Output.Split('\n').ToList();
+            var lines = output.Split('\n').ToList();
             if (lines.Last() == "")
                 lines = lines.Take(lines.Count() - 1).ToList();
             CollectionAssert.AreEqual(Enumerable.Range(1, count).Select(i => i.ToString()), lines);

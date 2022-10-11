@@ -4,23 +4,20 @@ using System.Linq;
 using System.Threading;
 using Common.Exceptions;
 using Common.Logging;
-using Microsoft.Extensions.Logging;
 
 namespace Common;
 
 public sealed class PackageUpdater
 {
     private readonly SemaphoreSlim semaphore = new(1, 1);
-    private readonly ILogger<PackageUpdater> logger;
     private readonly ConsoleWriter consoleWriter;
 
-    public PackageUpdater(ILogger<PackageUpdater> logger, ConsoleWriter consoleWriter)
+    public PackageUpdater(ConsoleWriter consoleWriter)
     {
-        this.logger = logger;
         this.consoleWriter = consoleWriter;
     }
 
-    public static PackageUpdater Shared { get; } = new(LogManager.GetLogger<PackageUpdater>(), ConsoleWriter.Shared);
+    public static PackageUpdater Shared { get; } = new(ConsoleWriter.Shared);
 
     public void UpdatePackages()
     {
@@ -74,20 +71,20 @@ public sealed class PackageUpdater
         {
             using (var tempDir = new TempDirectory())
             {
-                if (shellRunner.RunOnce(
-                        $"git clone {package.Url} \"{Path.Combine(tempDir.Path, package.Name)}\"",
-                        Directory.GetCurrentDirectory(),
-                        timeout)
-                    != 0)
+                var command = $"git clone {package.Url} \"{Path.Combine(tempDir.Path, package.Name)}\"";
+                var workingDirectory = Directory.GetCurrentDirectory();
+
+                var (exitCode, output, errors, hasTimeout) = shellRunner.RunOnce(command, workingDirectory, timeout);
+                if (exitCode != 0)
                 {
-                    if (shellRunner.HasTimeout && i < 2)
+                    if (hasTimeout && i < 2)
                     {
                         timeout = TimeoutHelper.IncreaseTimeout(timeout);
                         continue;
                     }
 
                     throw new CementException(
-                        $"Failed to update package {package.Name}:\n{shellRunner.Output}\nError message:\n{shellRunner.Errors}\n" +
+                        $"Failed to update package {package.Name}:\n{output}\nError message:\n{errors}\n" +
                         $"Ensure that command 'git clone {package.Url}' works in cmd");
                 }
 
@@ -113,18 +110,18 @@ public sealed class PackageUpdater
 
         var timeout = TimeSpan.FromMinutes(1);
 
-        var exitCode = shellRunner.RunOnce($"git ls-remote {package.Url} HEAD", Directory.GetCurrentDirectory(), timeout);
+        var command = $"git ls-remote {package.Url} HEAD";
+        var workingDirectory = Directory.GetCurrentDirectory();
 
+        var (exitCode, output, errors) = shellRunner.RunOnce(command, workingDirectory, timeout);
         if (exitCode != 0)
         {
             var errorMessage = $"Cannot get hash code of package '{package.Name}' ({package.Url})\n" +
                                "Git output:\n\n" +
-                               shellRunner.Errors;
+                               errors;
 
             throw new CementException(errorMessage);
         }
-
-        var output = shellRunner.Output;
 
         return output.Split().FirstOrDefault();
     }

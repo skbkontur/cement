@@ -361,10 +361,13 @@ public static class Helper
             var shellRunnerLogger = LogManager.GetLogger<ShellRunner>();
             var shellRunner = new ShellRunner(shellRunnerLogger);
 
-            var exitCode = shellRunner.RunOnce(Path.GetFileName(fullPathToMsBuild) + " -version", Path.GetDirectoryName(fullPathToMsBuild), TimeSpan.FromSeconds(10));
-            if (exitCode == 0 && !string.IsNullOrEmpty(shellRunner.Output))
+            var command = Path.GetFileName(fullPathToMsBuild) + " -version";
+            var workingDirectory = Path.GetDirectoryName(fullPathToMsBuild);
+
+            var (exitCode, output, _) = shellRunner.RunOnce(command, workingDirectory, TimeSpan.FromSeconds(10));
+            if (exitCode == 0 && !string.IsNullOrEmpty(output))
             {
-                var versionMatches = Regex.Matches(shellRunner.Output, @"^(?<version>\d+(\.\d+)+)", RegexOptions.ExplicitCapture | RegexOptions.Multiline);
+                var versionMatches = Regex.Matches(output, @"^(?<version>\d+(\.\d+)+)", RegexOptions.ExplicitCapture | RegexOptions.Multiline);
                 if (versionMatches.Count > 0)
                 {
                     var version = versionMatches[versionMatches.Count - 1].Groups["version"].Value;
