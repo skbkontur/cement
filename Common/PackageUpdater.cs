@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading;
 using Common.Exceptions;
 using Common.Logging;
+using JetBrains.Annotations;
 
 namespace Common;
 
-public sealed class PackageUpdater
+[PublicAPI]
+public sealed class PackageUpdater : IPackageUpdater
 {
     private readonly SemaphoreSlim semaphore = new(1, 1);
     private readonly ConsoleWriter consoleWriter;
@@ -92,9 +94,11 @@ public sealed class PackageUpdater
                 {
                     if (!Directory.Exists(Helper.GetGlobalCementDirectory()))
                         Directory.CreateDirectory(Helper.GetGlobalCementDirectory());
-                    File.Copy(
-                        Path.Combine(tempDir.Path, package.Name, "modules"),
-                        Helper.GetPackagePath(package.Name), true);
+
+                    var source = Path.Combine(tempDir.Path, package.Name, "modules");
+                    var destination = Helper.GetPackagePath(package.Name);
+
+                    File.Copy(source, destination, true);
                     Helper.WritePackageCommitHash(package.Name, remoteHash);
                 }
 
