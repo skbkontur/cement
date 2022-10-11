@@ -21,7 +21,6 @@ public static class Helper
     public const string ConfigurationDelimiter = "/";
 
     public static readonly int MaxDegreeOfParallelism = CementSettingsRepository.Get().MaxDegreeOfParallelism ?? 2 * Environment.ProcessorCount;
-    public static readonly object PackageLockObject = new();
     private static readonly ILogger Log = LogManager.GetLogger(typeof(Helper));
     public static ParallelOptions ParallelOptions => new() {MaxDegreeOfParallelism = MaxDegreeOfParallelism};
     public static string CurrentWorkspace { get; private set; }
@@ -112,7 +111,7 @@ public static class Helper
 
     public static IList<Module> GetModulesFromPackage(Package package)
     {
-        lock (PackageLockObject)
+        lock (GlobalLocks.PackageLockObject)
         {
             var packageConfig = GetPackagePath(package.Name);
             if (!File.Exists(packageConfig))
@@ -124,7 +123,7 @@ public static class Helper
 
     public static List<Module> GetModules()
     {
-        lock (PackageLockObject)
+        lock (GlobalLocks.PackageLockObject)
         {
             var modules = new List<Module>();
             var packages = GetPackages();

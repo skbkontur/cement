@@ -88,7 +88,7 @@ public sealed class PackageUpdater
                         $"Ensure that command 'git clone {package.Url}' works in cmd");
                 }
 
-                lock (Helper.PackageLockObject)
+                lock (GlobalLocks.PackageLockObject)
                 {
                     if (!Directory.Exists(Helper.GetGlobalCementDirectory()))
                         Directory.CreateDirectory(Helper.GetGlobalCementDirectory());
