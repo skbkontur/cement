@@ -59,8 +59,8 @@ public sealed class ShellRunner
         using var process = Process.Start(startInfo);
         try
         {
-            var threadOutput = new Thread(() => ReadStream(process.StandardOutput, OnOutputChange));
-            var threadErrors = new Thread(() => ReadStream(process.StandardError, OnErrorsChange));
+            var threadOutput = new Thread(() => output = ReadStream(process.StandardOutput, OnOutputChange));
+            var threadErrors = new Thread(() => errors = ReadStream(process.StandardError, OnErrorsChange));
 
             threadOutput.Start();
             threadErrors.Start();
