@@ -11,6 +11,9 @@ namespace Commands;
 public abstract class Command<TCommandOptions> : ICommand
     where TCommandOptions : notnull
 {
+    private ILogger logger;
+    private ConsoleWriter consoleWriter;
+
     protected Command(ConsoleWriter consoleWriter, CommandSettings settings, FeatureFlags featureFlags)
     {
         this.consoleWriter = consoleWriter;
@@ -65,8 +68,6 @@ public abstract class Command<TCommandOptions> : ICommand
         }
     }
 
-    private ILogger logger;
-    private ConsoleWriter consoleWriter;
     protected CommandSettings CommandSettings { get; }
     protected FeatureFlags FeatureFlags { get; }
 
