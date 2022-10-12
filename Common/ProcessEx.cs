@@ -62,8 +62,6 @@ internal sealed class ProcessEx : IDisposable
             );
         }
 
-        ConsoleWriter.Shared.WriteInfo($"PID: {nativeProcess.Id}");
-
         StartTime = DateTimeOffset.Now;
         Id = nativeProcess.Id;
         StandardInput = nativeProcess.StandardInput;
