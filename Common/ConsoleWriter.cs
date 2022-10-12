@@ -24,7 +24,10 @@ public sealed class ConsoleWriter
 
     private static bool IsTerminalSupportsAnsi()
     {
-        return !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        // dstarasov: временно отключил, из-за проблем на macOS
+        return false;
+
+        //return !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     }
 
     public void WriteProgress(string progress)
