@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
@@ -16,9 +17,17 @@ namespace Tests.UtilsTests
         private readonly ShellRunner runner = new(NullLogger<ShellRunner>.Instance);
 
         [Test]
+        [Timeout(10_000)]
         public void TestRunCommand()
         {
-            Assert.AreEqual(0, runner.Run(Platform.IsUnix() ? "ls" : "dir"));
+            // arrange
+            var command = Platform.IsUnix() ? "ls" : "dir";
+
+            // act
+            var (exitCode, output, errors) = runner.Run(command);
+
+            // assert
+            exitCode.Should().Be(0, "Output: {0}, Errors: {1}", output, errors);
         }
 
         [Test]

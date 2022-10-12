@@ -1,14 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Management;
+using System.Runtime.Versioning;
 using System.Security;
 using System.Text;
 using System.Threading;
 using Common.Exceptions;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 using TimeoutException = Common.Exceptions.TimeoutException;
 
 namespace Common;
@@ -17,7 +17,6 @@ namespace Common;
 public sealed class ShellRunner
 {
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(10);
-    private readonly ProcessStartInfo startInfo;
     private readonly ILogger logger;
 
     public event ReadLineEvent OnOutputChange;
@@ -26,18 +25,22 @@ public sealed class ShellRunner
     public ShellRunner(ILogger<ShellRunner> logger)
     {
         this.logger = logger;
+    }
 
-        startInfo = new ProcessStartInfo
+    private ProcessStartInfo GetStartInfo(string fileName, string arguments, string workingDir)
+    {
+        return new ProcessStartInfo
         {
-            FileName = Platform.IsUnix() ? "/bin/bash" : "cmd",
+            FileName = fileName,
+            Arguments = arguments,
+            WorkingDirectory = workingDir,
             CreateNoWindow = true,
-            RedirectStandardError = true,
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
+            RedirectStandardError = true,
             WindowStyle = ProcessWindowStyle.Hidden,
             UseShellExecute = false
         };
-        AddUserPassword();
     }
 
     public static string LastOutput { get; private set; }
@@ -45,52 +48,46 @@ public sealed class ShellRunner
     public ShellRunnerResult RunOnce(string commandWithArguments, string workingDirectory,
                                      TimeSpan timeout)
     {
-        startInfo.Arguments = Platform.IsUnix() ? " -lc " : " /D /C ";
-        var hasTimeout = false;
-
         const char quote = '"';
-        startInfo.Arguments = startInfo.Arguments + quote + commandWithArguments + quote;
-        startInfo.WorkingDirectory = workingDirectory;
 
+        var fileName = Platform.IsUnix() ? "/bin/bash" : "cmd";
+        var arguments = (Platform.IsUnix() ? " -lc " : " /D /C ") + quote + commandWithArguments + quote;
+
+        var startInfo = GetStartInfo(fileName, arguments, workingDirectory);
+        if (OperatingSystem.IsWindows())
+            AddUserPassword(startInfo);
+
+        var hasTimeout = false;
         var output = string.Empty;
         var errors = string.Empty;
 
-        var sw = Stopwatch.StartNew();
-        using var process = Process.Start(startInfo);
         try
         {
+            using var process = new ProcessEx(startInfo);
+            process.Start();
+
             var threadOutput = new Thread(() => output = ReadStream(process.StandardOutput, OnOutputChange));
             var threadErrors = new Thread(() => errors = ReadStream(process.StandardError, OnErrorsChange));
 
             threadOutput.Start();
             threadErrors.Start();
 
-            if (!threadOutput.Join(timeout) || !threadErrors.Join(timeout) || !process.WaitForExit((int)timeout.TotalMilliseconds))
+            if (!process.WaitForExit((int)timeout.TotalMilliseconds))
             {
-                threadOutput.Join();
-                threadErrors.Join();
-
-                threadOutput.Interrupt();
-                threadErrors.Interrupt();
-
-                threadOutput.Join();
-                threadErrors.Join();
-
-                KillProcessAndChildren(process.Id, new HashSet<int>());
-
+                process.Kill();
                 hasTimeout = true;
 
-                var message = string.Format("Running timeout at {2} for command {0} in {1}", commandWithArguments, workingDirectory, timeout);
-                errors += message;
-                throw new TimeoutException(message);
+                throw new TimeoutException($"Running timeout at {timeout} for command {commandWithArguments} in {workingDirectory}");
             }
 
             LastOutput = output;
+
             var exitCode = process.ExitCode;
+            var runTime = process.ExitTime - process.StartTime;
 
             logger.LogInformation(
                 $"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} " +
-                $"in {sw.ElapsedMilliseconds}ms with exitCode {exitCode}");
+                $"in {runTime:c} with exitCode {exitCode}");
 
             return new ShellRunnerResult(exitCode, output, errors, hasTimeout);
         }
@@ -139,7 +136,8 @@ public sealed class ShellRunner
         return process == "cmd" || process.StartsWith("ssh") || process.StartsWith("git");
     }
 
-    private void AddUserPassword()
+    [SupportedOSPlatform("windows")]
+    private void AddUserPassword(ProcessStartInfo startInfo)
     {
         var settings = CementSettingsRepository.Get();
         if (settings.UserName == null || settings.EncryptedPassword == null)
@@ -152,17 +150,20 @@ public sealed class ShellRunner
         var password = new SecureString();
         foreach (var c in decryptedPassword)
             password.AppendChar(c);
+
         startInfo.Password = password;
     }
 
-    private string ReadStream(StreamReader output, ReadLineEvent evt)
+    private static string ReadStream(StreamReader streamReader, ReadLineEvent evt)
     {
         var result = new StringBuilder();
-        while (!output.EndOfStream)
+
+        while (!streamReader.EndOfStream)
         {
-            var line = output.ReadLine();
+            var line = streamReader.ReadLine();
+
+            result.AppendLine(line);
             evt?.Invoke(line);
-            result.Append(line + "\n");
         }
 
         return result.ToString();
@@ -183,7 +184,7 @@ public sealed class ShellRunner
             (exitCode, output, errors, hasTimeout) = RunOnce(commandWithArguments, workingDirectory, timeout);
 
             logger.LogDebug(
-                $"EXECUTED {startInfo.FileName} {startInfo.Arguments} in {workingDirectory} " +
+                $"EXECUTED {commandWithArguments} in {workingDirectory} " +
                 $"with exitCode {exitCode} and retryStrategy {retryStrategy}");
         }
 
@@ -197,35 +198,6 @@ public sealed class ShellRunner
         if (retryStrategy == RetryStrategy.IfTimeoutOrFailed && (exitCode != 0 || hasTimeout))
             return true;
         return false;
-    }
-
-    private void KillProcessAndChildren(int pid, HashSet<int> killed)
-    {
-        if (killed.Contains(pid))
-            return;
-        killed.Add(pid);
-
-        var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
-        var moc = searcher.Get();
-        foreach (var mo in moc)
-        {
-            var child = Convert.ToInt32(mo["ProcessID"]);
-            KillProcessAndChildren(child, killed);
-        }
-
-        try
-        {
-            var proc = Process.GetProcessById(pid);
-            if (!IsCementProcess(proc.ProcessName))
-                return;
-
-            logger.LogDebug("kill " + proc.ProcessName + "#" + proc.Id);
-            proc.Kill();
-        }
-        catch (Exception exception)
-        {
-            logger.LogDebug("killing already exited process #" + pid, exception);
-        }
     }
 
     public delegate void ReadLineEvent(string content);
