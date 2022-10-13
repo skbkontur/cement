@@ -24,7 +24,7 @@ public sealed class WindowsConsole : IConsole
 
     public void ClearLine()
     {
-        Write(string.Format($"\r{{0,-{WindowWidth - 1}}}\r", ""));
+        writer.Write($"\r{{0,-{WindowWidth - 1}}}\r", "");
     }
 
     public int WindowWidth => CalculateWindowWidth();
