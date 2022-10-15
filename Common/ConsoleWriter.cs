@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Common.Console;
+using JetBrains.Annotations;
 
 namespace Common;
 
@@ -76,6 +77,7 @@ public sealed class ConsoleWriter
         PrintLn(text);
     }
 
+    [StringFormatMethod("format")]
     public void WriteLine(string format, params object[] args)
     {
         PrintLn(string.Format(format, args));
@@ -89,11 +91,6 @@ public sealed class ConsoleWriter
     public void Write(string text)
     {
         Print(text);
-    }
-
-    public void Write(string format, params object[] args)
-    {
-        Print(string.Format(format, args));
     }
 
     public void WriteWarning(string warning)
@@ -119,6 +116,29 @@ public sealed class ConsoleWriter
     public void WriteBuildError(string error)
     {
         PrintLnError(error, ConsoleColor.Red);
+    }
+
+    [StringFormatMethod("format")]
+    public void SimpleWrite(string format, params object[] args)
+    {
+        @out.Write(string.Format(format, args));
+    }
+
+    [StringFormatMethod("format")]
+    public void SimpleWriteLine(string format, params object[] args)
+    {
+        @out.Write(string.Format(format, args));
+        @out.Write(Environment.NewLine);
+    }
+
+    public void SimpleWriteLine()
+    {
+        @out.Write(Environment.NewLine);
+    }
+
+    public void SimpleWrite(string text)
+    {
+        @out.Write(text);
     }
 
     public void ClearLine()
@@ -169,6 +189,7 @@ public sealed class ConsoleWriter
     {
         lock (lockObject)
         {
+            // todo(dstarasov): тут, предположительно, баг, тк в других случаях поведение ровно противоположное
             if (!System.Console.IsErrorRedirected)
                 error.ClearLine();
 
@@ -184,7 +205,7 @@ public sealed class ConsoleWriter
     {
         lock (lockObject)
         {
-            @out.ClearLine();
+            ClearLine();
             @out.Write(text, foregroundColor: foregroundColor);
 
             if (text.StartsWith(PROGRESS) && saveProgress)

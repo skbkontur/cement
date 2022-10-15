@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.CodeDom;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
@@ -68,12 +70,12 @@ public sealed class LsCommand : ICommand
         var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
         Helper.SetWorkspace(workspace);
         var local = modules.Where(m => Yaml.Exists(m.Name));
-        consoleWriter.WriteLine(string.Join("\n", local.Select(m => m.Name).OrderBy(x => x)));
+        consoleWriter.SimpleWriteLine(string.Join("\n", local.Select(m => m.Name).OrderBy(x => x)));
     }
 
     private void PrintPackage(Package package)
     {
-        consoleWriter.WriteLine("[{0}]", package.Name);
+        consoleWriter.SimpleWriteLine("[{0}]", package.Name);
         var modules = Helper.GetModulesFromPackage(package).OrderBy(m => m.Name);
         foreach (var module in modules)
             PrintModule(module);
@@ -91,12 +93,12 @@ public sealed class LsCommand : ICommand
             if (parsedArgs["branch"] != null && !GitRepository.HasRemoteBranch(module.Url, (string)parsedArgs["branch"]))
                 return;
             consoleWriter.ClearLine();
-            consoleWriter.Write("{0, -30}", module.Name);
+            consoleWriter.SimpleWrite("{0, -30}", module.Name);
             if ((bool)parsedArgs["url"])
-                consoleWriter.Write("{0, -60}", module.Url);
+                consoleWriter.SimpleWrite("{0, -60}", module.Url);
             if ((bool)parsedArgs["pushurl"])
-                consoleWriter.Write(module.Url);
-            consoleWriter.WriteLine();
+                consoleWriter.SimpleWrite(module.Url);
+            consoleWriter.SimpleWriteLine();
         }
     }
 
