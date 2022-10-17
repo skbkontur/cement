@@ -3,7 +3,7 @@
 namespace Common;
 
 [PublicAPI]
-public static class GlobalLocks
+internal static class GlobalLocks
 {
     public static readonly object PackageLockObject = new();
 }
