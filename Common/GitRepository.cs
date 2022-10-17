@@ -97,11 +97,11 @@ public sealed class GitRepository
     {
         logger.LogInformation($"{"[" + ModuleName + "]",-30}Getting current treeish");
 
-        var (exitCode, output, _) = shellRunner.RunInDirectory(RepoPath, "git rev-parse --abbrev-ref HEAD");
+        var (exitCode, branchName, _) = shellRunner.RunInDirectory(RepoPath, "git rev-parse --abbrev-ref HEAD");
 
-        output = output.Trim();
-        if (output != "HEAD")
-            return new CurrentTreeish(TreeishType.Branch, output);
+        branchName = branchName.Trim();
+        if (branchName != "HEAD")
+            return new CurrentTreeish(TreeishType.Branch, branchName);
 
         if (exitCode != 0)
         {
@@ -109,16 +109,19 @@ public sealed class GitRepository
         }
 
         // todo(dstarasov): не проверяется exitCode
-        var (_, output2, _) = shellRunner.RunInDirectory(RepoPath, "git describe --tags --exact-match");
-        var tags = output2.Trim();
+        var (_, tags, _) = shellRunner.RunInDirectory(RepoPath, "git describe --tags --exact-match");
+        tags = tags.Trim();
+
         if (tags.Length > 0)
         {
             return new CurrentTreeish(TreeishType.Tag, tags);
         }
 
         // todo(dstarasov): не проверяется exitCode
-        var (_, output3, _) = shellRunner.RunInDirectory(RepoPath, "git rev-parse HEAD");
-        return new CurrentTreeish(TreeishType.CommitHash, output3.Trim());
+        var (_, commitHash, _) = shellRunner.RunInDirectory(RepoPath, "git rev-parse HEAD");
+        commitHash = commitHash.Trim();
+
+        return new CurrentTreeish(TreeishType.CommitHash, commitHash);
     }
 
     public string SafeGetCurrentLocalCommitHash(string treeish = null)
