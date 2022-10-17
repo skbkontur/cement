@@ -49,12 +49,18 @@ namespace cm
             services.AddSingleton(BuildHelper.Shared);
             services.AddSingleton<IPackageUpdater>(PackageUpdater.Shared);
             services.AddSingleton<HooksHelper>();
+            services.AddSingleton<ShellRunner>();
 
             services.AddCommand<HelpCommand>();
             services.AddCommand<GetCommand>();
             services.AddCommand<UpdateDepsCommand>();
             services.AddCommand<RefCommand>();
+            services.AddSubcommand<RefAddCommand>();
+            services.AddSubcommand<RefFixCommand>();
+
             services.AddCommand<AnalyzerCommand>();
+            services.AddSubcommand<AnalyzerAddCommand>();
+
             services.AddCommand<LsCommand>();
             services.AddCommand<ShowConfigsCommand>();
             services.AddCommand<ShowDepsCommand>();
@@ -64,16 +70,30 @@ namespace cm
             services.AddCommand<BuildCommand>();
             services.AddCommand<CheckDepsCommand>();
             services.AddCommand<CheckPreCommitCommand>();
+
             services.AddCommand<UsagesCommand>();
+            services.AddSubcommand<UsagesShowCommand>();
+            services.AddSubcommand<UsagesBuildCommand>();
+            services.AddSubcommand<UsagesGrepCommand>();
+
             services.AddCommand<InitCommand>();
             services.AddCommand<IdCommand>();
             services.AddCommand<StatusCommand>();
+
             services.AddCommand<ModuleCommand>();
+            services.AddSubcommand<AddModuleCommand>();
+            services.AddSubcommand<ChangeModuleCommand>();
+
             services.AddCommand<UpdateCommand>();
             services.AddCommand<ReInstallCommand>();
             services.AddCommand<CompleteCommand>();
             services.AddCommand<PackCommand>();
+
             services.AddCommand<PackagesCommand>();
+            services.AddSubcommand<AddPackageCommand>();
+            services.AddSubcommand<ListPackagesCommand>();
+            services.AddSubcommand<RemovePackageCommand>();
+
             services.AddCommand<UserCommand>();
 
             var options = new ServiceProviderOptions
