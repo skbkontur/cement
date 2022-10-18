@@ -72,8 +72,17 @@ public sealed class ShellRunner
             threadOutput.Start();
             threadErrors.Start();
 
-            if (!process.WaitForExit((int)timeout.TotalMilliseconds))
+            if (!process.WaitForExit((int)timeout.TotalMilliseconds) || !threadOutput.Join(timeout) || !threadErrors.Join(timeout))
             {
+                threadOutput.Join();
+                threadErrors.Join();
+
+                threadOutput.Interrupt();
+                threadErrors.Interrupt();
+
+                threadOutput.Join();
+                threadErrors.Join();
+
                 process.Kill();
                 hasTimeout = true;
 
