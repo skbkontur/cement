@@ -73,9 +73,10 @@ public static class Helper
 
     public static string HomeDirectory()
     {
-        return Platform.IsUnix()
-            ? Environment.GetEnvironmentVariable("HOME")
-            : Environment.GetEnvironmentVariable("USERPROFILE");
+        // https://learn.microsoft.com/ru-ru/dotnet/api/system.environment.specialfolder
+        // Папка профиля пользователя.
+
+        return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
     }
 
     public static string GetPackagePath(string packageName)
