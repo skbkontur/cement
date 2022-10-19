@@ -1,27 +1,25 @@
-﻿namespace Common;
+﻿using JetBrains.Annotations;
 
+namespace Common;
+
+[PublicAPI]
 public sealed class GetInfo
 {
-    public bool Cloned;
-    public string ForcedBranch;
-    public bool Changed;
-    public bool ForcedLocal;
-    public bool Pulled;
-    public bool Reset;
-    public string CommitInfo;
-    public bool HookUpdated;
+    public bool Cloned { get; set; }
 
-    public GetInfo()
-    {
-        Cloned = false;
-        ForcedBranch = null;
-        Changed = false;
-        ForcedLocal = false;
-        Pulled = false;
-        Reset = false;
-        HookUpdated = false;
-        CommitInfo = "";
-    }
+    public string ForcedBranch { get; set; }
+
+    public bool Changed { get; set; }
+
+    public bool ForcedLocal { get; set; }
+
+    public bool Pulled { get; set; }
+
+    public bool Reset { get; set; }
+
+    public string CommitInfo { get; set; } = "";
+
+    public bool HookUpdated { get; set; }
 
     public bool Forced => ForcedBranch != null;
 }
