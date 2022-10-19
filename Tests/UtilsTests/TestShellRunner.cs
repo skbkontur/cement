@@ -110,7 +110,7 @@ FOR /L %%G IN (1,1," + count + @") DO echo %%G");
 
             var (_, output, _) = runner.Run(bat);
 
-            var lines = output.Split('\n').ToList();
+            var lines = output.Split(new[] {"\r\n", "\r", "\n"}, StringSplitOptions.None).ToList();
             if (lines.Last() == "")
                 lines = lines.Take(lines.Count() - 1).ToList();
             CollectionAssert.AreEqual(Enumerable.Range(1, count).Select(i => i.ToString()), lines);

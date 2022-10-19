@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using Common;
@@ -177,7 +178,7 @@ namespace Tests.UtilsTests
             var repo = gitRepositoryFactory.Create(
                 Path.GetFileName(tempRepo.Path),
                 Directory.GetParent(tempRepo.Path).FullName);
-            Assert.AreEqual("?? content.txt\n", repo.ShowLocalChanges());
+            Assert.AreEqual("?? content.txt" + Environment.NewLine, repo.ShowLocalChanges());
         }
 
         [Test]
@@ -189,7 +190,7 @@ namespace Tests.UtilsTests
             var repo = gitRepositoryFactory.Create(
                 Path.GetFileName(tempRepo.Path),
                 Directory.GetParent(tempRepo.Path).FullName);
-            Assert.AreEqual(" M README.txt\n", repo.ShowLocalChanges());
+            Assert.AreEqual(" M README.txt" + Environment.NewLine, repo.ShowLocalChanges());
         }
 
         [Test]
@@ -201,7 +202,7 @@ namespace Tests.UtilsTests
             var repo = gitRepositoryFactory.Create(
                 Path.GetFileName(tempRepo.Path),
                 Directory.GetParent(tempRepo.Path).FullName);
-            Assert.AreEqual(" D README.txt\n", repo.ShowLocalChanges());
+            Assert.AreEqual(" D README.txt" + Environment.NewLine, repo.ShowLocalChanges());
         }
 
         [Test]
