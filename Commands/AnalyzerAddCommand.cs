@@ -15,7 +15,6 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "analyzer-add",
         Location = CommandLocation.InsideModuleDirectory
     };
 

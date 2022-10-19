@@ -4,6 +4,7 @@ using Commands.Attributes;
 using Common;
 using Common.Logging;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 
 namespace Commands;
 
@@ -13,16 +14,17 @@ public sealed class CompleteCommand : Command<CompleteCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "complete",
-        Location = CommandLocation.Any,
-        NoElkLog = true
+        Location = CommandLocation.Any
     };
+    private readonly ILogger logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly CompleteCommandAutomata completeCommandAutomata;
 
-    public CompleteCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CompleteCommandAutomata completeCommandAutomata)
+    public CompleteCommand(ILogger<CompleteCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+                           CompleteCommandAutomata completeCommandAutomata)
         : base(consoleWriter, Settings, featureFlags)
     {
+        this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.completeCommandAutomata = completeCommandAutomata;
     }
@@ -44,7 +46,7 @@ public sealed class CompleteCommand : Command<CompleteCommandOptions>
                 buffer = buffer.Substring(0, pos);
         }
 
-        LogHelper.SaveLog($"[COMPLETE] '{buffer}'");
+        logger.LogDebug("[COMPLETE] '{CompleteBuffer}'", buffer);
         var result = completeCommandAutomata.Complete(buffer);
         PrintList(result);
 

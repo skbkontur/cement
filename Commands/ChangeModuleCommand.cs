@@ -10,7 +10,6 @@ public sealed class ChangeModuleCommand : Command<ChangeModuleCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "module-change",
         Location = CommandLocation.Any
     };
     private readonly ConsoleWriter consoleWriter;

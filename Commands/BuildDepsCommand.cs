@@ -16,7 +16,6 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "build-deps",
         MeasureElapsedTime = true,
         Location = CommandLocation.RootModuleDirectory
     };

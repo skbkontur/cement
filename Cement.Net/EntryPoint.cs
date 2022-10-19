@@ -20,6 +20,9 @@ namespace cm
             args = FixArgs(args);
             ThreadPoolSetUp(Helper.MaxDegreeOfParallelism);
 
+            LogManager.InitializeFileLogger();
+            LogManager.InitializeHerculesLogger();
+
             var consoleWriter = ConsoleWriter.Shared;
 
             var featureFlagsProvider = new FeatureFlagsProvider(consoleWriter);
@@ -107,6 +110,7 @@ namespace cm
             var sp = services.BuildServiceProvider(options);
 
             logger = sp.GetRequiredService<ILogger<EntryPoint>>();
+            logger.LogInformation("Cement version: {CementVersion}", Helper.GetAssemblyTitle());
 
             var exitCode = TryRun(consoleWriter, sp, args);
 

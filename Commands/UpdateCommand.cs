@@ -11,7 +11,6 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "update",
         Location = CommandLocation.RootModuleDirectory
     };
 

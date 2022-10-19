@@ -11,7 +11,6 @@ public sealed class AddPackageCommand : Command<AddPackageCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "package-add",
         Location = CommandLocation.Any
     };
 

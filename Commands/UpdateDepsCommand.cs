@@ -12,7 +12,6 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "update-deps",
         MeasureElapsedTime = true,
         Location = CommandLocation.RootModuleDirectory
     };

@@ -12,7 +12,6 @@ public sealed class GetCommand : Command<GetCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "get",
         MeasureElapsedTime = true,
         Location = CommandLocation.WorkspaceDirectory
     };

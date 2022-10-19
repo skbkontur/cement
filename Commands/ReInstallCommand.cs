@@ -11,7 +11,6 @@ public sealed class ReInstallCommand : Command<ReInstallCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "reinstall",
         Location = CommandLocation.Any
     };
     private readonly ConsoleWriter consoleWriter;

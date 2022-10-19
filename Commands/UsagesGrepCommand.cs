@@ -16,7 +16,6 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "usages-grep",
         MeasureElapsedTime = true,
         Location = CommandLocation.RootModuleDirectory
     };

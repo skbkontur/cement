@@ -13,7 +13,6 @@ public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "usages-build",
         MeasureElapsedTime = true,
         Location = CommandLocation.RootModuleDirectory
     };

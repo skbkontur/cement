@@ -18,42 +18,43 @@ namespace Common.Logging;
 
 public static class LogManager
 {
-    private static readonly List<IDisposable> disposables = new();
-    private static ILoggerFactory loggerFactory;
+    private static readonly List<IDisposable> Disposables = new();
 
+    private static readonly ILoggerFactory LoggerFactory;
     private static ILog fileLog;
     private static ILog herculesLog;
 
     static LogManager()
     {
-        loggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder.ClearProviders();
-            builder.SetMinimumLevel(LogLevel.Debug);
-        });
+        LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
+            builder =>
+            {
+                builder.ClearProviders();
+                builder.SetMinimumLevel(LogLevel.Debug);
+            });
     }
 
     public static ILogger GetLogger(Type type) =>
-        loggerFactory.CreateLogger(type);
+        LoggerFactory.CreateLogger(type);
 
     public static ILogger<T> GetLogger<T>() =>
-        loggerFactory.CreateLogger<T>();
+        LoggerFactory.CreateLogger<T>();
 
     public static ILogger GetLogger(string categoryName) =>
-        loggerFactory.CreateLogger(categoryName);
+        LoggerFactory.CreateLogger(categoryName);
 
-    public static void InitializeFileLogger(string logFileName)
+    public static void InitializeFileLogger()
     {
-        if (!(fileLog is null))
+        if (fileLog is not null)
             return;
 
-        fileLog = GetFileLogger(logFileName);
-        loggerFactory.AddVostok(fileLog);
+        fileLog = GetFileLogger("cement.cli.log");
+        LoggerFactory.AddVostok(fileLog);
     }
 
-    public static void InitializeHerculesLogger(string command)
+    public static void InitializeHerculesLogger()
     {
-        if (!(herculesLog is null))
+        if (herculesLog is not null)
             return;
 
         var configLogFilePath = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "herculeslog.config.json");
@@ -76,8 +77,9 @@ public static class LogManager
             MaximumMemoryConsumption = configuration.MaximumMemoryConsumptionInBytes
         };
 
-        var fileLogForHercules = GetFileLogger("hercules");
+        var fileLogForHercules = GetFileLogger("hercules-sink.log");
         var herculesSink = new HerculesSink(settings, fileLogForHercules);
+        Disposables.Add(herculesSink);
 
         herculesLog = new HerculesLog(new HerculesLogSettings(herculesSink, configuration.Stream))
             .WithProperties(
@@ -85,43 +87,34 @@ public static class LogManager
                 {
                     ["project"] = configuration.Project,
                     ["environment"] = configuration.Environment,
-                    ["hostName"] = ObtainHostname(),
-                    ["command"] = command
+                    ["instance"] = ObtainHostname()
                 });
 
-        disposables.Add(herculesSink);
-
-        loggerFactory.AddVostok(herculesLog);
+        LoggerFactory.AddVostok(herculesLog);
     }
 
     public static void DisposeLoggers()
     {
-        disposables.Reverse();
-        foreach (var disposable in disposables)
+        Disposables.Reverse();
+        foreach (var disposable in Disposables)
             disposable?.Dispose();
     }
 
-    private static ILog GetFileLogger(string logFileName)
+    private static ILog GetFileLogger(string fileName)
     {
-        logFileName = logFileName == null || Helper.CurrentWorkspace == null
-            ? Path.Combine(Helper.GetGlobalCementDirectory(), "log", "log")
-            : Path.Combine(Helper.CurrentWorkspace, Helper.CementDirectory, "log", logFileName);
-
-        if (!logFileName.EndsWith(".log"))
-            logFileName += ".log";
-
-        var result = new FileLog(
-            new FileLogSettings
+        var logFileName = Path.Combine(Helper.LogsDirectory(), fileName);
+        var fileLogSettings = new FileLogSettings
+        {
+            RollingStrategy = new RollingStrategyOptions
             {
-                RollingStrategy = new RollingStrategyOptions
-                {
-                    Type = RollingStrategyType.ByTime,
-                    MaxFiles = 10
-                },
-                FilePath = logFileName
-            });
+                Type = RollingStrategyType.ByTime,
+                MaxFiles = 10
+            },
+            FilePath = logFileName
+        };
 
-        disposables.Add(result);
+        var result = new FileLog(fileLogSettings);
+        Disposables.Add(result);
 
         return result;
     }

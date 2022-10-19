@@ -10,7 +10,6 @@ public sealed class AddModuleCommand : Command<AddModuleCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "module-add",
         Location = CommandLocation.Any
     };
     private readonly ConsoleWriter consoleWriter;

@@ -13,7 +13,6 @@ public sealed class CheckPreCommitCommand : Command<CheckPreCommitCommandOptions
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "pre-commit-check",
         Location = CommandLocation.RootModuleDirectory
     };
     private readonly ConsoleWriter consoleWriter;

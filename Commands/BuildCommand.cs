@@ -13,7 +13,6 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "build",
         Location = CommandLocation.RootModuleDirectory
     };
 

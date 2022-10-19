@@ -76,7 +76,16 @@ public static class Helper
         // https://learn.microsoft.com/ru-ru/dotnet/api/system.environment.specialfolder
         // Папка профиля пользователя.
 
-        return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        if (string.IsNullOrEmpty(userProfile))
+            throw new CementException("Unable to determine user profile folder");
+
+        return userProfile;
+    }
+
+    public static string LogsDirectory()
+    {
+        return Path.Combine(GetGlobalCementDirectory(), "logs");
     }
 
     public static string GetPackagePath(string packageName)

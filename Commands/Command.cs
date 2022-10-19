@@ -19,6 +19,9 @@ public abstract class Command<TCommandOptions> : ICommand
         this.consoleWriter = consoleWriter;
         CommandSettings = settings;
         FeatureFlags = featureFlags;
+
+        // backward compatibility
+        logger = LogManager.GetLogger(GetType());
     }
 
     public abstract string Name { get; }
@@ -32,13 +35,10 @@ public abstract class Command<TCommandOptions> : ICommand
 
             SetWorkspace();
             CheckRequireYaml();
-            InitLogging();
+
             var options = LogAndParseArgs(args);
 
             var exitCode = Execute(options);
-
-            if (!CommandSettings.NoElkLog)
-                LogHelper.SendSavedLog();
 
             if (CommandSettings.MeasureElapsedTime)
             {
@@ -106,26 +106,6 @@ public abstract class Command<TCommandOptions> : ICommand
             if (currentModuleDirectory == null)
                 throw new CementTrackException("Can't locate module directory");
             Helper.SetWorkspace(Directory.GetParent(currentModuleDirectory).FullName);
-        }
-    }
-
-    private void InitLogging()
-    {
-        if (CommandSettings.LogFileName != null)
-            LogHelper.InitializeFileAndElkLogging(CommandSettings.LogFileName, GetType().ToString());
-
-        else if (!CommandSettings.NoElkLog)
-            LogHelper.InitializeGlobalFileAndElkLogging(GetType().ToString());
-
-        logger = LogManager.GetLogger(GetType());
-
-        try
-        {
-            logger.LogInformation("Cement version: {CementVersion}", Helper.GetAssemblyTitle());
-        }
-        catch (Exception)
-        {
-            // ignored
         }
     }
 

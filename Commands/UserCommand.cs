@@ -13,7 +13,6 @@ public sealed class UserCommand : Command<UserCommandOptions>
 {
     private static readonly CommandSettings Settings = new()
     {
-        LogFileName = "user",
         Location = CommandLocation.Any
     };
     private readonly ILogger<UserCommand> logger;
