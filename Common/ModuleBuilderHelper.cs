@@ -5,17 +5,26 @@ using System.IO;
 using System.Linq;
 using Common.Exceptions;
 using Common.Logging;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Common;
 
-public static class ModuleBuilderHelper
+[PublicAPI]
+public sealed class ModuleBuilderHelper
 {
-    private static readonly ILogger Log = LogManager.GetLogger(typeof(ModuleBuilderHelper));
+    private readonly ILogger logger;
+    private readonly HashSet<string> printedObsolete;
 
-    private static readonly HashSet<string> PrintedObsolete = new();
+    public static ModuleBuilderHelper Shared { get; } = new(LogManager.GetLogger<ModuleBuilderHelper>());
 
-    public static MsBuildLikeTool FindMsBuild(string version, string moduleName)
+    public ModuleBuilderHelper(ILogger<ModuleBuilderHelper> logger)
+    {
+        this.logger = logger;
+        printedObsolete = new HashSet<string>();
+    }
+
+    public MsBuildLikeTool FindMsBuild(string version, string moduleName)
     {
         if (Platform.IsUnix())
             return new MsBuildLikeTool(FindMsBuildUnix(version, moduleName));
@@ -35,7 +44,7 @@ public static class ModuleBuilderHelper
             true);
     }
 
-    public static List<KeyValuePair<string, string>> FindMsBuildsWindows()
+    public List<KeyValuePair<string, string>> FindMsBuildsWindows()
     {
         var result = new List<KeyValuePair<string, string>>();
 
@@ -44,12 +53,12 @@ public static class ModuleBuilderHelper
         result.AddRange(ms1);
         result.AddRange(ms2);
 
-        Log.LogDebug("MSBUILDS:\n" + string.Join("\n", result.Select(r => $"{r.Key} {r.Value}")));
+        logger.LogDebug("MSBUILDS:\n" + string.Join("\n", result.Select(r => $"{r.Key} {r.Value}")));
 
         return result;
     }
 
-    public static void KillMsBuild(ILogger log)
+    public void KillMsBuild(ILogger log)
     {
         if (!CementSettingsRepository.Get().KillMsBuild || Rider.IsRunning)
             return;
@@ -72,7 +81,7 @@ public static class ModuleBuilderHelper
         }
     }
 
-    public static string GetBuildScriptName(Dep dep)
+    public string GetBuildScriptName(Dep dep)
     {
         var configToBuild = dep.Configuration == "full-build" || dep.Configuration == null ? "" : "." + dep.Configuration;
         return Path.Combine(
@@ -81,22 +90,22 @@ public static class ModuleBuilderHelper
             "build" + configToBuild + ".cmd");
     }
 
-    public static bool IsObsoleteWarning(string line)
+    public bool IsObsoleteWarning(string line)
     {
         return line.Contains(": warning CS0618:") || line.Contains(": warning CS0612:");
     }
 
-    public static bool IsWarning(string line)
+    public bool IsWarning(string line)
     {
         return line.Contains(": warning");
     }
 
-    public static bool IsError(string line)
+    public bool IsError(string line)
     {
         return line.Contains(": error");
     }
 
-    public static void WriteIfWarning(string line)
+    public void WriteIfWarning(string line)
     {
         if (IsWarning(line))
         {
@@ -104,7 +113,7 @@ public static class ModuleBuilderHelper
         }
     }
 
-    public static void WriteIfObsoleteFull(string line)
+    public void WriteIfObsoleteFull(string line)
     {
         if (IsObsoleteWarning(line))
         {
@@ -112,25 +121,25 @@ public static class ModuleBuilderHelper
         }
     }
 
-    public static void WriteIfObsoleteGrouped(string line)
+    public void WriteIfObsoleteGrouped(string line)
     {
         if (IsObsoleteWarning(line))
         {
             line = CutObsoleteMethond(line);
-            if (PrintedObsolete.Contains(line))
+            if (printedObsolete.Contains(line))
                 return;
-            PrintedObsolete.Add(line);
+            printedObsolete.Add(line);
             ConsoleWriter.Shared.WriteLineBuildWarning(line);
         }
     }
 
-    public static void WriteIfErrorToStandartStream(string line)
+    public void WriteIfErrorToStandartStream(string line)
     {
         if (IsError(line))
             ConsoleWriter.Shared.PrintLn(line, ConsoleColor.Red);
     }
 
-    public static void WriteLine(string line)
+    public void WriteLine(string line)
     {
         if (IsError(line))
             ConsoleWriter.Shared.WriteBuildError(line);
@@ -139,7 +148,7 @@ public static class ModuleBuilderHelper
         else ConsoleWriter.Shared.WriteLine(line);
     }
 
-    public static void WriteProgress(string line)
+    public void WriteProgress(string line)
     {
         ConsoleWriter.Shared.WriteProgress(line);
     }

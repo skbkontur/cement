@@ -36,8 +36,8 @@ public sealed class ModuleBuilder
             return;
 
         vsDevHelper.ReplaceVariablesToVs();
-        ModuleBuilderHelper.FindMsBuildsWindows();
-        ModuleBuilderHelper.KillMsBuild(log);
+        ModuleBuilderHelper.Shared.FindMsBuildsWindows();
+        ModuleBuilderHelper.Shared.KillMsBuild(log);
     }
 
     public bool DotnetPack(string directory, string projectFileName, string buildConfiguration)
@@ -111,13 +111,13 @@ public sealed class ModuleBuilder
         consoleWriter.WriteBuildError($"Failed to build {dep} {buildName}");
 
         foreach (var line in output.Split('\n'))
-            ModuleBuilderHelper.WriteLine(line);
+            ModuleBuilderHelper.Shared.WriteLine(line);
 
         consoleWriter.WriteLine();
         consoleWriter.WriteInfo("Errors summary:");
 
         foreach (var line in output.Split('\n'))
-            ModuleBuilderHelper.WriteIfErrorToStandartStream(line);
+            ModuleBuilderHelper.Shared.WriteIfErrorToStandartStream(line);
 
         consoleWriter.WriteLine($"({script.Script})");
     }
@@ -145,7 +145,7 @@ public sealed class ModuleBuilder
     private bool BuildSingleModule(Dep dep)
     {
         var moduleYaml = Path.Combine(Helper.CurrentWorkspace, dep.Name, Helper.YamlSpecFile);
-        var cmdFile = Path.Combine(Helper.CurrentWorkspace, ModuleBuilderHelper.GetBuildScriptName(dep));
+        var cmdFile = Path.Combine(Helper.CurrentWorkspace, ModuleBuilderHelper.Shared.GetBuildScriptName(dep));
 
         if (!Build(dep, moduleYaml, cmdFile))
             return false;
@@ -216,8 +216,8 @@ public sealed class ModuleBuilder
         Interlocked.Add(ref TotalMsbuildTime, sw.ElapsedTicks);
 
         var elapsedTime = Helper.ConvertTime(sw.ElapsedMilliseconds);
-        var warnCount = output.Split('\n').Count(ModuleBuilderHelper.IsWarning);
-        var obsoleteUsages = output.Split('\n').Where(ModuleBuilderHelper.IsObsoleteWarning).ToList();
+        var warnCount = output.Split('\n').Count(ModuleBuilderHelper.Shared.IsWarning);
+        var obsoleteUsages = output.Split('\n').Where(ModuleBuilderHelper.Shared.IsObsoleteWarning).ToList();
 
         var buildName = script.BuildData?.Name ?? "";
         if (exitCode != 0)
@@ -252,27 +252,27 @@ public sealed class ModuleBuilder
         var shellRunner = new ShellRunner(shellRunnerLogger);
         if (buildSettings.ShowOutput)
         {
-            shellRunner.OnOutputChange += ModuleBuilderHelper.WriteLine;
+            shellRunner.OnOutputChange += ModuleBuilderHelper.Shared.WriteLine;
             return shellRunner;
         }
 
         if (buildSettings.ShowProgress)
-            shellRunner.OnOutputChange += ModuleBuilderHelper.WriteProgress;
+            shellRunner.OnOutputChange += ModuleBuilderHelper.Shared.WriteProgress;
 
         if (buildSettings.ShowAllWarnings)
         {
-            shellRunner.OnOutputChange += ModuleBuilderHelper.WriteIfWarning;
+            shellRunner.OnOutputChange += ModuleBuilderHelper.Shared.WriteIfWarning;
             return shellRunner;
         }
 
         if (buildSettings.ShowObsoleteWarnings)
         {
-            shellRunner.OnOutputChange += ModuleBuilderHelper.WriteIfObsoleteFull;
+            shellRunner.OnOutputChange += ModuleBuilderHelper.Shared.WriteIfObsoleteFull;
             return shellRunner;
         }
 
         if (buildSettings.ShowWarningsSummary)
-            shellRunner.OnOutputChange += ModuleBuilderHelper.WriteIfObsoleteGrouped;
+            shellRunner.OnOutputChange += ModuleBuilderHelper.Shared.WriteIfObsoleteGrouped;
 
         return shellRunner;
     }

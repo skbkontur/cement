@@ -100,7 +100,7 @@ public sealed class BuildYamlScriptsMaker
         if (Platform.IsUnix())
             return new MsBuildLikeTool(ToolNames.MSBuild);
 
-        var tool = ModuleBuilderHelper.FindMsBuild(buildTool.Version, moduleName);
+        var tool = ModuleBuilderHelper.Shared.FindMsBuild(buildTool.Version, moduleName);
 
         return tool;
     }

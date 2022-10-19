@@ -60,7 +60,7 @@ public sealed class NuGetPackageHepler
             var projectFilePath = projectFile.FilePath;
 
             var msbuildDirectory =
-                Path.GetDirectoryName(ModuleBuilderHelper.FindMsBuild(null, "Cement NuGet Package Installer").Path);
+                Path.GetDirectoryName(ModuleBuilderHelper.Shared.FindMsBuild(null, "Cement NuGet Package Installer").Path);
             projectContext = new ConsoleProjectContext(logger);
             projectSystem = new MSBuildProjectSystem(
                 msbuildDirectory,
