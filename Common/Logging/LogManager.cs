@@ -110,7 +110,6 @@ public static class LogManager
         if (!logFileName.EndsWith(".log"))
             logFileName += ".log";
 
-        Environment.SetEnvironmentVariable("logfilename", logFileName);
         var result = new FileLog(
             new FileLogSettings
             {
