@@ -88,7 +88,7 @@ public sealed class VsDevHelper
         if (text == null)
             return null;
 
-        var lines = text.Split('\n');
+        var lines = text.Split(new[] {"\r\n", "\r", "\n"}, StringSplitOptions.None);
         var result = new Dictionary<string, string>();
         foreach (var line in lines)
         {
