@@ -1,0 +1,110 @@
+image: $CEMENT_CLI_BASE_IMAGE
+
+stages:
+  - prepare
+  - build
+  # - publish
+
+variables:
+  VERSION_MAJOR: 1
+  VERSION_MINOR: 0
+  GIT_SUBMODULE_STRATEGY: recursive
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'web'
+
+prepare:
+  stage: prepare
+  tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
+  script:
+    - |
+      echo -e "commit branch = '$CI_COMMIT_BRANCH', default branch = '$CI_DEFAULT_BRANCH', version major = '$VERSION_MAJOR', minor = '$VERSION_MINOR', revision = '$CI_PIPELINE_IID'"
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+        VERSION="$VERSION_MAJOR.$VERSION_MINOR.$CI_PIPELINE_IID"
+        echo -e "${TXT_GREEN}Running on default branch '$CI_DEFAULT_BRANCH', version = $VERSION"
+      else
+        VERSION="$VERSION_MAJOR.$VERSION_MINOR.$CI_PIPELINE_IID-preview-$CI_COMMIT_SHORT_SHA"
+        echo -e "${TXT_GREEN}Running on branch '$CI_COMMIT_BRANCH', version = $VERSION"
+      fi
+      echo "VERSION=$VERSION" > version.env
+  artifacts:
+    reports:
+      dotenv: version.env
+
+code-quality:
+  stage: build
+  tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
+  needs:
+    - prepare
+  # temporary allowing code quality check to fail because of abyssmal code quality at the moment of writing
+  allow_failure: true
+  before_script:
+    - |
+      dotnet tool install --tool-path /tools JetBrains.ReSharper.GlobalTools --version 2022.2.3
+      dotnet tool install --tool-path /tools resharper-to-codeclimate --version 1.0.7
+  script:
+    - /tools/jb inspectcode Cement.Net.sln --no-build --severity=WARNING --swea --output=$CI_PROJECT_DIR/inspectcode/code-inspection.xml
+    - |
+      if [[ ! -f $CI_PROJECT_DIR/inspectcode/code-inspection.xml ]]; then
+        echo -e "${TXT_RED}Inspection results not found"
+        exit 1
+      fi
+    - /tools/resharper-to-codeclimate $CI_PROJECT_DIR/inspectcode/code-inspection.xml $CI_PROJECT_DIR/inspectcode/gl-code-quality-report.json
+    - |
+      if [[ $(grep -sc 'Issue ' $CI_PROJECT_DIR/inspectcode/code-inspection.xml) -gt 0 ]]; then
+        echo -e "${TXT_RED}There are code quality issues"
+        exit 1
+      else
+        echo -e "${TXT_GREEN}Everything is ok"
+      fi
+  artifacts:
+    expire_in: 7 days
+    paths:
+      - $CI_PROJECT_DIR/inspectcode/code-inspection.xml
+      - $CI_PROJECT_DIR/inspectcode/gl-code-quality-report.json
+    reports:
+      codequality:
+        - $CI_PROJECT_DIR/inspectcode/gl-code-quality-report.json
+
+build:
+  stage: build
+  tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
+  needs:
+    - prepare
+  before_script:
+    - |
+      git config --global user.email "johndoe@foo.bar"
+      git config --global user.name "John Doe"
+  script:
+    - echo -e "${TXT_GREEN}Version = $VERSION"
+    - dotnet restore
+    - dotnet build --configuration Release --no-restore
+    - dotnet test  --configuration Release --no-build --logger:"junit;LogFilePath=$CI_PROJECT_DIR/junit/{assembly}.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --collect:"XPlat Code Coverage" -r $CI_PROJECT_DIR/cobertura
+    # - dotnet pack --configuration Release --no-build /p:Version=$VERSION
+  artifacts:
+    expire_in: 7 days
+    paths:
+      - $CI_PROJECT_DIR/junit/*.xml
+      - $CI_PROJECT_DIR/cobertura/*/coverage.cobertura.xml
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: $CI_PROJECT_DIR/cobertura/*/coverage.cobertura.xml
+      junit:
+        - $CI_PROJECT_DIR/junit/*.xml
+# publish:
+#   stage: publish
+#   tags: ['docker', 'idevops']
+#   needs:
+#     - prepare
+#     - build
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#       when: on_success
+#     - when: manual
+#       allow_failure: true
+#   script:
+#     - echo -e "${TXT_GREEN}Version = $VERSION"
