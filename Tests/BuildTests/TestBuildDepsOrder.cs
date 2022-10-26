@@ -4,6 +4,7 @@ using System.Linq;
 using Common;
 using Common.Exceptions;
 using Common.YamlParsers;
+using FluentAssertions;
 using NUnit.Framework;
 using Tests.Helpers;
 
@@ -89,7 +90,8 @@ namespace Tests.BuildTests
             Assert.AreEqual(new[] {new Dep("D", null, "full-build")}, result[new Dep("B", null, "full-build")].ToArray());
             Assert.AreEqual(new Dep[] {}, result[new Dep("D", null, "full-build")].ToArray());
             Assert.AreEqual(new[] {new Dep("D/client")}, result[new Dep("C/client")].ToArray());
-            Assert.AreEqual(new string[] {}, result[new Dep("D/client")].ToArray());
+
+            result[new Dep("D/client")].ToArray().Should().BeEmpty();
         }
 
         [Test]

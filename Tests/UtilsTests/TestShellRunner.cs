@@ -41,7 +41,7 @@ namespace Tests.UtilsTests
         [Test]
         public void TestUnknownCommand()
         {
-            Assert.AreNotEqual(0, runner.Run("bad_command"));
+            runner.Run("bad_command").ExitCode.Should().NotBe(0);
         }
 
         [Test]
