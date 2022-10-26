@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Commands", "Commands\Comman
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{FF01947B-2535-4EC9-B465-B9543E6B18EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{082DF4E1-50B1-4F31-9C60-5B768896C7E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cement.Cli.Tests", "Cement.Cli.Tests\Cement.Cli.Tests.csproj", "{082DF4E1-50B1-4F31-9C60-5B768896C7E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cement.Cli.Benchmarks", "Cement.Cli.Benchmarks\Cement.Cli.Benchmarks.csproj", "{A684ECA5-8655-40D6-8219-E5FB62A27A03}"
 EndProject
