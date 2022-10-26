@@ -161,36 +161,53 @@ public class TestEnvironment : IDisposable
         if (depsByConfig == null)
             return;
 
-        var content = "default:";
+        var contentBuilder = new StringBuilder("default:");
 
         if (depsByConfig.Keys.Count == 0)
         {
-            content = @"default:
-full-build:
-  build:
-    target: None
-    configuration: None";
+            contentBuilder.Clear();
+            contentBuilder.AppendLine("default:");
+            contentBuilder.AppendLine("full-build:");
+            contentBuilder.AppendLine("  build:");
+            contentBuilder.AppendLine("    target: None");
+            contentBuilder.AppendLine("    configuration: None");
         }
 
         foreach (var config in depsByConfig.Keys.OrderBy(x => x))
         {
-            content += depsByConfig[config].Deps.Aggregate(
-                $@"
-{config}:
-  build:
-    target: None
-    configuration: None
-  deps:{
-      (depsByConfig[config]
-          .Force != null
-          ? "\r\n    - force: " + string.Join(",", depsByConfig[config].Force)
-          : "")
-  }
-", (current, dep) => current +
-                     $"    - {dep.Name}@{dep.Treeish ?? ""}/{dep.Configuration ?? ""}\r\n");
+            var configBuilder = new StringBuilder();
+            configBuilder.AppendLine();
+            configBuilder.AppendLine($"{config}:");
+            configBuilder.AppendLine("  build:");
+            configBuilder.AppendLine("    target: None");
+            configBuilder.AppendLine("    configuration: None");
+            configBuilder.AppendLine("  deps:");
+            if (depsByConfig[config].Force != null)
+                configBuilder.AppendLine($"    - force: {string.Join(",", depsByConfig[config].Force)}");
+
+            contentBuilder.Append(
+                depsByConfig[config].Deps.Aggregate(
+                    configBuilder, (builder, dep) =>
+                        builder.AppendLine($"    - {dep.Name}@{dep.Treeish ?? ""}/{dep.Configuration ?? ""}")
+                ));
+            //             temp += depsByConfig[config].Deps.Aggregate(
+            //                 $@"
+            // {config}:
+            //   build:
+            //     target: None
+            //     configuration: None
+            //   deps:{
+            //       (depsByConfig[config]
+            //           .Force != null
+            //           ? "\r\n    - force: " + string.Join(",", depsByConfig[config].Force)
+            //           : "")
+            //   }
+            // ", (current, dep) => current +
+            //                      $"    - {dep.Name}@{dep.Treeish ?? ""}/{dep.Configuration ?? ""}\r\n");
+            //         }
         }
 
-        File.WriteAllText(Path.Combine(path, "module.yaml"), content);
+        File.WriteAllText(Path.Combine(path, "module.yaml"), contentBuilder.ToString());
         runner.Run("git add module.yaml");
         runner.Run("git commit -am \"added deps\"");
     }
