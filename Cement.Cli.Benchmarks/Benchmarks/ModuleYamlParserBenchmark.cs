@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using BenchmarkDotNet.Attributes;
 using Common;
 using Common.DepsValidators;
@@ -7,11 +5,11 @@ using Common.YamlParsers;
 using Common.YamlParsers.Models;
 using Common.YamlParsers.V2.Factories;
 
-namespace Tests.Benchmarks
+namespace Cement.Cli.Benchmarks.Benchmarks;
+
+public class ModuleYamlParserBenchmark
 {
-    public class ModuleYamlParserBenchmark
-    {
-        private const string SmallModuleYaml = @"notests *default:
+    private const string SmallModuleYaml = @"notests *default:
   build:
     target: Vostok.Configuration.Sources.ClusterConfig.sln
     configuration: NoTests
@@ -37,7 +35,7 @@ full-build > notests:
     target: Vostok.Configuration.Sources.ClusterConfig.sln
     configuration: Release";
 
-        private const string FatModuleYaml = @"default:
+    private const string FatModuleYaml = @"default:
   hooks:
     - pre-commit.cement
 
@@ -229,38 +227,42 @@ full-build > webapi-service-local, jobs-service-local, webapi-plugin, jobs-plugi
     target: Forms.Core.sln
     configuration: Release
 ";
-        [ParamsSource(nameof(Yamls))]
-        public string Content;
+    [ParamsSource(nameof(Yamls))]
+    // ReSharper disable once MemberCanBePrivate.Global
+    // required by `ParamsSource` attribute
+    // ReSharper disable once UnassignedField.Global
+    public string? Content;
 
-        private readonly ConsoleWriter consoleWriter;
-        private readonly DepsValidatorFactory depsValidatorFactory;
+    private readonly ConsoleWriter consoleWriter;
+    private readonly DepsValidatorFactory depsValidatorFactory;
 
-        public ModuleYamlParserBenchmark()
-        {
-            consoleWriter = ConsoleWriter.Shared;
-            depsValidatorFactory = new DepsValidatorFactory();
-        }
+    public ModuleYamlParserBenchmark()
+    {
+        consoleWriter = ConsoleWriter.Shared;
+        depsValidatorFactory = new DepsValidatorFactory();
+    }
 
-        public IEnumerable<string> Yamls => new[]
-        {
-            SmallModuleYaml,
-            FatModuleYaml
-        };
+    // ReSharper disable once IdentifierTypo
+    public static IEnumerable<string> Yamls => new[]
+    {
+        SmallModuleYaml,
+        FatModuleYaml
+    };
 
-        [Benchmark]
-        public ModuleDefinition NewModuleYamlParser()
-        {
-            var parser = ModuleYamlParserFactory.Get();
-            return parser.Parse(Content);
-        }
+    [Benchmark]
+    public ModuleDefinition NewModuleYamlParser()
+    {
+        var parser = ModuleYamlParserFactory.Get();
+        return parser.Parse(Content);
+    }
 
-        [Benchmark]
-        public Dictionary<string, DepsData> OldDepsParser()
-        {
-            var parser = new DepsYamlParser(consoleWriter, depsValidatorFactory, "fakename", Content);
-            var configs = parser.GetConfigurations();
+    [Benchmark]
+    public Dictionary<string, DepsData> OldDepsParser()
+    {
+        // ReSharper disable once StringLiteralTypo
+        var parser = new DepsYamlParser(consoleWriter, depsValidatorFactory, "fakename", Content);
+        var configs = parser.GetConfigurations();
 
-            return configs.ToDictionary(c => c, c => parser.Get(c));
-        }
+        return configs.ToDictionary(c => c, c => parser.Get(c));
     }
 }

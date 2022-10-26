@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{082DF4E1-50B1-4F31-9C60-5B768896C7E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cement.Cli.Benchmarks", "Cement.Cli.Benchmarks\Cement.Cli.Benchmarks.csproj", "{A684ECA5-8655-40D6-8219-E5FB62A27A03}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8F60ABBE-31DD-4283-B923-76FC99687F36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,11 +37,19 @@ Global
 		{082DF4E1-50B1-4F31-9C60-5B768896C7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{082DF4E1-50B1-4F31-9C60-5B768896C7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{082DF4E1-50B1-4F31-9C60-5B768896C7E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A684ECA5-8655-40D6-8219-E5FB62A27A03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A684ECA5-8655-40D6-8219-E5FB62A27A03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A684ECA5-8655-40D6-8219-E5FB62A27A03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A684ECA5-8655-40D6-8219-E5FB62A27A03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {48F54A51-1A37-4009-9D5B-BF8593C04F11}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A684ECA5-8655-40D6-8219-E5FB62A27A03} = {8F60ABBE-31DD-4283-B923-76FC99687F36}
+		{082DF4E1-50B1-4F31-9C60-5B768896C7E3} = {8F60ABBE-31DD-4283-B923-76FC99687F36}
 	EndGlobalSection
 EndGlobal
