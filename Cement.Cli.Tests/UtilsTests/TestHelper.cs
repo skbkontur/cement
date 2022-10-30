@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Common;
 using FluentAssertions;
 using NUnit.Framework;
@@ -17,8 +18,8 @@ public class TestHelper
         ts += TimeSpan.FromMinutes(15);
         ts += TimeSpan.FromSeconds(12);
         ts += TimeSpan.FromMilliseconds(777);
-        var expected = "2:03:15:12.777";
-        Assert.AreEqual(expected, Helper.ConvertTime((long)ts.TotalMilliseconds));
+
+        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().BeEquivalentTo("2:03:15:12.777");
     }
 
     [Test]
@@ -28,8 +29,8 @@ public class TestHelper
         ts += TimeSpan.FromMinutes(15);
         ts += TimeSpan.FromSeconds(3);
         ts += TimeSpan.FromMilliseconds(777);
-        var expected = "15:03.777";
-        Assert.AreEqual(expected, Helper.ConvertTime((long)ts.TotalMilliseconds));
+
+        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().BeEquivalentTo("15:03.777");
     }
 
     [Test]
@@ -38,8 +39,8 @@ public class TestHelper
         var ts = new TimeSpan();
         ts += TimeSpan.FromSeconds(3);
         ts += TimeSpan.FromMilliseconds(777);
-        var expected = "3.777";
-        Assert.AreEqual(expected, Helper.ConvertTime((long)ts.TotalMilliseconds));
+
+        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().BeEquivalentTo("3.777");
     }
 
     [Test]
@@ -47,24 +48,25 @@ public class TestHelper
     {
         var ts = new TimeSpan();
         ts += TimeSpan.FromMilliseconds(777);
-        var expected = ".777";
-        Assert.AreEqual(expected, Helper.ConvertTime((long)ts.TotalMilliseconds));
+
+        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().BeEquivalentTo(".777");
     }
 
     [Test]
     public void TestConvertTimeZero()
     {
-        Assert.AreEqual(".000", Helper.ConvertTime(0));
+        Helper.ConvertTime(0).Should().BeEquivalentTo(".000");
     }
 
     [Test]
     public void TestConvertTimeOneSecond()
     {
-        Assert.AreEqual("1.000", Helper.ConvertTime(1000));
+        Helper.ConvertTime(1000).Should().BeEquivalentTo("1.000");
     }
 
     [Test]
     [Platform(Include = "Win", Reason = "Windows-only algorithm")]
+    [SuppressMessage("ReSharper", "StringLiteralTypo")]
     public void TestEncrypt()
     {
         const string text = "a;sdldvdna;lgfuoawviaewhgf2354o5u34orofh4HGR:GL:LGJ";
