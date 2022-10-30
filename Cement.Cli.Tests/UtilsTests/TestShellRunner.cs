@@ -99,6 +99,7 @@ public class TestShellRunner
     }
 
     [Test]
+    [Platform(Include = "Win", Reason = "Uses .bat file")]
     public void TestShellRunnerOverflow()
     {
         var count = 10000;
