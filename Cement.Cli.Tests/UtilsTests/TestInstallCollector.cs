@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Common;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Cement.Cli.Tests.UtilsTests;
@@ -10,90 +12,113 @@ public class TestInstallCollector
     [Test]
     public void TestWithExternals()
     {
-        var externalModuleText = @"
-full-build:
-    install:
-        - external
-        - nuget pExternal
-";
-        var moduleText = @"
-full-build:
-    deps:
-        - ext
-    install:
-        - current
-        - module ext
-        - nuget pCurrent";
+        var externalModuleText = string.Join(
+            Environment.NewLine,
+            "",
+            "full-build:",
+            "  install:",
+            "    - external",
+            "    - nuget pExternal",
+            "");
+
+        var moduleText = string.Join(
+            Environment.NewLine,
+            "",
+            "full-build:",
+            "  deps:",
+            "    - ext",
+            "  install:",
+            "    - current",
+            "    - module ext",
+            "    - nuget pCurrent");
+
         using var tempDir = new TempDirectory();
         using (new DirectoryJumper(tempDir.Path))
         {
             CreateModule("ext", externalModuleText);
             CreateModule("cur", moduleText);
             var installData = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
-            var installFiles = installData.InstallFiles.ToArray();
-            var nugetPackages = installData.NuGetPackages.ToArray();
-            Assert.AreEqual(new[] {@"cur\current", @"ext\external"}, installFiles);
-            Assert.AreEqual(new[] {"pCurrent", "pExternal"}, nugetPackages);
+            var installFiles = installData.InstallFiles!.ToArray();
+            var nugetPackages = installData.NuGetPackages!.ToArray();
+
+            installFiles.Should().BeEquivalentTo(Path.Combine("cur", "current"), Path.Combine("ext", "external"));
+            nugetPackages.Should().BeEquivalentTo("pCurrent", "pExternal");
         }
     }
 
     [Test]
     public void TestCollectInstallWithExternalClientConfig()
     {
-        var externalModuleText = @"
-full-build:
-    install:
-        - external
-client:
-    install:
-        - external.client
-";
-        var moduleText = @"
-full-build:
-    deps:
-        - ext
-    install:
-        - current
-        - module ext/client
-";
+        var externalModuleText = string.Join(
+            Environment.NewLine,
+            "",
+            "full-build:",
+            "  install:",
+            "    - external",
+            "client:",
+            "  install:",
+            "    - external.client",
+            "");
+
+        var moduleText = string.Join(
+            Environment.NewLine,
+            "",
+            "full-build:",
+            "  deps:",
+            "    - ext",
+            "  install:",
+            "    - current",
+            "    - module ext/client",
+            "");
+
         using var tempDir = new TempDirectory();
         using (new DirectoryJumper(tempDir.Path))
         {
             CreateModule("ext", externalModuleText);
             CreateModule("cur", moduleText);
             var result = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
-            Assert.AreEqual(new[] {@"cur\current", @"ext\external.client"}, result.InstallFiles.ToArray());
+
+            result.InstallFiles.Should().BeEquivalentTo(Path.Combine("cur", "current"), Path.Combine("ext", "external.client"));
         }
     }
 
     [Test]
     public void TestLongNestingsWithConfigs()
     {
-        var qText = @"
-full-build:
-    install:
-sdk:
-    install:
-        - q.sdk
-        - module ext/client
-";
-        var externalModuleText = @"
-full-build:
-    install:
-        - external
-        - module q/sdk
-client:
-    install:
-        - external.client
-";
-        var moduleText = @"
-full-build:
-    deps:
-        - ext
-    install:
-        - current
-        - module ext
-";
+        var qText = string.Join(
+            Environment.NewLine,
+            "",
+            "full-build:",
+            "  install:",
+            "sdk:",
+            "  install:",
+            "    - q.sdk",
+            "    - module ext/client",
+            "");
+
+        var externalModuleText = string.Join(
+            Environment.NewLine,
+            "",
+            "full-build:",
+            "  install:",
+            "    - external",
+            "    - module q/sdk",
+            "client:",
+            "  install:",
+            "    - external.client",
+            "");
+
+        var moduleText = string.Join(
+            Environment.NewLine,
+            "",
+            "full-build:",
+            "  deps:",
+            "    - ext",
+            "  install:",
+            "    - current",
+            "    - module ext",
+            "");
+
         using var tempDir = new TempDirectory();
         using (new DirectoryJumper(tempDir.Path))
         {
@@ -101,49 +126,61 @@ full-build:
             CreateModule("ext", externalModuleText);
             CreateModule("cur", moduleText);
             var result = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
-            Assert.AreEqual(
-                new[] {@"cur\current", @"ext\external", @"q\q.sdk", @"ext\external.client"},
-                result.InstallFiles.ToArray());
+
+            result.InstallFiles.Should().BeEquivalentTo(
+                Path.Combine("cur", "current"),
+                Path.Combine("ext", "external"),
+                Path.Combine("q", "q.sdk"),
+                Path.Combine("ext", "external.client"));
         }
     }
 
     [Test]
     public void TestLongNestingsWithConfigsNexting()
     {
-        var qText = @"
-full-build:
-    install:
-sdk:
-    install:
-        - q.sdk
-        - module ext/client
-        - nuget q.sdk
-";
-        var externalModuleText = @"
-full-build:
-    install:
-        - external
-        - module q/sdk
-        - nuget external
-client:
-    install:
-        - external.client
-        - nuget external.client
-";
-        var moduleText = @"
-full-build > client:
-    deps:
-        - ext
-    install:
-        - current
-        - module ext
-        - nuget current
-client:
-    install:
-        - current.client
-        - module ext/client
-        - nuget client
-";
+        var qText = string.Join(
+            Environment.NewLine,
+            "",
+            "full-build:",
+            "  install:",
+            "sdk:",
+            "  install:",
+            "    - q.sdk",
+            "    - module ext/client",
+            "    - nuget q.sdk",
+            "");
+
+        var externalModuleText = string.Join(
+            Environment.NewLine,
+            "",
+            "full-build:",
+            "  install:",
+            "    - external",
+            "    - module q/sdk",
+            "    - nuget external",
+            "client:",
+            "  install:",
+            "    - external.client",
+            "    - nuget external.client",
+            "");
+
+        var moduleText = string.Join(
+            Environment.NewLine,
+            "",
+            "full-build > client:",
+            "  deps:",
+            "    - ext",
+            "  install:",
+            "    - current",
+            "    - module ext",
+            "    - nuget current",
+            "client:",
+            "  install:",
+            "    - current.client",
+            "    - module ext/client",
+            "    - nuget client",
+            "");
+
         using var tempDir = new TempDirectory();
         using (new DirectoryJumper(tempDir.Path))
         {
@@ -151,12 +188,15 @@ client:
             CreateModule("ext", externalModuleText);
             CreateModule("cur", moduleText);
             var installData = new InstallCollector(Path.Combine(tempDir.Path, "cur")).Get();
-            Assert.AreEqual(
-                new[] {@"cur\current", @"cur\current.client", @"ext\external", @"ext\external.client", @"q\q.sdk"},
-                installData.InstallFiles.ToArray());
-            Assert.AreEqual(
-                new[] {"current", "client", "external", "external.client", "q.sdk"},
-                installData.NuGetPackages.ToArray());
+
+            installData.InstallFiles.Should().BeEquivalentTo(
+                Path.Combine("cur", "current"),
+                Path.Combine("cur", "current.client"),
+                Path.Combine("ext", "external"),
+                Path.Combine("ext", "external.client"),
+                Path.Combine("q", "q.sdk"));
+            installData.NuGetPackages.Should().BeEquivalentTo(
+                "current", "client", "external", "external.client", "q.sdk");
         }
     }
 
