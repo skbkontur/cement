@@ -1,5 +1,6 @@
 ﻿using System;
 using Common;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Cement.Cli.Tests.UtilsTests;
@@ -63,12 +64,15 @@ public class TestHelper
     }
 
     [Test]
+    [Platform(Include = "Win", Reason = "Windows-only algorithm")]
     public void TestEncrypt()
     {
-        var text = "a;sdldvdna;lgfuoawviaewhgf2354o5u34orofh4HGR:GL:LGJ";
+        const string text = "a;sdldvdna;lgfuoawviaewhgf2354o5u34orofh4HGR:GL:LGJ";
+
         var enc = Helper.Encrypt(text);
         var dec = Helper.Decrypt(enc);
-        Assert.AreEqual(text, dec);
-        Assert.AreNotEqual(text, enc);
+
+        dec.Should().BeEquivalentTo(text);
+        enc.Should().NotBe(text);
     }
 }
