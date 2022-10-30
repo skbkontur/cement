@@ -457,9 +457,18 @@ public class TestGitRepository
         {
             File.WriteAllText(Path.Combine(url.Path, "README.txt"), "README");
             var runner = new ShellRunner(NullLogger<ShellRunner>.Instance);
-            runner.Run("git init");
-            runner.Run("git add README.txt");
-            runner.Run(@"git commit -am initial");
+
+            var initResult = runner.Run("git init");
+            if (initResult.ExitCode != 0)
+                throw new GitInitException($"Output: {initResult.Output}; Errors: {initResult.Errors}");
+
+            var addResult = runner.Run("git add README.txt");
+            if (addResult.ExitCode != 0)
+                throw new GitAddException($"Output: {addResult.Output}; Errors: {addResult.Output}");
+
+            var commitResult = runner.Run(@"git commit -am initial");
+            if (commitResult.ExitCode != 0)
+                throw new GitCommitException($"Output: {commitResult.Output}; Errors: {commitResult.Errors}");
         }
     }
 
