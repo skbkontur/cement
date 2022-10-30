@@ -1,5 +1,6 @@
 ﻿using System;
 using Common;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Cement.Cli.Tests.UtilsTests;
@@ -10,10 +11,11 @@ public class TestLastUpdateTime
     [Test]
     public void TestSaveCurrent()
     {
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         Helper.SaveLastUpdateTime();
         var last = Helper.GetLastUpdateTime();
 
-        Assert.That(last >= now && last - now <= TimeSpan.FromMinutes(2));
+        last.Should().BeAfter(now);
+        last.Should().BeWithin(TimeSpan.FromMinutes(2)).After(now);
     }
 }
