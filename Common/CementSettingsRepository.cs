@@ -44,7 +44,7 @@ public static class CementSettingsRepository
 
     private static CementSettings GetDefaultSettings()
     {
-        var path = Path.Combine(Helper.GetCementInstallDirectory(), "dotnet", "defaultSettings.json");
+        var path = Helper.GetCementDefaultSettingsPath();
         if (!File.Exists(path))
             ConsoleWriter.Shared.WriteError($"{path} not found");
         return ReadSettings(path);

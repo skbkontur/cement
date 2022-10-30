@@ -71,6 +71,11 @@ public static class Helper
         return Path.Combine(HomeDirectory(), "bin");
     }
 
+    public static string GetCementDefaultSettingsPath()
+    {
+        return Path.Combine(GetCementInstallDirectory(), "dotnet", "defaultSettings.json");
+    }
+
     public static string HomeDirectory()
     {
         // https://learn.microsoft.com/ru-ru/dotnet/api/system.environment.specialfolder
