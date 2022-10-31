@@ -36,7 +36,7 @@ public sealed class ModuleHelper
             WriteModuleDescription(moduleName, pushUrl, fetchUrl, repo);
 
             var message = "(!)cement comment: added module '" + moduleName + "'";
-            repo.Commit(new[] {"-am", message});
+            repo.Commit("-am", message);
             repo.Push("master");
         }
 
@@ -70,7 +70,7 @@ public sealed class ModuleHelper
             ChangeModuleDescription(repo, toChange, new Module(moduleName, fetchUrl, pushUrl));
 
             var message = "(!)cement comment: changed module '" + moduleName + "'";
-            repo.Commit(new[] {"-am", message});
+            repo.Commit("-am", message);
             repo.Push("master");
         }
 
