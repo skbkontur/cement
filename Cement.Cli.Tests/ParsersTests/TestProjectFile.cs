@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Common;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Cement.Cli.Tests.ParsersTests;
@@ -257,8 +258,9 @@ internal class TestProjectFile
 
         projectFile.AddAnalyzer(analyzerDllFullPath);
 
-        Assert.AreEqual(0, SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'Another.dll']").Count);
-        Assert.AreEqual(1, SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'dummyDir\\Another.dll']").Count);
+        SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'Another.dll']").Should().BeEmpty();
+        SearchByXpath(projectFile.Document, $"//a:ItemGroup/a:Analyzer[@Include = '{Path.Combine("dummyDir", "Another.dll")}']")
+            .Should().ContainSingle();
     }
 
     [Test]
