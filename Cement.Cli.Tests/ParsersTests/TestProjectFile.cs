@@ -28,12 +28,12 @@ internal class TestProjectFile
   <ItemGroup>
     <Reference Include=""System"" />
     <Reference Include=""LalalaReference"">
-      <HintPath>..\..\lalala\LalalaReference.dll</HintPath>
+      <HintPath>../../lalala/LalalaReference.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include=""Other.dll"" />
-    <Analyzer Include=""dummyDir\Another.dll"" />
+    <Analyzer Include=""dummyDir/Another.dll"" />
   </ItemGroup>
 </Project>";
     private TempDirectory workDirectory = new();
@@ -259,7 +259,7 @@ internal class TestProjectFile
         projectFile.AddAnalyzer(analyzerDllFullPath);
 
         SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'Another.dll']").Should().BeEmpty();
-        SearchByXpath(projectFile.Document, $"//a:ItemGroup/a:Analyzer[@Include = '{Path.Combine("dummyDir", "Another.dll")}']")
+        SearchByXpath(projectFile.Document, "//a:ItemGroup/a:Analyzer[@Include = 'dummyDir/Another.dll']")
             .Should().ContainSingle();
     }
 
