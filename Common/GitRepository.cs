@@ -18,6 +18,8 @@ public sealed class GitRepository
     private readonly ConsoleWriter consoleWriter;
     private readonly ShellRunner shellRunner;
 
+    private static readonly char Quote = Platform.IsUnix() ? '\'' : '"';
+
     public GitRepository(ILogger<GitRepository> logger, ConsoleWriter consoleWriter, BuildHelper buildHelper,
                          ShellRunner shellRunner, string repoPath, string moduleName, string workspace)
     {
@@ -57,7 +59,7 @@ public sealed class GitRepository
         logger.LogInformation($"{"[" + ModuleName + "]",-30}Cloning treeish {treeish ?? "master"} into {RepoPath}");
         var treeishSuffix = "-b " + (treeish ?? "master");
         var depthSuffix = depth.HasValue ? $" --depth {depth.Value} --no-single-branch" : "";
-        var cmd = $"git clone --recursive {url} {treeishSuffix}{depthSuffix} \"{RepoPath}\" 2>&1";
+        var cmd = $"git clone --recursive {url} {treeishSuffix}{depthSuffix} {Quote}{RepoPath}{Quote} 2>&1";
 
         var (exitCode, output, _) = shellRunner.Run(cmd, TimeSpan.FromMinutes(60), RetryStrategy.IfTimeoutOrFailed);
         if (exitCode != 0)
@@ -77,7 +79,7 @@ public sealed class GitRepository
     public void Init()
     {
         logger.LogInformation($"{"[" + ModuleName + "]",-30}Init in {RepoPath}");
-        var cmd = $"git init \"{RepoPath}\"";
+        var cmd = $"git init {Quote}{RepoPath}{Quote}";
 
         var (exitCode, _, errors) = shellRunner.Run(cmd);
         if (exitCode != 0)
@@ -485,7 +487,7 @@ public sealed class GitRepository
     {
         logger.LogInformation($"{"[" + ModuleName + "]",-30}Get commit info");
         var (exitCode, output, _) = shellRunner
-            .RunInDirectory(RepoPath, "git log HEAD -n 1 --date=relative --format=\"%ad\t\"%an\"\t<%ae>\"");
+            .RunInDirectory(RepoPath, $"git log HEAD -n 1 --date=relative --format={Quote}%ad\t{Quote}%an{Quote}\t<%ae>{Quote}");
 
         if (exitCode != 0)
         {
@@ -498,12 +500,12 @@ public sealed class GitRepository
         return $"{tokens[0],-25}" + tokens[1] + " " + tokens[2];
     }
 
-    public void Commit(string[] args)
+    public void Commit(params string[] args)
     {
-        logger.LogInformation($"{"[" + ModuleName + "]",-30}git commit {args.Aggregate("", (x, y) => x + " \"" + y + "\"")}");
+        logger.LogInformation($"{"[" + ModuleName + "]",-30}git commit {args.Aggregate("", (x, y) => x + $" {Quote}" + y + Quote)}");
 
         var (exitCode, output, errors) = shellRunner
-            .RunInDirectory(RepoPath, "git commit" + args.Aggregate("", (x, y) => x + " \"" + y + "\""));
+            .RunInDirectory(RepoPath, "git commit" + args.Aggregate("", (x, y) => x + $" {Quote}" + y + Quote));
 
         if (exitCode != 0)
         {
