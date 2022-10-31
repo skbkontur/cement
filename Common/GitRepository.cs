@@ -502,12 +502,12 @@ public sealed class GitRepository
     {
         logger.LogInformation($"{"[" + ModuleName + "]",-30}git commit {args.Aggregate("", (x, y) => x + " \"" + y + "\"")}");
 
-        var (exitCode, output, _) = shellRunner
+        var (exitCode, output, errors) = shellRunner
             .RunInDirectory(RepoPath, "git commit" + args.Aggregate("", (x, y) => x + " \"" + y + "\""));
 
         if (exitCode != 0)
         {
-            throw new GitCommitException($"Failed to commit in {RepoPath}. Error:\n{output}");
+            throw new GitCommitException($"Failed to commit in {RepoPath}. Output: {output}; Errors: {errors}");
         }
     }
 
