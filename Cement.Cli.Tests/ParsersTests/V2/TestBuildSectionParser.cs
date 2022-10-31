@@ -198,7 +198,7 @@ public class TestBuildSectionParser
                         "Utilities"),
 
                     new BuildData(
-                        @"PSModules\PSMoiraWorks\deps.ps1",
+                        Helper.FixPath(@"PSModules\PSMoiraWorks\deps.ps1"),
                         "Release",
                         new Tool("powershell"),
                         new List<string>
@@ -341,7 +341,7 @@ public class TestBuildSectionParser
                         "Utilities"),
 
                     new BuildData(
-                        @"PSModules\PSMoiraWorks\deps.ps1",
+                        Helper.FixPath(@"PSModules\PSMoiraWorks\deps.ps1"),
                         "Release",
                         new Tool("sometool", "14.0"),
                         new List<string>
