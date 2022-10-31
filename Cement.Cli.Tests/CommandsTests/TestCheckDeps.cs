@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Common;
 using Common.DepsValidators;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Cement.Cli.Tests.CommandsTests;
@@ -30,45 +31,47 @@ internal class TestCheckDeps
             "Dep1",
             "Dep2"
         };
+
         var slnContent = @"
-Project(""A"") = ""AName"", ""AName\AName.csproj"", ""{AAA}""
-Project(""B"") = ""BName"", ""BName\BName.csproj"", ""{BBB}""
-Project(""C"") = ""CName"", ""CName\CName.csproj"", ""{CCC}""
+Project(""A"") = ""AName"", ""AName/AName.csproj"", ""{AAA}""
+Project(""B"") = ""BName"", ""BName/BName.csproj"", ""{BBB}""
+Project(""C"") = ""CName"", ""CName/CName.csproj"", ""{CCC}""
 
 {AAA}.Client|Any CPU.Build.0 = Release|Any CPU
 {BBB}.Release|Any CPU.Build.0 = Release|Any CPU
 {CCC}.Client|Any CPU.Build.0 = Release|Any CPU
 
-";
+".ReplaceLineEndings();
+
         Directory.CreateDirectory(Path.Combine(tempDir.Path, "AName"));
         File.WriteAllText(
             Path.Combine(tempDir.Path, "AName", "AName.csproj"), @"
 <root>
-<HintPath>..\Dep2\src\bin\Kontur.Logging.dll</HintPath>
-<HintPath>..\logging\src\bin\Kontur.Logging.dll</HintPath>
-</root>");
+<HintPath>../Dep2/src/bin/Kontur.Logging.dll</HintPath>
+<HintPath>../logging/src/bin/Kontur.Logging.dll</HintPath>
+</root>".ReplaceLineEndings());
 
         Directory.CreateDirectory(Path.Combine(tempDir.Path, "BName"));
         File.WriteAllText(
             Path.Combine(tempDir.Path, "BName", "BName.csproj"), @"
 <root>
-<HintPath>..\Dep1\src\bin\Kontur.Logging.dll</HintPath>
-<HintPath>..\logging\src\bin\Kontur.Logging.dll</HintPath>
-</root>");
+<HintPath>../Dep1/src/bin/Kontur.Logging.dll</HintPath>
+<HintPath>../logging/src/bin/Kontur.Logging.dll</HintPath>
+</root>".ReplaceLineEndings());
 
         Directory.CreateDirectory(Path.Combine(tempDir.Path, "CName"));
         File.WriteAllText(
             Path.Combine(tempDir.Path, "CName", "CName.csproj"), @"
 <root>
-<HintPath>..\Dep10\src\bin\Kontur.Logging.dll</HintPath>
-<HintPath>..\logging\src\bin\Kontur.Logging.dll</HintPath>
-</root>");
+<HintPath>../Dep10/src/bin/Kontur.Logging.dll</HintPath>
+<HintPath>../logging/src/bin/Kontur.Logging.dll</HintPath>
+</root>".ReplaceLineEndings());
 
         File.WriteAllText(Path.Combine(tempDir.Path, "solution.sln"), slnContent);
         var vsParser = new VisualStudioProjectParser(Path.Combine(tempDir.Path, "solution.sln"), cementModules);
         var references = vsParser.GetReferences(new BuildData("solution.sln", "Client"));
 
-        Assert.AreEqual(new[] {@"Dep2\src\bin\Kontur.Logging.dll"}, references);
+        references.Should().BeEquivalentTo(Path.Combine("Dep2", "src", "bin", "Kontur.Logging.dll"));
     }
 
     [Test]
