@@ -190,21 +190,6 @@ public class TestEnvironment : IDisposable
                     configBuilder, (builder, dep) =>
                         builder.AppendLine($"    - {dep.Name}@{dep.Treeish ?? ""}/{dep.Configuration ?? ""}")
                 ));
-            //             temp += depsByConfig[config].Deps.Aggregate(
-            //                 $@"
-            // {config}:
-            //   build:
-            //     target: None
-            //     configuration: None
-            //   deps:{
-            //       (depsByConfig[config]
-            //           .Force != null
-            //           ? "\r\n    - force: " + string.Join(",", depsByConfig[config].Force)
-            //           : "")
-            //   }
-            // ", (current, dep) => current +
-            //                      $"    - {dep.Name}@{dep.Treeish ?? ""}/{dep.Configuration ?? ""}\r\n");
-            //         }
         }
 
         File.WriteAllText(Path.Combine(path, "module.yaml"), contentBuilder.ToString());
