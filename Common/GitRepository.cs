@@ -502,10 +502,12 @@ public sealed class GitRepository
 
     public void Commit(params string[] args)
     {
-        logger.LogInformation($"{"[" + ModuleName + "]",-30}git commit {args.Aggregate("", (x, y) => x + $" {Quote}" + y + Quote)}");
+        var commitCommand = $"git commit {args.Aggregate("", (x, y) => x + $" {Quote}{y}{Quote}")}";
+
+        logger.LogInformation("{ModuleName, -30}{CliCommand}", $"[{ModuleName}]", commitCommand);
 
         var (exitCode, output, errors) = shellRunner
-            .RunInDirectory(RepoPath, "git commit" + args.Aggregate("", (x, y) => x + $" {Quote}" + y + Quote));
+            .RunInDirectory(RepoPath, commitCommand);
 
         if (exitCode != 0)
         {
