@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common;
@@ -41,16 +40,14 @@ public class TestTestEnvironment
                 {"full-build", new DepsData(null, new List<Dep> {new("B")})}
             });
 
-        var moduleFile = string.Join(
-            Environment.NewLine,
-            "default:",
-            "full-build:",
-            "  build:",
-            "    target: None",
-            "    configuration: None",
-            "  deps:",
-            "    - B@/",
-            "");
+        var moduleFile = @"default:
+full-build:
+  build:
+    target: None
+    configuration: None
+  deps:
+    - B@/
+".ReplaceLineEndings();
 
         File.Exists(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")).Should().BeTrue();
         File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")).Should().BeEquivalentTo(moduleFile);
@@ -67,24 +64,21 @@ public class TestTestEnvironment
                 {"client", new DepsData(null, new List<Dep> {new("C")})}
             });
 
-        var packageFile = string.Join(
-            Environment.NewLine,
-            "default:",
-            "client:",
-            "  build:",
-            "    target: None",
-            "    configuration: None",
-            "  deps:",
-            "    - C@/",
-            "",
-            "full-build:",
-            "  build:",
-            "    target: None",
-            "    configuration: None",
-            "  deps:",
-            "    - B@/",
-            ""
-        );
+        var packageFile = @"default:
+client:
+  build:
+    target: None
+    configuration: None
+  deps:
+    - C@/
+
+full-build:
+  build:
+    target: None
+    configuration: None
+  deps:
+    - B@/
+".ReplaceLineEndings();
 
         File.Exists(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")).Should().BeTrue();
         File.ReadAllText(Path.Combine(env.RemoteWorkspace, "A", "module.yaml")).Should().BeEquivalentTo(packageFile);
@@ -111,16 +105,13 @@ public class TestTestEnvironment
         env.CreateRepo("A");
         env.CreateRepo("B");
 
-        var packageFile = string.Join(
-            Environment.NewLine,
-            "",
-            "[module A]",
-            $"url={Path.Combine(env.RemoteWorkspace, "A")}",
-            "",
-            "[module B]",
-            $"url={Path.Combine(env.RemoteWorkspace, "B")}",
-            ""
-        );
+        var packageFile = @$"
+[module A]
+url={Path.Combine(env.RemoteWorkspace, "A")}
+
+[module B]
+url={Path.Combine(env.RemoteWorkspace, "B")}
+".ReplaceLineEndings();
 
         File.ReadAllText(Path.Combine(env.RemoteWorkspace, env.PackageFile)).Should().BeEquivalentTo(packageFile);
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Common;
 using FluentAssertions;
 using NUnit.Framework;
@@ -12,25 +11,23 @@ public class TestInstallCollector
     [Test]
     public void TestWithExternals()
     {
-        var externalModuleText = string.Join(
-            Environment.NewLine,
-            "",
-            "full-build:",
-            "  install:",
-            "    - external",
-            "    - nuget pExternal",
-            "");
+        var externalModuleText = @"
 
-        var moduleText = string.Join(
-            Environment.NewLine,
-            "",
-            "full-build:",
-            "  deps:",
-            "    - ext",
-            "  install:",
-            "    - current",
-            "    - module ext",
-            "    - nuget pCurrent");
+full-build:
+  install:
+    - external
+    - nuget pExternal
+".ReplaceLineEndings();
+
+        var moduleText = @"
+
+full-build:
+  deps:
+    - ext
+  install:
+    - current
+    - module ext
+    - nuget pCurrent".ReplaceLineEndings();
 
         using var tempDir = new TempDirectory();
         using (new DirectoryJumper(tempDir.Path))
@@ -49,27 +46,25 @@ public class TestInstallCollector
     [Test]
     public void TestCollectInstallWithExternalClientConfig()
     {
-        var externalModuleText = string.Join(
-            Environment.NewLine,
-            "",
-            "full-build:",
-            "  install:",
-            "    - external",
-            "client:",
-            "  install:",
-            "    - external.client",
-            "");
+        var externalModuleText = @"
 
-        var moduleText = string.Join(
-            Environment.NewLine,
-            "",
-            "full-build:",
-            "  deps:",
-            "    - ext",
-            "  install:",
-            "    - current",
-            "    - module ext/client",
-            "");
+full-build:
+  install:
+    - external
+client:
+  install:
+    - external.client
+".ReplaceLineEndings();
+
+        var moduleText = @"
+
+full-build:
+  deps:
+    - ext
+  install:
+    - current
+    - module ext/client
+".ReplaceLineEndings();
 
         using var tempDir = new TempDirectory();
         using (new DirectoryJumper(tempDir.Path))
@@ -85,39 +80,36 @@ public class TestInstallCollector
     [Test]
     public void TestLongNestingsWithConfigs()
     {
-        var qText = string.Join(
-            Environment.NewLine,
-            "",
-            "full-build:",
-            "  install:",
-            "sdk:",
-            "  install:",
-            "    - q.sdk",
-            "    - module ext/client",
-            "");
+        var qText = @"
 
-        var externalModuleText = string.Join(
-            Environment.NewLine,
-            "",
-            "full-build:",
-            "  install:",
-            "    - external",
-            "    - module q/sdk",
-            "client:",
-            "  install:",
-            "    - external.client",
-            "");
+full-build:
+  install:
+sdk:
+  install:
+    - q.sdk
+    - module ext/client
+".ReplaceLineEndings();
 
-        var moduleText = string.Join(
-            Environment.NewLine,
-            "",
-            "full-build:",
-            "  deps:",
-            "    - ext",
-            "  install:",
-            "    - current",
-            "    - module ext",
-            "");
+        var externalModuleText = @"
+
+full-build:
+  install:
+    - external
+    - module q/sdk
+client:
+  install:
+    - external.client
+".ReplaceLineEndings();
+
+        var moduleText = @"
+
+full-build:
+  deps:
+    - ext
+  install:
+    - current
+    - module ext
+".ReplaceLineEndings();
 
         using var tempDir = new TempDirectory();
         using (new DirectoryJumper(tempDir.Path))
@@ -138,48 +130,45 @@ public class TestInstallCollector
     [Test]
     public void TestLongNestingsWithConfigsNexting()
     {
-        var qText = string.Join(
-            Environment.NewLine,
-            "",
-            "full-build:",
-            "  install:",
-            "sdk:",
-            "  install:",
-            "    - q.sdk",
-            "    - module ext/client",
-            "    - nuget q.sdk",
-            "");
+        var qText = @"
 
-        var externalModuleText = string.Join(
-            Environment.NewLine,
-            "",
-            "full-build:",
-            "  install:",
-            "    - external",
-            "    - module q/sdk",
-            "    - nuget external",
-            "client:",
-            "  install:",
-            "    - external.client",
-            "    - nuget external.client",
-            "");
+full-build:
+  install:
+sdk:
+  install:
+    - q.sdk
+    - module ext/client
+    - nuget q.sdk
+".ReplaceLineEndings();
 
-        var moduleText = string.Join(
-            Environment.NewLine,
-            "",
-            "full-build > client:",
-            "  deps:",
-            "    - ext",
-            "  install:",
-            "    - current",
-            "    - module ext",
-            "    - nuget current",
-            "client:",
-            "  install:",
-            "    - current.client",
-            "    - module ext/client",
-            "    - nuget client",
-            "");
+        var externalModuleText = @"
+
+full-build:
+  install:
+    - external
+    - module q/sdk
+    - nuget external
+client:
+  install:
+    - external.client
+    - nuget external.client
+".ReplaceLineEndings();
+
+        var moduleText = @"
+
+full-build > client:
+  deps:
+    - ext
+  install:
+    - current
+    - module ext
+    - nuget current
+client:
+  install:
+    - current.client
+    - module ext/client
+    - nuget client
+".ReplaceLineEndings();
 
         using var tempDir = new TempDirectory();
         using (new DirectoryJumper(tempDir.Path))
