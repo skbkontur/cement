@@ -4,9 +4,11 @@ using Common.DepsValidators;
 using Common.YamlParsers;
 using Common.YamlParsers.Models;
 using Common.YamlParsers.V2.Factories;
+using JetBrains.Annotations;
 
 namespace Cement.Cli.Benchmarks.Benchmarks;
 
+[PublicAPI]
 public class ModuleYamlParserBenchmark
 {
     private const string SmallModuleYaml = @"notests *default:
@@ -228,10 +230,7 @@ full-build > webapi-service-local, jobs-service-local, webapi-plugin, jobs-plugi
     configuration: Release
 ";
     [ParamsSource(nameof(Yamls))]
-    // ReSharper disable once MemberCanBePrivate.Global
-    // required by `ParamsSource` attribute
-    // ReSharper disable once UnassignedField.Global
-    public string? Content;
+    public string? Content { get; set; }
 
     private readonly ConsoleWriter consoleWriter;
     private readonly DepsValidatorFactory depsValidatorFactory;

@@ -4,17 +4,16 @@ using BenchmarkDotNet.Configs;
 using Common;
 using Common.YamlParsers.Models;
 using Common.YamlParsers.V2;
+using JetBrains.Annotations;
 
 namespace Cement.Cli.Benchmarks.Benchmarks;
 
+[PublicAPI]
 [Config(typeof(Config))]
 public class DepLineParserBenchmark
 {
     [ParamsSource(nameof(DepLines))]
-    // ReSharper disable once MemberCanBePrivate.Global
-    // required by `ParamsSource` attribute
-    // ReSharper disable once UnassignedField.Global
-    public string? DepLine;
+    public string? DepLine { get; set; }
     private DepSectionItemParser? parser;
 
     public IEnumerable<string> DepLines => new[]
