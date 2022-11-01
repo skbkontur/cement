@@ -54,7 +54,7 @@ public class TestBuildDepsCache
             });
         Helper.SetWorkspace(env.RemoteWorkspace);
 
-        GetUpdatedModules(new Dep("A")).Should().BeEquivalentTo(new Dep("A/full-build"));
+        GetUpdatedModules(new Dep("A")).Should().Equal(new Dep("A/full-build"));
 
         Build(new Dep("A/full-build"));
 
@@ -66,7 +66,7 @@ public class TestBuildDepsCache
 
         // assert
 
-        GetUpdatedModules(new Dep("A")).Should().BeEquivalentTo(new Dep("A/full-build"));
+        GetUpdatedModules(new Dep("A")).Should().Equal(new Dep("A/full-build"));
 
         Build(new Dep("A/full-build"));
 
