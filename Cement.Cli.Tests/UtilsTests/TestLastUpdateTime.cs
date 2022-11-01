@@ -18,7 +18,9 @@ public class TestLastUpdateTime
 
         var last = Helper.GetLastUpdateTime();
 
-        last.Should().BeAfter(now);
-        last.Should().BeWithin(TimeSpan.FromMinutes(2)).After(now);
+        last.Should()
+            .BeAfter(now)
+            .And
+            .BeWithin(TimeSpan.FromMinutes(2)).After(now);
     }
 }
