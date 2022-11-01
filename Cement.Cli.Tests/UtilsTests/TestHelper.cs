@@ -19,7 +19,7 @@ public class TestHelper
         ts += TimeSpan.FromSeconds(12);
         ts += TimeSpan.FromMilliseconds(777);
 
-        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().BeEquivalentTo("2:03:15:12.777");
+        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().Be("2:03:15:12.777");
     }
 
     [Test]
@@ -30,7 +30,7 @@ public class TestHelper
         ts += TimeSpan.FromSeconds(3);
         ts += TimeSpan.FromMilliseconds(777);
 
-        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().BeEquivalentTo("15:03.777");
+        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().Be("15:03.777");
     }
 
     [Test]
@@ -40,7 +40,7 @@ public class TestHelper
         ts += TimeSpan.FromSeconds(3);
         ts += TimeSpan.FromMilliseconds(777);
 
-        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().BeEquivalentTo("3.777");
+        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().Be("3.777");
     }
 
     [Test]
@@ -49,19 +49,19 @@ public class TestHelper
         var ts = new TimeSpan();
         ts += TimeSpan.FromMilliseconds(777);
 
-        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().BeEquivalentTo(".777");
+        Helper.ConvertTime((long)ts.TotalMilliseconds).Should().Be(".777");
     }
 
     [Test]
     public void TestConvertTimeZero()
     {
-        Helper.ConvertTime(0).Should().BeEquivalentTo(".000");
+        Helper.ConvertTime(0).Should().Be(".000");
     }
 
     [Test]
     public void TestConvertTimeOneSecond()
     {
-        Helper.ConvertTime(1000).Should().BeEquivalentTo("1.000");
+        Helper.ConvertTime(1000).Should().Be("1.000");
     }
 
     [Test]
