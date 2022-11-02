@@ -3,11 +3,10 @@ image: $CEMENT_CLI_BASE_IMAGE
 stages:
   - prepare
   - build
+  - test
   # - publish
 
 variables:
-  VERSION_MAJOR: 1
-  VERSION_MINOR: 0
   GIT_SUBMODULE_STRATEGY: recursive
 
 workflow:
@@ -16,29 +15,46 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == 'web'
 
-prepare:
+Prepare Version:
+  variables:
+    GIT_STRATEGY: clone
+    GIT_DEPTH: 0 # forces gitlab CI to perform full (non-shallow) clone
   stage: prepare
   tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
+  before_script:
+    - dotnet tool install --tool-path /tools GitVersion.Tool --version 5.10.3
   script:
     - |
-      echo -e "commit branch = '$CI_COMMIT_BRANCH', default branch = '$CI_DEFAULT_BRANCH', version major = '$VERSION_MAJOR', minor = '$VERSION_MINOR', revision = '$CI_PIPELINE_IID'"
-      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-        VERSION="$VERSION_MAJOR.$VERSION_MINOR.$CI_PIPELINE_IID"
-        echo -e "${TXT_GREEN}Running on default branch '$CI_DEFAULT_BRANCH', version = $VERSION"
-      else
-        VERSION="$VERSION_MAJOR.$VERSION_MINOR.$CI_PIPELINE_IID-preview-$CI_COMMIT_SHORT_SHA"
-        echo -e "${TXT_GREEN}Running on branch '$CI_COMMIT_BRANCH', version = $VERSION"
-      fi
-      echo "VERSION=$VERSION" > version.env
+      /tools/dotnet-gitversion /output buildserver
+      grep 'GitVersion_SemVer=' gitversion.properties >> version.env
   artifacts:
     reports:
       dotenv: version.env
 
-code-quality:
+Build:
   stage: build
   tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
   needs:
-    - prepare
+    - 'Prepare Version'
+  dependencies:
+    - 'Prepare Version'
+  script:
+    - echo -e "${TXT_GREEN}Version = $VERSION"
+    - dotnet restore
+    - dotnet build --configuration Release --no-restore
+  artifacts:
+    untracked: true
+    expire_in: 7 days
+
+Code Quality:
+  stage: test
+  tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
+  needs:
+    - 'Build'
+    - 'Prepare Version'
+  dependencies:
+    - 'Build'
+    - 'Prepare Version'
   # temporary allowing code quality check to fail because of abyssmal code quality at the moment of writing
   allow_failure: true
   before_script:
@@ -69,21 +85,25 @@ code-quality:
       codequality:
         - $CI_PROJECT_DIR/inspectcode/gl-code-quality-report.json
 
-build:
-  stage: build
+Run Tests:
+  stage: test
   tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
   needs:
-    - prepare
+    - 'Build'
+    - 'Prepare Version'
+  dependencies:
+    - 'Build'
+    - 'Prepare Version'
+  variables:
+    VERSION: ${GitVersion_SemVer}
+    TEST_PROJ: 'Cement.Cli.Tests/Cement.Cli.Tests.csproj'
   before_script:
     - |
       git config --global user.email "johndoe@foo.bar"
       git config --global user.name "John Doe"
   script:
     - echo -e "${TXT_GREEN}Version = $VERSION"
-    - dotnet restore
-    - dotnet build --configuration Release --no-restore
-    - dotnet test  --configuration Release --no-build --logger:"junit;LogFilePath=$CI_PROJECT_DIR/junit/{assembly}.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --collect:"XPlat Code Coverage" -r $CI_PROJECT_DIR/cobertura
-    # - dotnet pack --configuration Release --no-build /p:Version=$VERSION
+    - dotnet test --configuration Release --logger:"junit;LogFilePath=$CI_PROJECT_DIR/junit/{assembly}.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --collect:"XPlat Code Coverage" -r $CI_PROJECT_DIR/cobertura
   artifacts:
     expire_in: 7 days
     paths:

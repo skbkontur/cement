@@ -5,6 +5,7 @@
     <Product>Tests</Product>
     <Copyright>Copyright © 2022</Copyright>
     <Nullable>warnings</Nullable>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.4.3" />
