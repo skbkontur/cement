@@ -4,7 +4,7 @@ stages:
   - prepare
   - build
   - test
-  # - publish
+  - publish
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -15,12 +15,15 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == 'web'
 
+.docker:
+  tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
+
 Prepare Version:
   variables:
     GIT_STRATEGY: clone
     GIT_DEPTH: 0 # forces gitlab CI to perform full (non-shallow) clone
   stage: prepare
-  tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
+  extends: .docker
   before_script:
     - dotnet tool install --tool-path /tools GitVersion.Tool --version 5.10.3
   script:
@@ -33,7 +36,7 @@ Prepare Version:
 
 Build:
   stage: build
-  tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
+  extends: .docker
   needs:
     - 'Prepare Version'
   dependencies:
@@ -48,7 +51,7 @@ Build:
 
 Code Quality:
   stage: test
-  tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
+  extends: .docker
   needs:
     - 'Build'
     - 'Prepare Version'
@@ -87,7 +90,7 @@ Code Quality:
 
 Run Tests:
   stage: test
-  tags: ['docker', $CEMENT_CLI_DOCKER_TAG]
+  extends: .docker
   needs:
     - 'Build'
     - 'Prepare Version'
@@ -115,16 +118,38 @@ Run Tests:
         path: $CI_PROJECT_DIR/cobertura/*/coverage.cobertura.xml
       junit:
         - $CI_PROJECT_DIR/junit/*.xml
-# publish:
-#   stage: publish
-#   tags: ['docker', 'idevops']
-#   needs:
-#     - prepare
-#     - build
-#   rules:
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#       when: on_success
-#     - when: manual
-#       allow_failure: true
-#   script:
-#     - echo -e "${TXT_GREEN}Version = $VERSION"
+
+.package:
+  stage: publish
+  extends: .docker
+  needs:
+    - 'Prepare Version'
+    - 'Build'
+    - 'Run Tests'
+  script: |
+    cd $CI_PROJECT_DIR/Cement.Net
+    dotnet publish -r $TARGET_RUNTIME -o $CI_PROJECT_DIR/out/$TARGET_RUNTIME /p:PublishSingleFile=true /p:DebugType=None --self-contained true
+  artifacts:
+    expire_in: 7 days
+    paths:
+      - $CI_PROJECT_DIR/out/*
+
+Create win-x64 binary:
+  variables:
+    TARGET_RUNTIME: win-x64
+  extends: .package
+
+Create Release:
+  stage: publish
+  extends: .docker
+  needs:
+    - 'Prepare Version'
+    - 'Build'
+    - 'Run Tests'
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+    - when: manual
+      allow_failure: true
+  script:
+    - echo -e "${TXT_GREEN}Version = $VERSION"
