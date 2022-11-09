@@ -22,6 +22,10 @@ workflow:
   variables:
     VERSION: ${GitVersion_SemVer}
 
+.no-git:
+  variables:
+    GIT_STRATEGY: none
+
 Prepare Version:
   variables:
     GIT_STRATEGY: clone
@@ -43,8 +47,6 @@ Build:
   extends: ['.tags', '.version']
   needs:
     - 'Prepare Version'
-  dependencies:
-    - 'Prepare Version'
   script:
     - echo -e "${TXT_GREEN}Version = $VERSION"
     - dotnet restore
@@ -58,10 +60,6 @@ Code Quality:
   extends: .tags
   needs:
     - 'Build'
-    - 'Prepare Version'
-  dependencies:
-    - 'Build'
-    - 'Prepare Version'
   # temporary allowing code quality check to fail because of abyssmal code quality at the moment of writing
   allow_failure: true
   before_script:
@@ -96,11 +94,8 @@ Run Tests:
   stage: test
   extends: ['.tags', '.version']
   needs:
-    - 'Build'
     - 'Prepare Version'
-  dependencies:
     - 'Build'
-    - 'Prepare Version'
   variables:
     TEST_PROJ: 'Cement.Cli.Tests/Cement.Cli.Tests.csproj'
   before_script:
@@ -126,7 +121,6 @@ Run Tests:
   stage: publish
   extends: .tags
   needs:
-    - 'Prepare Version'
     - 'Build'
     - 'Run Tests'
   variables:
@@ -164,13 +158,16 @@ Create osx-arm64 binary:
     TARGET_ARCH: arm64
   extends: .package
 
-Publish meta package:
-  stage: publish
-  extends: ['.tags', '.version']
-  image: alpine:3.16
+.meta-package-info:
   variables:
     OUTPUT_FILE: ${CI_COMMIT_SHA}.zip
     PACKAGE_NAME: Cement.Cli.Meta
+    PACKAGE_URL: ${CEMENT_CLI_GITLAB_URL}/api/v4/projects/${CI_PROJECT_ID}/packages/generic/$PACKAGE_NAME/$VERSION/$OUTPUT_FILE
+
+Publish meta package:
+  stage: publish
+  extends: ['.tags', '.version', '.meta-package-info']
+  image: alpine:3.16
   needs:
     - 'Prepare Version'
     - 'Build'
@@ -183,11 +180,6 @@ Publish meta package:
       when: on_success
     - when: manual
       allow_failure: true
-  dependencies:
-    - 'Prepare Version'
-    - 'Create win10-x64 binary'
-    - 'Create osx-x64 binary'
-    - 'Create linux-x64 binary'
   before_script:
     - |
       apk add --update --no-cache p7zip curl
@@ -200,4 +192,26 @@ Publish meta package:
     - |
       curl --header "PRIVATE-TOKEN: $CEMENT_CLI_CI_TOKEN" \
       --upload-file $OUTPUT_FILE \
-      "${CEMENT_CLI_GITLAB_URL}/api/v4/projects/${CI_PROJECT_ID}/packages/generic/$PACKAGE_NAME/$VERSION/$OUTPUT_FILE"
+      $PACKAGE_URL
+
+Create release:
+  stage: publish
+  extends: ['.tags', '.version', '.meta-package-info', '.no-git']
+  image: registry.gitlab.com/gitlab-org/release-cli:v0.14.0
+  needs:
+    - 'Prepare Version'
+    - 'Publish meta package'
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+    - when: manual
+      allow_failure: true
+  script:
+    - echo -e "${TXT_GREEN}Version = $VERSION"
+  release:
+    tag_name: $VERSION
+    description: 'Cement CLI release $VERSION'
+    assets:
+      links:
+        - name: $OUTPUT_FILE
+          url: $PACKAGE_URL
