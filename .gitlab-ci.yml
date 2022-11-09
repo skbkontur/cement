@@ -21,6 +21,7 @@ workflow:
 .version:
   variables:
     VERSION: ${GitVersion_SemVer}
+    VERSION_TAG: 'v$VERSION'
 
 .no-git:
   variables:
@@ -209,7 +210,7 @@ Create release:
   script:
     - echo -e "${TXT_GREEN}Version = $VERSION"
   release:
-    tag_name: $VERSION
+    tag_name: $VERSION_TAG
     description: 'Cement CLI release $VERSION'
     assets:
       links:
