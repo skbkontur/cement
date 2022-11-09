@@ -21,8 +21,6 @@ workflow:
 .version:
   variables:
     VERSION: ${GitVersion_SemVer}
-  needs:
-    - 'Prepare Version'
 
 .no-git:
   variables:
@@ -47,6 +45,8 @@ Prepare Version:
 Build:
   stage: build
   extends: ['.tags', '.version']
+  needs:
+    - 'Prepare Version'
   script:
     - echo -e "${TXT_GREEN}Version = $VERSION"
     - dotnet restore
@@ -94,6 +94,7 @@ Run Tests:
   stage: test
   extends: ['.tags', '.version']
   needs:
+    - 'Prepare Version'
     - 'Build'
   variables:
     TEST_PROJ: 'Cement.Cli.Tests/Cement.Cli.Tests.csproj'
@@ -168,6 +169,7 @@ Publish meta package:
   extends: ['.tags', '.version', '.meta-package-info']
   image: alpine:3.16
   needs:
+    - 'Prepare Version'
     - 'Build'
     - 'Run Tests'
     - 'Create win10-x64 binary'
@@ -197,6 +199,7 @@ Create release:
   extends: ['.tags', '.version', '.meta-package-info', '.no-git']
   image: registry.gitlab.com/gitlab-org/release-cli:v0.14.0
   needs:
+    - 'Prepare Version'
     - 'Publish meta package'
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
