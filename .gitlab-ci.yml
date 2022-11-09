@@ -22,6 +22,10 @@ workflow:
   variables:
     VERSION: ${GitVersion_SemVer}
 
+.no-git:
+  variables:
+    GIT_STRATEGY: none
+
 Prepare Version:
   variables:
     GIT_STRATEGY: clone
@@ -164,13 +168,16 @@ Create osx-arm64 binary:
     TARGET_ARCH: arm64
   extends: .package
 
-Publish meta package:
-  stage: publish
-  extends: ['.tags', '.version']
-  image: alpine:3.16
+.meta-package-info:
   variables:
     OUTPUT_FILE: ${CI_COMMIT_SHA}.zip
     PACKAGE_NAME: Cement.Cli.Meta
+    PACKAGE_URL: ${CEMENT_CLI_GITLAB_URL}/api/v4/projects/${CI_PROJECT_ID}/packages/generic/$PACKAGE_NAME/$VERSION/$OUTPUT_FILE
+
+Publish meta package:
+  stage: publish
+  extends: ['.tags', '.version', '.meta-package-info']
+  image: alpine:3.16
   needs:
     - 'Prepare Version'
     - 'Build'
@@ -200,4 +207,25 @@ Publish meta package:
     - |
       curl --header "PRIVATE-TOKEN: $CEMENT_CLI_CI_TOKEN" \
       --upload-file $OUTPUT_FILE \
-      "${CEMENT_CLI_GITLAB_URL}/api/v4/projects/${CI_PROJECT_ID}/packages/generic/$PACKAGE_NAME/$VERSION/$OUTPUT_FILE"
+      $PACKAGE_URL
+
+Create release:
+  stage: publish
+  extends: ['.tags', '.version', '.meta-package-info', '.no-git']
+  image: registry.gitlab.com/gitlab-org/release-cli:v0.14.0
+  needs:
+    - 'Publish meta package'
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+    - when: manual
+      allow_failure: true
+  script:
+    - echo -e "${TXT_GREEN}Version = $VERSION"
+  release:
+    tag_name: $VERSION
+    description: 'Cement CLI release $VERSION'
+    assets:
+      links:
+        - name: $OUTPUT_FILE
+          url: $PACKAGE_URL
