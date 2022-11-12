@@ -9,7 +9,7 @@ namespace Common;
 public sealed class CompleteCommandAutomata
 {
     private readonly IGitRepositoryFactory gitRepositoryFactory;
-    private readonly List<string> modules = Helper.GetModules().Select(m => m.Name).ToList();
+    private readonly Lazy<List<string>> modules = new(() => Helper.GetModules().Select(m => m.Name).ToList());
 
     private TokensList root;
     private string lastToken;
@@ -58,6 +58,8 @@ public sealed class CompleteCommandAutomata
             .Select(f => f.Replace('\\', '/'));
     }
 
+    private List<string> Modules => modules.Value;
+
     private List<string> Complete(List<string> parts)
     {
         var state = root;
@@ -102,7 +104,7 @@ public sealed class CompleteCommandAutomata
 
     private TokensList AllModules()
     {
-        return TokensList.Create(modules);
+        return TokensList.Create(Modules);
     }
 
     private TokensList LocalModules()
@@ -112,7 +114,7 @@ public sealed class CompleteCommandAutomata
         if (workspace != null)
         {
             Helper.SetWorkspace(workspace);
-            local = modules.Where(Yaml.Exists).ToList();
+            local = Modules.Where(Yaml.Exists).ToList();
         }
 
         return TokensList.Create(local);
@@ -143,7 +145,7 @@ public sealed class CompleteCommandAutomata
         var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
         Helper.SetWorkspace(workspace);
 
-        var local = modules;
+        var local = Modules;
         if (lastToken.Contains("/") && local.Contains(lastToken.Split('/')[0]))
         {
             var name = lastToken.Split('/')[0];
