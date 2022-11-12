@@ -23,11 +23,11 @@ workflow:
     VERSION: ${GitVersion_SemVer}
     VERSION_TAG: 'v$VERSION'
 
-.no-git:
+.no_git:
   variables:
     GIT_STRATEGY: none
 
-Prepare Version:
+prepare_version:
   variables:
     GIT_STRATEGY: clone
     GIT_DEPTH: 0 # forces gitlab CI to perform full (non-shallow) clone
@@ -43,11 +43,11 @@ Prepare Version:
     reports:
       dotenv: version.env
 
-Build:
+build:
   stage: build
   extends: ['.tags', '.version']
   needs:
-    - 'Prepare Version'
+    - 'prepare_version'
   script:
     - echo -e "${TXT_GREEN}Version = $VERSION"
     - dotnet restore
@@ -56,11 +56,11 @@ Build:
     untracked: true
     expire_in: 7 days
 
-Code Quality:
+code_quality:
   stage: test
   extends: .tags
   needs:
-    - 'Build'
+    - 'build'
   # temporary allowing code quality check to fail because of abyssmal code quality at the moment of writing
   allow_failure: true
   before_script:
@@ -91,12 +91,12 @@ Code Quality:
       codequality:
         - $CI_PROJECT_DIR/inspectcode/gl-code-quality-report.json
 
-Run Tests:
+run_tests:
   stage: test
   extends: ['.tags', '.version']
   needs:
-    - 'Prepare Version'
-    - 'Build'
+    - 'prepare_version'
+    - 'build'
   variables:
     TEST_PROJ: 'Cement.Cli.Tests/Cement.Cli.Tests.csproj'
   before_script:
@@ -122,8 +122,8 @@ Run Tests:
   stage: publish
   extends: .tags
   needs:
-    - 'Build'
-    - 'Run Tests'
+    - 'build'
+    - 'run_tests'
   variables:
     OUT_DIR: $CI_PROJECT_DIR/out/$TARGET_RUNTIME
     TARGET_RUNTIME: $TARGET_OS-$TARGET_ARCH
@@ -135,47 +135,47 @@ Run Tests:
     paths:
       - $OUT_DIR
 
-Create win10-x64 binary:
+create_win10-x64_binary:
   variables:
     TARGET_OS: win10
     TARGET_ARCH: x64
   extends: .package
 
-Create linux-x64 binary:
+create_linux-x64_binary:
   variables:
     TARGET_OS: linux
     TARGET_ARCH: x64
   extends: .package
 
-Create osx-x64 binary:
+create_osx-x64_binary:
   variables:
     TARGET_OS: osx
     TARGET_ARCH: x64
   extends: .package
 
-Create osx-arm64 binary:
+create_osx-arm64_binary:
   variables:
     TARGET_OS: osx
     TARGET_ARCH: arm64
   extends: .package
 
-.meta-package-info:
+.meta_package_info:
   variables:
     OUTPUT_FILE: ${CI_COMMIT_SHA}.zip
     PACKAGE_NAME: Cement.Cli.Meta
     PACKAGE_URL: ${CEMENT_CLI_GITLAB_URL}/api/v4/projects/${CI_PROJECT_ID}/packages/generic/$PACKAGE_NAME/$VERSION/$OUTPUT_FILE
 
-Publish meta package:
+publish_meta_package:
   stage: publish
-  extends: ['.tags', '.version', '.meta-package-info']
+  extends: ['.tags', '.version', '.meta_package_info']
   image: alpine:3.16
   needs:
-    - 'Prepare Version'
-    - 'Build'
-    - 'Run Tests'
-    - 'Create win10-x64 binary'
-    - 'Create osx-x64 binary'
-    - 'Create linux-x64 binary'
+    - 'prepare_version'
+    - 'build'
+    - 'run_tests'
+    - 'create_win10-x64_binary'
+    - 'create_osx-x64_binary'
+    - 'create_linux-x64_binary'
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: on_success
@@ -195,13 +195,13 @@ Publish meta package:
       --upload-file $OUTPUT_FILE \
       $PACKAGE_URL
 
-Create release:
+create_release:
   stage: publish
-  extends: ['.tags', '.version', '.meta-package-info', '.no-git']
+  extends: ['.tags', '.version', '.meta_package_info', '.no_git']
   image: registry.gitlab.com/gitlab-org/release-cli:v0.14.0
   needs:
-    - 'Prepare Version'
-    - 'Publish meta package'
+    - 'prepare_version'
+    - 'publish_meta_package'
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: on_success
