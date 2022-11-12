@@ -171,8 +171,6 @@ publish_meta_package:
   image: alpine:3.16
   needs:
     - 'prepare_version'
-    - 'build'
-    - 'run_tests'
     - 'create_win10-x64_binary'
     - 'create_osx-x64_binary'
     - 'create_linux-x64_binary'
