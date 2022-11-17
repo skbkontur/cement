@@ -197,3 +197,28 @@ create_release:
       links:
         - name: $OUTPUT_FILE
           url: $PACKAGE_URL
+
+create_github_release:
+  stage: publish
+  extends: ['.tags', '.version', '.meta_package_info', '.no_git']
+  variables:
+    GH_TOKEN: ${CEMENT_CLI_GH_TOKEN}
+  image: alpine:3.16
+  needs:
+    - 'prepare_version'
+    - 'publish_meta_package'
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+    - when: manual
+      allow_failure: true
+  before_script:
+    - |
+      apk add --update --no-cache curl github-cli
+  script:
+    - echo -e "${TXT_GREEN}Version = $VERSION"
+    - |
+      curl --header "PRIVATE-TOKEN: $CEMENT_CLI_CI_TOKEN" -O $PACKAGE_URL
+    - gh auth login --with-token
+    # using -d flag to create release draft for testing purposes
+    - gh release create -d -R https://github.com/skbkontur/cement $VERSION_TAG $OUTPUT_FILE
