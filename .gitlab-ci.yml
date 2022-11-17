@@ -135,28 +135,11 @@ run_tests:
     paths:
       - $OUT_DIR
 
-create_win10-x64_binary:
-  variables:
-    TARGET_OS: win10
-    TARGET_ARCH: x64
-  extends: .package
-
-create_linux-x64_binary:
-  variables:
-    TARGET_OS: linux
-    TARGET_ARCH: x64
-  extends: .package
-
-create_osx-x64_binary:
-  variables:
-    TARGET_OS: osx
-    TARGET_ARCH: x64
-  extends: .package
-
-create_osx-arm64_binary:
-  variables:
-    TARGET_OS: osx
-    TARGET_ARCH: arm64
+create_binaries:
+  parallel:
+    matrix:
+      - TARGET_OS: [linux, win10, osx, osx.11.0, osx.12]
+        TARGET_ARCH: [x64, arm64]
   extends: .package
 
 .meta_package_info:
@@ -171,9 +154,9 @@ publish_meta_package:
   image: alpine:3.16
   needs:
     - 'prepare_version'
-    - 'create_win10-x64_binary'
-    - 'create_osx-x64_binary'
-    - 'create_linux-x64_binary'
+    - 'create_binaries: [win10, x64]'
+    - 'create_binaries: [osx, x64]'
+    - 'create_binaries: [linux, x64]'
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: on_success
