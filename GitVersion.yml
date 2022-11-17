@@ -7,15 +7,15 @@ branches:
   main:
     regex: ^master$
     is-release-branch: true
-    is-source-branch-for: ['fix', 'feature', 'develop']
+    is-source-branch-for: ['fix', 'feature', 'dev']
   fix:
     regex: ^fix[/-]
     tag: 'preview'
   feature:
     regex: ^feat(ures?)?[/-]
     tag: 'preview'
-  develop:
-    regex: ^(dev(elopment)?|ci|refactor)[/-]
+  dev:
+    regex: ^(dev(elop)?|ci|refactor)[/-]
     tag: 'preview'
 ignore:
   sha: []
