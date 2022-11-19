@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32407.343
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cement.Cli", "src/Cement.Cli/Cement.Cli.csproj", "{F2653B6E-F201-497A-88FC-49AFAAF799DC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cement.Cli.Commands", "src/Cement.Cli.Commands/Cement.Cli.Commands.csproj", "{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cement.Cli.Common", "src/Cement.Cli.Common/Cement.Cli.Common.csproj", "{FF01947B-2535-4EC9-B465-B9543E6B18EE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cement.Cli.Tests", "tests/Cement.Cli.Tests/Cement.Cli.Tests.csproj", "{082DF4E1-50B1-4F31-9C60-5B768896C7E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cement.Cli.Benchmarks", "tests/Cement.Cli.Benchmarks/Cement.Cli.Benchmarks.csproj", "{A684ECA5-8655-40D6-8219-E5FB62A27A03}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8F60ABBE-31DD-4283-B923-76FC99687F36}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7CF65292-CC07-482E-AA60-F8EAD4EE5BF1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F2653B6E-F201-497A-88FC-49AFAAF799DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2653B6E-F201-497A-88FC-49AFAAF799DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2653B6E-F201-497A-88FC-49AFAAF799DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2653B6E-F201-497A-88FC-49AFAAF799DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF01947B-2535-4EC9-B465-B9543E6B18EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF01947B-2535-4EC9-B465-B9543E6B18EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF01947B-2535-4EC9-B465-B9543E6B18EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF01947B-2535-4EC9-B465-B9543E6B18EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{082DF4E1-50B1-4F31-9C60-5B768896C7E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{082DF4E1-50B1-4F31-9C60-5B768896C7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{082DF4E1-50B1-4F31-9C60-5B768896C7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{082DF4E1-50B1-4F31-9C60-5B768896C7E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A684ECA5-8655-40D6-8219-E5FB62A27A03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A684ECA5-8655-40D6-8219-E5FB62A27A03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A684ECA5-8655-40D6-8219-E5FB62A27A03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A684ECA5-8655-40D6-8219-E5FB62A27A03}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {48F54A51-1A37-4009-9D5B-BF8593C04F11}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A684ECA5-8655-40D6-8219-E5FB62A27A03} = {8F60ABBE-31DD-4283-B923-76FC99687F36}
+		{082DF4E1-50B1-4F31-9C60-5B768896C7E3} = {8F60ABBE-31DD-4283-B923-76FC99687F36}
+		{F2653B6E-F201-497A-88FC-49AFAAF799DC} = {7CF65292-CC07-482E-AA60-F8EAD4EE5BF1}
+		{5E5EE8F9-9C42-4F44-87AF-63D4F24863EC} = {7CF65292-CC07-482E-AA60-F8EAD4EE5BF1}
+		{FF01947B-2535-4EC9-B465-B9543E6B18EE} = {7CF65292-CC07-482E-AA60-F8EAD4EE5BF1}
+	EndGlobalSection
+EndGlobal
