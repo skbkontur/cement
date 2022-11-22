@@ -10,7 +10,7 @@
 ## Install
 
 ### Windows
-1. You should have git and Visual Studio or MSBuild Tools installed 
+1. You should have git and Visual Studio or MSBuild Tools installed
 2. Download zip from https://github.com/skbkontur/cement/releases/latest
 3. Unzip and run `dotnet\install.cmd`
 4. Restart terminal
@@ -45,7 +45,7 @@ RUN mono ~/bin/dotnet/cm.exe reinstall
 Use `cm help` to view [all cement commands](README-commands.md#commands).
 Use `cm %command_name% /?` or `cm help %command_name%` to view command description.
 
-All module descriptions are stored in a special git repo. 
+All module descriptions are stored in a special git repo.
 
 In the beginning your cement will use sample modules from https://github.com/skbkontur/cement-sample-modules/blob/master/modules
 
@@ -99,15 +99,15 @@ Default: false
 3. Create repositories for your modules like
 
    https://github.com/skbkontur/cement-sample-A
-   
+
    https://github.com/skbkontur/cement-sample-B
-   
+
    https://github.com/skbkontur/cement-sample-C
-   
+
    https://github.com/skbkontur/cement-sample-D
-   
+
 4. Run `cm module add A git@github.com:skbkontur/cement-sample-A.git` to add your modules to cement
-5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](README-module.yaml.md#moduleyaml)) 
+5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](README-module.yaml.md#moduleyaml))
 
 
 ## All commands description
