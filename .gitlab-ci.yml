@@ -219,5 +219,4 @@ create_github_release:
     - echo -e "${TXT_GREEN}Version = $VERSION"
     - |
       curl --header "PRIVATE-TOKEN: $CEMENT_CLI_CI_TOKEN" -O $PACKAGE_URL
-    # using -d flag to create release draft for testing purposes
-    - gh release create -d -R https://github.com/skbkontur/cement $VERSION_TAG $OUTPUT_FILE
+    - gh release create --notes "automatic release" -R https://github.com/skbkontur/cement $VERSION_TAG $OUTPUT_FILE
