@@ -2,5 +2,5 @@ full-build:
   deps:
 
   build:
-    target: Cement.Net.sln
-    configuration: Debug
+    target: Cement.Cli.sln
+    configuration: Release
