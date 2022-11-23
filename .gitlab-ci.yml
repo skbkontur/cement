@@ -5,9 +5,11 @@ stages:
   - build
   - test
   - publish
+  - release
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  NUGET_PACKAGES_DIRECTORY: '.nuget'
 
 workflow:
   rules:
@@ -50,7 +52,7 @@ build:
     - 'prepare_version'
   script:
     - echo -e "${TXT_GREEN}Version = $VERSION"
-    - dotnet restore
+    - dotnet restore --packages $NUGET_PACKAGES_DIRECTORY
     - dotnet build --configuration Release --no-restore
   artifacts:
     untracked: true
@@ -58,7 +60,7 @@ build:
 
 code_quality:
   stage: test
-  extends: .tags
+  extends: ['.tags']
   needs:
     - 'build'
   # temporary allowing code quality check to fail because of abyssmal code quality at the moment of writing
@@ -105,7 +107,9 @@ run_tests:
       git config --global user.name "John Doe"
   script:
     - echo -e "${TXT_GREEN}Version = $VERSION"
-    - dotnet test --configuration Release --logger:"junit;LogFilePath=$CI_PROJECT_DIR/junit/{assembly}.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --collect:"XPlat Code Coverage" -r $CI_PROJECT_DIR/cobertura
+    - dotnet test --no-build --no-restore --configuration Release \
+      --logger:"junit;LogFilePath=$CI_PROJECT_DIR/junit/{assembly}.xml;MethodFormat=Class;FailureBodyFormat=Verbose" \
+      --collect:"XPlat Code Coverage" -r $CI_PROJECT_DIR/cobertura
   artifacts:
     expire_in: 7 days
     paths:
@@ -177,7 +181,7 @@ publish_meta_package:
       $PACKAGE_URL
 
 create_release:
-  stage: publish
+  stage: release
   extends: ['.tags', '.version', '.meta_package_info', '.no_git']
   image: registry.gitlab.com/gitlab-org/release-cli:v0.14.0
   needs:
@@ -199,7 +203,7 @@ create_release:
           url: $PACKAGE_URL
 
 create_github_release:
-  stage: publish
+  stage: release
   extends: ['.tags', '.version', '.meta_package_info', '.no_git']
   variables:
     GH_TOKEN: ${CEMENT_CLI_GH_TOKEN}
