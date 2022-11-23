@@ -98,7 +98,7 @@ run_tests:
     - 'prepare_version'
     - 'build'
   variables:
-    TEST_PROJ: 'Cement.Cli.Tests/Cement.Cli.Tests.csproj'
+    TEST_PROJ: 'tests/Cement.Cli.Tests/Cement.Cli.Tests.csproj'
   before_script:
     - |
       git config --global user.email "johndoe@foo.bar"
@@ -128,7 +128,7 @@ run_tests:
     OUT_DIR: $CI_PROJECT_DIR/out/$TARGET_RUNTIME
     TARGET_RUNTIME: $TARGET_OS-$TARGET_ARCH
   script: |
-    cd $CI_PROJECT_DIR/Cement.Net
+    cd $CI_PROJECT_DIR/src/Cement.Cli
     dotnet publish -r $TARGET_RUNTIME -o $OUT_DIR /p:PublishSingleFile=true /p:DebugType=None --self-contained true
   artifacts:
     expire_in: 7 days
