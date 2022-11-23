@@ -68,7 +68,7 @@ code_quality:
       dotnet tool install --tool-path /tools JetBrains.ReSharper.GlobalTools --version 2022.2.3
       dotnet tool install --tool-path /tools resharper-to-codeclimate --version 1.0.7
   script:
-    - /tools/jb inspectcode Cement.Net.sln --no-build --severity=WARNING --swea --output=$CI_PROJECT_DIR/inspectcode/code-inspection.xml
+    - /tools/jb inspectcode Cement.Cli.sln --no-build --severity=WARNING --swea --output=$CI_PROJECT_DIR/inspectcode/code-inspection.xml
     - |
       if [[ ! -f $CI_PROJECT_DIR/inspectcode/code-inspection.xml ]]; then
         echo -e "${TXT_RED}Inspection results not found"
