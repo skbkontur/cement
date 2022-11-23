@@ -29,6 +29,8 @@ function Invoke-Publish($rid)
     dotnet publish -c $configuration -r $rid -o ".\files-common\$rid" /p:PublishSingleFile=true /p:DebugType=None --self-contained true .\Cement.Net\CementEntry.csproj
 }
 
+Set-Location -Path ..
+
 git submodule update --init
 
 Reset-Path .\dotnet
