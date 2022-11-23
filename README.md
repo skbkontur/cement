@@ -42,7 +42,7 @@ RUN mono ~/bin/dotnet/cm.exe reinstall
 
 ## Work with cement
 
-Use `cm help` to view [all cement commands](README-commands.md#commands).
+Use `cm help` to view [all cement commands](docs/README-commands.md#commands).
 Use `cm %command_name% /?` or `cm help %command_name%` to view command description.
 
 All module descriptions are stored in a special git repo.
@@ -70,7 +70,7 @@ Build dependencies for current module in the right order.
 ### cm build
 Build current module. You can use it now.
 
-![](https://raw.githubusercontent.com/skbkontur/cement/master/images/start.png)
+![](docs/images/start.png)
 
 ## Update dependencies
 
@@ -107,11 +107,11 @@ Default: false
    https://github.com/skbkontur/cement-sample-D
 
 4. Run `cm module add A git@github.com:skbkontur/cement-sample-A.git` to add your modules to cement
-5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](README-module.yaml.md#moduleyaml))
+5. Fill `module.yaml` file, describing cement modules (see [appropriate documentation](docs/README-module.yaml.md#moduleyaml))
 
 
 ## All commands description
-[here](README-commands.md#commands)
+[here](docs/README-commands.md#commands)
 
 ## Module.yaml format
-[here](README-module.yaml.md#moduleyaml)
+[here](docs/README-module.yaml.md#moduleyaml)
