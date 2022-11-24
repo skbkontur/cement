@@ -86,7 +86,7 @@ public sealed class ShellRunner
                 process.Kill();
                 hasTimeout = true;
 
-                throw new Exceptions.TimeoutException($"Running timeout at {timeout} for command {commandWithArguments} in {workingDirectory}");
+                throw new TimeoutException($"Running timeout at {timeout} for command {commandWithArguments} in {workingDirectory}");
             }
 
             LastOutput = output;
@@ -102,7 +102,7 @@ public sealed class ShellRunner
         }
         catch (CementException e)
         {
-            if (e is System.TimeoutException)
+            if (e is TimeoutException)
             {
                 if (!commandWithArguments.Equals("git ls-remote --heads"))
                     ConsoleWriter.Shared.WriteWarning(e.Message);
