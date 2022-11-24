@@ -11,7 +11,6 @@ AssemblyTitle.cs
 releases/
 server.lnk
 deploy.bat
-.idea/
 Cement.Net/Properties/
 /files-common/linux-x64/cm*
 /files-common/osx-x64/cm*
