@@ -107,8 +107,8 @@ run_tests:
       git config --global user.name "John Doe"
   script:
     - echo -e "${TXT_GREEN}Version = $VERSION"
-    - dotnet test --no-build --no-restore --configuration Release \
-      --logger:"junit;LogFilePath=$CI_PROJECT_DIR/junit/{assembly}.xml;MethodFormat=Class;FailureBodyFormat=Verbose" \
+    - dotnet test --no-build --no-restore --configuration Release
+      --logger:"junit;LogFilePath=$CI_PROJECT_DIR/junit/{assembly}.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
       --collect:"XPlat Code Coverage" -r $CI_PROJECT_DIR/cobertura
   artifacts:
     expire_in: 7 days
