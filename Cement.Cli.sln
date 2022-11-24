@@ -17,6 +17,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8F60ABBE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7CF65292-CC07-482E-AA60-F8EAD4EE5BF1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "auxiliary", "auxiliary", "{5F2EDA42-7F46-4B30-86D2-2FFA488B148F}"
+	ProjectSection(SolutionItems) = preProject
+		Cement.Cli.sln.DotSettings = Cement.Cli.sln.DotSettings
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		.gitlab-ci.yml = .gitlab-ci.yml
+		.gitmodules = .gitmodules
+		GitVersion.yml = GitVersion.yml
+		LICENSE = LICENSE
+		module.yaml = module.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
