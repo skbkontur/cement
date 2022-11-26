@@ -4,11 +4,11 @@ namespace Cement.Cli.Common.YamlParsers.V2.Factories;
 
 public static class ModuleYamlParserFactory
 {
-    private static readonly Lazy<ModuleYamlParser> instance = new(Create);
+    private static readonly Lazy<ModuleYamlParser> Instance = new(Create);
 
     public static ModuleYamlParser Get()
     {
-        return instance.Value;
+        return Instance.Value;
     }
 
     private static ModuleYamlParser Create()

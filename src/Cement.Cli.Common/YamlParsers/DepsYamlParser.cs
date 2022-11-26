@@ -29,7 +29,7 @@ public sealed class DepsYamlParser : ConfigurationYamlParser
 
     public DepsData Get(string configuration = null)
     {
-        configuration = configuration ?? GetDefaultConfigurationName();
+        configuration ??= GetDefaultConfigurationName();
         if (!ConfigurationExists(configuration))
         {
             consoleWriter.WriteWarning(
@@ -79,9 +79,8 @@ public sealed class DepsYamlParser : ConfigurationYamlParser
         string[] force = null;
         foreach (var depSection in (List<object>)configSection["deps"])
         {
-            if (depSection is Dictionary<object, object>)
+            if (depSection is Dictionary<object, object> dict)
             {
-                var dict = depSection as Dictionary<object, object>;
                 if (dict.Keys.Count == 1 && (string)dict.Keys.First() == "force")
                     force = ((string)dict.Values.First()).Split(',');
                 else
@@ -122,7 +121,7 @@ public sealed class DepsYamlParser : ConfigurationYamlParser
         {
             if (deps[i].Name.StartsWith("-"))
             {
-                if (i == deps.Count - 1 || !deps[i + 1].Name.Equals(deps[i].Name.Substring(1)))
+                if (i == deps.Count - 1 || !deps[i + 1].Name.Equals(deps[i].Name[1..]))
                     throw new BadYamlException(ModuleName, "deps", "dep " + deps[i].Name + " was deleted, but not added");
                 RemoveDep(deps[i], relaxedDeps);
             }
@@ -173,14 +172,14 @@ sdk:
 
     private bool DepMatch(Dep expected, Dep actual)
     {
-        if (!expected.Name.Substring(1).Equals(actual.Name))
+        if (!expected.Name[1..].Equals(actual.Name))
             return false;
         var treeishMatch = false;
         var configMatch = false;
 
-        if (expected.Treeish == null || expected.Treeish.Equals("*") || expected.Treeish.Equals(actual.Treeish))
+        if (expected.Treeish is null or "*" || expected.Treeish.Equals(actual.Treeish))
             treeishMatch = true;
-        if (expected.Configuration == null || expected.Configuration.Equals("*") || expected.Configuration.Equals(actual.Configuration))
+        if (expected.Configuration is null or "*" || expected.Configuration.Equals(actual.Configuration))
             configMatch = true;
         return treeishMatch && configMatch;
     }

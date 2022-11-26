@@ -29,10 +29,10 @@ public class ConfigurationYamlParser : IConfigurationParser
 
     public IList<string> GetConfigurations()
     {
-        return
-            configurationsDescription.Keys.Where(config => !"default".Equals(config))
-                .Select(GetRealConfigurationName)
-                .ToList();
+        return configurationsDescription.Keys
+            .Where(config => !"default".Equals(config))
+            .Select(GetRealConfigurationName)
+            .ToList();
     }
 
     public bool ConfigurationExists(string configName)
@@ -42,13 +42,16 @@ public class ConfigurationYamlParser : IConfigurationParser
 
     public string GetDefaultConfigurationName()
     {
-        var defaultConfigurations =
-            configurationsDescription.Keys.Where(section => section.EndsWith("*default")).ToList();
-        if (defaultConfigurations.Count > 1)
-            throw new BadYamlException(ModuleName, "configurations", "Multiple default configurations exists");
-        if (defaultConfigurations.Count == 0)
-            return "full-build";
-        return GetRealConfigurationName(defaultConfigurations.First());
+        var defaultConfigurations = configurationsDescription.Keys
+            .Where(section => section.EndsWith("*default"))
+            .ToList();
+
+        return defaultConfigurations.Count switch
+        {
+            > 1 => throw new BadYamlException(ModuleName, "configurations", "Multiple default configurations exists"),
+            0 => "full-build",
+            _ => GetRealConfigurationName(defaultConfigurations.First())
+        };
     }
 
     public IList<string> GetParentConfigurations(string configName)
@@ -95,16 +98,21 @@ public class ConfigurationYamlParser : IConfigurationParser
     {
         try
         {
-            var withSameName =
-                configurationsDescription.Keys.Where(config => configName.Equals(GetRealConfigurationName(config))).ToList();
-            if (withSameName.Count == 0)
-                return new Dictionary<string, object>();
-            if (withSameName.Count > 1)
-                throw new BadYamlException(ModuleName, "configurations", "duplicate configuration name " + configName);
+            var withSameName = configurationsDescription.Keys
+                .Where(config => configName.Equals(GetRealConfigurationName(config)))
+                .ToList();
+            switch (withSameName.Count)
+            {
+                case 0:
+                    return new Dictionary<string, object>();
+                case > 1:
+                    throw new BadYamlException(ModuleName, "configurations", "duplicate configuration name " + configName);
+            }
 
             var section = configurationsDescription[withSameName.First()];
-            if (section == null || section is string)
+            if (section is null or string)
                 return new Dictionary<string, object>();
+
             var dict = (Dictionary<object, object>)section;
             return dict.Keys.ToDictionary(key => (string)key, key => dict[key]);
         }

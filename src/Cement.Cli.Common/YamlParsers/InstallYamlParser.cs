@@ -20,7 +20,7 @@ public sealed class InstallYamlParser : ConfigurationYamlParser
 
     public InstallData Get(string configuration = null)
     {
-        configuration = configuration ?? GetDefaultConfigurationName();
+        configuration ??= GetDefaultConfigurationName();
         if (!ConfigurationExists(configuration))
             throw new NoSuchConfigurationException(ModuleName, configuration);
         var defaultInstallContent = ConfigurationExists("default")
@@ -56,7 +56,7 @@ public sealed class InstallYamlParser : ConfigurationYamlParser
             return new List<string>();
 
         var section = configSection[keyWord];
-        if (section == null || section is string)
+        if (section is null or string)
             return new List<string>();
 
         var list = (List<object>)configSection[keyWord];

@@ -36,13 +36,12 @@ public sealed class BuildYamlParser : ConfigurationYamlParser
 
     private static List<string> GetBuildParams(object section)
     {
-        var list = section as List<object>;
-        if (list != null)
-            return list.Cast<string>().ToList();
-        var str = section as string;
-        if (str != null)
-            return new[] {str}.ToList();
-        return new List<string>();
+        return section switch
+        {
+            List<object> list => list.Cast<string>().ToList(),
+            string str => new[] {str}.ToList(),
+            _ => new List<string>()
+        };
     }
 
     private static Tool GetToolFromDict(Dictionary<object, object> dict)
@@ -56,13 +55,13 @@ public sealed class BuildYamlParser : ConfigurationYamlParser
                 tool.Version = (string)dict[key];
         }
 
-        tool.Version = tool.Version ?? CementSettingsRepository.Get().DefaultMsBuildVersion;
+        tool.Version ??= CementSettingsRepository.Get().DefaultMsBuildVersion;
         return tool;
     }
 
     private List<BuildData> GetBuildData(string configName)
     {
-        configName = configName ?? GetDefaultConfigurationName();
+        configName ??= GetDefaultConfigurationName();
 
         var buildSections = GetBuildSectionsFromConfig(configName);
         if (!buildSections.Any())
@@ -108,17 +107,13 @@ public sealed class BuildYamlParser : ConfigurationYamlParser
 
     private Tool GetToolFromSection(object section)
     {
-        if (section is string)
+        return section switch
         {
-            var tool = (string)section;
-            if (tool.Length == 0)
-                throw new BadYamlException(ModuleName, "tool", "empty tool");
-            return new Tool {Name = tool};
-        }
-
-        if (section is IDictionary<object, object>)
-            return GetToolFromDict((Dictionary<object, object>)section);
-        throw new BadYamlException(ModuleName, "tool", "not dict format");
+            string {Length: 0} => throw new BadYamlException(ModuleName, "tool", "empty tool"),
+            string tool => new Tool {Name = tool},
+            IDictionary<object, object> => GetToolFromDict((Dictionary<object, object>)section),
+            _ => throw new BadYamlException(ModuleName, "tool", "not dict format")
+        };
     }
 
     private void TryUpdateWithDefaultSection(Dictionary<string, object> parameters)
@@ -126,7 +121,7 @@ public sealed class BuildYamlParser : ConfigurationYamlParser
         var defaultSections = GetBuildSectionsFromConfig("default");
         if (!defaultSections.Any())
             return;
-        if (defaultSections.Count() > 1)
+        if (defaultSections.Count > 1)
             throw new CementException("Default configuration can't contains multiple build sections.");
         var defaultSection = defaultSections.First();
 
@@ -143,19 +138,24 @@ public sealed class BuildYamlParser : ConfigurationYamlParser
             return new List<Dictionary<string, object>>();
 
         var configSection = GetConfigurationSection(configuration);
-        if (configSection == null || !configSection.ContainsKey("build") || configSection["build"] == null)
+        const string buildKey = "build";
+        if (configSection == null || !configSection.ContainsKey(buildKey) || configSection[buildKey] == null)
             return new List<Dictionary<string, object>>();
 
-        if (configSection["build"] is Dictionary<object, object>)
+        if (configSection[buildKey] is Dictionary<object, object> dict)
         {
-            var dict = configSection["build"] as Dictionary<object, object>;
             var stringDict = dict.ToDictionary(kvp => (string)kvp.Key, kvp => kvp.Value);
             return new[] {stringDict}.ToList();
         }
 
-        var list = configSection["build"] as List<object>;
-        if (list == null)
+        if (configSection[buildKey] is not List<object> list)
             return new List<Dictionary<string, object>>();
-        return list.Cast<Dictionary<object, object>>().Select(d => d.ToDictionary(kvp => (string)kvp.Key, kvp => kvp.Value)).ToList();
+
+        return list
+            .Cast<Dictionary<object, object>>()
+            .Select(d => d.ToDictionary(
+                kvp => (string)kvp.Key,
+                kvp => kvp.Value))
+            .ToList();
     }
 }

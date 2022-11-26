@@ -7,6 +7,8 @@ namespace Cement.Cli.Common.YamlParsers;
 
 public sealed class SettingsYamlParser : ConfigurationYamlParser
 {
+    private const string SectionName = "settings";
+
     public SettingsYamlParser(FileInfo moduleName)
         : base(moduleName)
     {
@@ -30,16 +32,15 @@ public sealed class SettingsYamlParser : ConfigurationYamlParser
         }
         catch (Exception exception)
         {
-            throw new BadYamlException(ModuleName, "settings", exception.Message);
+            throw new BadYamlException(ModuleName, SectionName, exception.Message);
         }
     }
 
     private static ModuleSettings GetSettingsFromSection(Dictionary<string, object> configDict)
     {
-        if (configDict == null || !configDict.ContainsKey("settings"))
+        if (configDict == null || !configDict.ContainsKey(SectionName))
             return new ModuleSettings();
-        var settingsDict = configDict["settings"] as Dictionary<object, object>;
-        if (settingsDict == null)
+        if (configDict[SectionName] is not Dictionary<object, object> settingsDict)
             return new ModuleSettings();
 
         return GetSettings(settingsDict);
@@ -47,9 +48,10 @@ public sealed class SettingsYamlParser : ConfigurationYamlParser
 
     private static ModuleSettings GetSettings(Dictionary<object, object> settingsDict)
     {
-        var result = new ModuleSettings();
-        if (settingsDict.ContainsKey("type") && ((string)settingsDict["type"]).Trim() == "content")
-            result.IsContentModule = true;
-        return result;
+        var isContentModule = settingsDict.TryGetValue("type", out var type) && ((string)type).Trim() == "content";
+        return new ModuleSettings
+        {
+            IsContentModule = isContentModule,
+        };
     }
 }

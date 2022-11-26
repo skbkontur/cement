@@ -9,7 +9,7 @@ namespace Cement.Cli.Common.YamlParsers.V2.Factories;
 
 public static class ConfigurationHierarchyFactory
 {
-    private const string defaultConfigName = "full-build";
+    private const string DefaultConfigName = "full-build";
 
     public static ConfigurationHierarchy Get(ConfigSectionTitle[] configs)
     {
@@ -32,7 +32,7 @@ public static class ConfigurationHierarchyFactory
     private static ConfigSectionTitle DetermineDefaultConfig(IReadOnlyList<ConfigSectionTitle> lines)
     {
         var config = lines.FirstOrDefault(l => l.IsDefault) ??
-                     lines.FirstOrDefault(l => string.Equals(l.Name, defaultConfigName));
+                     lines.FirstOrDefault(l => string.Equals(l.Name, DefaultConfigName));
 
         if (config != null)
             return config;
@@ -126,7 +126,7 @@ public static class ConfigurationHierarchyFactory
 
     private static Dictionary<string, string[]> BuildConfigNameToParentsMap(string[] all, IReadOnlyDictionary<string, string[]> adjacencyMap)
     {
-        var configNameToAllParentsMap = all.ToDictionary(node => node, node => new string[0]);
+        var configNameToAllParentsMap = all.ToDictionary(node => node, _ => Array.Empty<string>());
         foreach (var configName in all)
         {
             var closestParents = adjacencyMap[configName];
