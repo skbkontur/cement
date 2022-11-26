@@ -68,11 +68,11 @@ public sealed class ReadmeGenerator
         var lines = result.Split(new[] {"\r\n", "\n"}, StringSplitOptions.None);
         foreach (var line in lines)
         {
-            if (line.StartsWith("### "))
-            {
-                var name = line.Substring(4);
-                menu += $"[{name}](#{name.Replace(' ', '-')})" + Environment.NewLine + Environment.NewLine;
-            }
+            if (!line.StartsWith("### "))
+                continue;
+
+            var name = line[4..];
+            menu += $"[{name}](#{name.Replace(' ', '-')})" + Environment.NewLine + Environment.NewLine;
         }
 
         result = menu + result;
