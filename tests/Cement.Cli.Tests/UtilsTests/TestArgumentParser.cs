@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Cement.Cli.Common;
+using Cement.Cli.Common.ArgumentsParsing;
 using Cement.Cli.Common.Exceptions;
 using NUnit.Framework;
 

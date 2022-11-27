@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Cement.Cli.Common;
+using Cement.Cli.Common.ArgumentsParsing;
 using Cement.Cli.Common.Graph;
 using Cement.Cli.Common.Logging;
 using JetBrains.Annotations;

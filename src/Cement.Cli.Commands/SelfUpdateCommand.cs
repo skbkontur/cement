@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using Cement.Cli.Common;
+using Cement.Cli.Common.ArgumentsParsing;
 using Cement.Cli.Common.Exceptions;
 using Cement.Cli.Common.Updaters;
 using JetBrains.Annotations;

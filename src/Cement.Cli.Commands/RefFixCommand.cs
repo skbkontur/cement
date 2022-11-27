@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using Cement.Cli.Common;
+using Cement.Cli.Common.ArgumentsParsing;
 using Cement.Cli.Common.Exceptions;
 using Cement.Cli.Common.Extensions;
 using Cement.Cli.Common.YamlParsers;

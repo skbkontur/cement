@@ -5,7 +5,7 @@ using System.Linq;
 using Cement.Cli.Common.Exceptions;
 using NDesk.Options;
 
-namespace Cement.Cli.Common;
+namespace Cement.Cli.Common.ArgumentsParsing;
 
 public static class ArgumentParser
 {

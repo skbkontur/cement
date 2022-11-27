@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Cement.Cli.Common;
+using Cement.Cli.Common.ArgumentsParsing;
 using Cement.Cli.Common.DepsValidators;
 using Cement.Cli.Common.YamlParsers;
 using JetBrains.Annotations;
