@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using Cement.Cli.Common;
 using Cement.Cli.Common.YamlParsers;
@@ -8,21 +7,26 @@ using JetBrains.Annotations;
 namespace Cement.Cli.Commands;
 
 [PublicAPI]
-public sealed class LsCommand : ICommand
+public sealed class LsCommand : Command<LsCommandOptions>
 {
+    private static readonly CommandSettings Settings = new()
+    {
+        RequireModuleYaml = false,
+        Location = CommandLocation.Any
+    };
+
     private readonly ConsoleWriter consoleWriter;
     private readonly IPackageUpdater packageUpdater;
 
-    private Dictionary<string, object> parsedArgs;
-    private bool simple;
-
-    public LsCommand(ConsoleWriter consoleWriter, IPackageUpdater packageUpdater)
+    public LsCommand(ConsoleWriter consoleWriter, IPackageUpdater packageUpdater, FeatureFlags featureFlags)
+        : base(consoleWriter, Settings, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.packageUpdater = packageUpdater;
     }
 
-    public string HelpMessage => @"
+    public override string Name => "ls";
+    public override string HelpMessage => @"
     Lists all available modules
 
     Usage:
@@ -41,13 +45,31 @@ public sealed class LsCommand : ICommand
         cm ls --all --has-branch=temp --url
 ";
 
-    public string Name => "ls";
-
-    public int Run(string[] args)
+    protected override LsCommandOptions ParseArgs(string[] args)
     {
-        ParseArgs(args);
+        var parsedArgs = ArgumentParser.ParseLs(args);
 
-        if (simple)
+        var (isLocal, isAllModules) = ((bool)parsedArgs["local"], (bool)parsedArgs["all"]);
+        if (!isLocal && !isAllModules)
+        {
+            if (parsedArgs["branch"] is null)
+                isAllModules = true;
+            else
+                isLocal = true;
+        }
+
+        return new LsCommandOptions(
+            (bool)parsedArgs["simple"],
+            isLocal,
+            isAllModules,
+            (bool)parsedArgs["url"],
+            (bool)parsedArgs["pushurl"],
+            (string)parsedArgs["branch"]);
+    }
+
+    protected override int Execute(LsCommandOptions commandOptions)
+    {
+        if (commandOptions.IsSimpleMode)
         {
             PrintSimpleLocalWithYaml();
             return 0;
@@ -56,7 +78,7 @@ public sealed class LsCommand : ICommand
         packageUpdater.UpdatePackages();
         var packages = Helper.GetPackages();
         foreach (var package in packages)
-            PrintPackage(package);
+            PrintPackage(package, commandOptions);
 
         consoleWriter.ClearLine();
         return 0;
@@ -71,59 +93,32 @@ public sealed class LsCommand : ICommand
         consoleWriter.SimpleWriteLine(string.Join("\n", local.Select(m => m.Name).OrderBy(x => x)));
     }
 
-    private void PrintPackage(Package package)
+    private void PrintPackage(Package package, LsCommandOptions options)
     {
         consoleWriter.SimpleWriteLine("[{0}]", package.Name);
         var modules = Helper.GetModulesFromPackage(package).OrderBy(m => m.Name);
         foreach (var module in modules)
-            PrintModule(module);
+            PrintModule(module, options);
         consoleWriter.ClearLine();
     }
 
-    private void PrintModule(Module module)
+    private void PrintModule(Module module, LsCommandOptions options)
     {
         consoleWriter.WriteProgress(module.Name);
         var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
 
-        if ((bool)parsedArgs["all"] || ((bool)parsedArgs["local"] &&
-                                        Helper.DirectoryContainsModule(workspace, module.Name)))
-        {
-            if (parsedArgs["branch"] != null && !GitRepository.HasRemoteBranch(module.Url, (string)parsedArgs["branch"]))
-                return;
-            consoleWriter.ClearLine();
-            consoleWriter.SimpleWrite("{0, -30}", module.Name);
-            if ((bool)parsedArgs["url"])
-                consoleWriter.SimpleWrite("{0, -60}", module.Url);
-            if ((bool)parsedArgs["pushurl"])
-                consoleWriter.SimpleWrite(module.Url);
-            consoleWriter.SimpleWriteLine();
-        }
-    }
+        if (!options.IsForAllModules &&
+            !(options.IsForLocalModules && Helper.DirectoryContainsModule(workspace, module.Name)))
+            return;
+        if (options.BranchName != null && !GitRepository.HasRemoteBranch(module.Url, options.BranchName))
+            return;
 
-    private void ParseArgs(string[] args)
-    {
-        parsedArgs = ArgumentParser.ParseLs(args);
-        foreach (var key in new[] {"local", "all", "url", "pushurl"})
-        {
-            if (!parsedArgs.ContainsKey(key))
-                parsedArgs[key] = false;
-        }
-
-        if (!parsedArgs.ContainsKey("branch"))
-            parsedArgs["branch"] = null;
-        if (!(bool)parsedArgs["local"] && !(bool)parsedArgs["all"])
-        {
-            if (parsedArgs["branch"] == null)
-            {
-                parsedArgs["all"] = true;
-            }
-            else
-            {
-                parsedArgs["local"] = true;
-            }
-        }
-
-        if (parsedArgs.ContainsKey("simple"))
-            simple = true;
+        consoleWriter.ClearLine();
+        consoleWriter.SimpleWrite("{0, -30}", module.Name);
+        if (options.ShowUrl)
+            consoleWriter.SimpleWrite("{0, -60}", module.Url);
+        if (options.ShowPushUrl)
+            consoleWriter.SimpleWrite(module.Url);
+        consoleWriter.SimpleWriteLine();
     }
 }

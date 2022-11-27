@@ -11,7 +11,16 @@ public static class ArgumentParser
 {
     public static Dictionary<string, object> ParseLs(string[] args)
     {
-        var parsedArguments = new Dictionary<string, object>();
+        var parsedArguments = new Dictionary<string, object>
+        {
+            {"local", false},
+            {"all", false},
+            {"branch", null},
+            {"url", false},
+            {"pushurl", false},
+            {"simple", false}
+        };
+
         var parser = new OptionSet
         {
             {"l|local", l => parsedArguments["local"] = true},
@@ -23,12 +32,8 @@ public static class ArgumentParser
         };
         var extraArgs = parser.Parse(args.Skip(1));
         ThrowIfHasExtraArgs(extraArgs);
-        var local = parsedArguments.ContainsKey("local") ? 1 : 0;
-        var all = parsedArguments.ContainsKey("all") ? 1 : 0;
-        if (local + all > 1)
-        {
+        if ((bool)parsedArguments["local"] && (bool)parsedArguments["all"])
             throw new BadArgumentException("Bad arguments: all and local");
-        }
 
         return parsedArguments;
     }
