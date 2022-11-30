@@ -133,7 +133,7 @@ generate_coverage_report:
     - /tools/reportgenerator
       -reports:$CI_PROJECT_DIR/cobertura/**/coverage.cobertura.xml
       -targetdir:coverage
-      "-reporttypes:Html;Badges"
+      "-reporttypes:Html;Badges;TextSummary"
   coverage: '/Branch coverage: (\d+(?:\.\d+)?%)/'
   artifacts:
     expire_in: 7 days
@@ -243,3 +243,20 @@ create_github_release:
     - |
       curl --header "PRIVATE-TOKEN: $CEMENT_CLI_CI_TOKEN" -O $PACKAGE_URL
     - gh release create --notes "automatic release" -R https://github.com/skbkontur/cement $VERSION_TAG $OUTPUT_FILE
+
+pages:
+  stage: release
+  extends: ['.tags']
+  image: busybox:1.34
+  needs:
+    - 'generate_coverage_report'
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+    - when: manual
+      allow_failure: true
+  script:
+    - mv coverage/ public/
+  artifacts:
+    paths:
+      - public
