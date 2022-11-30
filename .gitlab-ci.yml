@@ -122,6 +122,25 @@ run_tests:
       junit:
         - $CI_PROJECT_DIR/junit/*.xml
 
+generate_coverage_report:
+  stage: test
+  extends: ['.tags']
+  needs:
+    - 'run_tests'
+  before_script:
+    - dotnet tool install --tool-path /tools dotnet-reportgenerator-globaltool --version 5.1.12
+  script:
+    - /tools/reportgenerator
+      -reports:$CI_PROJECT_DIR/cobertura/**/coverage.cobertura.xml
+      -targetdir:coverage
+      "-reporttypes:Html;Badges"
+  coverage: '/Branch coverage: (\d+(?:\.\d+)?%)/'
+  artifacts:
+    expire_in: 7 days
+    expose_as: 'Coverage report'
+    paths:
+      - coverage/
+
 .package:
   stage: publish
   extends: .tags
