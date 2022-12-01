@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Cement.Cli.Common;
 using Cement.Cli.Common.ArgumentsParsing;
@@ -50,19 +51,9 @@ public sealed class LsCommand : Command<LsCommandOptions>
     {
         var parsedArgs = ArgumentParser.ParseLs(args);
 
-        var (isLocal, isAllModules) = ((bool)parsedArgs["local"], (bool)parsedArgs["all"]);
-        if (!isLocal && !isAllModules)
-        {
-            if (parsedArgs["branch"] is null)
-                isAllModules = true;
-            else
-                isLocal = true;
-        }
-
         return new LsCommandOptions(
             (bool)parsedArgs["simple"],
-            isLocal,
-            isAllModules,
+            GetModuleProcessType(parsedArgs),
             (bool)parsedArgs["url"],
             (bool)parsedArgs["pushurl"],
             (string)parsedArgs["branch"]);
@@ -108,8 +99,8 @@ public sealed class LsCommand : Command<LsCommandOptions>
         consoleWriter.WriteProgress(module.Name);
         var workspace = Helper.GetWorkspaceDirectory(Directory.GetCurrentDirectory()) ?? Directory.GetCurrentDirectory();
 
-        if (!options.IsForAllModules &&
-            !(options.IsForLocalModules && Helper.DirectoryContainsModule(workspace, module.Name)))
+        if (options.ModuleProcessType == ModuleProcessType.Local &&
+            !Helper.DirectoryContainsModule(workspace, module.Name))
             return;
         if (options.BranchName != null && !GitRepository.HasRemoteBranch(module.Url, options.BranchName))
             return;
@@ -121,5 +112,19 @@ public sealed class LsCommand : Command<LsCommandOptions>
         if (options.ShowPushUrl)
             consoleWriter.SimpleWrite(module.Url);
         consoleWriter.SimpleWriteLine();
+    }
+
+    private static ModuleProcessType GetModuleProcessType(Dictionary<string, object> parsedArgs)
+    {
+        var (isLocal, isAllModules) = ((bool)parsedArgs["local"], (bool)parsedArgs["all"]);
+        if (isLocal)
+            return ModuleProcessType.Local;
+
+        if (isAllModules)
+            return ModuleProcessType.All;
+
+        return (string)parsedArgs["branch"] is null
+            ? ModuleProcessType.All
+            : ModuleProcessType.Local;
     }
 }
