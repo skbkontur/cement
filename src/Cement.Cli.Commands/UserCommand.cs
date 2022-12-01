@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Linq;
 using Cement.Cli.Commands.Attributes;
 using Cement.Cli.Common;

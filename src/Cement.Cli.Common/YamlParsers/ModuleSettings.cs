@@ -1,4 +1,4 @@
-﻿namespace Cement.Cli.Common.YamlParsers;
+namespace Cement.Cli.Common.YamlParsers;
 
 public sealed class ModuleSettings
 {

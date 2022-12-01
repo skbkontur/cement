@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Cement.Cli.Common.Exceptions;
 
 namespace Cement.Cli.Common;

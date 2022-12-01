@@ -1,4 +1,4 @@
-﻿using Cement.Cli.Commands;
+using Cement.Cli.Commands;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace cm;

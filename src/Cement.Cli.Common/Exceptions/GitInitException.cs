@@ -1,4 +1,4 @@
-﻿namespace Cement.Cli.Common.Exceptions;
+namespace Cement.Cli.Common.Exceptions;
 
 public sealed class GitInitException : CementException
 {

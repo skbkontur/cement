@@ -1,4 +1,4 @@
-﻿namespace Cement.Cli.Common;
+namespace Cement.Cli.Common;
 
 public sealed class DepWithParent
 {

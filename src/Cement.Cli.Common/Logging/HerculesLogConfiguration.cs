@@ -1,4 +1,4 @@
-﻿namespace Cement.Cli.Common.Logging;
+namespace Cement.Cli.Common.Logging;
 
 internal sealed class HerculesLogConfiguration
 {

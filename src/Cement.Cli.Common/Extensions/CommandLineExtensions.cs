@@ -1,4 +1,4 @@
-﻿namespace Cement.Cli.Common.Extensions;
+namespace Cement.Cli.Common.Extensions;
 
 public static class CommandLineExtensions
 {

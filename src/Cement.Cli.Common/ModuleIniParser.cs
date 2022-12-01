@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Cement.Cli.Common.Exceptions;
 
 namespace Cement.Cli.Common;

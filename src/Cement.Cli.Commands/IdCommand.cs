@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Cement.Cli.Commands.Attributes;
 using Cement.Cli.Common;

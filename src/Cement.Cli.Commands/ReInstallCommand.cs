@@ -1,4 +1,4 @@
-﻿using Cement.Cli.Commands.Attributes;
+using Cement.Cli.Commands.Attributes;
 using Cement.Cli.Commands.Extensions;
 using Cement.Cli.Common;
 using JetBrains.Annotations;

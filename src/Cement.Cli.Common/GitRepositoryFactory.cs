@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using Cement.Cli.Common.Logging;
 using JetBrains.Annotations;
 

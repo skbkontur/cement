@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Cement.Cli.Common;
 using Cement.Cli.Common.Logging;
 using JetBrains.Annotations;

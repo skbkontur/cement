@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Cement.Cli.Common;
 
 namespace Cement.Cli.Commands;

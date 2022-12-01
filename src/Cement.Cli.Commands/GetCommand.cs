@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using Cement.Cli.Common;
 using Cement.Cli.Common.ArgumentsParsing;
 using Cement.Cli.Common.DepsValidators;

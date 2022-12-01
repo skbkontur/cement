@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../dependencies/vostok.devtools/git-commit-to-assembly-title/Vostok.Tools.GitCommit2AssemblyTitle.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
