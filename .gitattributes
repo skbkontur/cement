@@ -1,0 +1,26 @@
+# Enable LF normalization
+*   text=auto eol=lf
+
+# List of files that should be treated as text files
+*.sln           text
+*.yaml          text
+*.props         text
+*.targets       text
+*.config        text
+*.dockerfile    text
+*.cs            text
+*.csproj        text
+*.json          text
+*.gitignore     text
+*.dockerignore  text
+*.DotSettings   text
+*.js            text
+*.ts            text
+*.css           text
+*.html          text
+*.cshtml        text
+*.nuspec        text
+*.tsx           text
+
+# Hint for git diff
+*.cs    diff=csharp
