@@ -8,6 +8,8 @@ namespace Cement.Cli.Common.YamlParsers;
 
 public sealed class BuildYamlParser : ConfigurationYamlParser
 {
+    private const string BuildKey = "build";
+
     public BuildYamlParser(FileInfo modulePath)
         : base(modulePath)
     {
@@ -30,7 +32,7 @@ public sealed class BuildYamlParser : ConfigurationYamlParser
         }
         catch (Exception exception)
         {
-            throw new BadYamlException(ModuleName, "build", exception.Message);
+            throw new BadYamlException(ModuleName, BuildKey, exception.Message);
         }
     }
 
@@ -92,7 +94,7 @@ public sealed class BuildYamlParser : ConfigurationYamlParser
             buildSection["target"] = "";
         if ((!buildSection.ContainsKey("configuration") || string.IsNullOrEmpty((string)buildSection["configuration"]))
             && ((string)buildSection["target"]).EndsWith(".sln"))
-            throw new BadYamlException(ModuleName, "build", "Build configuration not found in " + configName);
+            throw new BadYamlException(ModuleName, BuildKey, "Build configuration not found in " + configName);
         if (!buildSection.ContainsKey("tool") || buildSection["tool"] == null)
             buildSection["tool"] = ToolNames.MSBuild;
         if (!buildSection.ContainsKey("parameters"))
@@ -138,17 +140,16 @@ public sealed class BuildYamlParser : ConfigurationYamlParser
             return new List<Dictionary<string, object>>();
 
         var configSection = GetConfigurationSection(configuration);
-        const string buildKey = "build";
-        if (configSection == null || !configSection.ContainsKey(buildKey) || configSection[buildKey] == null)
+        if (configSection == null || !configSection.ContainsKey(BuildKey) || configSection[BuildKey] == null)
             return new List<Dictionary<string, object>>();
 
-        if (configSection[buildKey] is Dictionary<object, object> dict)
+        if (configSection[BuildKey] is Dictionary<object, object> dict)
         {
             var stringDict = dict.ToDictionary(kvp => (string)kvp.Key, kvp => kvp.Value);
             return new[] {stringDict}.ToList();
         }
 
-        if (configSection[buildKey] is not List<object> list)
+        if (configSection[BuildKey] is not List<object> list)
             return new List<Dictionary<string, object>>();
 
         return list

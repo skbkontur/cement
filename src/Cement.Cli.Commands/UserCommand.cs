@@ -32,7 +32,7 @@ public sealed class UserCommand : Command<UserCommandOptions>
     {
         var arguments = options.Arguments;
         var cmd = CementSettingsRepository.Get().UserCommands[arguments[0]];
-        logger.LogDebug("Run command {commandName}: '{cmd}'", arguments[0], cmd);
+        logger.LogDebug("Run command {CommandName}: '{Cmd}'", arguments[0], cmd);
         if (arguments.Length > 1)
         {
             arguments = arguments.Skip(1).ToArray();

@@ -48,10 +48,9 @@ public sealed class SettingsYamlParser : ConfigurationYamlParser
 
     private static ModuleSettings GetSettings(Dictionary<object, object> settingsDict)
     {
-        var isContentModule = settingsDict.TryGetValue("type", out var type) && ((string)type).Trim() == "content";
         return new ModuleSettings
         {
-            IsContentModule = isContentModule,
+            IsContentModule = settingsDict.TryGetValue("type", out var type) && ((string)type).Trim() == "content",
         };
     }
 }
