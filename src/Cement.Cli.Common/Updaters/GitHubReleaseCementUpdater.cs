@@ -37,8 +37,9 @@ public sealed class GitHubReleaseCementUpdater : ICementUpdater
         try
         {
             var gitHubRelease = LoadGitHubRelease();
-            if (gitHubRelease.Assets.Count == 1)
-                return gitHubRelease.TargetCommitsh;
+
+            if (gitHubRelease.Assets.Count >= 1)
+                return GetCommitSha(gitHubRelease.TagName);
 
             log.LogError(
                 "The GitHub Release '{GitHubReleaseVersion}' has incorrect number of assets: {GitHubReleaseAssetsCount}\n" +
@@ -123,5 +124,30 @@ public sealed class GitHubReleaseCementUpdater : ICementUpdater
         var gitHubRelease = JsonConvert.DeserializeObject<GitHubRelease>(content);
 
         return gitHubRelease;
+    }
+
+    private string GetCommitSha(string gitRef)
+    {
+        using var cts = new CancellationTokenSource(DefaultTimeout);
+
+        var uri = new Uri($"https://api.github.com/repos/{Owner}/{Repository}/commits/{gitRef}");
+        using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
+        {
+            Headers =
+            {
+                Accept = {MediaTypeWithQualityHeaderValue.Parse("application/vnd.github.sha")},
+                UserAgent = {ProductInfoHeaderValue.Parse("Anything")}
+            }
+        };
+
+        using var httpResponseMessage = httpClient.Send(httpRequestMessage, cts.Token);
+        httpResponseMessage.EnsureSuccessStatusCode();
+
+        using var stream = httpResponseMessage.Content.ReadAsStream(cts.Token);
+        using var streamReader = new StreamReader(stream, Encoding.UTF8);
+
+        var content = streamReader.ReadToEnd();
+
+        return content;
     }
 }
