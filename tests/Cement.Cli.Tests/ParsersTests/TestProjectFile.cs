@@ -13,29 +13,6 @@ namespace Cement.Cli.Tests.ParsersTests;
 [TestFixture]
 internal class TestProjectFile
 {
-    private readonly string defaultCsprojXml =
-        @"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <RootNamespace>TestProject</RootNamespace>
-    <AssemblyName>TestProject</AssemblyName>
-    <CodeAnalysisRuleSet>Other.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
-    <PropertyGroupWithCondition>true</PropertyGroupWithCondition>
-    <CodeAnalysisRuleSet>Another.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include=""System"" />
-    <Reference Include=""LalalaReference"">
-      <HintPath>../../lalala/LalalaReference.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include=""Other.dll"" />
-    <Analyzer Include=""dummyDir/Another.dll"" />
-  </ItemGroup>
-</Project>";
     private TempDirectory workDirectory = new();
 
     [SetUp]
@@ -169,12 +146,13 @@ internal class TestProjectFile
         Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
     }
 
-    [Test]
-    public void Costructor_GetXmlFromFile_IfFileExist()
+    [TestCase(DefaultOldCsprojXml, TestName = "OldCsprojFormat")]
+    [TestCase(DefaultNewCsprojXml, TestName = "NewCsprojFormat")]
+    public void Constructor_GetXmlFromFile_IfFileExist(string csprojXml)
     {
-        var projectFile = CreateProjectFile(defaultCsprojXml);
+        var projectFile = CreateProjectFile(csprojXml);
 
-        Assert.AreEqual(WithoutXmlFormatting(defaultCsprojXml), projectFile.Document.OuterXml);
+        Assert.That(projectFile.Document.OuterXml, Is.EqualTo(WithoutXmlFormatting(csprojXml)));
     }
 
     [Test]
@@ -188,41 +166,43 @@ internal class TestProjectFile
         Assert.Throws<FileNotFoundException>(() => new ProjectFile(nullPath));
     }
 
-    [Test]
-    public void BindRuleset_NoBindRuleset_IfBindingAlreadyExists()
+    [TestCase(DefaultOldCsprojXml, TestName = "OldCsprojFormat")]
+    [TestCase(DefaultNewCsprojXml, TestName = "NewCsprojFormat")]
+    public void BindRuleset_NoBindRuleset_IfBindingAlreadyExists(string csprojXml)
     {
-        var rulesetName = "Other.ruleset";
+        const string rulesetName = "Other.ruleset";
         var rulesetPath = Path.Combine(workDirectory.Path, rulesetName);
         var rulesetFile = new RulesetFile(rulesetPath);
-        var projectFile = CreateProjectFile(defaultCsprojXml);
+        var projectFile = CreateProjectFile(csprojXml);
 
         projectFile.BindRuleset(rulesetFile);
 
         Console.WriteLine("ProjectFile should be contains 2 old rulesetBindings:");
         Console.WriteLine(projectFile.Document.OuterXml);
         var rulesetBindings = SearchByXpath(projectFile.Document, "//a:CodeAnalysisRuleSet");
-        Assert.AreEqual(2, rulesetBindings.Count);
+        Assert.That(rulesetBindings, Has.Count.EqualTo(2));
     }
 
-    [Test]
-    public void BindRuleset_MoveOldRulesetBindings_FromProjectFileToRulesetFile()
+    [TestCase(DefaultOldCsprojXml, TestName = "OldCsprojFormat")]
+    [TestCase(DefaultNewCsprojXml, TestName = "NewCsprojFormat")]
+    public void BindRuleset_MoveOldRulesetBindings_FromProjectFileToRulesetFile(string csprojXml)
     {
         var rulesetName = $"{Guid.NewGuid()}.ruleset";
         var rulesetPath = Path.Combine(workDirectory.Path, rulesetName);
         var rulesetFile = new RulesetFile(rulesetPath);
-        var projectFile = CreateProjectFile(defaultCsprojXml);
+        var projectFile = CreateProjectFile(csprojXml);
 
         projectFile.BindRuleset(rulesetFile);
 
         Console.WriteLine($"ProjectFile should be contains only one CodeAnalysisRuleSet with value '{rulesetName}':");
         Console.WriteLine(projectFile.Document.OuterXml);
         var rulesetBinding = SearchByXpath(projectFile.Document, "//a:CodeAnalysisRuleSet").Single();
-        Assert.AreEqual(rulesetName, rulesetBinding.InnerText);
+        Assert.That(rulesetBinding.InnerText, Is.EqualTo(rulesetName));
 
         Console.WriteLine("RulesetFile should be contains oldRulesetBindings:");
         Console.WriteLine(rulesetFile.Document.OuterXml);
         var oldRulesetBindings = SearchByXpath(rulesetFile.Document, "//a:Include");
-        Assert.AreEqual(2, oldRulesetBindings.Count);
+        Assert.That(oldRulesetBindings, Has.Count.EqualTo(2));
     }
 
     [Test]
@@ -238,23 +218,37 @@ internal class TestProjectFile
     }
 
     [Test]
-    public void AddAnalyzer_AddAnalyzersDll_IfNotExists()
+    public void AddAnalyzer_CreateItemGroupForAnalyzers_IfNotExists_ForNewCsprojFormat()
+    {
+        var analyzerDllPath = Path.Combine(workDirectory.Path, $"{Guid.NewGuid()}.dll");
+        const string csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk""><PropertyGroup><TargetFramework>net6.0</TargetFramework></PropertyGroup></Project>";
+        var projectFile = CreateProjectFile(csprojContent);
+
+        projectFile.AddAnalyzer(analyzerDllPath);
+
+        Assert.That(SearchByXpath(projectFile.Document, "//a:ItemGroup[a:Analyzer]").Single(), Is.Not.Null);
+    }
+
+    [TestCase(DefaultOldCsprojXml, TestName = "OldCsprojFormat")]
+    [TestCase(DefaultNewCsprojXml, TestName = "NewCsprojFormat")]
+    public void AddAnalyzer_AddAnalyzersDll_IfNotExists(string csprojXml)
     {
         var analyzerDllRelpath = $"{Guid.NewGuid()}.dll";
         var analyzerDllFullPath = Path.Combine(workDirectory.Path, analyzerDllRelpath);
-        var projectFile = CreateProjectFile(defaultCsprojXml);
+        var projectFile = CreateProjectFile(csprojXml);
 
         projectFile.AddAnalyzer(analyzerDllFullPath);
 
         Assert.NotNull(SearchByXpath(projectFile.Document, $"//a:ItemGroup/a:Analyzer[@Include = '{analyzerDllRelpath}']").Single());
     }
 
-    [Test]
-    public void AddAnalyzer_NotAddAnalyzersDll_IfDllWithSomeNameAlreadyAdded()
+    [TestCase(DefaultOldCsprojXml, TestName = "OldCsprojFormat")]
+    [TestCase(DefaultNewCsprojXml, TestName = "NewCsprojFormat")]
+    public void AddAnalyzer_NotAddAnalyzersDll_IfDllWithSomeNameAlreadyAdded(string csprojXml)
     {
-        var analyzerDllRelpath = "Another.dll";
-        var analyzerDllFullPath = Path.Combine(workDirectory.Path, analyzerDllRelpath);
-        var projectFile = CreateProjectFile(defaultCsprojXml);
+        const string analyzerDllFileName = "Another.dll";
+        var analyzerDllFullPath = Path.Combine(workDirectory.Path, analyzerDllFileName);
+        var projectFile = CreateProjectFile(csprojXml);
 
         projectFile.AddAnalyzer(analyzerDllFullPath);
 
@@ -328,4 +322,55 @@ internal class TestProjectFile
             .ToList();
         return result;
     }
+
+    private const string DefaultOldCsprojXml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <PropertyGroup>
+    <RootNamespace>TestProject</RootNamespace>
+    <AssemblyName>TestProject</AssemblyName>
+    <CodeAnalysisRuleSet>Other.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' "">
+    <PropertyGroupWithCondition>true</PropertyGroupWithCondition>
+    <CodeAnalysisRuleSet>Another.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include=""System"" />
+    <Reference Include=""LalalaReference"">
+      <HintPath>../../lalala/LalalaReference.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include=""Other.dll"" />
+    <Analyzer Include=""dummyDir/Another.dll"" />
+  </ItemGroup>
+</Project>";
+
+    private const string DefaultNewCsprojXml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <NoWarn>1701;1702;1591;1573</NoWarn>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <CodeAnalysisRuleSet>Other.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=""condition"">
+    <NoWarn>1</NoWarn>
+    <CodeAnalysisRuleSet>Another.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include=""LalalaReference"">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\lalalal\bin\LalalaReference.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include=""Newtonsoft.Json"" Version=""13.0.1"" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include=""Other.dll"" />
+    <Analyzer Include=""dummyDir/Another.dll"" />
+  </ItemGroup>
+</Project>";
 }
