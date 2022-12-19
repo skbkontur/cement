@@ -30,7 +30,7 @@ internal class TestProjectFile
     [Test]
     public void TestCreatingDocument()
     {
-        var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        const string content = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""4.0"" DefaultTargets=""Build"">
   <ItemGroup>
     <Reference Include=""log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL"">
@@ -47,15 +47,18 @@ internal class TestProjectFile
 </Project>
 ";
         var proj = CreateProjectFile(content);
-        XmlNode refXml;
-        Assert.IsTrue(proj.ContainsRef("log4net", out refXml));
-        Assert.IsFalse(proj.ContainsRef("logging", out refXml));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(proj.ContainsRef("log4net", out _), Is.True);
+            Assert.That(proj.ContainsRef("logging", out _), Is.False);
+        });
     }
 
     [Test]
     public void TestAddReference()
     {
-        var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        const string content = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""4.0"" DefaultTargets=""Build"">
   <ItemGroup>
     <Reference Include=""log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL"">
@@ -71,31 +74,39 @@ internal class TestProjectFile
   </ItemGroup>
 </Project>
 ";
-        XmlNode refXml;
         var proj = CreateProjectFile(content);
+
         proj.AddRef("logging", "abc/def");
-        Assert.IsTrue(proj.ContainsRef("logging", out refXml));
-        Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(proj.ContainsRef("logging", out var refXml), Is.True);
+            Assert.That(refXml.LastChild!.InnerText, Is.EqualTo("abc/def"));
+        });
     }
 
     [Test]
     public void TestAddReferenceInEmptyProject()
     {
-        var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        const string content = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""4.0"" DefaultTargets=""Build"">
 </Project>
 ";
-        XmlNode refXml;
         var proj = CreateProjectFile(content);
+
         proj.AddRef("logging", "abc/def");
-        Assert.IsTrue(proj.ContainsRef("logging", out refXml));
-        Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(proj.ContainsRef("logging", out var refXml), Is.True);
+            Assert.That(refXml.LastChild!.InnerText, Is.EqualTo("abc/def"));
+        });
     }
 
     [Test]
     public void TestAddReferenceReferenceNotFirst()
     {
-        var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        const string content = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""4.0"" DefaultTargets=""Build"">
   <ItemGroup />
   <ItemGroup>
@@ -113,17 +124,21 @@ internal class TestProjectFile
   </ItemGroup>
 </Project>
 ";
-        XmlNode refXml;
         var proj = CreateProjectFile(content);
+
         proj.AddRef("logging", "abc/def");
-        Assert.IsTrue(proj.ContainsRef("logging", out refXml));
-        Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(proj.ContainsRef("logging", out var refXml), Is.True);
+            Assert.That(refXml.LastChild!.InnerText, Is.EqualTo("abc/def"));
+        });
     }
 
     [Test]
     public void TestReplaceReferencePath()
     {
-        var content = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        const string content = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""4.0"" DefaultTargets=""Build"">
   <ItemGroup>
     <Reference Include=""log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL"">
@@ -139,11 +154,15 @@ internal class TestProjectFile
   </ItemGroup>
 </Project>
 ";
-        XmlNode refXml;
         var proj = CreateProjectFile(content);
+
         proj.ReplaceRef("log4net", "abc/def");
-        Assert.IsTrue(proj.ContainsRef("log4net", out refXml));
-        Assert.AreEqual("abc/def", refXml.LastChild.InnerText);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(proj.ContainsRef("log4net", out var refXml), Is.True);
+            Assert.That(refXml.LastChild!.InnerText, Is.EqualTo("abc/def"));
+        });
     }
 
     [TestCase(DefaultOldCsprojXml, TestName = "OldCsprojFormat")]
@@ -156,7 +175,7 @@ internal class TestProjectFile
     }
 
     [Test]
-    public void Costructor_ThrowException_IfFileNotExist()
+    public void Constructor_ThrowException_IfFileNotExist()
     {
         var nullName = Guid.NewGuid().ToString();
         var nullPath = Path.Combine(workDirectory.Path, $"{nullName}.csproj");
@@ -206,15 +225,15 @@ internal class TestProjectFile
     }
 
     [Test]
-    public void AddAnalyzer_CreateItemGroupForAnalyzers_IfNotExists()
+    public void AddAnalyzer_CreateItemGroupForAnalyzers_IfNotExists_ForOldCsprojFormat()
     {
         var analyzerDllPath = Path.Combine(workDirectory.Path, $"{Guid.NewGuid()}.dll");
-        var csprojContent = @"<?xml version=""1.0"" encoding=""utf-8""?><Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003""></Project>";
+        const string csprojContent = @"<?xml version=""1.0"" encoding=""utf-8""?><Project ToolsVersion=""14.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003""></Project>";
         var projectFile = CreateProjectFile(csprojContent);
 
         projectFile.AddAnalyzer(analyzerDllPath);
 
-        Assert.NotNull(SearchByXpath(projectFile.Document, "//a:ItemGroup[a:Analyzer]").Single());
+        Assert.That(SearchByXpath(projectFile.Document, "//a:ItemGroup[a:Analyzer]").Single(), Is.Not.Null);
     }
 
     [Test]
@@ -260,8 +279,7 @@ internal class TestProjectFile
     [Test]
     public void TestMakeCsProjWithNugetReferences()
     {
-        var content = @"<Project Sdk=""Microsoft.NET.Sdk"">
-
+        const string content = @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Vostok.Clusterclient</RootNamespace>
@@ -281,13 +299,15 @@ internal class TestProjectFile
     </Reference>
   </ItemGroup>
 </Project>
-            ";
+";
 
         var proj = CreateProjectFile(content);
         var xmlDocument = proj.CreateCsProjWithNugetReferences(new List<Dep> {new("vostok.core")}, true);
-
-        Assert.Null(xmlDocument.SelectSingleNode("//Reference[@Include='Vostok.Core']"));
-        Assert.NotNull(xmlDocument.SelectSingleNode("//PackageReference[@Include='vostok.core']"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(xmlDocument.SelectSingleNode("//Reference[@Include='Vostok.Core']"), Is.Null);
+            Assert.That(xmlDocument.SelectSingleNode("//PackageReference[@Include='vostok.core']"), Is.Not.Null);
+        });
     }
 
     private ProjectFile CreateProjectFile(string projectFileContent)
@@ -309,15 +329,15 @@ internal class TestProjectFile
         return projectFilePath;
     }
 
-    private string WithoutXmlFormatting(string xml) => new Regex(">\\s+<").Replace(xml, "><");
+    private static string WithoutXmlFormatting(string xml) => new Regex(">\\s+<").Replace(xml, "><");
 
-    private List<XmlNode> SearchByXpath(XmlDocument xmlDocument, string xpath)
+    private static List<XmlNode> SearchByXpath(XmlDocument xmlDocument, string xpath)
     {
-        var namespaceUri = xmlDocument.DocumentElement.NamespaceURI;
+        var namespaceUri = xmlDocument.DocumentElement!.NamespaceURI;
         var nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
         nsmgr.AddNamespace("a", namespaceUri);
         var result = xmlDocument
-            .SelectNodes(xpath, nsmgr)
+            .SelectNodes(xpath, nsmgr)!
             .Cast<XmlNode>()
             .ToList();
         return result;
