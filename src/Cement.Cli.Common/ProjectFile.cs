@@ -55,17 +55,19 @@ public sealed class ProjectFile
             var oldRulesetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(FilePath), oldRuleSet.InnerText));
             var oldRulesetPathOrName = File.Exists(oldRulesetPath) ? oldRulesetPath : oldRulesetValue;
             rulesetFile.Include(oldRulesetPathOrName);
-            oldRuleSet.ParentNode.RemoveChild(oldRuleSet);
+            oldRuleSet.ParentNode!.RemoveChild(oldRuleSet);
         }
 
-        var namespaceUri = Document.DocumentElement.NamespaceURI;
+        var namespaceUri = Document.DocumentElement!.NamespaceURI;
+        var isOldCsprojFormat = !string.IsNullOrEmpty(namespaceUri);
         var nsmgr = new XmlNamespaceManager(Document.NameTable);
         nsmgr.AddNamespace("a", namespaceUri);
-        var ruleSetParentNode = Document.SelectSingleNode("/a:Project/a:PropertyGroup[not(@Condition)][a:AssemblyName]", nsmgr);
+        var requiredNodeName = isOldCsprojFormat ? "AssemblyName" : "TargetFramework";
+        var ruleSetParentNode = Document.SelectSingleNode($"/a:Project/a:PropertyGroup[not(@Condition)][a:{requiredNodeName}]", nsmgr);
         var ruleSetNode = Document.CreateElement("CodeAnalysisRuleSet", namespaceUri);
         var ruleSetNodeValue = Document.CreateTextNode(relativeRulesetPath);
         ruleSetNode.AppendChild(ruleSetNodeValue);
-        ruleSetParentNode.AppendChild(ruleSetNode);
+        ruleSetParentNode!.AppendChild(ruleSetNode);
     }
 
     public void AddAnalyzer(string analyzerDllPath)
