@@ -220,6 +220,7 @@ create_release:
       links:
         - name: $OUTPUT_FILE
           url: $PACKAGE_URL
+          filepath: /bin/meta
 
 create_github_release:
   stage: release
