@@ -23,6 +23,14 @@ public sealed class ModuleCommand : ICommand
         };
     }
 
+    public bool MeasureElapsedTime { get; }
+
+    public bool RequireModuleYaml { get; }
+
+    public CommandLocation Location { get; } = CommandLocation.Any;
+
+    public string Name => "module";
+
     public string HelpMessage => @"
     Adds new or changes existing cement module
     Don't delete old modules
@@ -32,8 +40,6 @@ public sealed class ModuleCommand : ICommand
         --pushurl        - module push url
         --package        - name of repository with modules description, specify if multiple
 ";
-
-    public string Name => "module";
 
     public int Run(string[] args)
     {

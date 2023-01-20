@@ -17,6 +17,14 @@ public sealed class StatusCommand : ICommand
         this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
+    public bool MeasureElapsedTime { get; }
+
+    public bool RequireModuleYaml { get; }
+
+    public CommandLocation Location { get; } = CommandLocation.Any;
+
+    public string Name => "status";
+
     public string HelpMessage => @"
     Prints status of modifed git repos in the cement tracked dir
     It checks repo for push/pull and local state
@@ -26,8 +34,6 @@ public sealed class StatusCommand : ICommand
 
     Runs anywhere in the cement tracked tree
 ";
-
-    public string Name => "status";
 
     public int Run(string[] args)
     {

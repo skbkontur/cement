@@ -25,6 +25,14 @@ public sealed class HelpCommand : ICommand
         this.readmeGenerator = readmeGenerator;
     }
 
+    public bool MeasureElapsedTime { get; }
+
+    public bool RequireModuleYaml { get; }
+
+    public CommandLocation Location { get; } = CommandLocation.Any;
+
+    public string Name => "help";
+
     public string HelpMessage => @"
     Prints help for command
 
@@ -36,8 +44,6 @@ public sealed class HelpCommand : ICommand
     Example:
         cm help init
 ";
-
-    public string Name => "help";
 
     public int Run(string[] args)
     {

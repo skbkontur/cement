@@ -23,6 +23,14 @@ public sealed class RefCommand : ICommand
         };
     }
 
+    public bool MeasureElapsedTime { get; }
+
+    public bool RequireModuleYaml { get; }
+
+    public CommandLocation Location { get; } = CommandLocation.Any;
+
+    public string Name => "ref";
+
     public string HelpMessage => @"
     Adds or fixes references in *.csproj
 
@@ -47,8 +55,6 @@ public sealed class RefCommand : ICommand
             change	<HintPath>..\..\props\libprops\bin\Release\4.0\Kontur.Core.dll</HintPath>
             to		<HintPath>..\..\core\bin\Release\Kontur.Core.dll</HintPath>
 ";
-
-    public string Name => "ref";
 
     public int Run(string[] args)
     {

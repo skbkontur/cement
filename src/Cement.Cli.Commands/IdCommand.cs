@@ -19,14 +19,20 @@ public sealed class IdCommand : ICommand
         this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
+    public bool MeasureElapsedTime { get; }
+
+    public bool RequireModuleYaml { get; }
+
+    public CommandLocation Location { get; } = CommandLocation.Any;
+
+    public string Name => "id";
+
     public string HelpMessage => @"
     Prints id of current module or ids of modules
 
     Usage:
         cm id
 ";
-
-    public string Name => "id";
 
     public int Run(string[] args)
     {

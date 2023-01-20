@@ -14,6 +14,14 @@ public sealed class InitCommand : ICommand
         this.consoleWriter = consoleWriter;
     }
 
+    public bool MeasureElapsedTime { get; }
+
+    public bool RequireModuleYaml { get; }
+
+    public CommandLocation Location { get; } = CommandLocation.Any;
+
+    public string Name => "init";
+
     public string HelpMessage => @"
     Inits current directory as 'cement tracked'
 
@@ -23,8 +31,6 @@ public sealed class InitCommand : ICommand
     Note:
         $HOME directory cannot be used with this command
 ";
-
-    public string Name => "init";
 
     public int Run(string[] args)
     {

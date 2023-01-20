@@ -25,6 +25,14 @@ public sealed class UsagesCommand : ICommand
         };
     }
 
+    public bool MeasureElapsedTime { get; }
+
+    public bool RequireModuleYaml { get; }
+
+    public CommandLocation Location { get; } = CommandLocation.Any;
+
+    public string Name => "usages";
+
     public string HelpMessage => @"
     Performs operations with module usages
 
@@ -71,8 +79,6 @@ public sealed class UsagesCommand : ICommand
             cm usages grep ""new Class"" ""Class.New"" -- *.cs
                 show lines contains ""new Class"" or ""Class.New"" in modules linked to the current, only in *.cs files
 ";
-
-    public string Name => "usages";
 
     public int Run(string[] args)
     {

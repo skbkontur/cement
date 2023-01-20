@@ -25,6 +25,12 @@ public sealed class PackagesCommand : ICommand
         };
     }
 
+    public bool MeasureElapsedTime { get; }
+
+    public bool RequireModuleYaml { get; }
+
+    public CommandLocation Location { get; } = CommandLocation.Any;
+
     public string Name => "packages";
 
     public string HelpMessage => @"

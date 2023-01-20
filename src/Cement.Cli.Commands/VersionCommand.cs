@@ -13,14 +13,20 @@ public sealed class VersionCommand : ICommand
         this.consoleWriter = consoleWriter;
     }
 
+    public bool MeasureElapsedTime { get; }
+
+    public bool RequireModuleYaml { get; }
+
+    public CommandLocation Location { get; } = CommandLocation.Any;
+
+    public string Name => "--version";
+
     public string HelpMessage => @"
     Shows cement's version
 
     Usage:
         cm --version
 ";
-
-    public string Name => "--version";
 
     public int Run(string[] args)
     {

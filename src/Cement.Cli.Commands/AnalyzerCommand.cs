@@ -23,6 +23,14 @@ public sealed class AnalyzerCommand : ICommand
         };
     }
 
+    public bool MeasureElapsedTime { get; }
+
+    public bool RequireModuleYaml { get; }
+
+    public CommandLocation Location { get; } = CommandLocation.Any;
+
+    public string Name => "analyzer";
+
     public string HelpMessage => @"
     Adds analyzers in *.sln
 
@@ -40,8 +48,6 @@ public sealed class AnalyzerCommand : ICommand
                 Adds analyzer from module analyzers.code-style to all projects
                 in mysolution.sln and adds analyzers.code-style to 'module.yaml' file
 ";
-
-    public string Name => "analyzer";
 
     public int Run(string[] args)
     {
