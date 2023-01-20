@@ -32,7 +32,7 @@ public static class CommandHelper
         }
     }
 
-    public static void CheckRequireYaml(CommandLocation commandLocation, bool requireModuleYaml = false)
+    public static void CheckRequireYaml(CommandLocation commandLocation, bool requireModuleYaml)
     {
         if (commandLocation == CommandLocation.RootModuleDirectory && requireModuleYaml && !File.Exists(Helper.YamlSpecFile))
             throw new CementException("No " + Helper.YamlSpecFile + " file found");

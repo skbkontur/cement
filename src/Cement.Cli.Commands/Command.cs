@@ -1,8 +1,5 @@
-using System;
-using System.Diagnostics;
 using System.IO;
 using Cement.Cli.Common;
-using Cement.Cli.Common.Exceptions;
 using Cement.Cli.Common.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -31,43 +28,8 @@ public abstract class Command<TCommandOptions> : ICommand
 
     public int Run(string[] args)
     {
-        try
-        {
-            var sw = Stopwatch.StartNew();
-
-            CommandHelper.SetWorkspace(Location);
-            CommandHelper.CheckRequireYaml(Location, RequireModuleYaml);
-
-            var options = LogAndParseArgs(args);
-
-            var exitCode = Execute(options);
-
-            if (MeasureElapsedTime)
-            {
-                consoleWriter.WriteInfo("Total time: " + sw.Elapsed);
-                logger.LogDebug("Total time: " + sw.Elapsed);
-            }
-
-            return exitCode;
-        }
-        catch (GitLocalChangesException e)
-        {
-            logger?.LogWarning(e, "Failed to " + GetType().Name.ToLower());
-            consoleWriter.WriteError(e.Message);
-            return -1;
-        }
-        catch (CementException e)
-        {
-            logger?.LogError(e, "Failed to " + GetType().Name.ToLower());
-            consoleWriter.WriteError(e.Message);
-            return -1;
-        }
-        catch (Exception exception)
-        {
-            logger?.LogError(exception, "Failed to " + GetType().Name.ToLower());
-            consoleWriter.WriteError(exception.ToString());
-            return -1;
-        }
+        var options = LogAndParseArgs(args);
+        return Execute(options);
     }
 
     protected abstract int Execute(TCommandOptions commandOptions);

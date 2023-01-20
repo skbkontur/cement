@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Cement.Cli.Commands;
 using Cement.Cli.Commands.Common;
 using Cement.Cli.Common;
 using Cement.Cli.Common.DepsValidators;
+using Cement.Cli.Common.Exceptions;
 using Cement.Cli.Common.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,8 +15,6 @@ namespace cm
 {
     internal sealed class EntryPoint
     {
-        private static ILogger logger;
-
         private static int Main(string[] args)
         {
             args = FixArgs(args);
@@ -109,10 +109,10 @@ namespace cm
 
             var sp = services.BuildServiceProvider(options);
 
-            logger = sp.GetRequiredService<ILogger<EntryPoint>>();
+            var logger = sp.GetRequiredService<ILogger<EntryPoint>>();
             logger.LogInformation("Cement version: {CementVersion}", Helper.GetAssemblyTitle());
 
-            var exitCode = TryRun(consoleWriter, sp, args);
+            var exitCode = TryRun(logger, consoleWriter, sp, args);
 
             consoleWriter.ResetProgress();
 
@@ -143,11 +143,17 @@ namespace cm
             return args;
         }
 
-        private static int TryRun(ConsoleWriter consoleWriter, IServiceProvider sp, string[] args)
+        private static int TryRun(ILogger logger, ConsoleWriter consoleWriter, IServiceProvider sp, string[] args)
         {
             try
             {
-                return Run(consoleWriter, sp, args);
+                return Run(logger, consoleWriter, sp, args);
+            }
+            catch (CementException cex)
+            {
+                logger.LogError(cex, "An unknown error was occurred");
+                consoleWriter.WriteError(cex.Message);
+                return -1;
             }
             catch (Exception ex)
             {
@@ -156,26 +162,51 @@ namespace cm
 
                 return -1;
             }
+
+            static int Run(ILogger logger, ConsoleWriter consoleWriter, IServiceProvider sp, string[] args)
+            {
+                var command = GetCommand(sp, args);
+                if (command == null)
+                {
+                    consoleWriter.WriteError("Bad command: '" + args[0] + "'");
+                    return -1;
+                }
+
+                var sw = Stopwatch.StartNew();
+
+                CommandHelper.SetWorkspace(command.Location);
+                CommandHelper.CheckRequireYaml(command.Location, command.RequireModuleYaml);
+
+                var exitCode = command.Run(args);
+
+                if (!command.MeasureElapsedTime)
+                    return exitCode;
+
+                consoleWriter.WriteInfo("Total time: " + sw.Elapsed);
+                logger.LogDebug("Total time: {TotalElapsed:c}", sw.Elapsed);
+
+                return exitCode;
+            }
         }
 
-        private static int Run(ConsoleWriter consoleWriter, IServiceProvider sp, string[] args)
+        private static ICommand? GetCommand(IServiceProvider sp, string[] args)
         {
             var commands = sp.GetServices<ICommand>()
                 .ToDictionary(c => c.Name);
 
             if (commands.ContainsKey(args[0]))
             {
-                return commands[args[0]].Run(args);
+                return commands[args[0]];
             }
 
-            if (CementSettingsRepository.Get().UserCommands.ContainsKey(args[0]))
+            var cementSettings = CementSettingsRepository.Get();
+            if (cementSettings.UserCommands.ContainsKey(args[0]))
             {
                 var userCommand = sp.GetRequiredService<UserCommand>();
-                return userCommand.Run(args);
+                return userCommand;
             }
 
-            consoleWriter.WriteError("Bad command: '" + args[0] + "'");
-            return -1;
+            return null;
         }
 
         private static void ThreadPoolSetUp(int count)
