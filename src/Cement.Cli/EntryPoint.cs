@@ -120,7 +120,7 @@ namespace cm
             if (command != "complete" && command != "check-pre-commit"
                                       && (command != "help" || !args.Contains("--gen")))
             {
-                SelfUpdate.UpdateIfOld(consoleWriter, featureFlags);
+                SelfUpdate.UpdateIfOld(consoleWriter);
             }
 
             logger.LogInformation("Exit code: {ExitCode}", exitCode);

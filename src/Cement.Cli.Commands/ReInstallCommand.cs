@@ -10,14 +10,12 @@ namespace Cement.Cli.Commands;
 public sealed class ReInstallCommand : Command<ReInstallCommandOptions>
 {
     private readonly ConsoleWriter consoleWriter;
-    private readonly FeatureFlags featureFlags;
     private readonly ICommandActivator commandActivator;
 
-    public ReInstallCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, ICommandActivator commandActivator)
-        : base(consoleWriter, featureFlags)
+    public ReInstallCommand(ConsoleWriter consoleWriter, ICommandActivator commandActivator)
+        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
-        this.featureFlags = featureFlags;
         this.commandActivator = commandActivator;
     }
 

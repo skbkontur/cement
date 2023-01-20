@@ -10,8 +10,8 @@ public sealed class ListPackagesCommand : Command<ListPackagesCommandOptions>
 {
     private readonly ConsoleWriter consoleWriter;
 
-    public ListPackagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, featureFlags)
+    public ListPackagesCommand(ConsoleWriter consoleWriter)
+        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
     }

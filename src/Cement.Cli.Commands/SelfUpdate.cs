@@ -9,7 +9,7 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public static class SelfUpdate
 {
-    public static void UpdateIfOld(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+    public static void UpdateIfOld(ConsoleWriter consoleWriter)
     {
         var log = LogManager.GetLogger(nameof(SelfUpdate));
 
@@ -25,7 +25,7 @@ public static class SelfUpdate
                 return;
 
             var logger = LogManager.GetLogger<SelfUpdateCommand>();
-            var selfUpdateCommand = new SelfUpdateCommand(logger, consoleWriter, featureFlags)
+            var selfUpdateCommand = new SelfUpdateCommand(logger, consoleWriter)
             {
                 IsAutoUpdate = true
             };

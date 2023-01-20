@@ -14,10 +14,9 @@ public abstract class Command<TCommandOptions> : ICommand
     private ILogger logger;
     private ConsoleWriter consoleWriter;
 
-    protected Command(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
+    protected Command(ConsoleWriter consoleWriter)
     {
         this.consoleWriter = consoleWriter;
-        FeatureFlags = featureFlags;
 
         // backward compatibility
         logger = LogManager.GetLogger(GetType());
@@ -70,8 +69,6 @@ public abstract class Command<TCommandOptions> : ICommand
             return -1;
         }
     }
-
-    protected FeatureFlags FeatureFlags { get; }
 
     protected abstract int Execute(TCommandOptions commandOptions);
     protected abstract TCommandOptions ParseArgs(string[] args);

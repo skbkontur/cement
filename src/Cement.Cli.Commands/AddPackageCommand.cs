@@ -9,8 +9,8 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class AddPackageCommand : Command<AddPackageCommandOptions>
 {
-    public AddPackageCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, featureFlags)
+    public AddPackageCommand(ConsoleWriter consoleWriter)
+        : base(consoleWriter)
     {
     }
 

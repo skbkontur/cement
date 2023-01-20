@@ -18,9 +18,8 @@ public sealed class PackCommand : Command<PackCommandOptions>
     private readonly ConsoleWriter consoleWriter;
     private readonly IDepsValidatorFactory depsValidatorFactory;
 
-    public PackCommand(ILogger<PackCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
-                       IDepsValidatorFactory depsValidatorFactory)
-        : base(consoleWriter, featureFlags)
+    public PackCommand(ILogger<PackCommand> logger, ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory)
+        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

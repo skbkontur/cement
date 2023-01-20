@@ -26,11 +26,11 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
 
     private bool hasReplaces;
 
-    public RefAddCommand(ILogger<RefAddCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
-                         BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject,
+    public RefAddCommand(ILogger<RefAddCommand> logger, ConsoleWriter consoleWriter, BuildDepsCommand buildDepsCommand,
+                         BuildCommand buildCommand, DepsPatcherProject depsPatcherProject,
                          IGitRepositoryFactory gitRepositoryFactory, ICommandActivator commandActivator,
                          IPackageUpdater packageUpdater)
-        : base(consoleWriter, featureFlags)
+        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

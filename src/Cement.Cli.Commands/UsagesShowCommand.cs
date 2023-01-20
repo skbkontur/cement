@@ -14,8 +14,8 @@ public sealed class UsagesShowCommand : Command<UsagesShowCommandOptions>
     private readonly ConsoleWriter consoleWriter;
     private readonly IUsagesProvider usagesProvider;
 
-    public UsagesShowCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, featureFlags)
+    public UsagesShowCommand(ConsoleWriter consoleWriter)
+        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);

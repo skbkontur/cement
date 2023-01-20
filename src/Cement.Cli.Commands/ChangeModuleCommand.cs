@@ -13,9 +13,8 @@ public sealed class ChangeModuleCommand : Command<ChangeModuleCommandOptions>
     private readonly IPackageUpdater packageUpdater;
     private readonly ModuleHelper moduleHelper;
 
-    public ChangeModuleCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IPackageUpdater packageUpdater,
-                               ModuleHelper moduleHelper)
-        : base(consoleWriter, featureFlags)
+    public ChangeModuleCommand(ConsoleWriter consoleWriter, IPackageUpdater packageUpdater, ModuleHelper moduleHelper)
+        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.packageUpdater = packageUpdater;

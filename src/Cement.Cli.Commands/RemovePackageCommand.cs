@@ -9,8 +9,8 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class RemovePackageCommand : Command<RemovePackageCommandOptions>
 {
-    public RemovePackageCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, featureFlags)
+    public RemovePackageCommand(ConsoleWriter consoleWriter)
+        : base(consoleWriter)
     {
     }
 

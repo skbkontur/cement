@@ -19,10 +19,10 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
     private readonly IGitRepositoryFactory gitRepositoryFactory;
     private readonly IPackageUpdater packageUpdater;
 
-    public UpdateDepsCommand(ILogger<UpdateDepsCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
-                             CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory, HooksHelper hooksHelper,
+    public UpdateDepsCommand(ILogger<UpdateDepsCommand> logger, ConsoleWriter consoleWriter, CycleDetector cycleDetector,
+                             IDepsValidatorFactory depsValidatorFactory, HooksHelper hooksHelper,
                              IGitRepositoryFactory gitRepositoryFactory, IPackageUpdater packageUpdater)
-        : base(consoleWriter, featureFlags)
+        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

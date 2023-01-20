@@ -14,9 +14,8 @@ public sealed class CheckPreCommitCommand : Command<CheckPreCommitCommandOptions
     private readonly ConsoleWriter consoleWriter;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public CheckPreCommitCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags,
-                                 IGitRepositoryFactory gitRepositoryFactory)
-        : base(consoleWriter, featureFlags)
+    public CheckPreCommitCommand(ConsoleWriter consoleWriter, IGitRepositoryFactory gitRepositoryFactory)
+        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.gitRepositoryFactory = gitRepositoryFactory;

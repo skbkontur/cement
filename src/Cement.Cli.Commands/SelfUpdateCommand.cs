@@ -20,8 +20,8 @@ public sealed class SelfUpdateCommand : Command<SelfUpdateCommandOptions>
     private readonly ILogger<SelfUpdateCommand> logger;
     private readonly ConsoleWriter consoleWriter;
 
-    public SelfUpdateCommand(ILogger<SelfUpdateCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, featureFlags)
+    public SelfUpdateCommand(ILogger<SelfUpdateCommand> logger, ConsoleWriter consoleWriter)
+        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

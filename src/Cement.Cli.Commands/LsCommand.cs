@@ -14,8 +14,8 @@ public sealed class LsCommand : Command<LsCommandOptions>
     private readonly ConsoleWriter consoleWriter;
     private readonly IPackageUpdater packageUpdater;
 
-    public LsCommand(ConsoleWriter consoleWriter, IPackageUpdater packageUpdater, FeatureFlags featureFlags)
-        : base(consoleWriter, featureFlags)
+    public LsCommand(ConsoleWriter consoleWriter, IPackageUpdater packageUpdater)
+        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.packageUpdater = packageUpdater;

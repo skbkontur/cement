@@ -14,8 +14,8 @@ public sealed class ShowConfigsCommand : Command<ShowConfigsCommandOptions>
 {
     private readonly ConsoleWriter consoleWriter;
 
-    public ShowConfigsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, featureFlags)
+    public ShowConfigsCommand(ConsoleWriter consoleWriter)
+        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
     }

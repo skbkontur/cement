@@ -17,14 +17,16 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
 {
     private readonly ILogger<BuildDepsCommand> logger;
     private readonly ConsoleWriter consoleWriter;
+    private readonly FeatureFlags featureFlags;
     private readonly BuildPreparer buildPreparer;
 
     public BuildDepsCommand(ILogger<BuildDepsCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                             BuildPreparer buildPreparer)
-        : base(consoleWriter, featureFlags)
+        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
+        this.featureFlags = featureFlags;
         this.buildPreparer = buildPreparer;
     }
 
@@ -132,7 +134,7 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
 
         builderInitTask.Wait();
 
-        if (FeatureFlags.CleanBeforeBuild || buildSettings.CleanBeforeBuild)
+        if (featureFlags.CleanBeforeBuild || buildSettings.CleanBeforeBuild)
             TryCleanModules(modulesToBuild, cleaner);
 
         TryNugetRestore(logger, consoleWriter, modulesToBuild, builder);

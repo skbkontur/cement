@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Cement.Cli.Tests.Helpers;
 using Cement.Cli.Commands;
 using Cement.Cli.Common;
 using Cement.Cli.Common.DepsValidators;
 using Cement.Cli.Common.YamlParsers;
+using Cement.Cli.Tests.Helpers;
 using NUnit.Framework;
 
 namespace Cement.Cli.Tests.CommandsTests;
@@ -41,7 +41,7 @@ public class TestDepsPrinter
                 {"client", new DepsData(null, new List<Dep>())}
             });
         Helper.SetWorkspace(env.RemoteWorkspace);
-        var result = new ShowDepsCommand(ConsoleWriter, FeatureFlags, DepsValidatorFactory).GetDepsGraph(new Dep("A"));
+        var result = new ShowDepsCommand(ConsoleWriter, DepsValidatorFactory).GetDepsGraph(new Dep("A"));
         CollectionAssert.AreEqual(
             new[]
             {

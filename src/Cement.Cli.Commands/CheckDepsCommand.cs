@@ -14,8 +14,8 @@ public sealed class CheckDepsCommand : Command<CheckDepsCommandOptions>
     private readonly ConsoleWriter consoleWriter;
     private readonly IDepsValidatorFactory depsValidatorFactory;
 
-    public CheckDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
-        : base(consoleWriter, featureFlags)
+    public CheckDepsCommand(ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory)
+        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.depsValidatorFactory = depsValidatorFactory;

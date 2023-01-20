@@ -35,10 +35,10 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
     private string workspace;
     private GitRepository currentRepository;
 
-    public UsagesGrepCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
-                             IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory,
-                             ShellRunner shellRunner, IUsagesProvider usagesProvider, HooksHelper hooksHelper)
-        : base(consoleWriter, featureFlags)
+    public UsagesGrepCommand(ConsoleWriter consoleWriter, CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
+                             IGitRepositoryFactory gitRepositoryFactory, ShellRunner shellRunner, IUsagesProvider usagesProvider,
+                             HooksHelper hooksHelper)
+        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;

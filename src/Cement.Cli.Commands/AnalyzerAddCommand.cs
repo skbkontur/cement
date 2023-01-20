@@ -19,9 +19,9 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
     private readonly DepsPatcherProject depsPatcherProject;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
-    public AnalyzerAddCommand(ILogger<AnalyzerAddCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
+    public AnalyzerAddCommand(ILogger<AnalyzerAddCommand> logger, ConsoleWriter consoleWriter,
                               DepsPatcherProject depsPatcherProject, IGitRepositoryFactory gitRepositoryFactory)
-        : base(consoleWriter, featureFlags)
+        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

@@ -25,10 +25,10 @@ public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
     private string workspace;
     private GitRepository currentRepository;
 
-    public UsagesBuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
-                              GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
+    public UsagesBuildCommand(ConsoleWriter consoleWriter, IUsagesProvider usagesProvider, GetCommand getCommand,
+                              BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
                               IGitRepositoryFactory gitRepositoryFactory)
-        : base(consoleWriter, featureFlags)
+        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.usagesProvider = usagesProvider;

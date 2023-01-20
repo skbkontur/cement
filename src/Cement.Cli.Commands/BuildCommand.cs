@@ -14,14 +14,16 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
 {
     private readonly ILogger<BuildCommand> logger;
     private readonly ConsoleWriter consoleWriter;
+    private readonly FeatureFlags featureFlags;
     private readonly BuildPreparer buildPreparer;
 
     public BuildCommand(ILogger<BuildCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                         BuildPreparer buildPreparer)
-        : base(consoleWriter, featureFlags)
+        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
+        this.featureFlags = featureFlags;
         this.buildPreparer = buildPreparer;
     }
 
@@ -87,7 +89,7 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
         builderInitTask.Wait();
         var module = new Dep(moduleName, null, configuration);
 
-        if (FeatureFlags.CleanBeforeBuild || buildSettings.CleanBeforeBuild)
+        if (featureFlags.CleanBeforeBuild || buildSettings.CleanBeforeBuild)
         {
             if (cleaner.IsNetStandard(module))
                 cleaner.Clean(module);
