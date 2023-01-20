@@ -18,7 +18,6 @@ public sealed class ShowDepsCommand : Command<ShowDepsCommandOptions>
     private readonly ArborJs arborJs;
 
     public ShowDepsCommand(ConsoleWriter consoleWriter, IDepsValidatorFactory depsValidatorFactory)
-        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.depsValidatorFactory = depsValidatorFactory;

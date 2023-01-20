@@ -21,7 +21,6 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
     public UpdateCommand(ILogger<UpdateCommand> logger, ConsoleWriter consoleWriter, CycleDetector cycleDetector,
                          IDepsValidatorFactory depsValidatorFactory, HooksHelper hooksHelper,
                          IGitRepositoryFactory gitRepositoryFactory, IPackageUpdater packageUpdater)
-        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

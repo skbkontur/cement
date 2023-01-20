@@ -21,7 +21,6 @@ public sealed class SelfUpdateCommand : Command<SelfUpdateCommandOptions>
     private readonly ConsoleWriter consoleWriter;
 
     public SelfUpdateCommand(ILogger<SelfUpdateCommand> logger, ConsoleWriter consoleWriter)
-        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

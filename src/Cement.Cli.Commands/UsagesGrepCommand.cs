@@ -38,7 +38,6 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
     public UsagesGrepCommand(ConsoleWriter consoleWriter, CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory,
                              IGitRepositoryFactory gitRepositoryFactory, ShellRunner shellRunner, IUsagesProvider usagesProvider,
                              HooksHelper hooksHelper)
-        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;

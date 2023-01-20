@@ -11,7 +11,6 @@ public sealed class ListPackagesCommand : Command<ListPackagesCommandOptions>
     private readonly ConsoleWriter consoleWriter;
 
     public ListPackagesCommand(ConsoleWriter consoleWriter)
-        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
     }

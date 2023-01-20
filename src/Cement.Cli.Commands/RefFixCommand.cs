@@ -28,7 +28,6 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
     private string oldYamlContent;
 
     public RefFixCommand(ILogger<RefFixCommand> logger, ConsoleWriter consoleWriter, DepsPatcherProject depsPatcherProject)
-        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

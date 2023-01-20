@@ -17,7 +17,6 @@ public sealed class CompleteCommand : Command<CompleteCommandOptions>
 
     public CompleteCommand(ILogger<CompleteCommand> logger, ConsoleWriter consoleWriter,
                            CompleteCommandAutomata completeCommandAutomata)
-        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

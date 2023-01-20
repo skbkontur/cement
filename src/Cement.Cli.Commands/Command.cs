@@ -1,5 +1,4 @@
 using System.IO;
-using Cement.Cli.Common;
 using Cement.Cli.Common.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -9,19 +8,15 @@ public abstract class Command<TCommandOptions> : ICommand
     where TCommandOptions : notnull
 {
     private ILogger logger;
-    private ConsoleWriter consoleWriter;
 
-    protected Command(ConsoleWriter consoleWriter)
+    protected Command()
     {
-        this.consoleWriter = consoleWriter;
-
         // backward compatibility
         logger = LogManager.GetLogger(GetType());
     }
 
     public abstract string Name { get; }
     public abstract string HelpMessage { get; }
-
     public virtual bool MeasureElapsedTime { get; set; }
     public virtual bool RequireModuleYaml { get; set; }
     public virtual CommandLocation Location { get; set; } = CommandLocation.Any;

@@ -10,7 +10,6 @@ namespace Cement.Cli.Commands;
 public sealed class AddPackageCommand : Command<AddPackageCommandOptions>
 {
     public AddPackageCommand(ConsoleWriter consoleWriter)
-        : base(consoleWriter)
     {
     }
 

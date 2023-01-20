@@ -28,7 +28,6 @@ public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
     public UsagesBuildCommand(ConsoleWriter consoleWriter, IUsagesProvider usagesProvider, GetCommand getCommand,
                               BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
                               IGitRepositoryFactory gitRepositoryFactory)
-        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.usagesProvider = usagesProvider;

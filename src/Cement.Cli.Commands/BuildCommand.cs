@@ -19,7 +19,6 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
 
     public BuildCommand(ILogger<BuildCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                         BuildPreparer buildPreparer)
-        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

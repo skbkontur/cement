@@ -22,7 +22,6 @@ public sealed class GetCommand : Command<GetCommandOptions>
     public GetCommand(ILogger<GetCommand> logger, ConsoleWriter consoleWriter, CycleDetector cycleDetector,
                       IDepsValidatorFactory depsValidatorFactory, HooksHelper hooksHelper,
                       IGitRepositoryFactory gitRepositoryFactory, IPackageUpdater packageUpdater)
-        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

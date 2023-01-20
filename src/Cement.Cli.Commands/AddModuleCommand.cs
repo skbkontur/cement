@@ -14,7 +14,6 @@ public sealed class AddModuleCommand : Command<AddModuleCommandOptions>
     private readonly ModuleHelper moduleHelper;
 
     public AddModuleCommand(ConsoleWriter consoleWriter, IPackageUpdater packageUpdater, ModuleHelper moduleHelper)
-        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.packageUpdater = packageUpdater;

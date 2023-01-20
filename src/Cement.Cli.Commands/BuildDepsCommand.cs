@@ -22,7 +22,6 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
 
     public BuildDepsCommand(ILogger<BuildDepsCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                             BuildPreparer buildPreparer)
-        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

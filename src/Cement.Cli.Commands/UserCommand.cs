@@ -15,7 +15,6 @@ public sealed class UserCommand : Command<UserCommandOptions>
     private readonly ConsoleWriter consoleWriter;
 
     public UserCommand(ILogger<UserCommand> logger, ConsoleWriter consoleWriter)
-        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

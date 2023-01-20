@@ -30,7 +30,6 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
                          BuildCommand buildCommand, DepsPatcherProject depsPatcherProject,
                          IGitRepositoryFactory gitRepositoryFactory, ICommandActivator commandActivator,
                          IPackageUpdater packageUpdater)
-        : base(consoleWriter)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

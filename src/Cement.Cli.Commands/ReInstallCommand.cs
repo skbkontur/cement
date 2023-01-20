@@ -13,7 +13,6 @@ public sealed class ReInstallCommand : Command<ReInstallCommandOptions>
     private readonly ICommandActivator commandActivator;
 
     public ReInstallCommand(ConsoleWriter consoleWriter, ICommandActivator commandActivator)
-        : base(consoleWriter)
     {
         this.consoleWriter = consoleWriter;
         this.commandActivator = commandActivator;
