@@ -36,8 +36,8 @@ public abstract class Command<TCommandOptions> : ICommand
         {
             var sw = Stopwatch.StartNew();
 
-            SetWorkspace(Location);
-            CheckRequireYaml(Location, RequireModuleYaml);
+            CommandHelper.SetWorkspace(Location);
+            CommandHelper.CheckRequireYaml(Location, RequireModuleYaml);
 
             var options = LogAndParseArgs(args);
 
@@ -75,41 +75,6 @@ public abstract class Command<TCommandOptions> : ICommand
 
     protected abstract int Execute(TCommandOptions commandOptions);
     protected abstract TCommandOptions ParseArgs(string[] args);
-
-    private static void CheckRequireYaml(CommandLocation location, bool requireModuleYaml)
-    {
-        if (location == CommandLocation.RootModuleDirectory && requireModuleYaml &&
-            !File.Exists(Helper.YamlSpecFile))
-        {
-            throw new CementException("No " + Helper.YamlSpecFile + " file found");
-        }
-    }
-
-    private static void SetWorkspace(CommandLocation location)
-    {
-        var cwd = Directory.GetCurrentDirectory();
-        if (location == CommandLocation.WorkspaceDirectory)
-        {
-            if (!Helper.IsCementTrackedDirectory(cwd))
-                throw new CementTrackException(cwd + " is not cement workspace directory.");
-            Helper.SetWorkspace(cwd);
-        }
-
-        if (location == CommandLocation.RootModuleDirectory)
-        {
-            if (!Helper.IsCurrentDirectoryModule(cwd))
-                throw new CementTrackException(cwd + " is not cement module directory.");
-            Helper.SetWorkspace(Directory.GetParent(cwd).FullName);
-        }
-
-        if (location == CommandLocation.InsideModuleDirectory)
-        {
-            var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
-            if (currentModuleDirectory == null)
-                throw new CementTrackException("Can't locate module directory");
-            Helper.SetWorkspace(Directory.GetParent(currentModuleDirectory).FullName);
-        }
-    }
 
     private TCommandOptions LogAndParseArgs(string[] args)
     {
