@@ -14,24 +14,21 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class PackCommand : Command<PackCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        RequireModuleYaml = true,
-        Location = CommandLocation.InsideModuleDirectory
-    };
     private readonly ILogger<PackCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly IDepsValidatorFactory depsValidatorFactory;
 
     public PackCommand(ILogger<PackCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                        IDepsValidatorFactory depsValidatorFactory)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.depsValidatorFactory = depsValidatorFactory;
     }
 
+    public override bool RequireModuleYaml { get; set; } = true;
+    public override CommandLocation Location { get; set; } = CommandLocation.InsideModuleDirectory;
     public override string Name => "pack";
     public override string HelpMessage => @"
     Packs project to nuget package.

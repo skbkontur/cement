@@ -10,11 +10,6 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class UpdateCommand : Command<UpdateCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.RootModuleDirectory
-    };
-
     private readonly ILogger<UpdateCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
@@ -26,7 +21,7 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
     public UpdateCommand(ILogger<UpdateCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                          CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory, HooksHelper hooksHelper,
                          IGitRepositoryFactory gitRepositoryFactory, IPackageUpdater packageUpdater)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
@@ -37,6 +32,7 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
         this.packageUpdater = packageUpdater;
     }
 
+    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "update";
     public override string HelpMessage => @"
     Updates module for current directory

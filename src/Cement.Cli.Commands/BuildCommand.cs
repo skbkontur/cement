@@ -12,24 +12,20 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class BuildCommand : Command<BuildCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.RootModuleDirectory
-    };
-
     private readonly ILogger<BuildCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly BuildPreparer buildPreparer;
 
     public BuildCommand(ILogger<BuildCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                         BuildPreparer buildPreparer)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
         this.buildPreparer = buildPreparer;
     }
 
+    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "build";
     public override string HelpMessage => @"
     Performs build for the current module

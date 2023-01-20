@@ -12,11 +12,6 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        MeasureElapsedTime = true,
-        Location = CommandLocation.RootModuleDirectory
-    };
     private readonly ConsoleWriter consoleWriter;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
     private readonly IUsagesProvider usagesProvider;
@@ -33,7 +28,7 @@ public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
     public UsagesBuildCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IUsagesProvider usagesProvider,
                               GetCommand getCommand, BuildDepsCommand buildDepsCommand, BuildCommand buildCommand,
                               IGitRepositoryFactory gitRepositoryFactory)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.usagesProvider = usagesProvider;
@@ -42,6 +37,9 @@ public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
         this.buildCommand = buildCommand;
         this.gitRepositoryFactory = gitRepositoryFactory;
     }
+
+    public override bool MeasureElapsedTime { get; set; } = true;
+    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
 
     public override string Name => "build";
     public override string HelpMessage => @"";

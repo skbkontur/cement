@@ -11,12 +11,6 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class GetCommand : Command<GetCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        MeasureElapsedTime = true,
-        Location = CommandLocation.WorkspaceDirectory
-    };
-
     private readonly ILogger<GetCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly CycleDetector cycleDetector;
@@ -28,7 +22,7 @@ public sealed class GetCommand : Command<GetCommandOptions>
     public GetCommand(ILogger<GetCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                       CycleDetector cycleDetector, IDepsValidatorFactory depsValidatorFactory, HooksHelper hooksHelper,
                       IGitRepositoryFactory gitRepositoryFactory, IPackageUpdater packageUpdater)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
@@ -38,6 +32,9 @@ public sealed class GetCommand : Command<GetCommandOptions>
         this.gitRepositoryFactory = gitRepositoryFactory;
         this.packageUpdater = packageUpdater;
     }
+
+    public override bool MeasureElapsedTime { get; set; } = true;
+    public override CommandLocation Location { get; set; } = CommandLocation.WorkspaceDirectory;
 
     public override string Name => "get";
     public override string HelpMessage => @"

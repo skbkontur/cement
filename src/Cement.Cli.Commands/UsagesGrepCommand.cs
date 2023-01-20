@@ -15,11 +15,6 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        MeasureElapsedTime = true,
-        Location = CommandLocation.RootModuleDirectory
-    };
     private static readonly string[] GrepParametersWithValue =
     {
         "-A", "-B", "-C", "--threads", "-f",
@@ -43,7 +38,7 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
     public UsagesGrepCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, CycleDetector cycleDetector,
                              IDepsValidatorFactory depsValidatorFactory, IGitRepositoryFactory gitRepositoryFactory,
                              ShellRunner shellRunner, IUsagesProvider usagesProvider, HooksHelper hooksHelper)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.cycleDetector = cycleDetector;
@@ -54,6 +49,8 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
         this.hooksHelper = hooksHelper;
     }
 
+    public override bool MeasureElapsedTime { get; set; } = true;
+    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "grep";
     public override string HelpMessage => @"";
 

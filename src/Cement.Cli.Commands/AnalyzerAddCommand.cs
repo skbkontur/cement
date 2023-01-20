@@ -14,11 +14,6 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.InsideModuleDirectory
-    };
-
     private readonly ILogger logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly DepsPatcherProject depsPatcherProject;
@@ -26,7 +21,7 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
 
     public AnalyzerAddCommand(ILogger<AnalyzerAddCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                               DepsPatcherProject depsPatcherProject, IGitRepositoryFactory gitRepositoryFactory)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
@@ -34,6 +29,7 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
         this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
+    public override CommandLocation Location { get; set; } = CommandLocation.InsideModuleDirectory;
     public override string Name => "add";
     public override string HelpMessage => @"";
 

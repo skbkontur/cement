@@ -17,16 +17,11 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class SelfUpdateCommand : Command<SelfUpdateCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.Any
-    };
-
     private readonly ILogger<SelfUpdateCommand> logger;
     private readonly ConsoleWriter consoleWriter;
 
     public SelfUpdateCommand(ILogger<SelfUpdateCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

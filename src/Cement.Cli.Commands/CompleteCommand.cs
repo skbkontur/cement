@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Cement.Cli.Commands.Attributes;
 using Cement.Cli.Common;
-using Cement.Cli.Common.Logging;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
@@ -12,17 +11,13 @@ namespace Cement.Cli.Commands;
 [HiddenCommand]
 public sealed class CompleteCommand : Command<CompleteCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.Any
-    };
     private readonly ILogger logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly CompleteCommandAutomata completeCommandAutomata;
 
     public CompleteCommand(ILogger<CompleteCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                            CompleteCommandAutomata completeCommandAutomata)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

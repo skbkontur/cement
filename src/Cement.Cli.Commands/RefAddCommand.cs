@@ -15,10 +15,6 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class RefAddCommand : Command<RefAddCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.InsideModuleDirectory
-    };
     private readonly ILogger<RefAddCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly BuildDepsCommand buildDepsCommand;
@@ -34,7 +30,7 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
                          BuildDepsCommand buildDepsCommand, BuildCommand buildCommand, DepsPatcherProject depsPatcherProject,
                          IGitRepositoryFactory gitRepositoryFactory, ICommandActivator commandActivator,
                          IPackageUpdater packageUpdater)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
@@ -46,6 +42,7 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
         this.packageUpdater = packageUpdater;
     }
 
+    public override CommandLocation Location { get; set; } = CommandLocation.InsideModuleDirectory;
     public override string Name => "add";
     public override string HelpMessage => @"";
 

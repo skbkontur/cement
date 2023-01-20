@@ -8,14 +8,10 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class ListPackagesCommand : Command<ListPackagesCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.Any
-    };
     private readonly ConsoleWriter consoleWriter;
 
     public ListPackagesCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
     }

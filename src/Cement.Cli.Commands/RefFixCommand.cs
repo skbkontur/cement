@@ -16,11 +16,6 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class RefFixCommand : Command<RefFixCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        RequireModuleYaml = true,
-        Location = CommandLocation.RootModuleDirectory
-    };
     private readonly ILogger<RefFixCommand> logger;
     private readonly ConsoleWriter consoleWriter;
     private readonly FixReferenceResult fixReferenceResult = new();
@@ -34,7 +29,7 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
 
     public RefFixCommand(ILogger<RefFixCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                          DepsPatcherProject depsPatcherProject)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;
@@ -42,6 +37,8 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
         fixReferenceResultPrinter = new FixReferenceResultPrinter(consoleWriter);
     }
 
+    public override bool RequireModuleYaml { get; set; } = true;
+    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "fix";
     public override string HelpMessage => @"";
 

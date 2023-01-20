@@ -12,19 +12,15 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class ShowConfigsCommand : Command<ShowConfigsCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.Any,
-        RequireModuleYaml = true
-    };
     private readonly ConsoleWriter consoleWriter;
 
     public ShowConfigsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
     }
 
+    public override bool RequireModuleYaml { get; set; } = true;
     public override string Name => "show-configs";
     public override string HelpMessage => @"
     Shows configurations of module

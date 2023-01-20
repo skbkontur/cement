@@ -9,17 +9,13 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class AddModuleCommand : Command<AddModuleCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.Any
-    };
     private readonly ConsoleWriter consoleWriter;
     private readonly IPackageUpdater packageUpdater;
     private readonly ModuleHelper moduleHelper;
 
     public AddModuleCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IPackageUpdater packageUpdater,
                             ModuleHelper moduleHelper)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.packageUpdater = packageUpdater;

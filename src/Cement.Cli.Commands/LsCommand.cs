@@ -11,17 +11,11 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class LsCommand : Command<LsCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        RequireModuleYaml = false,
-        Location = CommandLocation.Any
-    };
-
     private readonly ConsoleWriter consoleWriter;
     private readonly IPackageUpdater packageUpdater;
 
     public LsCommand(ConsoleWriter consoleWriter, IPackageUpdater packageUpdater, FeatureFlags featureFlags)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.packageUpdater = packageUpdater;

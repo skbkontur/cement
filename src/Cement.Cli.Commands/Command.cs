@@ -14,10 +14,9 @@ public abstract class Command<TCommandOptions> : ICommand
     private ILogger logger;
     private ConsoleWriter consoleWriter;
 
-    protected Command(ConsoleWriter consoleWriter, CommandSettings settings, FeatureFlags featureFlags)
+    protected Command(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
     {
         this.consoleWriter = consoleWriter;
-        CommandSettings = settings;
         FeatureFlags = featureFlags;
 
         // backward compatibility
@@ -27,20 +26,24 @@ public abstract class Command<TCommandOptions> : ICommand
     public abstract string Name { get; }
     public abstract string HelpMessage { get; }
 
+    public virtual bool MeasureElapsedTime { get; set; }
+    public virtual bool RequireModuleYaml { get; set; }
+    public virtual CommandLocation Location { get; set; } = CommandLocation.Any;
+
     public int Run(string[] args)
     {
         try
         {
             var sw = Stopwatch.StartNew();
 
-            SetWorkspace();
-            CheckRequireYaml();
+            SetWorkspace(Location);
+            CheckRequireYaml(Location, RequireModuleYaml);
 
             var options = LogAndParseArgs(args);
 
             var exitCode = Execute(options);
 
-            if (CommandSettings.MeasureElapsedTime)
+            if (MeasureElapsedTime)
             {
                 consoleWriter.WriteInfo("Total time: " + sw.Elapsed);
                 logger.LogDebug("Total time: " + sw.Elapsed);
@@ -68,39 +71,38 @@ public abstract class Command<TCommandOptions> : ICommand
         }
     }
 
-    protected CommandSettings CommandSettings { get; }
     protected FeatureFlags FeatureFlags { get; }
 
     protected abstract int Execute(TCommandOptions commandOptions);
     protected abstract TCommandOptions ParseArgs(string[] args);
 
-    private void CheckRequireYaml()
+    private static void CheckRequireYaml(CommandLocation location, bool requireModuleYaml)
     {
-        if (CommandSettings.Location == CommandLocation.RootModuleDirectory && CommandSettings.RequireModuleYaml &&
+        if (location == CommandLocation.RootModuleDirectory && requireModuleYaml &&
             !File.Exists(Helper.YamlSpecFile))
         {
             throw new CementException("No " + Helper.YamlSpecFile + " file found");
         }
     }
 
-    private void SetWorkspace()
+    private static void SetWorkspace(CommandLocation location)
     {
         var cwd = Directory.GetCurrentDirectory();
-        if (CommandSettings.Location == CommandLocation.WorkspaceDirectory)
+        if (location == CommandLocation.WorkspaceDirectory)
         {
             if (!Helper.IsCementTrackedDirectory(cwd))
                 throw new CementTrackException(cwd + " is not cement workspace directory.");
             Helper.SetWorkspace(cwd);
         }
 
-        if (CommandSettings.Location == CommandLocation.RootModuleDirectory)
+        if (location == CommandLocation.RootModuleDirectory)
         {
             if (!Helper.IsCurrentDirectoryModule(cwd))
                 throw new CementTrackException(cwd + " is not cement module directory.");
             Helper.SetWorkspace(Directory.GetParent(cwd).FullName);
         }
 
-        if (CommandSettings.Location == CommandLocation.InsideModuleDirectory)
+        if (location == CommandLocation.InsideModuleDirectory)
         {
             var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
             if (currentModuleDirectory == null)

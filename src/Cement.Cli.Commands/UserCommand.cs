@@ -11,15 +11,11 @@ namespace Cement.Cli.Commands;
 [HiddenCommand]
 public sealed class UserCommand : Command<UserCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.Any
-    };
     private readonly ILogger<UserCommand> logger;
     private readonly ConsoleWriter consoleWriter;
 
     public UserCommand(ILogger<UserCommand> logger, ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.logger = logger;
         this.consoleWriter = consoleWriter;

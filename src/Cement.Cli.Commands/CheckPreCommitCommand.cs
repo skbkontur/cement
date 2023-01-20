@@ -11,21 +11,18 @@ namespace Cement.Cli.Commands;
 [HiddenCommand]
 public sealed class CheckPreCommitCommand : Command<CheckPreCommitCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.RootModuleDirectory
-    };
     private readonly ConsoleWriter consoleWriter;
     private readonly IGitRepositoryFactory gitRepositoryFactory;
 
     public CheckPreCommitCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags,
                                  IGitRepositoryFactory gitRepositoryFactory)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
+    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "check-pre-commit";
     public override string HelpMessage => @"
     Checks that commit is good

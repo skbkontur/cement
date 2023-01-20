@@ -9,13 +9,8 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class RemovePackageCommand : Command<RemovePackageCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.Any
-    };
-
     public RemovePackageCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
     }
 

@@ -11,21 +11,18 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class CheckDepsCommand : Command<CheckDepsCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        RequireModuleYaml = true,
-        Location = CommandLocation.RootModuleDirectory
-    };
     private readonly ConsoleWriter consoleWriter;
     private readonly IDepsValidatorFactory depsValidatorFactory;
 
     public CheckDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.depsValidatorFactory = depsValidatorFactory;
     }
 
+    public override bool RequireModuleYaml { get; set; } = true;
+    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "check-deps";
     public override string HelpMessage => @"
     Checks deps in module.yaml and references in *.csproj

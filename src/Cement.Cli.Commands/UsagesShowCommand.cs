@@ -11,16 +11,11 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class UsagesShowCommand : Command<UsagesShowCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.Any
-    };
-
     private readonly ConsoleWriter consoleWriter;
     private readonly IUsagesProvider usagesProvider;
 
     public UsagesShowCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         usagesProvider = new UsagesProvider(LogManager.GetLogger<UsagesProvider>(), CementSettingsRepository.Get);

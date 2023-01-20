@@ -12,23 +12,20 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class ShowDepsCommand : Command<ShowDepsCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.RootModuleDirectory
-    };
     private readonly IDepsValidatorFactory depsValidatorFactory;
     private readonly ConsoleWriter consoleWriter;
     private readonly Dictionary<Dep, List<string>> overheadCache = new();
     private readonly ArborJs arborJs;
 
     public ShowDepsCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, IDepsValidatorFactory depsValidatorFactory)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.depsValidatorFactory = depsValidatorFactory;
         arborJs = new ArborJs();
     }
 
+    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "show-deps";
     public override string HelpMessage => @"
     Shows module deps in arbor.js

@@ -9,16 +9,12 @@ namespace Cement.Cli.Commands;
 [HiddenCommand]
 public sealed class ReInstallCommand : Command<ReInstallCommandOptions>
 {
-    private static readonly CommandSettings Settings = new()
-    {
-        Location = CommandLocation.Any
-    };
     private readonly ConsoleWriter consoleWriter;
     private readonly FeatureFlags featureFlags;
     private readonly ICommandActivator commandActivator;
 
     public ReInstallCommand(ConsoleWriter consoleWriter, FeatureFlags featureFlags, ICommandActivator commandActivator)
-        : base(consoleWriter, Settings, featureFlags)
+        : base(consoleWriter, featureFlags)
     {
         this.consoleWriter = consoleWriter;
         this.featureFlags = featureFlags;
