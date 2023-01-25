@@ -24,7 +24,6 @@ public sealed class ShowDepsCommand : Command<ShowDepsCommandOptions>
         arborJs = new ArborJs();
     }
 
-    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "show-deps";
     public override string HelpMessage => @"
     Shows module deps in arbor.js
@@ -54,6 +53,8 @@ public sealed class ShowDepsCommand : Command<ShowDepsCommandOptions>
 
     protected override int Execute(ShowDepsCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.RootModuleDirectory);
+
         var cwd = Directory.GetCurrentDirectory();
         var moduleName = Path.GetFileName(cwd);
 

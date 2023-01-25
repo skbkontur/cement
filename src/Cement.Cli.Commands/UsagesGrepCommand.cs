@@ -49,7 +49,6 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
     }
 
     public override bool MeasureElapsedTime { get; set; } = true;
-    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "grep";
     public override string HelpMessage => @"";
 
@@ -67,6 +66,8 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
 
     protected override int Execute(UsagesGrepCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.RootModuleDirectory);
+
         cwd = Directory.GetCurrentDirectory();
         workspace = Directory.GetParent(cwd).FullName;
         moduleName = Path.GetFileName(cwd);

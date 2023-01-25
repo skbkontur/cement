@@ -19,7 +19,6 @@ public sealed class ShowConfigsCommand : Command<ShowConfigsCommandOptions>
         this.consoleWriter = consoleWriter;
     }
 
-    public override bool RequireModuleYaml { get; set; } = true;
     public override string Name => "show-configs";
     public override string HelpMessage => @"
     Shows configurations of module
@@ -30,6 +29,10 @@ public sealed class ShowConfigsCommand : Command<ShowConfigsCommandOptions>
 
     protected override int Execute(ShowConfigsCommandOptions options)
     {
+        //dstarasov: проверка работает только для RootModuleDirectory
+        //todo: разобраться с проверкой на существование module.yaml
+        CommandHelper.CheckRequireYaml(CommandLocation.Any, true);
+
         var currentDirectory = Directory.GetCurrentDirectory();
         var moduleName = ResolveModuleName(options.ModuleName, currentDirectory);
         var workspace = Helper.GetWorkspaceDirectory(currentDirectory);

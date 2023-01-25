@@ -26,7 +26,6 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
         this.buildPreparer = buildPreparer;
     }
 
-    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "build";
     public override string HelpMessage => @"
     Performs build for the current module
@@ -63,6 +62,8 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
 
     protected override int Execute(BuildCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.RootModuleDirectory);
+
         var cwd = Directory.GetCurrentDirectory();
         var moduleName = Path.GetFileName(cwd);
 

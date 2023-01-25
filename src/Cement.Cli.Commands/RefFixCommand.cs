@@ -35,8 +35,6 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
         fixReferenceResultPrinter = new FixReferenceResultPrinter(consoleWriter);
     }
 
-    public override bool RequireModuleYaml { get; set; } = true;
-    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "fix";
     public override string HelpMessage => @"";
 
@@ -53,6 +51,9 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
 
     protected override int Execute(RefFixCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.RootModuleDirectory);
+        CommandHelper.CheckRequireYaml(CommandLocation.RootModuleDirectory, true);
+
         rootModuleName = Path.GetFileName(Directory.GetCurrentDirectory());
         Fix(options.FixExternal);
         fixReferenceResultPrinter.Print(fixReferenceResult);

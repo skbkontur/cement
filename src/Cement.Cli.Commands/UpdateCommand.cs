@@ -31,7 +31,6 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
         this.packageUpdater = packageUpdater;
     }
 
-    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "update";
     public override string HelpMessage => @"
     Updates module for current directory
@@ -53,6 +52,8 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
 
     protected override int Execute(UpdateCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.RootModuleDirectory);
+
         logger.LogInformation("Updating packages");
         packageUpdater.UpdatePackages();
         var cwd = Directory.GetCurrentDirectory();

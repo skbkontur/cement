@@ -20,7 +20,6 @@ public sealed class CheckPreCommitCommand : Command<CheckPreCommitCommandOptions
         this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
-    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "check-pre-commit";
     public override string HelpMessage => @"
     Checks that commit is good
@@ -31,6 +30,8 @@ public sealed class CheckPreCommitCommand : Command<CheckPreCommitCommandOptions
 
     protected override int Execute(CheckPreCommitCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.RootModuleDirectory);
+
         var cwd = Directory.GetCurrentDirectory();
         var moduleName = Path.GetFileName(cwd);
         var repo = gitRepositoryFactory.Create(moduleName, Helper.CurrentWorkspace);

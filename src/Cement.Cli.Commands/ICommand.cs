@@ -7,10 +7,6 @@ public interface ICommand
 {
     bool MeasureElapsedTime { get; }
 
-    bool RequireModuleYaml { get; }
-
-    CommandLocation Location { get; }
-
     string Name { get; }
 
     string HelpMessage { get; }

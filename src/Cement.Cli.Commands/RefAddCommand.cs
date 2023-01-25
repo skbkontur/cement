@@ -41,7 +41,6 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
         this.packageUpdater = packageUpdater;
     }
 
-    public override CommandLocation Location { get; set; } = CommandLocation.InsideModuleDirectory;
     public override string Name => "add";
     public override string HelpMessage => @"";
 
@@ -64,6 +63,9 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
 
     protected override int Execute(RefAddCommandOptions options)
     {
+        //dstarasov: исторически было так, но, по логике и глядя на ref-fix, должно быть RootModuleDirectory + RequireModuleYaml
+        CommandHelper.SetWorkspace(CommandLocation.InsideModuleDirectory);
+
         var currentModuleDirectory = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
         var currentModule = Path.GetFileName(currentModuleDirectory);
 

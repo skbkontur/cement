@@ -20,8 +20,6 @@ public sealed class CheckDepsCommand : Command<CheckDepsCommandOptions>
         this.depsValidatorFactory = depsValidatorFactory;
     }
 
-    public override bool RequireModuleYaml { get; set; } = true;
-    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "check-deps";
     public override string HelpMessage => @"
     Checks deps in module.yaml and references in *.csproj
@@ -48,6 +46,9 @@ public sealed class CheckDepsCommand : Command<CheckDepsCommandOptions>
 
     protected override int Execute(CheckDepsCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.RootModuleDirectory);
+        CommandHelper.CheckRequireYaml(CommandLocation.RootModuleDirectory, true);
+
         var cwd = Directory.GetCurrentDirectory();
         var ok = true;
         var configuration = options.Configuration ?? "full-build";

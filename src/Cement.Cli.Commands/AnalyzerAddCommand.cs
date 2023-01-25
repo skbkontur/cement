@@ -28,12 +28,13 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
         this.gitRepositoryFactory = gitRepositoryFactory;
     }
 
-    public override CommandLocation Location { get; set; } = CommandLocation.InsideModuleDirectory;
     public override string Name => "add";
     public override string HelpMessage => @"";
 
     protected override AnalyzerAddCommandOptions ParseArgs(string[] args)
     {
+        CommandHelper.SetWorkspace(CommandLocation.InsideModuleDirectory);
+
         var parsedArgs = ArgumentParser.ParseAnalyzerAdd(args);
 
         var analyzerModule = new Dep((string)parsedArgs["module"]);

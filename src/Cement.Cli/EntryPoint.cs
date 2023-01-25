@@ -174,9 +174,6 @@ namespace cm
 
                 var sw = Stopwatch.StartNew();
 
-                CommandHelper.SetWorkspace(command.Location);
-                CommandHelper.CheckRequireYaml(command.Location, command.RequireModuleYaml);
-
                 var exitCode = command.Run(args);
 
                 if (!command.MeasureElapsedTime)

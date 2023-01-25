@@ -63,7 +63,6 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
     }
 
     public override bool MeasureElapsedTime { get; set; } = true;
-    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
     public override string Name => "build-deps";
     public override string HelpMessage => @"
     Performs build for current module dependencies
@@ -104,6 +103,8 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
 
     protected override int Execute(BuildDepsCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.RootModuleDirectory);
+
         var cwd = Directory.GetCurrentDirectory();
         var moduleName = Path.GetFileName(cwd);
 

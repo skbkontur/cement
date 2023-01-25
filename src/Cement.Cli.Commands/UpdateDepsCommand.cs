@@ -33,7 +33,6 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
     }
 
     public override bool MeasureElapsedTime { get; set; } = true;
-    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
 
     public override string Name => "update-deps";
     public override string HelpMessage => @"
@@ -78,6 +77,8 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
 
     protected override int Execute(UpdateDepsCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.RootModuleDirectory);
+
         var cwd = Directory.GetCurrentDirectory();
 
         var configuration = string.IsNullOrEmpty(options.Configuration) ? "full-build" : options.Configuration;

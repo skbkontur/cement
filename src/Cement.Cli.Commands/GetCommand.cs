@@ -33,7 +33,6 @@ public sealed class GetCommand : Command<GetCommandOptions>
     }
 
     public override bool MeasureElapsedTime { get; set; } = true;
-    public override CommandLocation Location { get; set; } = CommandLocation.WorkspaceDirectory;
 
     public override string Name => "get";
     public override string HelpMessage => @"
@@ -82,6 +81,8 @@ public sealed class GetCommand : Command<GetCommandOptions>
 
     protected override int Execute(GetCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.WorkspaceDirectory);
+
         var module = options.Module;
 
         var workspace = Directory.GetCurrentDirectory();

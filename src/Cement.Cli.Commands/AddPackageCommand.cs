@@ -9,10 +9,6 @@ namespace Cement.Cli.Commands;
 [PublicAPI]
 public sealed class AddPackageCommand : Command<AddPackageCommandOptions>
 {
-    public AddPackageCommand(ConsoleWriter consoleWriter)
-    {
-    }
-
     public override string Name => "add";
     public override string HelpMessage => @"usage: cm packages add <name> <url>";
 

@@ -25,8 +25,6 @@ public sealed class PackCommand : Command<PackCommandOptions>
         this.depsValidatorFactory = depsValidatorFactory;
     }
 
-    public override bool RequireModuleYaml { get; set; } = true;
-    public override CommandLocation Location { get; set; } = CommandLocation.InsideModuleDirectory;
     public override string Name => "pack";
     public override string HelpMessage => @"
     Packs project to nuget package.
@@ -47,6 +45,9 @@ public sealed class PackCommand : Command<PackCommandOptions>
 
     protected override int Execute(PackCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.InsideModuleDirectory);
+        CommandHelper.CheckRequireYaml(CommandLocation.InsideModuleDirectory, true);
+
         var modulePath = Helper.GetModuleDirectory(Directory.GetCurrentDirectory());
         var moduleName = Path.GetFileName(modulePath);
         var project = Yaml.GetProjectFileName(options.Project, moduleName);
