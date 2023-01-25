@@ -38,7 +38,6 @@ public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
     }
 
     public override bool MeasureElapsedTime { get; set; } = true;
-    public override CommandLocation Location { get; set; } = CommandLocation.RootModuleDirectory;
 
     public override string Name => "build";
     public override string HelpMessage => @"";
@@ -54,6 +53,8 @@ public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
 
     protected override int Execute(UsagesBuildCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.RootModuleDirectory);
+
         cwd = Directory.GetCurrentDirectory();
         workspace = Directory.GetParent(cwd).FullName;
         moduleName = Path.GetFileName(cwd);
