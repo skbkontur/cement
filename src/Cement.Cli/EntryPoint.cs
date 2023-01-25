@@ -23,13 +23,49 @@ namespace cm
             LogManager.InitializeFileLogger();
             LogManager.InitializeHerculesLogger();
 
+            var services = new ServiceCollection();
+            ConfigureServices(services);
+
+            var options = new ServiceProviderOptions
+            {
+#if DEBUG
+                ValidateOnBuild = true,
+                ValidateScopes = true
+#endif
+            };
+
+            var sp = services.BuildServiceProvider(options);
+
+            var consoleWriter = sp.GetRequiredService<ConsoleWriter>();
+            var logger = sp.GetRequiredService<ILogger<EntryPoint>>();
+            logger.LogInformation("Cement version: {CementVersion}", Helper.GetAssemblyTitle());
+
+            var exitCode = TryRun(logger, consoleWriter, sp, args);
+
+            consoleWriter.ResetProgress();
+
+            var command = args[0];
+            if (command != "complete" && command != "check-pre-commit"
+                                      && (command != "help" || !args.Contains("--gen")))
+            {
+                SelfUpdate.UpdateIfOld(consoleWriter);
+            }
+
+            logger.LogInformation("Exit code: {ExitCode}", exitCode);
+            LogManager.DisposeLoggers();
+
+            return exitCode == 0 ? 0 : 13;
+        }
+
+        private static void ConfigureServices(IServiceCollection services)
+        {
             var consoleWriter = ConsoleWriter.Shared;
+            services.AddSingleton(consoleWriter);
 
             var featureFlagsProvider = new FeatureFlagsProvider(consoleWriter);
             var featureFlags = featureFlagsProvider.Get();
+            services.AddSingleton(featureFlags);
 
-            var services = new ServiceCollection();
-            services.AddSingleton(consoleWriter);
             services.AddSingleton(typeof(ILogger<>), typeof(DefaultLogger<>));
             services.AddSingleton(typeof(Lazy<>), typeof(Lazy<>));
             services.AddSingleton<ReadmeGenerator>();
@@ -43,9 +79,6 @@ namespace cm
             services.AddSingleton<IGitRepositoryFactory, GitRepositoryFactory>();
             services.AddSingleton<CompleteCommandAutomata>();
             services.AddSingleton<ICommandActivator, DefaultCommandActivator>();
-
-            services.AddSingleton(consoleWriter);
-            services.AddSingleton(featureFlags);
 
             services.AddSingleton<CycleDetector>();
             services.AddSingleton(BuildPreparer.Shared);
@@ -98,35 +131,6 @@ namespace cm
             services.AddSubcommand<RemovePackageCommand>();
 
             services.AddCommand<UserCommand>();
-
-            var options = new ServiceProviderOptions
-            {
-#if DEBUG
-                ValidateOnBuild = true,
-                ValidateScopes = true
-#endif
-            };
-
-            var sp = services.BuildServiceProvider(options);
-
-            var logger = sp.GetRequiredService<ILogger<EntryPoint>>();
-            logger.LogInformation("Cement version: {CementVersion}", Helper.GetAssemblyTitle());
-
-            var exitCode = TryRun(logger, consoleWriter, sp, args);
-
-            consoleWriter.ResetProgress();
-
-            var command = args[0];
-            if (command != "complete" && command != "check-pre-commit"
-                                      && (command != "help" || !args.Contains("--gen")))
-            {
-                SelfUpdate.UpdateIfOld(consoleWriter);
-            }
-
-            logger.LogInformation("Exit code: {ExitCode}", exitCode);
-            LogManager.DisposeLoggers();
-
-            return exitCode == 0 ? 0 : 13;
         }
 
         private static string[] FixArgs(string[] args)
