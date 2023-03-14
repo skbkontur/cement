@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Cement.Cli.Commands.ArgumentsParsing;
 using Cement.Cli.Common;
-using Cement.Cli.Common.ArgumentsParsing;
 using Cement.Cli.Common.Logging;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;

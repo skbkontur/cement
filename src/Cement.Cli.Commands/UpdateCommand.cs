@@ -1,6 +1,6 @@
 using System.IO;
+using Cement.Cli.Commands.ArgumentsParsing;
 using Cement.Cli.Common;
-using Cement.Cli.Common.ArgumentsParsing;
 using Cement.Cli.Common.DepsValidators;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
