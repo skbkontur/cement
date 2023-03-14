@@ -1,6 +1,6 @@
 namespace Cement.Cli.Common;
 
-public sealed class BuildSettings
+public sealed record BuildSettings
 {
     public bool ShowObsoleteWarnings { get; set; }
 
