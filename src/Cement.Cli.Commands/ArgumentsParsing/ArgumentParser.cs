@@ -9,35 +9,6 @@ namespace Cement.Cli.Common.ArgumentsParsing;
 
 public static class ArgumentParser
 {
-    public static Dictionary<string, object> ParseLs(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"local", false},
-            {"all", false},
-            {"branch", null},
-            {"url", false},
-            {"pushurl", false},
-            {"simple", false}
-        };
-
-        var parser = new OptionSet
-        {
-            {"l|local", l => parsedArguments["local"] = true},
-            {"a|all", a => parsedArguments["all"] = true},
-            {"b|has-branch=", branch => parsedArguments["branch"] = branch},
-            {"u|url", u => parsedArguments["url"] = true},
-            {"p|pushurl", p => parsedArguments["pushurl"] = true},
-            {"simple", s => parsedArguments["simple"] = true}
-        };
-        var extraArgs = parser.Parse(args.Skip(1));
-        ThrowIfHasExtraArgs(extraArgs);
-        if ((bool)parsedArguments["local"] && (bool)parsedArguments["all"])
-            throw new BadArgumentException("Bad arguments: all and local");
-
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseUpdateDeps(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>

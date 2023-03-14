@@ -42,14 +42,7 @@ public sealed class LsCommand : Command<LsCommandOptions>
 
     protected override LsCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseLs(args);
-
-        return new LsCommandOptions(
-            (bool)parsedArgs["simple"],
-            GetModuleProcessType(parsedArgs),
-            (bool)parsedArgs["url"],
-            (bool)parsedArgs["pushurl"],
-            (string)parsedArgs["branch"]);
+        return new LsCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(LsCommandOptions commandOptions)
@@ -105,19 +98,5 @@ public sealed class LsCommand : Command<LsCommandOptions>
         if (options.ShowPushUrl)
             consoleWriter.SimpleWrite(module.Url);
         consoleWriter.SimpleWriteLine();
-    }
-
-    private static ModuleProcessType GetModuleProcessType(Dictionary<string, object> parsedArgs)
-    {
-        var (isLocal, isAllModules) = ((bool)parsedArgs["local"], (bool)parsedArgs["all"]);
-        if (isLocal)
-            return ModuleProcessType.Local;
-
-        if (isAllModules)
-            return ModuleProcessType.All;
-
-        return (string)parsedArgs["branch"] is null
-            ? ModuleProcessType.All
-            : ModuleProcessType.Local;
     }
 }
