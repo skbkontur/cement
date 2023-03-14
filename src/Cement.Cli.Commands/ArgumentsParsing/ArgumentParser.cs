@@ -71,37 +71,6 @@ public static class ArgumentParser
         return parsedArguments;
     }
 
-    public static Dictionary<string, object> ParsePack(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"configuration", null},
-            {"project", null},
-            {"warnings", false},
-            {"obsolete", false},
-            {"verbose", false},
-            {"progress", false},
-            {"prerelease", false}
-        };
-        var parser = new OptionSet
-        {
-            {"c|configuration=", conf => parsedArguments["configuration"] = conf},
-            {"w|warnings", f => parsedArguments["warnings"] = true},
-            {"W", f => parsedArguments["obsolete"] = true},
-            {"v|verbose", v => parsedArguments["verbose"] = true},
-            {"p|progress", p => parsedArguments["progress"] = true},
-            {"prerelease", p => parsedArguments["prerelease"] = true}
-        };
-        args = parser.Parse(args).ToArray();
-
-        if (args.Length != 2 || args[0] != "pack")
-            throw new BadArgumentException("Wrong usage of command.\nUsage: cm pack [-c|--configuration <config-name>] <project-file>");
-
-        parsedArguments["project"] = args[1];
-
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseAnalyzerAdd(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>

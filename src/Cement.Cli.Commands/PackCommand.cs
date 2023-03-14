@@ -3,7 +3,6 @@ using System.Linq;
 using Cement.Cli.Commands.ArgumentsParsing;
 using Cement.Cli.Common;
 using Cement.Cli.Common.DepsValidators;
-using Cement.Cli.Common.Exceptions;
 using Cement.Cli.Common.Extensions;
 using Cement.Cli.Common.YamlParsers;
 using JetBrains.Annotations;
@@ -86,27 +85,6 @@ public sealed class PackCommand : Command<PackCommandOptions>
 
     protected override PackCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParsePack(args);
-
-        string configuration = null;
-        if (parsedArgs["configuration"] != null)
-            configuration = (string)parsedArgs["configuration"];
-
-        var preRelease = (bool)parsedArgs["prerelease"];
-
-        var buildSettings = new BuildSettings
-        {
-            ShowAllWarnings = (bool)parsedArgs["warnings"],
-            ShowObsoleteWarnings = (bool)parsedArgs["obsolete"],
-            ShowOutput = (bool)parsedArgs["verbose"],
-            ShowProgress = (bool)parsedArgs["progress"],
-            ShowWarningsSummary = true
-        };
-
-        var project = (string)parsedArgs["project"];
-        if (!project.EndsWith(".csproj"))
-            throw new BadArgumentException(project + " is not csproj file");
-
-        return new PackCommandOptions(project, configuration, buildSettings, preRelease);
+        return new PackCommandOptionsParser().Parse(args);
     }
 }
