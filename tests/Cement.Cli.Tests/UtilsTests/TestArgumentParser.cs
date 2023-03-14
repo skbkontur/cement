@@ -1,6 +1,7 @@
-﻿using System.Linq;
+﻿using Cement.Cli.Commands;
 using Cement.Cli.Commands.ArgumentsParsing;
 using Cement.Cli.Common.Exceptions;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Cement.Cli.Tests.UtilsTests;
@@ -161,58 +162,75 @@ public class TestParseUpdateDeps
 [TestFixture]
 public class TestParseLs
 {
+    private readonly LsCommandOptionsParser parser;
+
+    public TestParseLs()
+    {
+        parser = new LsCommandOptionsParser();
+    }
+
     [Test]
     public void TestParseAllArgsWithLocalKey()
     {
-        var args = new[]
-        {
-            "ls",
-            "-l",
-            "-b",
-            "branch",
-            "-u",
-            "-p"
-        };
-        var result = ArgumentParser.ParseLs(args);
-        Assert.True(new[] {"local", "branch", "url", "pushurl"}.Select(key => result.ContainsKey(key)).All(t => t));
+        // arrange
+        const string branchName = "branch";
+        var expected = new LsCommandOptions(false, ModuleProcessType.Local, true, true, branchName);
+
+        // act
+        var actual = parser.Parse(new[] {"ls", "-l", "-b", branchName, "-u", "-p"});
+
+        // assert
+        actual.Should().BeEquivalentTo(expected);
     }
 
     [Test]
     public void TestParseAllArgsPartWithAllKey()
     {
-        var args = new[]
-        {
-            "ls",
-            "-a",
-            "-b",
-            "branch",
-            "-u",
-            "-p"
-        };
-        var result = ArgumentParser.ParseLs(args);
-        Assert.True(new[] {"all", "branch", "url", "pushurl"}.Select(key => result.ContainsKey(key)).All(t => t));
+        // arrange
+        const string branchName = "branch";
+        var expected = new LsCommandOptions(false, ModuleProcessType.All, true, true, branchName);
+
+        // act
+        var actual = parser.Parse(new[] {"ls", "-a", "-b", branchName, "-u", "-p"});
+
+        // assert
+        actual.Should().BeEquivalentTo(expected);
     }
 
     [Test]
     public void TestParseBranchName()
     {
-        var args = new[] {"ls", "-b", "branchName"};
-        var result = ArgumentParser.ParseLs(args);
-        Assert.AreEqual(args[2], result["branch"]);
+        // arrange
+        const string branchName = "branch";
+        var expected = new LsCommandOptions(false, ModuleProcessType.Local, false, false, branchName);
+
+        // act
+        var actual = parser.Parse(new[] {"ls", "-b", branchName});
+
+        // assert
+        actual.Should().BeEquivalentTo(expected);
     }
 
     [Test]
     public void TestThrowsOnMutuallyExclusiveKeys()
     {
-        var args = new[] {"ls", "-l", "-a"};
-        Assert.Throws<BadArgumentException>(() => ArgumentParser.ParseLs(args));
+        // arrange
+        // act
+        var act = () => parser.Parse(new[] {"ls", "-l", "-a"});
+
+        // assert
+        act.Should().ThrowExactly<BadArgumentException>();
     }
 
     [Test]
     public void TestThrowsOnExtraKeys()
     {
-        var args = new[] {"ls", "-r"};
-        Assert.Throws<BadArgumentException>(() => ArgumentParser.ParseLs(args));
+        // arrange
+        // act
+        var act = () => parser.Parse(new[] {"ls", "-r"});
+
+        // assert
+        act.Should().ThrowExactly<BadArgumentException>();
     }
 }
 
