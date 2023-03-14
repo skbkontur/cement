@@ -9,9 +9,5 @@ public enum ModuleProcessType
 }
 
 [PublicAPI]
-public sealed record LsCommandOptions(
-    bool IsSimpleMode,
-    ModuleProcessType ModuleProcessType,
-    bool ShowUrl,
-    bool ShowPushUrl,
-    string BranchName);
+public sealed record LsCommandOptions(bool IsSimpleMode, ModuleProcessType ModuleProcessType, bool ShowUrl, bool ShowPushUrl,
+                                      string BranchName);
