@@ -36,27 +36,27 @@ public class LsCommandOptionsParserTests
 
             var args1 = new[] {"ls", "-l"};
             var expected1 = new LsCommandOptions(false, ModuleProcessType.Local, false, false, null);
-            yield return new TestCaseData(args1, expected1) {TestName = "+l|local"};
+            yield return new TestCaseData(args1, expected1) {TestName = "-l"};
 
             var args2 = new[] {"ls", "-a"};
             var expected2 = new LsCommandOptions(false, ModuleProcessType.All, false, false, null);
-            yield return new TestCaseData(args2, expected2) {TestName = "+a|all"};
+            yield return new TestCaseData(args2, expected2) {TestName = "-a"};
 
             var args3 = new[] {"ls", "-b", branchName};
             var expected3 = new LsCommandOptions(false, ModuleProcessType.Local, false, false, branchName);
-            yield return new TestCaseData(args3, expected3) {TestName = "+b|has-branch"};
+            yield return new TestCaseData(args3, expected3) {TestName = "-b"};
 
             var args4 = new[] {"ls", "-u"};
             var expected4 = new LsCommandOptions(false, ModuleProcessType.All, true, false, null);
-            yield return new TestCaseData(args4, expected4) {TestName = "+u|url"};
+            yield return new TestCaseData(args4, expected4) {TestName = "-u"};
 
             var args5 = new[] {"ls", "-p"};
             var expected5 = new LsCommandOptions(false, ModuleProcessType.All, false, true, null);
-            yield return new TestCaseData(args5, expected5) {TestName = "+p|pushurl"};
+            yield return new TestCaseData(args5, expected5) {TestName = "-p"};
 
             var args6 = new[] {"ls", "--simple"};
             var expected6 = new LsCommandOptions(true, ModuleProcessType.All, false, false, null);
-            yield return new TestCaseData(args6, expected6) {TestName = "+simple"};
+            yield return new TestCaseData(args6, expected6) {TestName = "--simple"};
 
             var args7 = new[] {"ls"};
             var expected7 = new LsCommandOptions(false, ModuleProcessType.All, false, false, null);
@@ -64,11 +64,11 @@ public class LsCommandOptionsParserTests
 
             var args8 = new[] {"ls", "-a", "-b", branchName, "-u", "-p", "--simple"};
             var expected8 = new LsCommandOptions(true, ModuleProcessType.All, true, true, branchName);
-            yield return new TestCaseData(args8, expected8) {TestName = "+a|all +<all args>"};
+            yield return new TestCaseData(args8, expected8) {TestName = "-a -b <branchName> -u -p --simple"};
 
             var args9 = new[] {"ls", "-l", "-b", branchName, "-u", "-p", "--simple"};
             var expected9 = new LsCommandOptions(true, ModuleProcessType.Local, true, true, branchName);
-            yield return new TestCaseData(args9, expected9) {TestName = "+l|local +<all args>"};
+            yield return new TestCaseData(args9, expected9) {TestName = "-l -b <branchName> -u -p --simple"};
         }
     }
 
