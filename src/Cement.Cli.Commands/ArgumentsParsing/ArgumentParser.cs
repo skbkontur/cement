@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Cement.Cli.Common;
 using Cement.Cli.Common.Exceptions;
 using NDesk.Options;
 
-namespace Cement.Cli.Common.ArgumentsParsing;
+namespace Cement.Cli.Commands.ArgumentsParsing;
 
 public static class ArgumentParser
 {
