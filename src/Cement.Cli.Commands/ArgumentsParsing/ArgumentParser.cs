@@ -37,57 +37,6 @@ public static class ArgumentParser
         return parsedArguments;
     }
 
-    public static Dictionary<string, object> ParseGet(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"module", null},
-            {"treeish", null},
-            {"reset", 0},
-            {"force", 0},
-            {"pullAnyway", 0},
-            {"configuration", null},
-            {"merged", null},
-            {"verbose", false},
-            {"gitDepth", null}
-        };
-        var parser = new OptionSet
-        {
-            {"r|reset", r => parsedArguments["reset"] = 1},
-            {"p|pull-anyway", p => parsedArguments["pullAnyway"] = 1},
-            {"c|configuration=", conf => parsedArguments["configuration"] = conf},
-            {"f|force", f => parsedArguments["force"] = 1},
-            {"m|merged:", m => parsedArguments["merged"] = m ?? "master"},
-            {"v|verbose", v => parsedArguments["verbose"] = true},
-            {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)}
-        };
-        var extraArgs = parser.Parse(args.Skip(1));
-        if (extraArgs.Count > 0)
-        {
-            var module = new Dep(extraArgs[0]);
-            if (module.Configuration != null)
-                parsedArguments["configuration"] = module.Configuration;
-            if (module.Treeish != null)
-                parsedArguments["treeish"] = module.Treeish;
-
-            parsedArguments["module"] = module.Name;
-
-            if (extraArgs.Count > 1)
-            {
-                parsedArguments["treeish"] = extraArgs[1];
-            }
-
-            ThrowIfHasExtraArgs(extraArgs.Skip(2).ToList());
-        }
-
-        if ((int)parsedArguments["force"] + (int)parsedArguments["reset"] + (int)parsedArguments["pullAnyway"] > 1)
-        {
-            throw new BadArgumentException();
-        }
-
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseBuildDeps(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>

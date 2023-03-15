@@ -62,21 +62,7 @@ public sealed class GetCommand : Command<GetCommandOptions>
 
     protected override GetCommandOptions ParseArgs(string[] args)
     {
-        Helper.RemoveOldKey(ref args, "-n", logger);
-
-        var parsedArgs = ArgumentParser.ParseGet(args);
-        var module = (string)parsedArgs["module"];
-        if (string.IsNullOrEmpty(module))
-            throw new CementException("You should specify the name of the module");
-
-        var treeish = (string)parsedArgs["treeish"];
-        var configuration = (string)parsedArgs["configuration"];
-        var mergedBranch = (string)parsedArgs["merged"];
-        var verbose = (bool)parsedArgs["verbose"];
-        var gitDepth = (int?)parsedArgs["gitDepth"];
-        var policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
-
-        return new GetCommandOptions(configuration, policy, module, treeish, mergedBranch, verbose, gitDepth);
+        return new GetCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(GetCommandOptions options)
