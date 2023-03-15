@@ -1,25 +1,17 @@
-using System.Collections.Generic;
-
 namespace Cement.Cli.Common;
 
 public static class PolicyMapper
 {
-    public static LocalChangesPolicy GetLocalChangesPolicy(Dictionary<string, object> parsedArgs)
+    public static LocalChangesPolicy GetLocalChangesPolicy(bool force, bool reset, bool pullAnyway)
     {
-        var policyMapping = new Dictionary<string, LocalChangesPolicy>
-        {
-            {"force", LocalChangesPolicy.ForceLocal},
-            {"reset", LocalChangesPolicy.Reset},
-            {"pullAnyway", LocalChangesPolicy.Pull}
-        };
+        if (force)
+            return LocalChangesPolicy.ForceLocal;
 
-        foreach (var key in policyMapping.Keys)
-        {
-            if ((int)parsedArgs[key] == 1)
-            {
-                return policyMapping[key];
-            }
-        }
+        if (reset)
+            return LocalChangesPolicy.Reset;
+
+        if (pullAnyway)
+            return LocalChangesPolicy.Pull;
 
         return LocalChangesPolicy.FailOnLocalChanges;
     }

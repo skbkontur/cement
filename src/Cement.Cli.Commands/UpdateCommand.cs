@@ -85,12 +85,6 @@ public sealed class UpdateCommand : Command<UpdateCommandOptions>
 
     protected override UpdateCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseUpdate(args);
-        var treeish = (string)parsedArgs["treeish"];
-        var verbose = (bool)parsedArgs["verbose"];
-        var policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
-        var gitDepth = (int?)parsedArgs["gitDepth"];
-
-        return new UpdateCommandOptions(treeish, verbose, policy, gitDepth);
+        return new UpdateCommandOptionsParser().Parse(args);
     }
 }

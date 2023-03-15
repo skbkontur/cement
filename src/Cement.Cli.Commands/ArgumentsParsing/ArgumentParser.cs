@@ -299,40 +299,6 @@ public static class ArgumentParser
         return parsedArguments;
     }
 
-    public static Dictionary<string, object> ParseUpdate(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"treeish", null},
-            {"reset", 0},
-            {"force", 0},
-            {"pullAnyway", 0},
-            {"verbose", false},
-            {"gitDepth", null}
-        };
-        var parser = new OptionSet
-        {
-            {"r|reset", r => parsedArguments["reset"] = 1},
-            {"p|pull-anyway", p => parsedArguments["pullAnyway"] = 1},
-            {"f|force", f => parsedArguments["force"] = 1},
-            {"v|verbose", v => parsedArguments["verbose"] = true},
-            {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)}
-        };
-        var extraArgs = parser.Parse(args.Skip(1));
-        if (extraArgs.Count > 0)
-        {
-            parsedArguments["treeish"] = extraArgs[0];
-            ThrowIfHasExtraArgs(extraArgs.Skip(1).ToList());
-        }
-
-        if ((int)parsedArguments["force"] + (int)parsedArguments["reset"] + (int)parsedArguments["pullAnyway"] > 1)
-        {
-            throw new BadArgumentException();
-        }
-
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseShowConfigs(string[] args)
     {
         var parsedArgs = new Dictionary<string, object>
