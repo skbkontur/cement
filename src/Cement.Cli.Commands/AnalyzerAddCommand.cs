@@ -33,22 +33,13 @@ public sealed class AnalyzerAddCommand : Command<AnalyzerAddCommandOptions>
 
     protected override AnalyzerAddCommandOptions ParseArgs(string[] args)
     {
-        CommandHelper.SetWorkspace(CommandLocation.InsideModuleDirectory);
-
-        var parsedArgs = ArgumentParser.ParseAnalyzerAdd(args);
-
-        var analyzerModule = new Dep((string)parsedArgs["module"]);
-
-        if (parsedArgs["configuration"] != null)
-            analyzerModule.Configuration = (string)parsedArgs["configuration"];
-
-        var moduleSolutionName = (string)parsedArgs["solution"];
-
-        return new AnalyzerAddCommandOptions(moduleSolutionName, analyzerModule);
+        return new AnalyzerAddCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(AnalyzerAddCommandOptions options)
     {
+        CommandHelper.SetWorkspace(CommandLocation.InsideModuleDirectory);
+
         var analyzerModule = options.AnalyzerModule;
         var moduleSolutionName = options.ModuleSolutionName;
 

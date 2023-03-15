@@ -71,30 +71,6 @@ public static class ArgumentParser
         return parsedArguments;
     }
 
-    public static Dictionary<string, object> ParseAnalyzerAdd(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"module", null},
-            {"configuration", null},
-            {"solution", null}
-        };
-
-        var parser = new OptionSet
-        {
-            {"c|configuration=", conf => parsedArguments["configuration"] = conf}
-        };
-
-        args = parser.Parse(args).ToArray();
-
-        if (args.Length < 3 || args.Length > 4 || args[0] != "analyzer" || args[1] != "add")
-            throw new BadArgumentException($"Command format error: cm {string.Join(" ", args)}\nCommand format: cm analyzer add <analyzer-module-name>[/configuration] [<solution-file>]");
-
-        parsedArguments["module"] = args[2];
-        parsedArguments["solution"] = args.Length == 4 ? args[3] : null;
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseGet(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>
