@@ -5,7 +5,7 @@ using Cement.Cli.Common.Exceptions;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Cement.Cli.Tests.UtilsTests;
+namespace Cement.Cli.Tests.ArgumentParsers;
 
 [TestFixture]
 public class LsCommandOptionsParserTests
