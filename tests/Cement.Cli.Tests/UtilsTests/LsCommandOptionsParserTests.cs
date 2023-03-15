@@ -90,7 +90,7 @@ public class LsCommandOptionsParserTests
             var args1 = (object)new[] {"ls", "-l", "-a"};
             yield return new TestCaseData(args1) {TestName = "exclusive_arguments"};
 
-            var args2 = (object)new[] {"ls", "-r"};
+            var args2 = (object)new[] {"ls", "--extra_argument1", "--extra_arguments2"};
             yield return new TestCaseData(args2) {TestName = "extra_arguments"};
         }
     }

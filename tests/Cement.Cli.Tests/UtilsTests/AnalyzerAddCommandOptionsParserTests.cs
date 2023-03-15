@@ -78,7 +78,7 @@ public class AnalyzerAddCommandOptionsParserTests
             const string moduleName = "module";
             const string solution = "solution";
 
-            var args2 = (object)new[] {"analyzer", "add", moduleName, solution, "-r"};
+            var args2 = (object)new[] {"analyzer", "add", moduleName, solution, "--extra_argument1", "--extra_arguments2"};
             yield return new TestCaseData(args2) {TestName = "extra_arguments"};
         }
     }
