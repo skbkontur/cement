@@ -122,23 +122,6 @@ public static class ArgumentParser
         return parsedArguments;
     }
 
-    public static Dictionary<string, object> ParseSelfUpdate(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"branch", null},
-            {"server", null}
-        };
-        var parser = new OptionSet
-        {
-            {"b|branch=", b => parsedArguments["branch"] = b},
-            {"s|server=", s => parsedArguments["server"] = s}
-        };
-        var extraArgs = parser.Parse(args.Skip(1));
-        ThrowIfHasExtraArgs(extraArgs);
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseBuildDeps(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>

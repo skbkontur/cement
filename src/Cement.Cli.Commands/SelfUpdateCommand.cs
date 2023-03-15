@@ -38,11 +38,7 @@ public sealed class SelfUpdateCommand : Command<SelfUpdateCommandOptions>
 
     protected override SelfUpdateCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseSelfUpdate(args);
-        var branch = (string)parsedArgs["branch"];
-        var server = (string)parsedArgs["server"];
-
-        return new SelfUpdateCommandOptions(branch, server);
+        return new SelfUpdateCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(SelfUpdateCommandOptions options)
