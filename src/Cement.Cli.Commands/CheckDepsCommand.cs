@@ -35,13 +35,7 @@ public sealed class CheckDepsCommand : Command<CheckDepsCommandOptions>
 
     protected override CheckDepsCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseCheckDeps(args);
-        var configuration = (string)parsedArgs["configuration"];
-        var showAll = (bool)parsedArgs["all"];
-        var showShort = (bool)parsedArgs["short"];
-        var findExternal = (bool)parsedArgs["external"];
-
-        return new CheckDepsCommandOptions(configuration, showAll, findExternal, showShort);
+        return new CheckDepsCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(CheckDepsCommandOptions options)

@@ -158,27 +158,6 @@ public static class ArgumentParser
         return parsedArguments;
     }
 
-    public static Dictionary<string, object> ParseCheckDeps(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"configuration", null},
-            {"all", false},
-            {"short", false},
-            {"external", false}
-        };
-        var parser = new OptionSet
-        {
-            {"c|configuration=", conf => parsedArguments["configuration"] = conf},
-            {"a|all", a => parsedArguments["all"] = true},
-            {"s|short", s => parsedArguments["short"] = true},
-            {"e|external", e => parsedArguments["external"] = true}
-        };
-        var extraArgs = parser.Parse(args.Skip(1));
-        ThrowIfHasExtraArgs(extraArgs);
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseDepsGraph(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>
