@@ -29,11 +29,6 @@ public sealed class GetCommandOptionsParser : ArgumentParser<GetCommandOptions>
             {"git-depth=", d => gitDepth = int.Parse(d)}
         };
 
-        if ((force && reset) || (force && pullAnyway) || (reset && pullAnyway))
-        {
-            throw new BadArgumentException();
-        }
-
         string moduleName = null;
         string treeish = null;
 
@@ -54,6 +49,11 @@ public sealed class GetCommandOptionsParser : ArgumentParser<GetCommandOptions>
             }
 
             ThrowIfHasExtraArgs(extraArgs.Skip(2).ToList());
+        }
+
+        if ((force && reset) || (force && pullAnyway) || (reset && pullAnyway))
+        {
+            throw new BadArgumentException();
         }
 
         if (string.IsNullOrEmpty(moduleName))
