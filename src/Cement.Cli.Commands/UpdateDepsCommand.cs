@@ -62,17 +62,7 @@ public sealed class UpdateDepsCommand : Command<UpdateDepsCommandOptions>
 
     protected override UpdateDepsCommandOptions ParseArgs(string[] args)
     {
-        Helper.RemoveOldKey(ref args, "-n", logger);
-
-        var parsedArgs = ArgumentParser.ParseUpdateDeps(args);
-        var configuration = (string)parsedArgs["configuration"];
-        var mergedBranch = (string)parsedArgs["merged"];
-        var localBranchForce = (bool)parsedArgs["localBranchForce"];
-        var verbose = (bool)parsedArgs["verbose"];
-        var policy = PolicyMapper.GetLocalChangesPolicy(parsedArgs);
-        var gitDepth = (int?)parsedArgs["gitDepth"];
-
-        return new UpdateDepsCommandOptions(configuration, mergedBranch, policy, localBranchForce, verbose, gitDepth);
+        return new UpdateDepsCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(UpdateDepsCommandOptions options)

@@ -10,40 +10,6 @@ namespace Cement.Cli.Commands.ArgumentsParsing;
 
 public static class ArgumentParser
 {
-    public static Dictionary<string, object> ParseUpdateDeps(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"reset", 0},
-            {"force", 0},
-            {"pullAnyway", 0},
-            {"configuration", null},
-            {"merged", null},
-            {"localBranchForce", false},
-            {"verbose", false},
-            {"gitDepth", null}
-        };
-        var parser = new OptionSet
-        {
-            {"r|reset", r => parsedArguments["reset"] = 1},
-            {"p|pull-anyway", p => parsedArguments["pullAnyway"] = 1},
-            {"c|configuration=", conf => parsedArguments["configuration"] = conf},
-            {"f|force", f => parsedArguments["force"] = 1},
-            {"m|merged:", m => parsedArguments["merged"] = m ?? "master"},
-            {"allow-local-branch-force", f => parsedArguments["localBranchForce"] = true},
-            {"v|verbose", v => parsedArguments["verbose"] = true},
-            {"git-depth=", d => parsedArguments["gitDepth"] = int.Parse(d)}
-        };
-        var extraArgs = parser.Parse(args.Skip(1));
-        ThrowIfHasExtraArgs(extraArgs);
-        if ((int)parsedArguments["force"] + (int)parsedArguments["reset"] + (int)parsedArguments["pullAnyway"] > 1)
-        {
-            throw new BadArgumentException();
-        }
-
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseRefAdd(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>
