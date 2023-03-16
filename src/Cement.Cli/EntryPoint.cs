@@ -155,7 +155,7 @@ namespace cm
             }
             catch (CementException cex)
             {
-                logger.LogError(cex, "An unknown error was occurred");
+                logger.LogError(cex, "An error has occurred");
                 consoleWriter.WriteError(cex.Message);
                 return -1;
             }
