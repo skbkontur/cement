@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace Cement.Cli.Tests.ArgumentParsers;
 
 [TestFixture]
-public class LsCommandOptionsParserTests
+public sealed class LsCommandOptionsParserTests
 {
     private readonly LsCommandOptionsParser parser;
 

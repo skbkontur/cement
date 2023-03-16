@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Cement.Cli.Tests.ArgumentParsers;
 
 [TestFixture]
-public class PackCommandOptionsParserTests
+public sealed class PackCommandOptionsParserTests
 {
     private readonly PackCommandOptionsParser parser;
 
