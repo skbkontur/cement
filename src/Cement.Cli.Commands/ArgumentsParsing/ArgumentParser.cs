@@ -10,21 +10,6 @@ namespace Cement.Cli.Commands.ArgumentsParsing;
 
 public static class ArgumentParser
 {
-    public static Dictionary<string, object> ParseFixRefs(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"external", false}
-        };
-        var parser = new OptionSet
-        {
-            {"e|external", e => parsedArguments["external"] = true}
-        };
-        var extraArgs = parser.Parse(args.Skip(2));
-        ThrowIfHasExtraArgs(extraArgs);
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseShowParents(string[] args)
     {
         var currentDir = Directory.GetCurrentDirectory();

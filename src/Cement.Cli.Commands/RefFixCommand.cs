@@ -40,13 +40,7 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
 
     protected override RefFixCommandOptions ParseArgs(string[] args)
     {
-        if (args.Length < 2 || args[0] != "ref" || args[1] != "fix")
-            throw new BadArgumentException("Wrong usage of command.\nUsage: cm ref fix [-e]");
-
-        var parsedArgs = ArgumentParser.ParseFixRefs(args);
-        var fixExternal = (bool)parsedArgs["external"];
-
-        return new RefFixCommandOptions(fixExternal);
+        return new RefFixCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(RefFixCommandOptions options)
