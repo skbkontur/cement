@@ -15,6 +15,15 @@ namespace cm
 {
     internal sealed class EntryPoint
     {
+        private const string Header = @"
+                                     _
+                                    | |
+  ___   ___  _ __ ___    ___  _ __  | |_
+ / __| / _ \| '_ ` _ \  / _ \| '_ \ | __|
+| (__ |  __/| | | | | ||  __/| | | || |_
+ \___| \___||_| |_| |_| \___||_| |_| \__|
+";
+
         private static int Main(string[] args)
         {
             args = FixArgs(args);
@@ -38,7 +47,7 @@ namespace cm
 
             var consoleWriter = sp.GetRequiredService<ConsoleWriter>();
             var logger = sp.GetRequiredService<ILogger<EntryPoint>>();
-            logger.LogInformation("Cement version: {CementVersion}", Helper.GetAssemblyTitle());
+            logger.LogInformation("{CementHeader}{CementVersion}\n", Header, Helper.GetAssemblyTitle());
 
             var exitCode = TryRun(logger, consoleWriter, sp, args);
 
