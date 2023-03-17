@@ -46,19 +46,7 @@ public sealed class RefAddCommand : Command<RefAddCommandOptions>
 
     protected override RefAddCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseRefAdd(args);
-
-        var testReplaces = (bool)parsedArgs["testReplaces"];
-        var dep = new Dep((string)parsedArgs["module"]);
-        if (parsedArgs["configuration"] != null)
-            dep.Configuration = (string)parsedArgs["configuration"];
-
-        var project = (string)parsedArgs["project"];
-        var force = (bool)parsedArgs["force"];
-        if (!project.EndsWith(".csproj"))
-            throw new BadArgumentException(project + " is not csproj file");
-
-        return new RefAddCommandOptions(project, dep, testReplaces, force);
+        return new RefAddCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(RefAddCommandOptions options)

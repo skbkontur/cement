@@ -10,33 +10,6 @@ namespace Cement.Cli.Commands.ArgumentsParsing;
 
 public static class ArgumentParser
 {
-    public static Dictionary<string, object> ParseRefAdd(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"module", null},
-            {"configuration", null},
-            {"project", null},
-            {"testReplaces", false},
-            {"force", false}
-        };
-        var parser = new OptionSet
-        {
-            {"c|configuration=", conf => parsedArguments["configuration"] = conf},
-            {"testReplaces", t => parsedArguments["testReplaces"] = true},
-            {"force", f => parsedArguments["force"] = true}
-        };
-        args = parser.Parse(args).ToArray();
-
-        if (args.Length != 4 || args[0] != "ref" || args[1] != "add")
-            throw new BadArgumentException("Wrong usage of command.\nUsage: cm ref add <module-name>[/configuration] <project-file>");
-
-        parsedArguments["module"] = args[2];
-        parsedArguments["project"] = args[3];
-
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseBuildDeps(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>
