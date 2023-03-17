@@ -3,7 +3,7 @@ using Cement.Cli.Common.Exceptions;
 
 namespace Cement.Cli.Commands.ArgumentsParsing;
 
-public abstract class ArgumentParser<TOptions> : IArgumentParser<TOptions>
+public abstract class OptionsParser<TOptions> : IOptionsParser<TOptions>
 {
     public abstract TOptions Parse(string[] args);
 

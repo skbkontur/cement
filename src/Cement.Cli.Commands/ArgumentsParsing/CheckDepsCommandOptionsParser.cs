@@ -3,7 +3,7 @@ using NDesk.Options;
 
 namespace Cement.Cli.Commands.ArgumentsParsing;
 
-public sealed class CheckDepsCommandOptionsParser : ArgumentParser<CheckDepsCommandOptions>
+public sealed class CheckDepsCommandOptionsParser : OptionsParser<CheckDepsCommandOptions>
 {
     public override CheckDepsCommandOptions Parse(string[] args)
     {

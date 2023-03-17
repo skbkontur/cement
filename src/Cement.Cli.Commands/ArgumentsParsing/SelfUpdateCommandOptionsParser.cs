@@ -3,7 +3,7 @@ using NDesk.Options;
 
 namespace Cement.Cli.Commands.ArgumentsParsing;
 
-public sealed class SelfUpdateCommandOptionsParser : ArgumentParser<SelfUpdateCommandOptions>
+public sealed class SelfUpdateCommandOptionsParser : OptionsParser<SelfUpdateCommandOptions>
 {
     public override SelfUpdateCommandOptions Parse(string[] args)
     {

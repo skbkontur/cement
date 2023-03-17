@@ -4,7 +4,7 @@ using NDesk.Options;
 
 namespace Cement.Cli.Commands.ArgumentsParsing;
 
-public sealed class RefAddCommandOptionsParser : ArgumentParser<RefAddCommandOptions>
+public sealed class RefAddCommandOptionsParser : OptionsParser<RefAddCommandOptions>
 {
     public override RefAddCommandOptions Parse(string[] args)
     {

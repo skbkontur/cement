@@ -5,7 +5,7 @@ using NDesk.Options;
 
 namespace Cement.Cli.Commands.ArgumentsParsing;
 
-public sealed class BuildDepsCommandOptionsParser : ArgumentParser<BuildDepsCommandOptions>
+public sealed class BuildDepsCommandOptionsParser : OptionsParser<BuildDepsCommandOptions>
 {
     public override BuildDepsCommandOptions Parse(string[] args)
     {

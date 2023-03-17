@@ -1,6 +1,6 @@
 ﻿namespace Cement.Cli.Commands.ArgumentsParsing;
 
-public interface IArgumentParser<out TOptions>
+public interface IOptionsParser<out TOptions>
 {
     TOptions Parse(string[] args);
 }
