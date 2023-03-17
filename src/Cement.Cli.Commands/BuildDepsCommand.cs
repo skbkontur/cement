@@ -84,21 +84,7 @@ public sealed class BuildDepsCommand : Command<BuildDepsCommandOptions>
 
     protected override BuildDepsCommandOptions ParseArgs(string[] args)
     {
-        Helper.RemoveOldKey(ref args, "-t", logger);
-
-        var parsedArgs = ArgumentParser.ParseBuildDeps(args);
-        var configuration = (string)parsedArgs["configuration"];
-        var rebuild = (bool)parsedArgs["rebuild"];
-        var parallel = (bool)parsedArgs["quickly"];
-        var buildSettings = new BuildSettings
-        {
-            ShowAllWarnings = (bool)parsedArgs["warnings"],
-            ShowOutput = (bool)parsedArgs["verbose"],
-            ShowProgress = (bool)parsedArgs["progress"],
-            CleanBeforeBuild = (bool)parsedArgs["cleanBeforeBuild"]
-        };
-
-        return new BuildDepsCommandOptions(configuration, rebuild, parallel, buildSettings);
+        return new BuildDepsCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(BuildDepsCommandOptions options)
