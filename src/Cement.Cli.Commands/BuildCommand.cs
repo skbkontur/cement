@@ -45,19 +45,7 @@ public sealed class BuildCommand : Command<BuildCommandOptions>
 
     protected override BuildCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseBuildDeps(args);
-        var configuration = (string)parsedArgs["configuration"];
-        var buildSettings = new BuildSettings
-        {
-            ShowAllWarnings = (bool)parsedArgs["warnings"],
-            ShowObsoleteWarnings = (bool)parsedArgs["obsolete"],
-            ShowOutput = (bool)parsedArgs["verbose"],
-            ShowProgress = (bool)parsedArgs["progress"],
-            ShowWarningsSummary = true,
-            CleanBeforeBuild = (bool)parsedArgs["cleanBeforeBuild"]
-        };
-
-        return new BuildCommandOptions(configuration, buildSettings);
+        return new BuildCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(BuildCommandOptions options)

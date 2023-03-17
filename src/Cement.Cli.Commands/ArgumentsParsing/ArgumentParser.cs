@@ -10,42 +10,6 @@ namespace Cement.Cli.Commands.ArgumentsParsing;
 
 public static class ArgumentParser
 {
-    public static Dictionary<string, object> ParseBuildDeps(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"rebuild", false},
-            {"configuration", null},
-            {"warnings", false},
-            {"obsolete", false},
-            {"verbose", false},
-            {"progress", false},
-            {"restore", true},
-            {"quickly", false},
-            {"cleanBeforeBuild", false}
-        };
-        var parser = new OptionSet
-        {
-            {"r|rebuild", f => parsedArguments["rebuild"] = true},
-            {"c|configuration=", conf => parsedArguments["configuration"] = conf},
-            {"w|warnings", f => parsedArguments["warnings"] = true},
-            {"W", f => parsedArguments["obsolete"] = true},
-            {"v|verbose", v => parsedArguments["verbose"] = true},
-            {"p|progress", p => parsedArguments["progress"] = true},
-            {"restore", p => parsedArguments["restore"] = true},
-            {"q|quickly", q => parsedArguments["quickly"] = true},
-            {"cleanBeforeBuild", q => parsedArguments["cleanBeforeBuild"] = true}
-        };
-        var extraArgs = parser.Parse(args.Skip(1));
-        ThrowIfHasExtraArgs(extraArgs);
-        if ((bool)parsedArguments["verbose"] && ((bool)parsedArguments["warnings"] || (bool)parsedArguments["progress"]))
-        {
-            throw new BadArgumentException();
-        }
-
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseDepsGraph(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>
