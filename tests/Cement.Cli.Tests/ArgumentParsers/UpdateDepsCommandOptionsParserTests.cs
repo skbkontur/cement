@@ -18,17 +18,6 @@ public sealed class UpdateDepsCommandOptionsParserTests
         parser = new UpdateDepsCommandOptionsParser();
     }
 
-    [TestCaseSource(nameof(TestCases))]
-    public void Should_parse(string[] args, UpdateDepsCommandOptions expected)
-    {
-        // arrange
-        // act
-        var actual = parser.Parse(args);
-
-        // assert
-        actual.Should().BeEquivalentTo(expected);
-    }
-
     public static IEnumerable<TestCaseData> TestCases
     {
         get
@@ -79,17 +68,6 @@ public sealed class UpdateDepsCommandOptionsParserTests
         }
     }
 
-    [TestCaseSource(nameof(FaultTestCases))]
-    public void Should_fault(string[] args)
-    {
-        // arrange
-        // act
-        var act = () => parser.Parse(args);
-
-        // assert
-        act.Should().ThrowExactly<BadArgumentException>();
-    }
-
     public static IEnumerable<TestCaseData> FaultTestCases
     {
         get
@@ -112,5 +90,27 @@ public sealed class UpdateDepsCommandOptionsParserTests
             var args6 = (object)new[] {"update-deps", "-n"};
             yield return new TestCaseData(args6) {TestName = "-n (old_key)"};
         }
+    }
+
+    [TestCaseSource(nameof(TestCases))]
+    public void Should_parse(string[] args, UpdateDepsCommandOptions expected)
+    {
+        // arrange
+        // act
+        var actual = parser.Parse(args);
+
+        // assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [TestCaseSource(nameof(FaultTestCases))]
+    public void Should_fault(string[] args)
+    {
+        // arrange
+        // act
+        var act = () => parser.Parse(args);
+
+        // assert
+        act.Should().ThrowExactly<BadArgumentException>();
     }
 }

@@ -18,17 +18,6 @@ public sealed class PackCommandOptionsParserTests
         parser = new PackCommandOptionsParser();
     }
 
-    [TestCaseSource(nameof(TestCases))]
-    public void Should_parse(string[] args, PackCommandOptions expected)
-    {
-        // arrange
-        // act
-        var actual = parser.Parse(args);
-
-        // assert
-        actual.Should().BeEquivalentTo(expected);
-    }
-
     public static IEnumerable<TestCaseData> TestCases
     {
         get
@@ -90,17 +79,6 @@ public sealed class PackCommandOptionsParserTests
         }
     }
 
-    [TestCaseSource(nameof(FaultTestCases))]
-    public void Should_fault(string[] args)
-    {
-        // arrange
-        // act
-        var act = () => parser.Parse(args);
-
-        // assert
-        act.Should().ThrowExactly<BadArgumentException>();
-    }
-
     public static IEnumerable<TestCaseData> FaultTestCases
     {
         get
@@ -116,5 +94,27 @@ public sealed class PackCommandOptionsParserTests
             var args3 = (object)new[] {"pack", projectName, "--extra_argument1", "--extra_arguments2"};
             yield return new TestCaseData(args3) {TestName = "extra_arguments"};
         }
+    }
+
+    [TestCaseSource(nameof(TestCases))]
+    public void Should_parse(string[] args, PackCommandOptions expected)
+    {
+        // arrange
+        // act
+        var actual = parser.Parse(args);
+
+        // assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [TestCaseSource(nameof(FaultTestCases))]
+    public void Should_fault(string[] args)
+    {
+        // arrange
+        // act
+        var act = () => parser.Parse(args);
+
+        // assert
+        act.Should().ThrowExactly<BadArgumentException>();
     }
 }

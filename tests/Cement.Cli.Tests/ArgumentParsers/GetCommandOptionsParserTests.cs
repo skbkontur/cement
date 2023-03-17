@@ -18,17 +18,6 @@ public sealed class GetCommandOptionsParserTests
         parser = new GetCommandOptionsParser();
     }
 
-    [TestCaseSource(nameof(TestCases))]
-    public void Should_parse(string[] args, GetCommandOptions expected)
-    {
-        // arrange
-        // act
-        var actual = parser.Parse(args);
-
-        // assert
-        actual.Should().BeEquivalentTo(expected);
-    }
-
     public static IEnumerable<TestCaseData> TestCases
     {
         get
@@ -96,17 +85,6 @@ public sealed class GetCommandOptionsParserTests
         }
     }
 
-    [TestCaseSource(nameof(FaultTestCases))]
-    public void Should_fault(string[] args)
-    {
-        // arrange
-        // act
-        var act = () => parser.Parse(args);
-
-        // assert
-        act.Should().ThrowExactly<BadArgumentException>();
-    }
-
     public static IEnumerable<TestCaseData> FaultTestCases
     {
         get
@@ -131,6 +109,28 @@ public sealed class GetCommandOptionsParserTests
             /*var args6 = (object)new[] {"get", module, "-n"};
             yield return new TestCaseData(args6) {TestName = "-n (old_key)"};*/
         }
+    }
+
+    [TestCaseSource(nameof(TestCases))]
+    public void Should_parse(string[] args, GetCommandOptions expected)
+    {
+        // arrange
+        // act
+        var actual = parser.Parse(args);
+
+        // assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [TestCaseSource(nameof(FaultTestCases))]
+    public void Should_fault(string[] args)
+    {
+        // arrange
+        // act
+        var act = () => parser.Parse(args);
+
+        // assert
+        act.Should().ThrowExactly<BadArgumentException>();
     }
 
     [Test]

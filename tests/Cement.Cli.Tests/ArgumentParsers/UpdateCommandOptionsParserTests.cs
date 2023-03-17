@@ -17,6 +17,24 @@ public sealed class UpdateCommandOptionsParserTests
         parser = new UpdateCommandOptionsParser();
     }
 
+    public static IEnumerable<TestCaseData> TestCases
+    {
+        get
+        {
+            //todo(dstarasov): нужны тесткейсы
+            yield break;
+        }
+    }
+
+    public static IEnumerable<TestCaseData> FaultTestCases
+    {
+        get
+        {
+            //todo(dstarasov): нужны тесткейсы
+            yield break;
+        }
+    }
+
     [TestCaseSource(nameof(TestCases))]
     public void Should_parse(string[] args, UpdateCommandOptions expected)
     {
@@ -28,15 +46,6 @@ public sealed class UpdateCommandOptionsParserTests
         actual.Should().BeEquivalentTo(expected);
     }
 
-    public static IEnumerable<TestCaseData> TestCases
-    {
-        get
-        {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
-        }
-    }
-
     [TestCaseSource(nameof(FaultTestCases))]
     public void Should_fault(string[] args)
     {
@@ -46,14 +55,5 @@ public sealed class UpdateCommandOptionsParserTests
 
         // assert
         act.Should().ThrowExactly<BadArgumentException>();
-    }
-
-    public static IEnumerable<TestCaseData> FaultTestCases
-    {
-        get
-        {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
-        }
     }
 }

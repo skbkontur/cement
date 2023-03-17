@@ -18,17 +18,6 @@ public sealed class AnalyzerAddCommandOptionsParserTests
         parser = new AnalyzerAddCommandOptionsParser();
     }
 
-    [TestCaseSource(nameof(TestCases))]
-    public void Should_parse(string[] args, AnalyzerAddCommandOptions expected)
-    {
-        // arrange
-        // act
-        var actual = parser.Parse(args);
-
-        // assert
-        actual.Should().BeEquivalentTo(expected);
-    }
-
     public static IEnumerable<TestCaseData> TestCases
     {
         get
@@ -57,17 +46,6 @@ public sealed class AnalyzerAddCommandOptionsParserTests
         }
     }
 
-    [TestCaseSource(nameof(FaultTestCases))]
-    public void Should_fault(string[] args)
-    {
-        // arrange
-        // act
-        var act = () => parser.Parse(args);
-
-        // assert
-        act.Should().ThrowExactly<BadArgumentException>();
-    }
-
     public static IEnumerable<TestCaseData> FaultTestCases
     {
         get
@@ -81,5 +59,27 @@ public sealed class AnalyzerAddCommandOptionsParserTests
             var args2 = (object)new[] {"analyzer", "add", moduleName, solution, "--extra_argument1", "--extra_arguments2"};
             yield return new TestCaseData(args2) {TestName = "extra_arguments"};
         }
+    }
+
+    [TestCaseSource(nameof(TestCases))]
+    public void Should_parse(string[] args, AnalyzerAddCommandOptions expected)
+    {
+        // arrange
+        // act
+        var actual = parser.Parse(args);
+
+        // assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [TestCaseSource(nameof(FaultTestCases))]
+    public void Should_fault(string[] args)
+    {
+        // arrange
+        // act
+        var act = () => parser.Parse(args);
+
+        // assert
+        act.Should().ThrowExactly<BadArgumentException>();
     }
 }
