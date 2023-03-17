@@ -46,9 +46,7 @@ public sealed class ShowDepsCommand : Command<ShowDepsCommandOptions>
 
     protected override ShowDepsCommandOptions ParseArgs(string[] args)
     {
-        var parsed = ArgumentParser.ParseDepsGraph(args);
-        var configuration = (string)parsed["configuration"];
-        return new ShowDepsCommandOptions(configuration);
+        return new ShowDepsCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(ShowDepsCommandOptions options)

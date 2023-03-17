@@ -10,21 +10,6 @@ namespace Cement.Cli.Commands.ArgumentsParsing;
 
 public static class ArgumentParser
 {
-    public static Dictionary<string, object> ParseDepsGraph(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"configuration", null}
-        };
-        var parser = new OptionSet
-        {
-            {"c|configuration=", conf => parsedArguments["configuration"] = conf}
-        };
-        var extraArgs = parser.Parse(args.Skip(1));
-        ThrowIfHasExtraArgs(extraArgs);
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseFixRefs(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>
