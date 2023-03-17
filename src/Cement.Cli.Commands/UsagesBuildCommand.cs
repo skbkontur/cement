@@ -44,11 +44,7 @@ public sealed class UsagesBuildCommand : Command<UsagesBuildCommandOptions>
 
     protected override UsagesBuildCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseBuildParents(args);
-        var checkingBranch = (string)parsedArgs["branch"];
-        var pause = (bool)parsedArgs["pause"];
-
-        return new UsagesBuildCommandOptions(pause, checkingBranch);
+        return new UsagesBuildCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(UsagesBuildCommandOptions options)

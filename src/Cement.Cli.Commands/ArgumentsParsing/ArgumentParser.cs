@@ -10,23 +10,6 @@ namespace Cement.Cli.Commands.ArgumentsParsing;
 
 public static class ArgumentParser
 {
-    public static Dictionary<string, object> ParseBuildParents(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"branch", null},
-            {"pause", false}
-        };
-        var parser = new OptionSet
-        {
-            {"b|branch=", b => parsedArguments["branch"] = b},
-            {"p|pause", b => parsedArguments["pause"] = true}
-        };
-        var extraArgs = parser.Parse(args.Skip(2));
-        ThrowIfHasExtraArgs(extraArgs);
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseGrepParents(string[] args)
     {
         var gitArgs = new List<string>();
