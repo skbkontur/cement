@@ -25,22 +25,17 @@ public sealed class UsagesShowCommand : Command<UsagesShowCommandOptions>
 
     protected override UsagesShowCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseShowParents(args);
-        var module = (string)parsedArgs["module"];
-        if (Helper.GetModules().All(m => !string.Equals(m.Name, module, StringComparison.OrdinalIgnoreCase)))
-            consoleWriter.WriteWarning("Module " + module + " not found");
-
-        var branch = (string)parsedArgs["branch"];
-        var configuration = (string)parsedArgs["configuration"];
-        var showAll = (bool)parsedArgs["all"];
-        var printEdges = (bool)parsedArgs["edges"];
-
-        return new UsagesShowCommandOptions(module, branch, configuration, showAll, printEdges);
+        return new UsagesShowCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(UsagesShowCommandOptions options)
     {
-        var response = usagesProvider.GetUsages(options.Module, options.Branch, options.Configuration);
+        var module = options.Module;
+
+        if (Helper.GetModules().All(m => !string.Equals(m.Name, module, StringComparison.OrdinalIgnoreCase)))
+            consoleWriter.WriteWarning("Module " + module + " not found");
+
+        var response = usagesProvider.GetUsages(module, options.Branch, options.Configuration);
 
         if (options.PrintEdges)
         {

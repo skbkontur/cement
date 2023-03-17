@@ -10,48 +10,6 @@ namespace Cement.Cli.Commands.ArgumentsParsing;
 
 public static class ArgumentParser
 {
-    public static Dictionary<string, object> ParseShowParents(string[] args)
-    {
-        var currentDir = Directory.GetCurrentDirectory();
-        while (currentDir != Directory.GetDirectoryRoot(currentDir) && !Helper.IsCurrentDirectoryModule(currentDir))
-            currentDir = Directory.GetParent(currentDir).FullName;
-
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"configuration", "*"},
-            {"branch", "*"},
-            {"module", null},
-            {"all", false},
-            {"edges", false}
-        };
-        if (Helper.IsCurrentDirectoryModule(currentDir))
-            parsedArguments["module"] = Path.GetFileName(currentDir);
-
-        var parser = new OptionSet
-        {
-            {"c|configuration=", conf => parsedArguments["configuration"] = conf},
-            {"m|module=", m => parsedArguments["module"] = m},
-            {"b|branch=", b => parsedArguments["branch"] = b},
-            {"a|all", s => parsedArguments["all"] = true},
-            {"e|edges", s => parsedArguments["edges"] = true}
-        };
-        var extraArgs = parser.Parse(args.Skip(2));
-        if (parsedArguments["module"] == null)
-        {
-            throw new BadArgumentException("Current directory is not cement module directory, use -m to specify module name");
-        }
-
-        var module = (string)parsedArguments["module"];
-        if (module.Contains("/"))
-        {
-            parsedArguments["module"] = module.Split('/').First();
-            parsedArguments["configuration"] = module.Split('/').Last();
-        }
-
-        ThrowIfHasExtraArgs(extraArgs);
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseBuildParents(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>
