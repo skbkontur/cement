@@ -54,14 +54,7 @@ public sealed class UsagesGrepCommand : Command<UsagesGrepCommandOptions>
 
     protected override UsagesGrepCommandOptions ParseArgs(string[] args)
     {
-        var parsed = ArgumentParser.ParseGrepParents(args);
-        var arguments = (string[])parsed["gitArgs"];
-        var fileMasks = (string[])parsed["fileMaskArgs"];
-
-        var checkingBranch = (string)parsed["branch"];
-        var skipGet = (bool)parsed["skip-get"];
-
-        return new UsagesGrepCommandOptions(arguments, fileMasks, skipGet, checkingBranch);
+        return new UsagesGrepCommandOptionsParser().Parse(args);
     }
 
     protected override int Execute(UsagesGrepCommandOptions options)

@@ -10,32 +10,6 @@ namespace Cement.Cli.Commands.ArgumentsParsing;
 
 public static class ArgumentParser
 {
-    public static Dictionary<string, object> ParseGrepParents(string[] args)
-    {
-        var gitArgs = new List<string>();
-
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"branch", null},
-            {"skip-get", false}
-        };
-        var parser = new OptionSet
-        {
-            {"b|branch=", b => parsedArguments["branch"] = b},
-            {"s|skip-get", b => parsedArguments["skip-get"] = true},
-            {"<>", b => gitArgs.Add(b)}
-        };
-
-        var delimPosition = Array.IndexOf(args, "--");
-        if (delimPosition < 0)
-            delimPosition = args.Length;
-
-        parser.Parse(args.Take(delimPosition));
-        parsedArguments["gitArgs"] = gitArgs.ToArray();
-        parsedArguments["fileMaskArgs"] = args.Skip(delimPosition + 1).TakeWhile(_ => true).ToArray();
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseModuleCommand(string[] args)
     {
         var parsedArguments = new Dictionary<string, object>
