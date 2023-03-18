@@ -21,8 +21,25 @@ public sealed class SelfUpdateCommandOptionsParserTests
     {
         get
         {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
+            var args1 = new[] {"self-update"};
+            var expected1 = new SelfUpdateCommandOptions(null, null);
+            yield return new TestCaseData(args1, expected1) {TestName = "<no-args>"};
+
+            const string branch = "branch";
+
+            var args2 = new[] {"self-update", "-b", branch};
+            var expected2 = new SelfUpdateCommandOptions(branch, null);
+            yield return new TestCaseData(args2, expected2) {TestName = "-b <branch>"};
+
+            const string server = "server";
+
+            var args3 = new[] {"self-update", "-s", server};
+            var expected3 = new SelfUpdateCommandOptions(null, server);
+            yield return new TestCaseData(args3, expected3) {TestName = "-s <server>"};
+
+            var args4 = new[] {"self-update", "-b", branch, "-s", server};
+            var expected4 = new SelfUpdateCommandOptions(branch, server);
+            yield return new TestCaseData(args4, expected4) {TestName = "-b <branch> -s <server>"};
         }
     }
 
@@ -30,8 +47,8 @@ public sealed class SelfUpdateCommandOptionsParserTests
     {
         get
         {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
+            var args1 = (object)new[] {"self-update", "--extra_argument1", "--extra_arguments2"};
+            yield return new TestCaseData(args1) {TestName = "extra_arguments"};
         }
     }
 
