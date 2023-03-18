@@ -21,8 +21,15 @@ public sealed class ShowDepsCommandOptionsParserTests
     {
         get
         {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
+            var args1 = new[] {"show-deps"};
+            var expected1 = new ShowDepsCommandOptions(null);
+            yield return new TestCaseData(args1, expected1) {TestName = "<no-args>"};
+
+            const string configuration = "configuration";
+
+            var args2 = new[] {"show-deps", "-c", configuration};
+            var expected2 = new ShowDepsCommandOptions(configuration);
+            yield return new TestCaseData(args2, expected2) {TestName = "-c <configuration>"};
         }
     }
 
@@ -30,8 +37,8 @@ public sealed class ShowDepsCommandOptionsParserTests
     {
         get
         {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
+            var args1 = (object)new[] {"show-deps", "--extra_argument1", "--extra_arguments2"};
+            yield return new TestCaseData(args1) {TestName = "extra_arguments"};
         }
     }
 
