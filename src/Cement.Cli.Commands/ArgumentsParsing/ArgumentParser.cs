@@ -10,32 +10,6 @@ namespace Cement.Cli.Commands.ArgumentsParsing;
 
 public static class ArgumentParser
 {
-    public static Dictionary<string, object> ParseModuleCommand(string[] args)
-    {
-        var parsedArguments = new Dictionary<string, object>
-        {
-            {"pushurl", null},
-            {"package", null}
-        };
-        var parser = new OptionSet
-        {
-            {"p|pushurl=", p => parsedArguments["pushurl"] = p},
-            {"package=", p => parsedArguments["package"] = p}
-        };
-
-        var extraArgs = parser.Parse(args.Skip(1));
-        if (extraArgs.Count < 3)
-            throw new BadArgumentException("Too few arguments. \nUsing: cm module <add|change> module_name module_fetch_url [-p|--pushurl=module_push_url] [--package=package_name]");
-
-        parsedArguments["command"] = extraArgs[0];
-        parsedArguments["module"] = extraArgs[1];
-        parsedArguments["fetchurl"] = extraArgs[2];
-        extraArgs = extraArgs.Skip(3).ToList();
-
-        ThrowIfHasExtraArgs(extraArgs);
-        return parsedArguments;
-    }
-
     public static Dictionary<string, object> ParseShowConfigs(string[] args)
     {
         var parsedArgs = new Dictionary<string, object>

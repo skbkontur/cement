@@ -48,12 +48,6 @@ public sealed class ChangeModuleCommand : Command<ChangeModuleCommandOptions>
 
     protected override ChangeModuleCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseModuleCommand(args);
-        var moduleName = (string)parsedArgs["module"];
-        var pushUrl = (string)parsedArgs["pushurl"];
-        var fetchUrl = (string)parsedArgs["fetchurl"];
-        var packageName = (string)parsedArgs["package"];
-
-        return new ChangeModuleCommandOptions(moduleName, pushUrl, fetchUrl, packageName);
+        return new ChangeModuleCommandOptionsParser().Parse(args);
     }
 }
