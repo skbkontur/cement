@@ -21,8 +21,23 @@ public sealed class UsagesBuildCommandOptionsParserTests
     {
         get
         {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
+            var args1 = new[] {"usages", "build"};
+            var expected1 = new UsagesBuildCommandOptions(false, null);
+            yield return new TestCaseData(args1, expected1) {TestName = "<no-args>"};
+
+            const string branch = "branch";
+
+            var args2 = new[] {"usages", "build", "-b", branch};
+            var expected2 = new UsagesBuildCommandOptions(false, branch);
+            yield return new TestCaseData(args2, expected2) {TestName = "-b <branch>"};
+
+            var args3 = new[] {"usages", "build", "-p"};
+            var expected3 = new UsagesBuildCommandOptions(true, null);
+            yield return new TestCaseData(args3, expected3) {TestName = "-p"};
+
+            var args4 = new[] {"usages", "build", "-b", branch, "-p"};
+            var expected4 = new UsagesBuildCommandOptions(true, branch);
+            yield return new TestCaseData(args4, expected4) {TestName = "-b <branch> -p"};
         }
     }
 
@@ -30,8 +45,8 @@ public sealed class UsagesBuildCommandOptionsParserTests
     {
         get
         {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
+            var args1 = (object)new[] {"usages", "build", "--extra_argument1", "--extra_arguments2"};
+            yield return new TestCaseData(args1) {TestName = "extra_arguments"};
         }
     }
 
