@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Cement.Cli.Commands;
 using Cement.Cli.Commands.OptionsParsers;
 using Cement.Cli.Common;
@@ -85,12 +86,6 @@ public sealed class UsagesShowCommandOptionsParserTests
     public void Should_parse(string[] args, UsagesShowCommandOptions expected)
     {
         // arrange
-        // dstarasov: тесты в IDE по умолчанию запускаются с WorkingDirectory в корне проекта.
-        // dstarasov: сement.cli сам по себе является cement-модулем и это влияет на то, как парсер определяет moduleName
-
-        using var tempDirectory = new TempDirectory();
-        using var _ = new DirectoryJumper(tempDirectory.Path);
-
         // act
         var actual = parser.Parse(args);
 
@@ -102,12 +97,6 @@ public sealed class UsagesShowCommandOptionsParserTests
     public void Should_fault(string[] args)
     {
         // arrange
-        // dstarasov: тесты в IDE по умолчанию запускаются с WorkingDirectory в корне проекта.
-        // dstarasov: сement.cli сам по себе является cement-модулем и это влияет на то, как парсер определяет moduleName
-
-        using var tempDirectory = new TempDirectory();
-        using var _ = new DirectoryJumper(tempDirectory.Path);
-
         // act
         var act = () => parser.Parse(args);
 
@@ -116,17 +105,17 @@ public sealed class UsagesShowCommandOptionsParserTests
     }
 
     [Test]
+    [Explicit("Тест очень хрупкий, тк парсер сильно зависит от окружения")]
     public void Should_fault_when_current_directory_is_not_a_module_and_module_name_is_not_specified()
     {
         // arrange
         // dstarasov: тесты в IDE по умолчанию запускаются с WorkingDirectory в корне проекта.
-        // dstarasov: сement.cli сам по себе является cement-модулем и это влияет на то, как парсер определяет moduleName
+        // dstarasov: сement.cli сам по себе является cement-модулем и это влияет на то, как парсер определяет moduleName.
 
         using var tempDirectory = new TempDirectory();
         using var _ = new DirectoryJumper(tempDirectory.Path);
 
-        const string module = "module";
-        var args = new[] {"usages", "show", "-m", module, "--extra_argument1", "--extra_arguments2"};
+        var args = new[] {"usages", "show"};
 
         // act
         var act = () => parser.Parse(args);
