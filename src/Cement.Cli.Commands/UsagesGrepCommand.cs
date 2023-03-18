@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Cement.Cli.Commands.ArgumentsParsing;
+using Cement.Cli.Commands.OptionsParsers;
 using Cement.Cli.Common;
 using Cement.Cli.Common.DepsValidators;
 using Cement.Cli.Common.Exceptions;

@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
-using Cement.Cli.Commands.ArgumentsParsing;
+using Cement.Cli.Commands.OptionsParsers;
 using Cement.Cli.Common;
 using Cement.Cli.Common.Exceptions;
 using Cement.Cli.Common.Updaters;
