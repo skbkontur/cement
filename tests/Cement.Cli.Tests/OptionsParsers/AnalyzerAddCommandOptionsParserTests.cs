@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Cement.Cli.Commands;
 using Cement.Cli.Commands.OptionsParsers;
 using Cement.Cli.Common;
@@ -58,6 +59,15 @@ public sealed class AnalyzerAddCommandOptionsParserTests
 
             var args2 = (object)new[] {"analyzer", "add", moduleName, solution, "--extra_argument1", "--extra_arguments2"};
             yield return new TestCaseData(args2) {TestName = "extra_arguments"};
+
+            var args3 = (object)Array.Empty<string>();
+            yield return new TestCaseData(args3) {TestName = "no_arguments"};
+
+            var args4 = (object)new[] {"analyzer", "remove"};
+            yield return new TestCaseData(args4) {TestName = "unknown_analyzer_subcommand"};
+
+            var args5 = (object)new[] {"modules", "remove"};
+            yield return new TestCaseData(args5) {TestName = "unknown_command"};
         }
     }
 
