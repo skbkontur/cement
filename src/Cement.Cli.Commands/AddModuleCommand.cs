@@ -48,12 +48,6 @@ public sealed class AddModuleCommand : Command<AddModuleCommandOptions>
 
     protected override AddModuleCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseModuleCommand(args);
-        var moduleName = (string)parsedArgs["module"];
-        var pushUrl = (string)parsedArgs["pushurl"];
-        var fetchUrl = (string)parsedArgs["fetchurl"];
-        var packageName = (string)parsedArgs["package"];
-
-        return new AddModuleCommandOptions(moduleName, pushUrl, fetchUrl, packageName);
+        return new AddModuleCommandOptionsParser().Parse(args);
     }
 }
