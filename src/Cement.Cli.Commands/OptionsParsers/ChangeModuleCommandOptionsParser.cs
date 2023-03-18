@@ -20,9 +20,10 @@ public sealed class ChangeModuleCommandOptionsParser : OptionsParser<ChangeModul
         var extraArgs = parser.Parse(args.Skip(1));
         if (extraArgs.Count < 3)
         {
-            throw new BadArgumentException("Too few arguments. \n" +
-                                           "Using: cm module <add|change> module_name module_fetch_url " +
-                                           "[-p|--pushurl=module_push_url] [--package=package_name]");
+            throw new BadArgumentException(
+                "Too few arguments. \n" +
+                "Using: cm module <add|change> module_name module_fetch_url " +
+                "[-p|--pushurl=module_push_url] [--package=package_name]");
         }
 
         var moduleName = extraArgs[1];
