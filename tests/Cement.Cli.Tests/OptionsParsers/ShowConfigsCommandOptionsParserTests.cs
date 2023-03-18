@@ -21,8 +21,15 @@ public sealed class ShowConfigsCommandOptionsParserTests
     {
         get
         {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
+            var args1 = new[] {"show-configs"};
+            var expected1 = new ShowConfigsCommandOptions(null);
+            yield return new TestCaseData(args1, expected1) {TestName = "<no-args>"};
+
+            const string module = "module";
+
+            var args2 = new[] {"show-configs", module};
+            var expected2 = new ShowConfigsCommandOptions(module);
+            yield return new TestCaseData(args2, expected2) {TestName = "<module>"};
         }
     }
 
@@ -30,8 +37,10 @@ public sealed class ShowConfigsCommandOptionsParserTests
     {
         get
         {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
+            const string module = "module";
+
+            var args1 = (object)new[] {"show-configs", module, "--extra_argument1", "--extra_arguments2"};
+            yield return new TestCaseData(args1) {TestName = "extra_arguments"};
         }
     }
 
