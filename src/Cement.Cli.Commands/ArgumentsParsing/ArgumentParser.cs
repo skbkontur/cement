@@ -1,34 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Cement.Cli.Common;
-using Cement.Cli.Common.Exceptions;
-using NDesk.Options;
 
 namespace Cement.Cli.Commands.ArgumentsParsing;
 
-public static class ArgumentParser
+public sealed class ShowConfigsCommandOptionsParser : OptionsParser<ShowConfigsCommandOptions>
 {
-    public static Dictionary<string, object> ParseShowConfigs(string[] args)
+    public override ShowConfigsCommandOptions Parse(string[] args)
     {
-        var parsedArgs = new Dictionary<string, object>
-        {
-            {"module", null}
-        };
+        string module = null;
+
         var extraArgs = args.Skip(1).ToList();
         if (extraArgs.Count > 0)
         {
-            parsedArgs["module"] = extraArgs[0];
+            module = extraArgs[0];
             ThrowIfHasExtraArgs(extraArgs.Skip(1).ToList());
         }
 
-        return parsedArgs;
-    }
-
-    private static void ThrowIfHasExtraArgs(List<string> extraArgs)
-    {
-        if (extraArgs.Count > 0)
-            throw new BadArgumentException("Extra arguments: " + string.Join(", ", extraArgs));
+        return new ShowConfigsCommandOptions(module);
     }
 }

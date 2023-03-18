@@ -76,9 +76,7 @@ public sealed class ShowConfigsCommand : Command<ShowConfigsCommandOptions>
 
     protected override ShowConfigsCommandOptions ParseArgs(string[] args)
     {
-        var parsedArgs = ArgumentParser.ParseShowConfigs(args);
-        var moduleNameArg = (string)parsedArgs["module"];
-        return new ShowConfigsCommandOptions(moduleNameArg);
+        return new ShowConfigsCommandOptionsParser().Parse(args);
     }
 
     private string ResolveModuleName(string moduleName, string currentDirectory)
