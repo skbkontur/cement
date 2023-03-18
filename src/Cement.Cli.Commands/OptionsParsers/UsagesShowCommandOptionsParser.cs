@@ -40,8 +40,10 @@ public sealed class UsagesShowCommandOptionsParser : OptionsParser<UsagesShowCom
 
         if (module.Contains('/'))
         {
-            module = module.Split('/').First();
-            configuration = module.Split('/').Last();
+            var parts = module.Split('/');
+
+            module = parts[0];
+            configuration = parts[1];
         }
 
         ThrowIfHasExtraArgs(extraArgs);
