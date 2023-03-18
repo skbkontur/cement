@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Cement.Cli.Commands;
 using Cement.Cli.Commands.OptionsParsers;
 using Cement.Cli.Common.Exceptions;
@@ -21,8 +22,13 @@ public sealed class RefFixCommandOptionsParserTests
     {
         get
         {
-            //todo(dstarasov): нужны тесткейсы
-            yield break;
+            var args1 = new[] {"ref", "fix"};
+            var expected1 = new RefFixCommandOptions(false);
+            yield return new TestCaseData(args1, expected1) {TestName = "<not-args>"};
+
+            var args2 = new[] {"ref", "fix", "--external"};
+            var expected2 = new RefFixCommandOptions(true);
+            yield return new TestCaseData(args2, expected2) {TestName = "--external"};
         }
     }
 
@@ -39,6 +45,9 @@ public sealed class RefFixCommandOptionsParserTests
 
             var args2 = (object)new[] {"ref", "fix", module, project, "--extra_argument1", "--extra_arguments2"};
             yield return new TestCaseData(args2) {TestName = "extra_arguments"};
+
+            var args3 = (object)Array.Empty<string>();
+            yield return new TestCaseData(args3) {TestName = "no_arguments"};
         }
     }
 
