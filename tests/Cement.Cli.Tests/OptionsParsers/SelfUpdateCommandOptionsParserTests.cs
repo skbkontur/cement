@@ -47,7 +47,7 @@ public sealed class SelfUpdateCommandOptionsParserTests
     {
         get
         {
-            var args1 = (object)new[] {"self-update", "--extra_argument1", "--extra_arguments2"};
+            var args1 = (object)new[] {"self-update", "--extra_argument1"};
             yield return new TestCaseData(args1) {TestName = "extra_arguments"};
         }
     }

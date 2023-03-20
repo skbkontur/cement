@@ -103,7 +103,7 @@ public sealed class GetCommandOptionsParserTests
             var args4 = (object)new[] {"get", module, "-f", "-r", "-p"};
             yield return new TestCaseData(args4) {TestName = "-f -r -p"};
 
-            var args5 = (object)new[] {"get", module, "--extra_argument1", "--extra_arguments2"};
+            var args5 = (object)new[] {"get", module, "--extra_argument1"};
             yield return new TestCaseData(args5) {TestName = "extra_arguments"};
 
             /*var args6 = (object)new[] {"get", module, "-n"};

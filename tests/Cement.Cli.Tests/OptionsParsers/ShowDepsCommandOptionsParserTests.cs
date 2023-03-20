@@ -37,7 +37,7 @@ public sealed class ShowDepsCommandOptionsParserTests
     {
         get
         {
-            var args1 = (object)new[] {"show-deps", "--extra_argument1", "--extra_arguments2"};
+            var args1 = (object)new[] {"show-deps", "--extra_argument1"};
             yield return new TestCaseData(args1) {TestName = "extra_arguments"};
         }
     }

@@ -63,7 +63,7 @@ public sealed class RefAddCommandOptionsParserTests
 
             const string project = "project";
 
-            var args2 = (object)new[] {"ref", "add", module, project, "--extra_argument1", "--extra_arguments2"};
+            var args2 = (object)new[] {"ref", "add", module, project, "--extra_argument1"};
             yield return new TestCaseData(args2) {TestName = "extra_arguments"};
         }
     }

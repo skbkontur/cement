@@ -87,7 +87,7 @@ public sealed class BuildCommandOptionsParserTests
     {
         get
         {
-            var args1 = (object)new[] {"build", "--extra_argument1", "--extra_arguments2"};
+            var args1 = (object)new[] {"build", "--extra_argument1"};
             yield return new TestCaseData(args1) {TestName = "extra_arguments"};
 
             var args2 = (object)new[] {"build", "-v", "-w"};

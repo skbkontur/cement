@@ -57,7 +57,7 @@ public sealed class AnalyzerAddCommandOptionsParserTests
             const string moduleName = "module";
             const string solution = "solution";
 
-            var args2 = (object)new[] {"analyzer", "add", moduleName, solution, "--extra_argument1", "--extra_arguments2"};
+            var args2 = (object)new[] {"analyzer", "add", moduleName, solution, "--extra_argument1"};
             yield return new TestCaseData(args2) {TestName = "extra_arguments"};
 
             var args3 = (object)Array.Empty<string>();

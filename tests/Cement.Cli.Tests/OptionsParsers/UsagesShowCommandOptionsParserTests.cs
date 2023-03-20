@@ -77,7 +77,7 @@ public sealed class UsagesShowCommandOptionsParserTests
         {
             const string module = "module";
 
-            var args1 = (object)new[] {"usages", "show", "-m", module, "--extra_argument1", "--extra_arguments2"};
+            var args1 = (object)new[] {"usages", "show", "-m", module, "--extra_argument1"};
             yield return new TestCaseData(args1) {TestName = "extra_arguments"};
         }
     }

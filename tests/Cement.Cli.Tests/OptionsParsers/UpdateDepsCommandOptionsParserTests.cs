@@ -84,7 +84,7 @@ public sealed class UpdateDepsCommandOptionsParserTests
             var args4 = (object)new[] {"update-deps", "--force", "--reset", "--pull-anyway"};
             yield return new TestCaseData(args4) {TestName = "--force --reset --pull-anyway"};
 
-            var args5 = (object)new[] {"update-deps", "--extra_argument1", "--extra_arguments2"};
+            var args5 = (object)new[] {"update-deps", "--extra_argument1"};
             yield return new TestCaseData(args5) {TestName = "extra_arguments"};
 
             var args6 = (object)new[] {"update-deps", "-n"};

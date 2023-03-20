@@ -68,7 +68,7 @@ public sealed class LsCommandOptionsParserTests
             var args1 = (object)new[] {"ls", "-l", "-a"};
             yield return new TestCaseData(args1) {TestName = "exclusive_arguments"};
 
-            var args2 = (object)new[] {"ls", "--extra_argument1", "--extra_arguments2"};
+            var args2 = (object)new[] {"ls", "--extra_argument1"};
             yield return new TestCaseData(args2) {TestName = "extra_arguments"};
         }
     }

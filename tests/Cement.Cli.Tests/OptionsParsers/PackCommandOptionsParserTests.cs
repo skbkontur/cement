@@ -91,7 +91,7 @@ public sealed class PackCommandOptionsParserTests
             var args2 = (object)new[] {"pack", "something.not-a-csproj"};
             yield return new TestCaseData(args2) {TestName = "invalid_project_name"};
 
-            var args3 = (object)new[] {"pack", projectName, "--extra_argument1", "--extra_arguments2"};
+            var args3 = (object)new[] {"pack", projectName, "--extra_argument1"};
             yield return new TestCaseData(args3) {TestName = "extra_arguments"};
         }
     }

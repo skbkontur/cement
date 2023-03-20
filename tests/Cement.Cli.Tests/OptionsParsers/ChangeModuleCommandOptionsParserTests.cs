@@ -61,7 +61,7 @@ public sealed class ChangeModuleCommandOptionsParserTests
 
             const string fetchUrl = "fetch-url";
 
-            var args3 = (object)new[] {"add", "change", module, fetchUrl, "--extra_argument1", "--extra_arguments2"};
+            var args3 = (object)new[] {"add", "change", module, fetchUrl, "--extra_argument1"};
             yield return new TestCaseData(args3) {TestName = "extra_arguments"};
         }
     }
