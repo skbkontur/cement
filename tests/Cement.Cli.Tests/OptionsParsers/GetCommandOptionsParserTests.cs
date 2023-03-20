@@ -73,8 +73,10 @@ public sealed class GetCommandOptionsParserTests
             var expected11 = new GetCommandOptions(configuration, LocalChangesPolicy.FailOnLocalChanges, module, null, null, false, null);
             yield return new TestCaseData(args11, expected11) {TestName = "<module/configuration>"};
 
-            var args12 = new[] {"get", $"{module}/{configuration}@{branch}"};
-            var expected12 = new GetCommandOptions(configuration, LocalChangesPolicy.FailOnLocalChanges, module, branch, null, false, null);
+            const string treeish = "treeish";
+
+            var args12 = new[] {"get", $"{module}/{configuration}@{treeish}"};
+            var expected12 = new GetCommandOptions(configuration, LocalChangesPolicy.FailOnLocalChanges, module, treeish, null, false, null);
             yield return new TestCaseData(args12, expected12) {TestName = "<module/configuration@branch>"};
 
             const string configuration2 = "core";
@@ -82,6 +84,18 @@ public sealed class GetCommandOptionsParserTests
             var args13 = new[] {"get", $"{module}/{configuration}", "-c", configuration2};
             var expected13 = new GetCommandOptions(configuration, LocalChangesPolicy.FailOnLocalChanges, module, null, null, false, null);
             yield return new TestCaseData(args13, expected13) {TestName = "<module/configuration@branch> -c <configuration2>"};
+
+            var args14 = new[] {"get", module, treeish};
+            var expected14 = new GetCommandOptions(null, LocalChangesPolicy.FailOnLocalChanges, module, treeish, null, false, null);
+            yield return new TestCaseData(args14, expected14) {TestName = "<module> <treeish>"};
+
+            var args15 = new[] {"get", module, treeish, "-f"};
+            var expected15 = new GetCommandOptions(null, LocalChangesPolicy.ForceLocal, module, treeish, null, false, null);
+            yield return new TestCaseData(args15, expected15) {TestName = "<module> <treeish> -f"};
+
+            var args16 = new[] {"get", module, treeish, "-c", configuration};
+            var expected16 = new GetCommandOptions(configuration, LocalChangesPolicy.FailOnLocalChanges, module, treeish, null, false, null);
+            yield return new TestCaseData(args16, expected16) {TestName = "<module> <treeish> -c <configuration>"};
         }
     }
 
@@ -103,11 +117,13 @@ public sealed class GetCommandOptionsParserTests
             var args4 = (object)new[] {"get", module, "-f", "-r", "-p"};
             yield return new TestCaseData(args4) {TestName = "-f -r -p"};
 
-            var args5 = (object)new[] {"get", module, "--extra_argument1"};
+            const string treeish = "treeish";
+
+            var args5 = (object)new[] {"get", module, treeish, "--extra_argument1"};
             yield return new TestCaseData(args5) {TestName = "extra_arguments"};
 
-            /*var args6 = (object)new[] {"get", module, "-n"};
-            yield return new TestCaseData(args6) {TestName = "-n (old_key)"};*/
+            var args6 = (object)new[] {"get", module, treeish, "-n"};
+            yield return new TestCaseData(args6) {TestName = "-n (old_key)"};
         }
     }
 
