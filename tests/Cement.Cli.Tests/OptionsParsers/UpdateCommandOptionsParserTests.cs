@@ -102,7 +102,7 @@ public sealed class UpdateCommandOptionsParserTests
     }
 
     [TestCaseSource(nameof(FaultTestCases))]
-    public void Should_fault(string[] args)
+    public void Should_fail(string[] args)
     {
         // arrange
         // act
@@ -113,7 +113,7 @@ public sealed class UpdateCommandOptionsParserTests
     }
 
     [Test]
-    public void Should_fault_when_git_depth_is_not_a_number()
+    public void Should_fail_when_git_depth_is_not_a_number()
     {
         // arrange
         var args = new[] {"update", "--git-depth", "ten"};

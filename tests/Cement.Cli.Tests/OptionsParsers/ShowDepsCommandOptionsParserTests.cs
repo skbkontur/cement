@@ -54,7 +54,7 @@ public sealed class ShowDepsCommandOptionsParserTests
     }
 
     [TestCaseSource(nameof(FaultTestCases))]
-    public void Should_fault(string[] args)
+    public void Should_fail(string[] args)
     {
         // arrange
         // act

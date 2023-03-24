@@ -139,7 +139,7 @@ public sealed class GetCommandOptionsParserTests
     }
 
     [TestCaseSource(nameof(FaultTestCases))]
-    public void Should_fault(string[] args)
+    public void Should_fail(string[] args)
     {
         // arrange
         // act
@@ -150,7 +150,7 @@ public sealed class GetCommandOptionsParserTests
     }
 
     [Test]
-    public void Should_fault_when_module_is_invalid()
+    public void Should_fail_when_module_is_invalid()
     {
         // arrange
         const string invalidModule = "@branch";

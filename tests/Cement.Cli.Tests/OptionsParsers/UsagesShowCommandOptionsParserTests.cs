@@ -94,7 +94,7 @@ public sealed class UsagesShowCommandOptionsParserTests
     }
 
     [TestCaseSource(nameof(FaultTestCases))]
-    public void Should_fault(string[] args)
+    public void Should_fail(string[] args)
     {
         // arrange
         // act
@@ -106,7 +106,7 @@ public sealed class UsagesShowCommandOptionsParserTests
 
     [Test]
     [Explicit("Тест очень хрупкий, тк парсер сильно зависит от окружения")]
-    public void Should_fault_when_current_directory_is_not_a_module_and_module_name_is_not_specified()
+    public void Should_fail_when_current_directory_is_not_a_module_and_module_name_is_not_specified()
     {
         // arrange
         // dstarasov: тесты в IDE по умолчанию запускаются с WorkingDirectory в корне проекта.
