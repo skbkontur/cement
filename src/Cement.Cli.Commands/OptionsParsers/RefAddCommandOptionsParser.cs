@@ -34,6 +34,7 @@ public sealed class RefAddCommandOptionsParser : OptionsParser<RefAddCommandOpti
         if (configuration != null)
             dep.Configuration = configuration;
 
+        // todo(dstarasov): кажется, это не ответственность парсера, а скорее какого-то валидатора или самой команды
         if (!project.EndsWith(".csproj"))
             throw new BadArgumentException(project + " is not csproj file");
 
