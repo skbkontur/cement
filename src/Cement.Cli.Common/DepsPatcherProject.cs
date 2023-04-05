@@ -18,6 +18,8 @@ public sealed class DepsPatcherProject
     private readonly ConsoleWriter consoleWriter;
     private readonly IDepsValidatorFactory depsValidatorFactory;
 
+    public const string SkipConfigurationFlagName = "unmanaged-deps";
+
     public DepsPatcherProject(ILogger<DepsPatcherProject> logger, ConsoleWriter consoleWriter,
                               IDepsValidatorFactory depsValidatorFactory)
     {
@@ -122,11 +124,18 @@ public sealed class DepsPatcherProject
         if (!File.Exists(moduleYaml))
             return new List<string>();
 
+        var configYamlParser = new ConfigurationYamlParser(new FileInfo(modulePath));
         var configurations = new ConfigurationParser(new FileInfo(modulePath)).GetConfigurations();
         var result = new HashSet<string>();
 
         foreach (var config in configurations)
         {
+            var props = configYamlParser.GetConfigurationDescription(config);
+            if (props is {Count: > 0}
+                && props.TryGetValue(SkipConfigurationFlagName, out var v)
+                && v is true)
+                continue;
+
             var buildData = new BuildYamlParser(new FileInfo(modulePath)).Get(config);
             foreach (var data in buildData)
             {

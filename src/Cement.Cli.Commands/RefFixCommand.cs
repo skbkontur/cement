@@ -71,8 +71,19 @@ public sealed class RefFixCommand : Command<RefFixCommandOptions>
 
         var modules = Helper.GetModules();
 
-        var configs = Yaml.ConfigurationParser(rootModuleName).GetConfigurations();
-        var buildsInfo = configs.SelectMany(config => Yaml.BuildParser(rootModuleName).Get(config));
+        var configYamlParser = Yaml.ConfigurationParser(rootModuleName);
+        var configs = configYamlParser.GetConfigurations();
+        var buildsInfo = new List<BuildData>();
+        foreach (var config in configs)
+        {
+            var props = configYamlParser.GetConfigurationDescription(config);
+            if (props is {Count: > 0}
+                && props.TryGetValue(DepsPatcherProject.SkipConfigurationFlagName, out var v)
+                && v is true)
+                continue;
+
+            buildsInfo.AddRange(Yaml.BuildParser(rootModuleName).Get(config));
+        }
         var processedFiles = new HashSet<string>();
 
         foreach (var buildInfo in buildsInfo)

@@ -117,4 +117,35 @@ sdk:
             Assert.AreEqual(2, configurations.Count);
         }
     }
+
+    [Test]
+    public void TestGetConfigurationDescription()
+    {
+        const string ymlWithEmptyConfig = @"
+default:
+client:
+";
+        var props = new ConfigurationYamlParser("test1", ymlWithEmptyConfig).GetConfigurationDescription("default");
+        Assert.That(props, Is.Null);
+
+        const string ymlWithoutProps = @"default:
+  deps:
+    - dep1
+    - dep2
+";
+        props = new ConfigurationYamlParser("test2", ymlWithoutProps).GetConfigurationDescription("default");
+        Assert.That(props, Has.Count.EqualTo(1));
+
+        const string ymlWithProps = @"default:
+  flag: true
+  custom: ""text""
+  deps:
+    - dep1
+    - dep2
+";
+        props = new ConfigurationYamlParser("test3", ymlWithProps).GetConfigurationDescription("default");
+        Assert.That(props, Has.Count.EqualTo(3));
+        Assert.That(props["flag"], Is.EqualTo(true));
+        Assert.That(props["custom"], Is.EqualTo("text"));
+    }
 }

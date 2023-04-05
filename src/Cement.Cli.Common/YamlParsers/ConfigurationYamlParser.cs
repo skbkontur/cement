@@ -35,6 +35,13 @@ public class ConfigurationYamlParser : IConfigurationParser
             .ToList();
     }
 
+    public Dictionary<string, object> GetConfigurationDescription(string configName)
+    {
+        return configurationsDescription.TryGetValue(configName, out var result)
+            ? (result as Dictionary<object, object>)?.ToDictionary(k =>(string)k.Key, v => v.Value)
+            : null;
+    }
+
     public bool ConfigurationExists(string configName)
     {
         return configurationsDescription.Keys.Select(GetRealConfigurationName).Contains(configName);
