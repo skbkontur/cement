@@ -95,6 +95,24 @@ public sealed class GitRepository
         IsGitRepo = true;
     }
 
+    /// <summary>
+    /// Cleanup unnecessary files and optimize the local repository
+    /// </summary>
+    public void GC()
+    {
+        using var workspaceScope = logger.BeginScope("{Workspace}", Workspace);
+        using var moduleScope = logger.BeginScope("{ModuleName}", ModuleName);
+        logger.LogInformation("git-gc");
+
+        const string cmd = "git gc";
+
+        var (exitCode, _, errors) = shellRunner.Run(cmd);
+        if (exitCode != 0)
+        {
+            throw new GitGCException("Failed to collect garbage, details:\n" + errors);
+        }
+    }
+
     public CurrentTreeish CurrentLocalTreeish()
     {
         logger.LogInformation($"{"[" + ModuleName + "]",-30}Getting current treeish");
